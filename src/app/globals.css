@@ -1,10 +1,92 @@
 @import 'tailwindcss';
 
-/* Body bg + text colors live as Tailwind classes on <body> in the layout
-   (`bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100`). Keeping
-   them there avoids the palette mismatch we had when the body used
-   gray-900 and components used zinc-950 (subtle blue tint vs. neutral). */
+/* HashiCorp-inspired design tokens — sourced from docs/DESIGN_REFERENCE.md.
+   Single source of truth for the AHO visual language. Every component
+   should reach for these tokens instead of raw zinc-* / gray-* utilities.
+   Tailwind v4 picks up @theme custom properties as utility classes:
+   --color-surface         → bg-surface, text-surface, border-surface, …
+   --color-surface-dark    → bg-surface-dark, …
+   --radius-card           → rounded-card
+   --shadow-whisper        → shadow-whisper
+   etc.
+
+   AHO-specific deviations from the source spec (see DECISIONS.md
+   "2026-04-29 — Visual design language"): we drop the multi-product
+   color tokens (Terraform purple / Vault yellow / Waypoint teal) since
+   AHO is a single product, and we substitute Inter for HashiCorp Sans. */
+
+@theme {
+  /* — Surfaces — */
+  --color-surface: #ffffff;            /* primary light bg */
+  --color-surface-muted: #f1f2f3;      /* light secondary bg */
+  --color-surface-dark: #15181e;       /* dark hero / dark mode bg */
+  --color-surface-deep: #0d0e12;       /* deepest dark, form input bg on dark */
+
+  /* — Text — */
+  --color-ink: #000000;                /* primary text on light */
+  --color-ink-muted: #3b3d45;          /* secondary text on light */
+  --color-helper: #656a76;             /* helper / caption text both modes */
+  --color-ink-inverse: #efeff1;        /* primary text on dark */
+  --color-ink-inverse-muted: #d5d7db;  /* secondary text on dark */
+
+  /* — Borders — */
+  --color-border: rgb(178 182 189 / 0.4);   /* light borders */
+  --color-border-strong: rgb(97 104 117);   /* dark/strong borders */
+
+  /* — Action / links — */
+  --color-action: #2264d6;             /* primary link on light */
+  --color-action-dark: #1060ff;        /* primary link on dark */
+  --color-action-active: #2b89ff;      /* active/hover */
+
+  /* — State — */
+  --color-warn: #bb5a00;
+  --color-warn-bg: #fbeabf;
+  --color-error: #731e25;
+
+  /* — Radii — */
+  --radius-xs: 2px;     /* small inline elements */
+  --radius-sm: 3px;     /* small inputs, checkboxes */
+  --radius-md: 4px;     /* secondary buttons */
+  --radius-lg: 5px;     /* primary buttons, badges, inputs */
+  --radius-card: 8px;   /* cards, containers, images */
+
+  /* — Shadows — */
+  /* "Whisper" shadow: dual-layer at 5% opacity; visible only as depth signal. */
+  --shadow-whisper:
+    rgb(97 104 117 / 0.05) 0px 1px 1px,
+    rgb(97 104 117 / 0.05) 0px 2px 2px;
+
+  /* — Typography — */
+  /* Brand: Inter (free, geometric, similar feel to HashiCorp Sans).
+     System: native UI stack for body / functional text. */
+  --font-brand: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+
 @layer base {
+  /* color-scheme keeps native form controls + scrollbars in sync with theme. */
   html.light { color-scheme: light; }
-  html.dark  { color-scheme: dark; }
+  html.dark  { color-scheme: dark;  }
+
+  /* Body uses surface tokens directly so dark/light flips propagate without
+     having to remember `bg-white dark:bg-surface-dark` on every page. */
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-ink);
+    font-family: var(--font-system);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  html.dark body {
+    background-color: var(--color-surface-dark);
+    color: var(--color-ink-inverse);
+  }
+
+  /* Headings get the brand font + tight HashiCorp-style line-heights.
+     Body keeps its relaxed 1.5–1.7 line-height for reading rhythm. */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-brand);
+    line-height: 1.19;
+    font-feature-settings: 'kern';
+  }
 }

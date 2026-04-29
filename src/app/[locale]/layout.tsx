@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { Inter } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
@@ -8,6 +9,17 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { LocaleToggle } from '@/components/locale-toggle';
 import { AuthMenu } from '@/components/auth/auth-menu';
 import '../globals.css';
+
+// Brand font — substituted for HashiCorp Sans (proprietary; we don't have
+// the license). Inter preserves the dense, kerned-tight, infrastructural
+// feel while staying OFL-licensed. Bound to the `--font-inter` CSS variable
+// that `globals.css` consumes via the `--font-brand` token.
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+  weight: ['400', '500', '600', '700'],
+});
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
@@ -82,16 +94,16 @@ export default async function LocaleLayout({
   const t = await getTranslations({ locale, namespace: 'footer' });
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={locale} className={inter.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="min-h-screen bg-white text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100">
+      <body className="min-h-screen antialiased">
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>
-            <header className="border-b border-zinc-200 dark:border-zinc-800">
+            <header className="border-b border-border">
               <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-                <a href={`/${locale}`} className="font-semibold tracking-tight">
+                <a href={`/${locale}`} className="font-brand text-lg font-bold tracking-tight">
                   AHO
                 </a>
                 <div className="flex items-center gap-3">
@@ -102,8 +114,8 @@ export default async function LocaleLayout({
               </div>
             </header>
             <div>{children}</div>
-            <footer className="mt-24 border-t border-zinc-200 dark:border-zinc-800">
-              <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-6 text-xs text-zinc-500">
+            <footer className="mt-24 border-t border-border">
+              <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-6 text-xs text-helper">
                 <p>© 2026 AHO. {t('rights')}</p>
                 <nav className="flex gap-4">
                   <a className="hover:underline" href={`/${locale}/privacy`}>
