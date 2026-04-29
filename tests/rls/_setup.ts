@@ -157,6 +157,9 @@ export interface FixtureContext {
   orgADraftListingId: string;
   orgAActiveListingImageId: string;
   orgADraftListingImageId: string;
+  // Lead fixtures (created after 0009_leads.sql is applied).
+  orgALeadId: string;
+  orgBLeadId: string;
 }
 
 let cachedContext: FixtureContext | null = null;
@@ -260,6 +263,29 @@ export async function ensureFixtures(): Promise<FixtureContext> {
     isPrimary: true,
   });
 
+  // 7. Lead fixtures — one per org. Inserted via service role since the
+  //    `leads` table has no INSERT policy (production path is POST /api/leads).
+  const orgALeadId = await ensureLead(a, {
+    propertyId: activeListingId,
+    orgId: orgA,
+    source: 'form',
+    contactName: 'Fixture Buyer A',
+    contactEmail: 'fixture-buyer-a@aho.test',
+    message: 'Fixture lead on Org A active listing.',
+  });
+  // Org B has no fixture listing — we use the active listing on Org A as the
+  // foreign key target since `org_id` ≠ `properties.org_id` is allowed by
+  // schema. Real-world flow always inserts the lead with the property's org,
+  // but for cross-org RLS we just need a row attributed to Org B.
+  const orgBLeadId = await ensureLead(a, {
+    propertyId: activeListingId,
+    orgId: orgB,
+    source: 'whatsapp_click',
+    contactName: 'Fixture Buyer B',
+    contactEmail: 'fixture-buyer-b@aho.test',
+    message: 'Fixture lead attributed to Org B.',
+  });
+
   cachedContext = {
     orgAId: orgA,
     orgBId: orgB,
@@ -271,8 +297,48 @@ export async function ensureFixtures(): Promise<FixtureContext> {
     orgADraftListingId: draftListingId,
     orgAActiveListingImageId: activeImageId,
     orgADraftListingImageId: draftImageId,
+    orgALeadId,
+    orgBLeadId,
   };
   return cachedContext;
+}
+
+interface LeadFixtureSpec {
+  propertyId: string;
+  orgId: string;
+  source: 'form' | 'phone_click' | 'whatsapp_click' | 'email_click';
+  contactName: string;
+  contactEmail: string;
+  message: string;
+}
+
+async function ensureLead(
+  a: SupabaseClient,
+  spec: LeadFixtureSpec,
+): Promise<string> {
+  const existing = await a
+    .from('leads')
+    .select('id')
+    .eq('property_id', spec.propertyId)
+    .eq('org_id', spec.orgId)
+    .eq('contact_email', spec.contactEmail)
+    .maybeSingle();
+  if (existing.data) return existing.data.id as string;
+  const created = await a
+    .from('leads')
+    .insert({
+      property_id: spec.propertyId,
+      org_id: spec.orgId,
+      source: spec.source,
+      contact_name: spec.contactName,
+      contact_email: spec.contactEmail,
+      message: spec.message,
+      status: 'new',
+    })
+    .select('id')
+    .single();
+  if (created.error) throw created.error;
+  return created.data.id as string;
 }
 
 interface PropertyFixtureSpec {
