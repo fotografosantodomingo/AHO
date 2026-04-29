@@ -1,0 +1,315 @@
+{
+  "site": {
+    "name": "AHO",
+    "tagline": "Anuncia Propiedades Online",
+    "description": "Plataforma de anuncios inmobiliarios para Santo Domingo y más allá."
+  },
+  "nav": {
+    "browse": "Explorar",
+    "pricing": "Precios",
+    "signIn": "Iniciar sesión",
+    "signUp": "Registrarse",
+    "dashboard": "Panel"
+  },
+  "pricing": {
+    "heading": "Precios",
+    "subheading": "Un plan, dos formas de pagar. Cancela cuando quieras desde el Portal de Cliente.",
+    "agentPlanName": "AHO Agente",
+    "monthly": "Mensual",
+    "annual": "Anual",
+    "monthlyPrice": "$29 / mes",
+    "annualPrice": "$290 / año",
+    "annualSavings": "~17% de descuento frente a mensual",
+    "trialNote": "7 días gratis en el plan mensual. Cancela antes del fin de la prueba y no se te cobra.",
+    "features": {
+      "listings": "Hasta 5 anuncios activos",
+      "social": "Publicación con un clic en Facebook + Instagram",
+      "whatsapp": "Captura de leads por WhatsApp desde tus anuncios",
+      "inbox": "Bandeja de contactos con seguimiento de estado",
+      "analytics": "Estadísticas de rendimiento por anuncio",
+      "billing": "Administra facturación y cambios de plan vía el Portal de Cliente de Stripe"
+    },
+    "orgNameLabel": "Nombre de tu organización",
+    "orgNameHelp": "Cómo te verán agentes y compradores. Puedes cambiarlo después.",
+    "subscribeMonthly": "Suscribirme mensualmente",
+    "subscribeAnnual": "Suscribirme anualmente",
+    "redirecting": "Redirigiendo al pago…",
+    "alreadySubscribed": "Ya tienes una suscripción de Agente. Adminístrala desde tu panel.",
+    "manageBilling": "Administrar facturación",
+    "openDashboard": "Abrir panel",
+    "needsSignIn": "Inicia sesión para suscribirte",
+    "errors": {
+      "session_create_failed": "No pudimos iniciar el pago. Inténtalo de nuevo."
+    }
+  },
+  "home": {
+    "heading": "Propiedades reales, anuncios reales",
+    "leadCopy": "Encuentra inmuebles en Santo Domingo. Publica tus propiedades con un clic en Facebook e Instagram.",
+    "ctaForBuyers": "Explorar anuncios",
+    "ctaForAgents": "Publicar como agente",
+    "searchPlaceholder": "Ciudad, barrio o palabra clave",
+    "searchSubmit": "Buscar",
+    "featuredHeading": "Publicados recientemente",
+    "featuredEmpty": "Aún no hay anuncios — vuelve pronto."
+  },
+  "search": {
+    "heading": "Explorar anuncios",
+    "filtersHeading": "Filtros",
+    "queryLabel": "Palabra clave",
+    "queryPlaceholder": "Playa, garaje, piscina…",
+    "cityLabel": "Ciudad",
+    "transactionLabel": "Tipo",
+    "transactionAny": "Venta o alquiler",
+    "minPrice": "Precio mínimo",
+    "maxPrice": "Precio máximo",
+    "bedroomsLabel": "Habitaciones",
+    "bedsAny": "Cualquiera",
+    "applyFilters": "Aplicar filtros",
+    "clearFilters": "Limpiar",
+    "resultsCount_one": "1 anuncio",
+    "resultsCount_other": "{count} anuncios",
+    "noResults": "Ningún anuncio coincide con estos filtros.",
+    "noResultsHint": "Prueba ampliar el rango de precio o quitar filtros.",
+    "previousPage": "Anterior",
+    "nextPage": "Siguiente"
+  },
+  "card": {
+    "viewListing": "Ver anuncio"
+  },
+  "footer": {
+    "privacy": "Privacidad",
+    "terms": "Términos",
+    "rights": "Todos los derechos reservados."
+  },
+  "theme": {
+    "label": "Tema",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "system": "Sistema"
+  },
+  "locale": {
+    "label": "Idioma",
+    "en": "English",
+    "es": "Español"
+  },
+  "property": {
+    "translationPending": "Traducción al inglés pendiente — mostrando contenido en español.",
+    "bedrooms_one": "{count} habitación",
+    "bedrooms_other": "{count} habitaciones",
+    "bathrooms_one": "{count} baño",
+    "bathrooms_other": "{count} baños",
+    "areaSqm": "{value} m²",
+    "transactionType": {
+      "sale": "En venta",
+      "rent": "En alquiler",
+      "short_term": "Alquiler temporal"
+    },
+    "pricePeriod": {
+      "total": "",
+      "monthly": "/ mes",
+      "weekly": "/ semana",
+      "nightly": "/ noche"
+    },
+    "contactAgent": "Contactar al agente",
+    "chatOnWhatsapp": "Chatear por WhatsApp",
+    "signUpToContact": "Regístrate para contactar al agente"
+  },
+  "errors": {
+    "notFound": "Anuncio no encontrado",
+    "notFoundBody": "El anuncio que buscas ya no está disponible o ha sido eliminado."
+  },
+  "onboarding": {
+    "activeHeading": "Te suscribiste — bienvenido a AHO",
+    "activeBody": "Tu suscripción de AHO Agente está activa. Entra al panel y publica tu primer anuncio.",
+    "openDashboard": "Abrir panel",
+    "pendingHeading": "Terminando la configuración…",
+    "pendingBody": "Recibimos tu pago. Estamos activando tu suscripción — suele tardar unos segundos.",
+    "pendingNote": "Esta página se actualiza automáticamente.",
+    "pendingTakingLong": "¿Sigue cargando? Intenta recargar. Si el problema persiste, contacta a soporte.",
+    "missingSession": "No encontramos tu sesión de pago. Si acabas de pagar, recarga; si no, vuelve a la página de precios.",
+    "backToPricing": "Volver a precios"
+  },
+  "dashboard": {
+    "navListings": "Mis anuncios",
+    "navLeads": "Contactos",
+    "navBilling": "Facturación",
+    "manageBilling": "Administrar facturación",
+    "listingsHeading": "Mis anuncios",
+    "newListing": "Nuevo anuncio",
+    "listingsEmpty": "Aún no has publicado ningún anuncio.",
+    "listingsEmptyCta": "Crear tu primer anuncio",
+    "createListingHeading": "Crear un anuncio",
+    "editListingHeading": "Editar anuncio",
+    "saveDraft": "Guardar como borrador",
+    "publish": "Publicar",
+    "publishedAt": "Publicado el {date}",
+    "noOrgHeading": "Aún no tienes una suscripción de Agente",
+    "noOrgBody": "Suscríbete al plan Agente para publicar propiedades en AHO.",
+    "noOrgCta": "Ver precios",
+    "table": {
+      "title": "Título",
+      "status": "Estado",
+      "city": "Ciudad",
+      "price": "Precio",
+      "images": "Imágenes",
+      "updated": "Actualizado"
+    },
+    "status": {
+      "draft": "Borrador",
+      "active": "Activo",
+      "pending": "Pendiente",
+      "sold": "Vendido",
+      "rented": "Alquilado",
+      "archived": "Archivado"
+    },
+    "leads": {
+      "heading": "Contactos",
+      "empty": "Aún no hay contactos.",
+      "emptyHint": "Cuando los compradores te contacten por el formulario o WhatsApp, aparecerán aquí.",
+      "viewProperty": "Ver propiedad",
+      "received": "Recibido el {date}",
+      "noProperty": "(propiedad eliminada)",
+      "filterAll": "Todos",
+      "filterNew": "Nuevos",
+      "filterContacted": "En curso",
+      "filterClosed": "Cerrados",
+      "noContact": "Sin datos de contacto",
+      "anonymous": "Contacto anónimo",
+      "source": {
+        "form": "Formulario",
+        "phone_click": "Clic en teléfono",
+        "whatsapp_click": "Clic en WhatsApp",
+        "email_click": "Clic en correo"
+      },
+      "leadStatus": {
+        "new": "Nuevo",
+        "contacted": "Contactado",
+        "qualified": "Calificado",
+        "won": "Ganado",
+        "lost": "Perdido"
+      }
+    }
+  },
+  "listingForm": {
+    "sectionBasics": "Información básica",
+    "sectionLocation": "Ubicación",
+    "sectionDetails": "Detalles",
+    "sectionDescription": "Descripción",
+    "transactionType": "Tipo",
+    "propertyType": "Tipo de propiedad",
+    "titleEn": "Título (Inglés)",
+    "titleEs": "Título (Español)",
+    "descriptionEn": "Descripción (Inglés)",
+    "descriptionEs": "Descripción (Español)",
+    "atLeastOneLanguage": "Proporciona al menos un título en inglés o español.",
+    "price": "Precio",
+    "currency": "Moneda",
+    "pricePeriod": "Período",
+    "bedrooms": "Habitaciones",
+    "bathrooms": "Baños",
+    "areaSqm": "Área (m²)",
+    "yearBuilt": "Año de construcción",
+    "addressLine": "Dirección",
+    "neighborhood": "Barrio",
+    "city": "Ciudad",
+    "stateRegion": "Estado / Región",
+    "countryCode": "País (ISO de 2 letras)",
+    "postalCode": "Código postal",
+    "latitude": "Latitud",
+    "longitude": "Longitud",
+    "displayAddress": "Mostrar la dirección exacta públicamente.",
+    "saved": "Guardado.",
+    "publishedSuccess": "Anuncio publicado.",
+    "errors": {
+      "titleRequired": "Se requiere un título en al menos un idioma.",
+      "priceRequired": "El precio es obligatorio.",
+      "cityRequired": "La ciudad es obligatoria.",
+      "countryRequired": "El código de país es obligatorio (ISO de 2 letras).",
+      "latRequired": "La latitud es obligatoria.",
+      "lngRequired": "La longitud es obligatoria."
+    }
+  },
+  "contact": {
+    "heading": "Contactar al agente",
+    "name": "Tu nombre",
+    "email": "Tu correo electrónico",
+    "phone": "Tu teléfono (opcional)",
+    "message": "Mensaje",
+    "messagePlaceholder": "Hola, me interesa esta propiedad…",
+    "send": "Enviar mensaje",
+    "sending": "Enviando…",
+    "sent": "Gracias — tu mensaje ha sido enviado. El agente se pondrá en contacto.",
+    "errors": {
+      "nameRequired": "Por favor, dinos tu nombre.",
+      "emailRequired": "Proporciona un correo válido para que el agente pueda responder.",
+      "emailInvalid": "Ingresa un correo electrónico válido.",
+      "messageRequired": "Un mensaje breve ayuda al agente a responder.",
+      "send_failed": "No pudimos enviar tu mensaje. Inténtalo de nuevo o usa WhatsApp."
+    }
+  },
+  "auth": {
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "signInHeading": "Iniciar sesión",
+    "signUpHeading": "Crear una cuenta",
+    "signInCta": "Iniciar sesión",
+    "signingIn": "Iniciando sesión…",
+    "signUpCta": "Crear cuenta",
+    "signingUp": "Creando cuenta…",
+    "signOut": "Cerrar sesión",
+    "noAccountQuestion": "¿Aún no tienes cuenta?",
+    "haveAccountQuestion": "¿Ya tienes una cuenta?",
+    "createOne": "Crear una",
+    "passwordHelp": "Mínimo 8 caracteres, una letra mayúscula y un número.",
+    "acceptTerms": "Acepto los {termsLink} y la {privacyLink}.",
+    "termsLinkText": "Términos",
+    "privacyLinkText": "Política de Privacidad",
+    "marketingOptIn": "Quiero recibir novedades del producto y consejos por correo.",
+    "checkYourEmailHeading": "Revisa tu correo",
+    "checkYourEmailBody": "Acabamos de enviar un enlace de confirmación a {email}. Haz clic para terminar de crear tu cuenta.",
+    "forgotPasswordLink": "¿Olvidaste tu contraseña?",
+    "magicLinkAlt": "Iniciar sesión con un enlace mágico",
+    "passwordSigninAlt": "Usar correo y contraseña",
+    "forgot": {
+      "heading": "Restablecer tu contraseña",
+      "intro": "Introduce el correo de tu cuenta. Te enviaremos un enlace para establecer una nueva contraseña.",
+      "submit": "Enviar enlace de recuperación",
+      "submitting": "Enviando…",
+      "checkEmailHeading": "Revisa tu correo",
+      "checkEmailBody": "Si existe una cuenta para {email}, acabamos de enviar un enlace de recuperación. El enlace es válido por una hora."
+    },
+    "reset": {
+      "heading": "Establecer una nueva contraseña",
+      "intro": "Introduce una nueva contraseña para tu cuenta.",
+      "newPassword": "Nueva contraseña",
+      "submit": "Actualizar contraseña",
+      "submitting": "Actualizando…",
+      "success": "Contraseña actualizada. Sesión iniciada.",
+      "noSession": "Este enlace ha expirado o ya fue usado. Solicita uno nuevo.",
+      "requestNewLink": "Solicitar uno nuevo"
+    },
+    "magic": {
+      "heading": "Iniciar sesión con un enlace mágico",
+      "intro": "Introduce tu correo y te enviaremos un enlace de inicio de sesión con un solo clic.",
+      "submit": "Enviar enlace mágico",
+      "submitting": "Enviando…",
+      "checkEmailHeading": "Revisa tu correo",
+      "checkEmailBody": "Si existe una cuenta para {email}, acabamos de enviar un enlace de inicio de sesión. El enlace es válido por diez minutos."
+    },
+    "error": {
+      "heading": "Problema de autenticación",
+      "body": "No pudimos completar el inicio de sesión. El enlace puede haber expirado o ya haber sido usado.",
+      "tryAgainCta": "Volver a iniciar sesión",
+      "details": "Detalles: {reason}"
+    },
+    "errors": {
+      "emailInvalid": "Ingresa un correo electrónico válido.",
+      "passwordRequired": "La contraseña es obligatoria.",
+      "min8": "Mínimo 8 caracteres.",
+      "needsUppercase": "Incluye al menos una letra mayúscula.",
+      "needsNumber": "Incluye al menos un número.",
+      "mustAcceptTerms": "Debes aceptar los Términos y la Política de Privacidad.",
+      "generic": "Algo salió mal. Inténtalo de nuevo."
+    }
+  }
+}

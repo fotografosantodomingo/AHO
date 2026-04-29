@@ -1,0 +1,50 @@
+# Secrets — never commit. Patterns are anchored to repo root with leading slash
+# so source files named env.ts (under src/lib) are NOT ignored.
+/.env
+/.env.*
+!/.env.example
+/env
+/env.*
+*.env
+.envrc
+.dev.vars
+.dev.vars.*
+
+# Cloudflare / Wrangler
+.wrangler/
+wrangler.toml.local
+
+# Node / Next.js (added defensively now; will apply once we scaffold)
+node_modules/
+.next/
+out/
+.turbo/
+*.tsbuildinfo
+
+# Build outputs
+dist/
+build/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Claude Code local settings (per-machine)
+.claude/settings.local.json
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Test/coverage
+coverage/
+.nyc_output/
+
+# Supabase local dev
+supabase/.branches/
+supabase/.temp/

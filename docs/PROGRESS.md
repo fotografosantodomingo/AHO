@@ -1,0 +1,586 @@
+# Progress log
+
+Newest entries on top. At the end of every working session, append a new entry here. Format:
+
+```
+## YYYY-MM-DD — short title
+- What shipped:
+- What changed since last session:
+- Blockers / open questions:
+- Next session should start with:
+```
+
+---
+
+## 2026-04-29 — `/onboarding/welcome` post-Checkout return page (slice-1 paid signup is fully end-to-end)
+- **What shipped:**
+  - **`/{locale}/onboarding/welcome`** at `src/app/[locale]/onboarding/welcome/page.tsx` — Server Component that handles four branches: (1) not signed in → bounce through `/signin?next=<this URL>` preserving `session_id`; (2) missing `session_id` query → friendly "we couldn't find your checkout session" view + link back to `/pricing`; (3) signed in but no org membership yet → "finishing setup…" pending state with a Client Component poller; (4) signed in WITH membership → "you're subscribed" success view with a Dashboard CTA. `dynamic = 'force-dynamic'`; `robots: noindex,nofollow`.
+  - **`<WelcomePoller>`** at `src/components/billing/welcome-poller.tsx` — minimal Client Component that calls `router.refresh()` every 2.5s while mounted. Stops being mounted once the parent Server Component flips to the success branch. Decision rationale inline: the page never tries to verify `session_id` against Stripe — the webhook is the source of truth, and the existence of an `organization_members` row IS the proof of paid status. Avoids race + avoids URL-tampering.
+  - **Locale threaded through the Stripe Checkout flow** — `src/lib/billing/checkout.ts` now takes a `locale` field and builds locale-prefixed `success_url` / `cancel_url` (`${SITE}/${locale}/onboarding/welcome` ↔ `/inicio/bienvenida`, etc.). Tied through `src/app/api/billing/checkout-session/route.ts` (added to request schema) and `src/components/billing/pricing-form.tsx` (reads via `useLocale()` and posts in the request body). Without this, Stripe would have returned the user to a non-locale-prefixed URL that next-intl's `localePrefix: 'always'` wouldn't recognize.
+  - **PATHNAMES extended** with `/onboarding/welcome` ↔ `/inicio/bienvenida`. ES path is intentionally NOT under `/panel` because this page is for users who don't yet have agent access — they're between paid checkout and dashboard.
+  - **i18n** — full `onboarding.*` namespace in both EN + ES: `activeHeading`, `activeBody`, `openDashboard`, `pendingHeading`, `pendingBody`, `pendingNote`, `pendingTakingLong`, `missingSession`, `backToPricing`. ES copy hand-translated.
+- **Verified:** `pnpm typecheck` clean; `pnpm test` — **111 / 111 passing**; `pnpm build` — 30 routes (welcome page is `/[locale]/onboarding/welcome` with both en/es prerenders); `curl` of both locale URLs returns 307 → `/signin?next=...` for an unauthenticated client (auth gate works).
+- **Slice-1 paid-signup happy path is now FULLY end-to-end:**
+
+      Anonymous → /signup → email confirm (welcome email)
+                ↓
+      Sign in → /dashboard (no org)
+                ↓
+      Bounce → /pricing → fill org name + plan → POST /api/billing/checkout-session
+                ↓
+      Stripe-hosted Checkout → checkout.session.completed webhook → org+member+subscription created atomically
+                ↓
+      Stripe redirects → /onboarding/welcome?session_id=...
+                ↓
+      Page polls until membership row exists → "You're subscribed" → /dashboard
+
+- **What changed since last session:** Same calendar day. This entry succeeds the Stripe-tail + `/pricing` entry below.
+- **What's still pending in slice 1:**
+  - **Image upload UI** — waits for Cloudflare R2 token scope (PO action).
+  - **Stripe CLI replay tests** — verify each webhook handler against test-mode replay.
+  - **Lead RLS tests** — extend `tests/rls/_setup.ts` with fixture leads + `tests/rls/leads.test.ts`.
+  - **City landing pages** at `/{locale}/properties-in/{country}/{city}`.
+  - **Cloudflare resource creation** (PO action; `docs/CLOUDFLARE_RESOURCES.md`).
+  - **Supabase URL Configuration whitelist** (PO action).
+- **Next session should start with:** Stripe CLI replay tests (verifies the now-complete handler set + the post-Checkout return loop end-to-end against a real test webhook), OR lead RLS tests (~10 min, completes hard rule #2 coverage).
+
+---
+
+## 2026-04-29 — Stripe handler tail + `/pricing` page (slice-1 happy path now end-to-end)
+- **What shipped:**
+  - **`invoice.payment_action_required` handler** at `src/lib/billing/handlers/invoice-payment-action-required.ts` — fires the 3DS-challenge email by rendering the new `payment-action-required` template against the invoice's `hosted_invoice_url`. Pulls the recipient from `payments.user_id → profiles.email` (admin client; no RLS in handlers per existing pattern). Locale resolved from `profiles.locale` with EN fallback. Idempotent on Stripe re-delivery — sending the same template twice is harmless and the transport layer dedups in practice.
+  - **`customer.updated` handler** at `src/lib/billing/handlers/customer-updated.ts` — intentional no-op log. We don't sync Stripe-side customer profile changes back into our DB; the only field we'd care about (email) is sourced from Supabase Auth, not Stripe. Logged so the webhook event count remains observable.
+  - **`charge.refunded` handler** at `src/lib/billing/handlers/charge-refunded.ts` — looks up the matching `payments` row by `stripe_payment_intent_id`, updates `status` to `refunded` (full refund) or `partially_refunded` (delta < total). Does NOT mutate subscription state — Stripe fires `customer.subscription.updated` separately when refund triggers cancellation, and our existing handler picks that up.
+  - **Webhook dispatch table extended** at `src/app/api/webhooks/stripe/route.ts` — three new events wired (`invoice.payment_action_required`, `customer.updated`, `charge.refunded`); three TODO comments removed. `invoice.payment_succeeded` remains intentionally unhandled (we use `invoice.paid`; documented inline).
+  - **`payment-action-required` email template** at `src/lib/email/templates/payment-action-required.ts` — bilingual EN/ES, single-CTA layout, hosted-invoice link as the call-to-action, mild "your subscription may be paused" warning. Renders through the shared `_layout` wrapper with preheader text.
+  - **`/{locale}/pricing` page** at `src/app/[locale]/pricing/page.tsx` — Server Component with three branches: anonymous (CTA → `/signin?next=/pricing`); signed-in with no org membership (renders `<PricingForm>` for org name + monthly/annual selection); signed-in WITH membership (shows "already subscribed" panel with dashboard link + Customer Portal button). `dynamic = 'force-dynamic'` because all three branches depend on the auth session. `generateMetadata` populates title + description from `pricing.heading` / `pricing.subheading`.
+  - **`<PricingForm>` Client Component** at `src/components/billing/pricing-form.tsx` — controlled form (`useState`), org name input (2–120 chars, validates client-side via `required` + `minLength`), plan radio with monthly default, Submit POSTs `{ plan, orgName }` to `/api/billing/checkout-session`, then `window.location.assign(url)` to Stripe Checkout. Surfaces `pricing.errors.session_create_failed` on API failure. The submit button label tracks the selected plan ("Subscribe monthly" / "Subscribe annually") so the action is unambiguous.
+  - **i18n** — full `pricing.*` namespace in both `messages/en.json` and `messages/es.json`: heading/subheading, plan name, monthly/annual labels + prices, savings note, trial note, six feature bullets, org-name label + help, subscribe buttons, redirect indicator, "already subscribed" copy, "open dashboard", manage-billing link, "needs sign in" CTA, error key. ES copy translated, not machine-rendered.
+- **Verified:** `pnpm typecheck` clean; `pnpm build` succeeds (28 routes; `/[locale]/pricing` shows up under both `/en/pricing` and `/es/precios` per `PATHNAMES`); `pnpm test` — **111 / 111 passing** in 21s; dev server `curl http://localhost:3000/en/pricing` returns 200 and HTML contains "AHO Agent", "Up to 5 active listings", "Sign in to subscribe" (anonymous branch); `/es/precios` also 200.
+- **Slice-1 happy path is now end-to-end clickable:** Anonymous user → `/signup` → confirm email (welcome email triggers) → sign in → land on `/dashboard` → middleware bounces to `/pricing` (no org) → fill org name + pick plan → POST to checkout-session route → Stripe-hosted Checkout → `checkout.session.completed` webhook materializes org + member + subscription atomically → redirect to `/onboarding/welcome` (page is still a stub; logs progress as the next gap to close).
+- **What changed since last session:** Same calendar day. This entry succeeds the auth-surface close-out below.
+- **What's still pending in slice 1:**
+  - **`/onboarding/welcome` page** — stub redirect target after Stripe Checkout success; should poll the subscription row and surface "subscription active, here's your dashboard" or a friendly "we're still finishing setup" wait state.
+  - **Image upload UI** — waits for Cloudflare R2 token scope.
+  - **Stripe CLI replay tests** — script `stripe trigger` for each handler against local webhook to verify idempotency; can run once `.env.local` has the test webhook secret wired (it does).
+  - **Lead RLS tests** — extend `tests/rls/_setup.ts` with fixture leads + `tests/rls/leads.test.ts`.
+  - **City landing pages** at `/{locale}/properties-in/{country}/{city}`.
+  - **Cloudflare resource creation** (PO action; chain documented in `docs/CLOUDFLARE_RESOURCES.md`).
+  - **Supabase URL Configuration whitelist** (PO action).
+- **Next session should start with:** the `/onboarding/welcome` page (closes the only remaining UI gap on the slice-1 paid signup happy path) OR Stripe CLI replay tests (verifies the now-complete handler set on a real test-mode webhook before any external user touches it).
+
+---
+
+## 2026-04-29 — Auth surface close-out: forgot-password + reset-password + magic-link + /auth/error page
+- **What shipped:**
+  - **`/{locale}/auth/error`** at `src/app/[locale]/auth/error/page.tsx` — receives `?reason=` from `/auth/callback` failures, shows a friendly heading + body, expandable `<details>` with the raw reason for debugging, CTA back to signin. `robots: noindex,nofollow`. Locale-prefixed so it gets full i18n.
+  - **`/auth/callback` updated** — pre-resolves a locale from the `?next=` redirect path (already had this for the welcome email), then redirects every error case (`exchangeCodeForSession` failure, `verifyOtp` failure, missing code) to `/{locale}/auth/error?reason=...`. No more 404s for failed auth flows.
+  - **Forgot-password flow** at `src/app/[locale]/forgot-password/page.tsx` + `src/components/auth/forgot-password-form.tsx` — Server Component bounces signed-in users to home; form (RHF + Zod via `EmailOnlySchema`) calls `supabase.auth.resetPasswordForEmail(email, { redirectTo: ${origin}/auth/callback?next=/{locale}/reset-password })`. Switches to "Check your email" confirmation on success. Links back to signin.
+  - **Reset-password flow** at `src/app/[locale]/reset-password/page.tsx` + `src/components/auth/reset-password-form.tsx` — recovery session is established by `/auth/callback?type=recovery` before the user lands; form checks `supabase.auth.getSession()` on mount. If the session exists → password input → `supabase.auth.updateUser({ password })` → redirect to dashboard. If the session is missing (link expired, used twice, direct nav) → friendly "Request a new link" CTA back to forgot-password instead of a confusing form.
+  - **Magic-link flow** at `src/app/[locale]/magic-link/page.tsx` + `src/components/auth/magic-link-form.tsx` — Server Component bounces signed-in users; form calls `supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: ${origin}/auth/callback?next=... } })`. Switches to "Check your email" on success. Links to password-signin alternative.
+  - **`SignInPage` extended** with two text links below the form: "Forgot password?" and "Sign in with a magic link instead", both locale-correct.
+  - **PATHNAMES extended** with `/forgot-password` ↔ `/recuperar-contrasena`, `/reset-password` ↔ `/restablecer-contrasena`, `/magic-link` ↔ `/enlace-magico`, `/auth/error` ↔ same in both locales.
+  - **i18n strings** added: `auth.forgot.*`, `auth.reset.*`, `auth.magic.*`, `auth.error.*`, plus three top-level `auth.*` keys (`forgotPasswordLink`, `magicLinkAlt`, `passwordSigninAlt`) for the inline links on signin/magic-link.
+  - **Schemas extended**: `EmailOnlySchema` (used by both forgot-password and magic-link forms) and `ResetPasswordSchema` (same strength rules as signup, sans confirm — that's a UI-layer concern).
+- **Cumulative test count:** **111 / 111** passing in 21s. Typecheck + build clean — 28 routes total.
+- **Auth surface is now complete except Google OAuth:**
+  | Auth flow | Status |
+  |---|---|
+  | Email + password signup | ✅ + welcome email on confirm |
+  | Email + password signin | ✅ |
+  | Sign out | ✅ |
+  | Auth callback (OAuth code + OTP token_hash) | ✅ + error redirects |
+  | Forgot password (request) | ✅ this turn |
+  | Reset password (set new) | ✅ this turn |
+  | Magic-link signin | ✅ this turn |
+  | `/auth/error` page | ✅ this turn |
+  | Welcome email on signup confirmation | ✅ |
+  | Google OAuth | ⏸ waits for OAuth-app credentials in Supabase Auth dashboard (PO action) |
+  | TOTP MFA | ⏸ deferred to v1.1 admin tooling |
+- **Cloudflare:** still pending PO action on token scope. Resend / Supabase Auth recovery + magic-link emails inert until PO sets `RESEND_API_KEY` (or accepts Supabase's default email transport) and verifies the redirect URLs in Supabase Auth → URL Configuration.
+- **What changed since last session:** Same calendar day. This entry succeeds the Resend-wiring entry below.
+- **What's still pending in slice 1 (all external-blocker or low-priority polish):**
+  - **Image upload UI** — waits for Cloudflare R2 token scope.
+  - **Last 3 Stripe handlers** (`invoice.payment_action_required` / `customer.updated` / `charge.refunded`) + Stripe CLI replay tests.
+  - **Lead RLS tests** — extend `tests/rls/_setup.ts` with fixture leads + `tests/rls/leads.test.ts`.
+  - **City landing pages** at `/{locale}/properties-in/{country}/{city}` — SEO-indexable browse alternatives to noindexed `/search`.
+  - **Cloudflare resource creation** (PO action; chain documented in `docs/CLOUDFLARE_RESOURCES.md`).
+  - **Supabase URL Configuration** — PO needs to whitelist `${origin}/auth/callback` for redirects; likely needs `https://advertisehomes.online/auth/callback` and any preview/staging deploys.
+- **Next session should start with:** Choice of: (a) the last 3 Stripe handlers + Stripe CLI replay tests (closes the Stripe lifecycle); (b) lead RLS tests (10 minutes of test code, completes hard rule #2 coverage on the leads table); (c) city landing pages (bigger feature — SEO browse + page generation per city/neighborhood combo). Friday EOD comprehensive update tomorrow.
+
+---
+
+## 2026-04-29 — Resend wiring: lead notification + welcome emails (best-effort, no-op without API key)
+- **What shipped:**
+  - **`resend@^6.12` added** as a runtime dependency.
+  - **`src/lib/email/resend.ts`** — wrapper with optional config. If `RESEND_API_KEY` is not set, every `sendEmail()` call logs a warning and returns `{ sent: false }` — local dev keeps working. Default `from` is `AHO <noreply@mail.advertisehomes.online>`; override via `RESEND_FROM` env. Catches both Resend's structured `result.error` and SDK throws.
+  - **`src/lib/email/templates/_layout.ts`** — minimal email-safe HTML wrapper. Inline styles, table-based, no web fonts, no external CSS — survives Gmail / Outlook / Apple Mail. `escapeHtml()` helper used by all templates that interpolate user-supplied strings (anti-XSS in case the email is rendered as web preview anywhere).
+  - **`src/lib/email/templates/lead-notification.ts`** — bilingual EN/ES template. Subject "New lead: {title}" / "Nuevo contacto: {title}". Body: greeting → intro → details table (From, Email as `mailto:` link, Phone, Source — with localized source labels) → optional message block → property block → CTA buttons (open inbox, view listing). All user-supplied fields escaped.
+  - **`src/lib/email/templates/welcome.ts`** — bilingual welcome email triggered after signup confirmation. Subject "Welcome to AHO" / "Bienvenido a AHO". Explains the account is ready, nudges agents toward `/pricing`. CTA buttons: Browse listings, Become an agent.
+  - **`/api/leads` POST handler** wired: after the lead row is committed, a service-role lookup pulls `properties.created_by → profiles.email + full_name + preferred_language`, builds the canonical property URL (locale-aware) and the dashboard inbox URL, renders the template, sends via Resend with `Reply-To` set to the buyer's email so the agent can hit reply and respond directly. Failures are logged but don't affect the API response (the lead exists in DB regardless).
+  - **`/auth/callback` route** wired: when the OTP verification's `type=signup`, a welcome email fires. Best-effort with try/catch. Locale inferred from the `?next=` redirect path so the welcome email matches the page they're about to land on.
+  - **9 new unit tests** at `tests/unit/email-templates.test.ts` covering: subject + HTML rendering for both templates, EN/ES localization, anonymous-lead branch, no-message branch, **HTML escaping in user-provided fields** (XSS regression test), source-label translations.
+- **Cumulative test count:** **111 / 111** passing in 28s. Typecheck + build clean.
+- **Cloudflare:** still pending PO action on token scope. Resend itself is wired but inert until PO sets `RESEND_API_KEY` and verifies `mail.advertisehomes.online` (DKIM + SPF + DMARC per `docs/DNS.md`).
+- **What changed since last session:** Same calendar day. This entry succeeds the lead-inbox entry below.
+- **Slice-1 code-side feature set is now complete except external-blocker pieces:**
+  | Item | Status |
+  |---|---|
+  | Auth (signin / signup / callback / signout / welcome email on confirm) | ✅ |
+  | Stripe (checkout / webhook handlers / founder rate / Customer Portal) | ✅ (3 small handlers + CLI replay tests remain) |
+  | Property CRUD + dashboard + RLS + listing-cap | ✅ (image upload UI waits for R2) |
+  | Public detail page (SEO + JSON-LD + hreflang + theme + i18n) | ✅ |
+  | Search + homepage | ✅ |
+  | Contact form + WhatsApp + leads API + lead notification email | ✅ |
+  | Lead inbox + status flips | ✅ |
+  | Email templates (lead notification + welcome) | ✅ |
+- **Remaining slice-1 work — all external-blocker or low-priority polish:**
+  - Image upload UI (waits for Cloudflare R2 token scope).
+  - Forgot-password + magic-link UI flows.
+  - `/auth/error` page (callback redirects there on failure but the page doesn't exist yet).
+  - City landing pages at `/{locale}/properties-in/{country}/{city}` (SEO browse, indexable; `/search` is intentionally noindex per HANDOFF §16.7).
+  - Last 3 Stripe handlers (`invoice.payment_action_required`, `customer.updated`, `charge.refunded`) + Stripe CLI replay tests.
+  - Lead RLS tests (extend `tests/rls/_setup.ts` with fixture leads + `tests/rls/leads.test.ts`).
+  - Cloudflare resource creation (PO action; chain documented in `docs/CLOUDFLARE_RESOURCES.md`).
+- **Next session should start with:** Choice of: (a) `/auth/error` page + forgot-password + magic-link UI flows together (closes the auth surface in one batch); (b) lead RLS tests + last 3 Stripe handlers + CLI replay tests (testing-and-handlers polish); (c) city landing pages (SEO browse — bigger feature). Friday EOD comprehensive update tomorrow.
+
+---
+
+## 2026-04-29 — Lead inbox in dashboard. Slice-1 code-side feature set is essentially complete.
+- **What shipped:**
+  - **`/{locale}/dashboard/leads` page** — server-rendered list of all leads for the agent's org, ordered newest first, capped at 200. Embedded select pulls the property title + slug + city + status alongside each lead so we don't need a second roundtrip. Status filter tabs (All / New / In progress / Closed) implemented as plain links with `?filter=` search param. Empty state with friendly hint about the form + WhatsApp paths.
+  - **`updateLeadStatus(leadId, status)` Server Action** at `src/lib/leads/actions.ts` — Zod-validates the status (any of `LEAD_STATUSES`), runs the update under the user-context Supabase client. RLS on `leads` (from migration 0009) gates UPDATE to org members with role agent / manager / owner; if RLS soft-denies (rows-affected = 0), action returns `{ ok: false, errorCode: 'forbidden' }`.
+  - **`LeadStatusSelect` Client Component** — inline `<select>` with optimistic local state, `useTransition` for the Server Action call, `router.refresh()` on success to pull the canonical state from the server. Snaps back on failure with an inline error.
+  - **Lead row layout** — color-coded status badge (amber / blue / violet / emerald / gray for new / contacted / qualified / won / lost), source label translated via `dashboard.leads.source.*` namespace ("Contact form" / "WhatsApp click" / etc.), contact name + email + phone + message, link to the property's public detail (when active+published) and to the dashboard edit page. Anonymous leads (no contact name) labeled as "Anonymous lead" rather than empty.
+  - **Dashboard sidebar** updated to include **Leads** between Listings and Billing.
+  - **PATHNAMES extended**: `/dashboard/leads` ↔ `/panel/contactos`.
+  - **i18n strings** for `dashboard.leads.*` namespace (heading, empty state, filter tab labels, source labels per source enum, lead-status labels per status enum, anonymous fallback).
+- **Cumulative test count:** **102 / 102** passing in ~22s. (No new tests this turn — RLS coverage on `leads` would need fixture leads in `tests/rls/_setup.ts`; deferred to a polish turn.)
+- **Typecheck + build clean** — 23 routes, middleware 146 kB.
+- **Slice-1 code-side feature surface is essentially complete:**
+  | Layer | Status |
+  |---|---|
+  | Auth (sign-in / sign-up / callback / sign-out) | ✅ shipped |
+  | Stripe (checkout, webhook handlers, founder rate, Customer Portal) | ✅ shipped (3 small handlers remain: `payment_action_required`, `customer.updated`, `charge.refunded`) |
+  | Property CRUD (DB + RLS + dashboard UI + Server Actions) | ✅ shipped (image upload UI waits for Cloudflare R2) |
+  | Public detail page (SEO + JSON-LD + hreflang + theme + i18n) | ✅ shipped |
+  | Search / browse + homepage (hero + featured + filters + pagination) | ✅ shipped |
+  | Lead capture (contact form + WhatsApp + `/api/leads`) | ✅ shipped |
+  | Lead inbox (dashboard list + status flips) | ✅ this turn |
+  | i18n routing (EN + ES with localized path translations) | ✅ shipped |
+  | Theme toggle (light / dark / system) | ✅ shipped |
+- **Remaining slice-1 work (all in nice-to-have or external-blocker territory):**
+  - **Image upload UI** on dashboard edit page — API exists; UI wiring waits for Cloudflare R2 token scope.
+  - **Resend wiring** for transactional email (welcome on signup confirm, lead notification when `/api/leads` succeeds, dunning at T+0/3/5/7 from a daily cron). Email templates as React Email components when we add multiple.
+  - **Auth follow-ups** (forgot password, magic link, `/auth/error` page).
+  - **City landing pages** at `/{locale}/properties-in/{country}/{city}` per HANDOFF §16.1 — SEO-indexable browse alternatives to the noindexed `/search`.
+  - **Remaining Stripe handlers** + Stripe CLI replay tests.
+  - **Cloudflare resource creation** (R2 buckets, KV, Pages projects) — the chain is documented in `docs/CLOUDFLARE_RESOURCES.md`.
+  - **Lead RLS tests** — extend `tests/rls/_setup.ts` with fixture leads + `tests/rls/leads.test.ts`.
+- **Cloudflare:** still pending PO action on token scope.
+- **What changed since last session:** Same calendar day. This entry succeeds the search/browse entry below.
+- **Next session should start with:** Resend wiring — the highest-impact remaining piece for closing-the-loop UX (agents get an email the moment a lead arrives instead of needing to refresh the dashboard). Implementation: a small `src/lib/email/resend.ts` wrapper, a "new lead" email template, hook into `/api/leads` POST after the row inserts, plus a "welcome" email triggered on Supabase signup confirmation. Resend itself is wired conditionally (`RESEND_API_KEY` optional in env; if missing, the calls become no-ops with a console warning so dev keeps working). Friday EOD comprehensive update tomorrow.
+
+---
+
+## 2026-04-29 — Buyer-side discovery: search/browse page + real homepage. Slice-1 happy path now end-to-end testable.
+- **What shipped:**
+  - **`/{locale}/search` browse page** at `src/app/[locale]/search/page.tsx` — server-rendered, indexed-friendly URL (`/search?city=Santo+Domingo&transaction=sale&min_price=100000&beds_min=2&page=2`). Pagination via search params (24 per page; "+ overflow" indicator from a fetch-one-extra trick to avoid a separate count query).
+  - **Search query module** at `src/lib/listings/search.ts` — `parseFilters(searchParams)` (drops bad inputs silently rather than throwing), `searchListings(filters, locale)` (per-locale full-text via the GIN tsvector indexes from 0004; `featured_until DESC NULLS LAST` then `published_at DESC` ordering per spec §8.5), `buildSearchUrl(locale, filters)` for pagination links + clear-filter CTAs. RLS on `properties` does the active+published gating; primary-image CF IDs joined in via a second query keyed on the visible listing IDs.
+  - **`SearchFilters` server-rendered component** — plain HTML form with `method="get"` so submissions are pure URL navigation (no JS required for filtering, no Client Component needed). Action URL resolves to the localized search path so submitting on `/es/buscar` stays on `/es/buscar`. Six fields: keyword, city, transaction type, beds-min, min/max price.
+  - **`ListingCard` Server Component** — pure presentation; image variant `https://imagedelivery.net/{accountHash}/{cfImageId}/card` with placeholder for listings that don't yet have a confirmed primary image. Locale-aware title fallback (uses `slug_es` if available, falls back to `slug_en`); `loading="lazy"` and `decoding="async"` on the image; line-clamped title.
+  - **Homepage rebuilt** at `src/app/[locale]/page.tsx` — hero section with brand tagline + search bar (form posts to `/search`), then a "Recently listed" featured grid of up to 6 most-recent active+published listings using the same `searchListings` helper. CTA link rail to `/search` (buyers) and `/pricing` (agents).
+  - **PATHNAMES extended**: `/search` ↔ `/buscar`.
+  - **i18n strings** for `home.*` (extended), `search.*`, `card.*` namespaces in EN + ES — heading, placeholders, filter labels, empty state, pagination, results-count plural-aware messaging.
+  - **Robots: `index: false, follow: true`** on the search page per HANDOFF §16.7 — faceted URLs cause infinite crawl; canonical city / neighborhood landing pages will be the indexable browse path (deferred).
+- **Cumulative test count:** **102 / 102** passing in 25s. Typecheck + lint + build clean. (Search query coverage is via the existing properties RLS tests; no new tests this turn.)
+- **Slice-1 happy path is now testable end-to-end (modulo image upload):**
+  1. Agent signs up at `/{locale}/signup` → email verification → signed in.
+  2. Hits `/{locale}/dashboard` → bounced to `/{locale}/pricing` (no org yet).
+  3. Picks Agent monthly → Stripe Checkout → returns → webhook creates org + sub + member.
+  4. Hits `/{locale}/dashboard/properties` → empty list → clicks "New listing".
+  5. Fills form → submits → row inserted as draft → redirected to edit page.
+  6. Clicks "Publish" → status flips to active → public detail page goes live.
+  7. Anonymous user lands on `/{locale}` → searches via hero search bar → results page filters by query.
+  8. Clicks listing card → property detail page (full SEO + JSON-LD + hreflang).
+  9. Clicks "Chat on WhatsApp" → opens wa.me with prefilled message OR fills contact form → POSTs to `/api/leads` → row inserted.
+  10. Agent's "Manage billing" sidebar button → Stripe Customer Portal for upgrade/downgrade/cancel.
+  - **Pending for full slice-1**: image upload UI (waits for Cloudflare R2), lead inbox in dashboard (so agents see incoming leads), city/neighborhood landing pages (indexable browse alternatives to `/search`).
+- **Cloudflare:** still pending PO action on token scope.
+- **What changed since last session:** Same calendar day. This entry succeeds the leads-and-contact-form entry below.
+- **What's still pending in slice 1:**
+  - **Lead inbox** in dashboard — high-priority next, pairs with the contact form + WhatsApp shipped last turn so agents actually see incoming leads.
+  - **Image upload UI** on the dashboard edit page — waits for Cloudflare R2 token scope.
+  - **City landing pages** at `/{locale}/properties-in/{country}/{city}` per HANDOFF §16.1 — indexable browse paths for SEO.
+  - **Resend wiring** for transactional email (welcome, lead notification, dunning).
+  - **Auth follow-ups** (forgot password, magic link, error page).
+  - **Remaining Stripe handlers** (`invoice.payment_action_required` / `customer.updated` / `charge.refunded`).
+- **Next session should start with:** Lead inbox in dashboard. Without it the contact form + WhatsApp create leads in DB but agents have no visibility — they'd only see leads via Resend email once that's wired (which depends on PO setting up `mail.advertisehomes.online`). The inbox can read directly via existing RLS so it's a frontend-only addition. Friday EOD comprehensive update tomorrow.
+
+---
+
+## 2026-04-29 — Buyer-side contact path: leads table + WhatsApp + contact form on detail page
+- **What shipped:**
+  - **Migration `0009_leads.sql`** — `leads` table per HANDOFF §4.4, RLS (org-member SELECT, org-agent+ UPDATE, admin all; **no public/user-context INSERT** — writes go through the API endpoint with the service role so we can layer Turnstile / rate-limit / content filtering at one chokepoint), and a `get_listing_contact(p_property_id)` SECURITY DEFINER function exposing only `agent_full_name`, `agent_phone`, `org_id`, `org_name` for active+published listings (anon can call it via `supabase.rpc()`; the function bypass exposes nothing else from `profiles`).
+  - **`POST /api/leads`** at `src/app/api/leads/route.ts` — anonymous-friendly endpoint. Zod validation via `LeadCreateSchema` with source-specific minimums (`form` requires name + email + message; click-style sources just log property_id). Verifies the property is `status='active' AND published_at IS NOT NULL` via service-role lookup, returns 404 on miss. Anti-abuse hooks (Turnstile, KV rate-limit, honeypot) marked as TODO before public launch. Email notification to the agent deferred — Resend isn't configured yet (RESEND_API_KEY pending PO action). Lead lands in DB; agent will see in inbox once that UI is built.
+  - **WhatsApp helper** at `src/lib/leads/whatsapp.ts` — `buildWhatsAppLink({ agentPhone, listingTitle, city, url, locale })` strips non-digits from the phone, validates a minimum digit count (rejects implausibly short strings to avoid broken `wa.me/` links), encodes the bilingual prefilled message ("Hi, I'm interested in… Is it still available?" / "Hola, me interesa… ¿Sigue disponible?"). Pure function; **5 unit tests** covering E.164 stripping, missing/short-phone null returns, ES locale messages, URL encoding.
+  - **`fetchListingContact(propertyId)`** in `src/lib/listings/queries.ts` — wraps the SECURITY DEFINER RPC for use from Server Components. Returns null when listing isn't publicly visible.
+  - **`ContactForm` Client Component** at `src/components/listings/contact-form.tsx` — React Hook Form + Zod, fields: name (required), email (required), phone (optional), message (required), Spanish placeholder text in ES locale. POSTs to `/api/leads` with `source='form'` and the user's locale. Switches to a "Thanks — your message has been sent" confirmation on success. Localized error keys (`nameRequired`, `emailInvalid`, `messageRequired`, `send_failed`) wired through `messages/{en,es}.json`.
+  - **Property detail page** updated with a contact section grid: org name + WhatsApp button on the left, ContactForm on the right. WhatsApp button only renders when the agent has a phone with ≥8 digits. Both UIs get the same active+published gating because both depend on `fetchListingContact`.
+  - **i18n strings** added: `contact.*` namespace in EN + ES (heading, field labels, send button, success message, error messages).
+- **Cumulative test count:** **102 / 102** (97 + 5 new whatsapp tests) in 26s. Typecheck + build clean.
+- **Cloudflare:** still pending PO action on token scope. Resend (for email notifications) also pending — added a TODO in the API endpoint so future-me sees the wiring.
+- **What changed since last session:** Same calendar day. This entry succeeds the dashboard entry below.
+- **What's still pending in slice 1:**
+  - **Public homepage update** — current home is a placeholder; next slice opens with a hero + featured listings + search entry point.
+  - **Listing search / browse page** at `/{locale}/search` with city + transaction-type + price-range filters. Full-text search via the per-locale GIN tsvector indexes from 0004. Map view deferred to v1.1.
+  - **Image upload UI** on the dashboard edit page (waits for Cloudflare R2).
+  - **Lead inbox** in the dashboard (org members see leads filtered to their org via existing RLS).
+  - **Auth follow-ups** (forgot password / magic link / `/auth/error` page / welcome email).
+  - **Resend wiring** for transactional email (welcome, lead notification, dunning).
+  - **Remaining Stripe handlers** (`invoice.payment_action_required` / `customer.updated` / `charge.refunded`).
+- **Next session should start with:** Public homepage + listing search + browse page. Closes the "anonymous user finds a listing" loop end-to-end. Without it, the only way to reach a property is via direct URL — adequate for the slice-1 acceptance test if a buyer Googles a specific address, but the search page is what drives the broader on-site discovery flow. Friday EOD comprehensive update tomorrow.
+
+---
+
+## 2026-04-29 — Agent dashboard scaffolded: layout + listings list + create form + edit + publish
+- **What shipped:** Slice-1's "agent path to publish a listing" — the largest unbuilt frontend piece — has its skeleton and the create-and-publish flow now compiles end-to-end.
+  - **Dashboard layout** at `src/app/[locale]/dashboard/layout.tsx` — auth gate (redirects to signin with `?next=` if not signed in), org-membership gate (redirects to `/pricing` if user has no org → not yet an Agent), sidebar nav with **My Listings** + **Billing** items. The Billing item is a Client Component (`BillingPortalButton`) that POSTs to `/api/billing/portal` then `window.location` to the returned URL — couldn't use a plain link because Customer Portal sessions are one-shot URLs.
+  - **Dashboard home** at `src/app/[locale]/dashboard/page.tsx` redirects to `/dashboard/properties` (the listings list is the de facto home for v1).
+  - **Listings list** at `src/app/[locale]/dashboard/properties/page.tsx` — Server Component, queries via the user-context Supabase client (RLS shows org-member's listings only). Empty state + "Create your first listing" CTA. Real listings render in a sortable table with title, status badge (color-coded by state), city, formatted price, image count, last-updated date. Each row links to the edit page.
+  - **Create form** at `src/app/[locale]/dashboard/properties/new/page.tsx` + `src/components/listings/listing-form.tsx` (Client Component) — React Hook Form + Zod, four sections (Basics, Details, Location, Description), bilingual title + description fields with the "at least one language" validation, currency selector, transaction-type radio, lat/lng manual entry (geocoding API integration deferred to v1.1), display-address toggle. Submits via Server Action (`createListing` in `src/lib/listings/actions.ts`) which validates server-side via the same Zod schema, derives a slug from `title + city + country`, inserts the row as `status='draft'` via the user-context client (RLS enforces org membership + listing cap).
+  - **Edit/detail page** at `src/app/[locale]/dashboard/properties/[id]/page.tsx` — minimal v1: shows the listing's title, status, city, price, image count, plus a **Publish** button (Client Component calling the `publishListing` Server Action) when status='draft'. Once published, shows a "View public page" link to the canonical detail URL we already built. Image upload UI is a placeholder block — the API endpoints exist (signed PUT + confirm), wiring waits for Cloudflare R2 token scope.
+  - **Server Actions** (`createListing`, `publishListing`) at `src/lib/listings/actions.ts` — pure functions exported as `'use server'`. Validation via the shared Zod schema. The action error codes map to localized error messages in the form. `revalidatePath` to keep the listings list fresh after create / publish.
+  - **PATHNAMES extended** with `/dashboard`, `/dashboard/properties`, `/dashboard/properties/new`, `/dashboard/properties/[id]` (all translated to `/panel/...` for ES). Note: the EN/ES path translations don't currently propagate through `Link` components in the dashboard internals because everything uses raw `href` (the dashboard is locale-prefixed but doesn't use the next-intl Link helper); this is intentional simplicity since the sidebar/links are server-side-rendered locale-aware HREFs. Will swap to `Link` when we need cross-page client navigation that survives reload.
+  - **i18n strings**: full `dashboard.*` and `listingForm.*` namespaces in EN + ES — nav items, table headers, status badges, form section headings, field labels, error messages, empty states.
+- **Cumulative test count:** **97 / 97** passing in ~24s (no new tests this turn — listing-form integration testing happens via Playwright once the dev server is up + we have a fixture-agent path; defer to next slice).
+- **Typecheck clean. `pnpm build` clean** — 19 routes generated, middleware compiled (144 kB).
+- **Cloudflare:** still pending PO action on token scope.
+- **What changed since last session:** Same calendar day, continued. This entry succeeds the auth UI entry below.
+- **What's still pending in slice 1:**
+  - **Image upload UI on the edit page** — uses the existing API; pending Cloudflare R2 + the `R2_*` env vars.
+  - **Public homepage with listing search + map** — slice-1 week 4–5; not started yet (current home page is a placeholder).
+  - **Lead inbox** for the dashboard — slice-1 week 8 work.
+  - **Contact form on the public property page** — exists in spec; UI not built yet (the WhatsApp link can be wired up first, no API needed).
+  - **Auth follow-ups** (forgot password, magic link, error page, welcome email) — small.
+  - **Remaining Stripe handlers** (`invoice.payment_action_required`, `customer.updated`, `charge.refunded`) — small.
+  - **Stripe CLI replay tests** + integration tests for the agent dashboard flow.
+- **Next session should start with:** Choice of: (a) public homepage + listing search + WhatsApp link + contact form (front-of-house, completes the buyer-side path); (b) image upload UI on edit page (small but blocks slice 1 acceptance test of "real listing with photos" — though Cloudflare R2 still needs to land); (c) auth follow-ups in one batch (forgot password / magic link / error page / welcome email). Friday EOD comprehensive update tomorrow.
+
+---
+
+## 2026-04-29 — Auth UI shipped (signin + signup + sign-out + callback); `pnpm build` clean
+- **What shipped:**
+  - **Sign-in / sign-up forms** — React Hook Form + Zod via shared schemas at `src/lib/auth/schemas.ts`. Email + password only for now (Google OAuth waits for OAuth-app credentials, will plug in alongside `magic link` and `password reset` in a follow-up). Both forms accessible: explicit labels, `aria-invalid` / `aria-describedby` wiring, error keys translated to localized strings, submit-button disabled state during async work.
+  - **Server pages** at `src/app/[locale]/signin/page.tsx` and `src/app/[locale]/signup/page.tsx` — wrap the client form, hard-redirect already-signed-in users via `supabase.auth.getUser()` check + `next/navigation` `redirect()`. Both pages are `export const dynamic = 'force-dynamic'` so the redirect runs per-request, not at build time. `robots: { index: false, follow: false }` on both — auth pages don't belong in the index.
+  - **`/auth/callback` route handler** at `src/app/auth/callback/route.ts` — single endpoint for both Supabase auth flows: `?code=…` (OAuth + magic link → `exchangeCodeForSession`) and `?token_hash=…&type=…` (email confirmation + password recovery → `verifyOtp`). Open-redirect guard on the `next` param (must start with `/` and not `//`).
+  - **`AuthMenu` Server Component** in the header — shows sign-in / sign-up buttons when logged out, user email + sign-out button when logged in. Wired into `[locale]/layout.tsx`. The layout itself is `export const dynamic = 'force-dynamic'` so the auth menu renders fresh on every request (would otherwise serve cached "signed out" HTML to logged-in users).
+  - **`SignOutButton`** Client Component using `useTransition` for the async signout, then router.refresh + push to `/`.
+  - **`PATHNAMES` extended** in `src/i18n/config.ts`: `/signin` ↔ `/iniciar-sesion`, `/signup` ↔ `/registrarse`. Standard next-intl path translations.
+  - **Middleware matcher** updated: excludes `/auth/callback` (locale-agnostic; rewriting to `/en/auth/callback` would 404) and all `/api/*` routes (webhooks authenticate via signatures; other API routes do their own session resolution).
+  - **i18n strings** added to `messages/{en,es}.json` for the entire auth surface: form labels, button states ("Signing in…" / "Iniciando sesión…"), Zod error codes (`min8`, `needsUppercase`, `needsNumber`, `mustAcceptTerms`), the post-signup "check your email" body, the inline ToS / Privacy consent prompt with linked path translations.
+  - **`pnpm build` succeeds end-to-end** — 17 routes generated, middleware compiled (143 kB), no errors. `pnpm typecheck` clean, `pnpm test` still 97 / 97 passing.
+- **Cumulative test count:** **97 / 97** passing in 22s. (No new tests this turn — auth flow integration tests via Playwright would require a running dev server + email-verification stub; deferred until Cloudflare unblocks and we have a preview deploy.)
+- **Cloudflare:** still pending PO action on token scope.
+- **What changed since last session:** Same calendar day, continued. This entry succeeds the founder-rate / subscription.deleted / Customer Portal entry below.
+- **What's still pending in the auth surface (next turn or later):**
+  - **Forgot password** flow (request + confirm) — small.
+  - **Magic link** flow — small; reuses `/auth/callback`.
+  - **Google OAuth button** on signin/signup — needs OAuth-app credentials in Supabase Auth → Providers (PO action).
+  - **MFA enrollment** flow (TOTP) — required for admin per HANDOFF §5.1; deferred to admin tooling work.
+  - **Welcome email** via Resend on first successful signin (template already needs to land per HANDOFF §20.2).
+  - **`/auth/error` page** — currently the callback redirects to `/auth/error?reason=…` on failure; we need an actual page for that.
+- **Other slice-1 work still pending (not auth, not Stripe):**
+  - Agent dashboard skeleton (listings list / create / edit / archive / inbox / performance) — slice-1 week 5–6, biggest remaining work item.
+  - Public homepage with listing search and PostGIS map — slice-1 week 4–5.
+  - Cloudflare resource creation when token scope unblocks.
+  - Remaining Stripe handlers (`invoice.payment_action_required`, `customer.updated`, `charge.refunded`) — small, ~30 minutes total.
+- **Next session should start with:** Choice of: (a) the four small auth follow-ups (forgot password, magic link, error page, welcome email) in one turn — natural close on the auth surface; (b) start the agent dashboard — biggest remaining frontend chunk, sets up the listings UI on top of existing API + RLS; (c) tail off the remaining low-priority Stripe handlers + Stripe CLI replay tests for integration coverage. Friday EOD comprehensive update tomorrow.
+
+---
+
+## 2026-04-29 — Founder rate wired in; subscription.deleted handler; Customer Portal endpoint
+- **What shipped:**
+  - **Founder-rate selection inside `checkout.session.completed`.** `src/lib/billing/founder-rate.ts` — pure helpers `isFounderRateOpen()` and `isFounderEligible(plan)`, unit-tested. Inside the checkout handler, after the subscription row is upserted: if `isFounderEligible(plan)` (agent + monthly + window open), call `claim_founder_rate_slot()` (atomic SQL function). On success, insert `founder_rate_grants` row → update Stripe subscription's price to founder via `stripe.subscriptions.update(subId, { items: [{ id, price: founderPriceId }], proration_behavior: 'none' })` (the 7-day trial covers the price change; first charge lands at $19) → update local `plan_id` to `aho_agent_founder_monthly`. Idempotent on retry — pre-checks for existing grant row before claiming. Rollback path: Stripe-update failure releases the slot via `release_founder_rate_slot`. Grant-insert failure leaks the counter (cron sweep cleans up; documented).
+  - **`customer.subscription.deleted` handler** — final-state cancellation. Marks subscription `status='canceled'`; the AFTER UPDATE trigger from 0007 propagates `current_status` to `organizations`. If the subscription had no successful payment (no `payments` row with `status='succeeded'`), calls `release_founder_rate_slot()` to return the slot to the pool. Non-fatal on release errors (cancellation itself succeeds; release is hygiene).
+  - **`POST /api/billing/portal` endpoint** — Customer Portal. Auth-gated to org owners only (other roles see read-only billing in the dashboard). Looks up the user's owned org → fetches `subscriptions.stripe_customer_id` → calls `stripe.billingPortal.sessions.create({ customer, return_url: '/dashboard' })` → returns the redirect URL. The agent dashboard's "manage billing" / "upgrade plan" / "cancel subscription" buttons all hit this endpoint. Stripe Customer Portal handles plan changes (with proration on upgrade, period-end scheduling on downgrade per its own settings), payment method updates, invoice history, and cancellation. Our `customer.subscription.updated` and `customer.subscription.deleted` handlers reflect any changes back into our DB.
+  - **Webhook dispatch table** updated: `customer.subscription.deleted` added; the "INTENTIONALLY NOT HANDLED" block for `invoice.payment_succeeded` retained.
+- **Cumulative test count:** **97 / 97** passing in 22s (was 88; +9 unit tests for `isFounderRateOpen` + `isFounderEligible` covering env-unset / env-unparseable / now-vs-end timestamps / annual-rejection / non-agent-rejection / window-closed cases).
+- **Typecheck + lint clean.**
+- **Cloudflare:** still pending PO action on token scope.
+- **What changed since last session:** Same calendar day, continued. This entry succeeds the previous Stripe-handlers entry below.
+- **What's left in the Stripe slice (next turn or later):**
+  - `invoice.payment_action_required` handler (3DS challenge → user notification — small)
+  - `customer.updated` handler (sync billing email/address — small)
+  - `charge.refunded` handler (record refund + recompute entitlements if needed — medium)
+  - Dunning email content via Resend at T+0 / T+3 / T+5 / T+7 — separate cron concern, not webhook-driven
+  - Founder-rate orphan-counter sweep cron (cleans up counter increments where grant insert failed)
+  - Stripe CLI replay tests (`stripe listen --forward-to localhost:3000/api/webhooks/stripe`, `stripe trigger checkout.session.completed`, etc.) — once dev server is running and reachable
+- **Other slice-1 work still pending (not Stripe):**
+  - Auth UI (signup, signin, magic link, password reset forms) — week 2 work, deferred while billing landed
+  - Agent dashboard (listings CRUD UI on top of our existing API + RLS, inbox for leads, performance analytics) — week 5–6 work
+  - Public homepage with listing search — week 4–5
+  - Cloudflare resource creation when token scope unblocks
+- **Next session should start with:** Choice of: (a) finish the remaining low-priority webhook handlers (action_required, customer.updated, charge.refunded — together ~30 minutes); (b) shift to auth UI (the big remaining unbuilt frontend piece — sign-in / sign-up / magic link forms, then the agent dashboard skeleton); or (c) Stripe CLI replay tests if the PO wants integration coverage on the webhook before more handlers land. Friday EOD comprehensive update tomorrow.
+
+---
+
+## 2026-04-29 — Stripe lifecycle handlers landed (subscription.updated, invoice.paid, invoice.payment_failed)
+- **What shipped:**
+  - **Four DECISIONS entries** locking design choices PO surfaced before code:
+    - `customer.subscription.updated` handler uses **fresh-fetch from Stripe** (treat event as trigger, retrieve authoritative state inside handler) — eliminates the out-of-order delivery problem entirely. Stripe's own integration docs recommend this pattern.
+    - `invoice.paid` is the chosen fulfillment event; `invoice.payment_succeeded` is **explicitly NOT handled** with a conspicuous comment block in the dispatch table. Both events fire for the same transition; handling both double-extends.
+    - **Founder-rate atomic claim** uses `UPDATE founder_rate_counter SET claimed = claimed + 1 WHERE id = 1 AND claimed < cap RETURNING claimed` — one statement, race-impossible by construction. PO caught the lock-scope trap with the original advisory-lock-around-check-and-increment sketch.
+    - **Subscription-status priority ordering correction** — `incomplete` ranks dead last (was 4th); added `unpaid` (was missing — Stripe's terminal-after-retries state); switched schema from British `cancelled` to Stripe's American `canceled`; added `paused` and `incomplete_expired` to the CHECK set.
+  - **Migration `0008_subscription_status_fix.sql`** — drops + recreates the CHECK constraint with the corrected status set; replaces `recompute_org_current_subscription` with the corrected priority CASE; lays in `founder_rate_counter` singleton (id=1, claimed=0, cap=50) plus `claim_founder_rate_slot()` and `release_founder_rate_slot(subscription_id)` SECURITY DEFINER functions. Counter table has RLS enabled with no policies (service-role only). Pre-existing data: zero `cancelled` rows in DB, no data migration needed.
+  - **Drizzle schema** updated with the new `SUBSCRIPTION_STATUSES` union (10 states); added an `ACTIVE_STATUSES` constant for authz checks (active, trialing, past_due, canceled — all the "user has access right now" states).
+  - **`customer.subscription.updated` handler** — fresh-fetch via `stripe.subscriptions.retrieve(id)`, then `updateSubscriptionFromStripe` helper writes the authoritative state. Logs and skips if no DB row exists yet (would mean checkout.session.completed is in flight). Triggers on `subscriptions` propagate `current_*` to `organizations` automatically (per 0007).
+  - **`invoice.paid` handler** — fresh-fetch invoice, fresh-fetch subscription (period_end now extends), update subscription row, record payment with `status='succeeded'`. Idempotent on `stripe_payment_intent_id` unique constraint. Order chosen so the payment row's FK to subscriptions is guaranteed valid even on a redelivery for a brand-new sub.
+  - **`invoice.payment_failed` handler** — same fresh-fetch pattern; records payment with `status='failed'`, captures `failure_reason` from `invoice.last_finalization_error`. Stripe handles dunning retries internally and will flip status to `past_due`; our trigger propagates that to `organizations.current_status`. Per-day cron for the actual user-facing dunning emails (T+0, T+3, T+5, T+7) is a follow-up — the hook here is logging the failure and reflecting state.
+  - **Webhook dispatch table** updated. Conspicuous comment block calls out `invoice.payment_succeeded` as INTENTIONALLY NOT HANDLED with a pointer to DECISIONS.
+  - **Shared helper** `src/lib/billing/handlers/_helpers.ts` exports `updateSubscriptionFromStripe(stripeSub)` and `findSubscriptionRowId(stripeSubscriptionId)`. Period-from-subscription extraction handles both API-version layouts (subscription-level and item-level) defensively.
+- **Cumulative test count:** **88 / 88** passing in 21s. Typecheck + lint clean. Existing tests cover RLS for these tables; integration tests for the handlers themselves come once Stripe CLI replay is wired up (`stripe listen --forward-to`).
+- **Cloudflare:** still pending PO action on token scope.
+- **What changed since last session:** Same calendar day, continued. This entry succeeds the previous Stripe-scaffold entry below.
+- **Next session should start with:** Founder-rate selection inside `checkout.session.completed` (atomic counter claim + grant insert; release on pre-billing cancellation via `customer.subscription.deleted` if `current_period_end` was the trial end and no payment ever cleared). Then `customer.subscription.deleted` for the final-state-cancellation path. Then the small `POST /api/billing/portal` endpoint for Customer Portal access — that's what wires the agent dashboard's "manage billing" / "upgrade plan" / "cancel subscription" buttons (per the PO's side-question this turn). Friday EOD comprehensive update tomorrow.
+
+---
+
+## 2026-04-29 — Three corrections accepted; 0007 migration; Stripe Checkout + webhook scaffold + first handler
+- **What shipped:**
+  - Three new DECISIONS entries documenting design choices the PO surfaced as gaps:
+    - **Image cap = trigger-counter** (not RLS subquery): denormalized `properties.image_count int` with `CHECK ≤ 30` plus AFTER INSERT/DELETE trigger on `property_images`. Constant-time, real DB-side backstop, route still gates with friendly errors.
+    - **Lat/lng = trigger** (not generated columns): `STORED GENERATED` rejected because PostGIS `ST_Y` / `geography → geometry` cast aren't IMMUTABLE. Replaced with plain `latitude` / `longitude` columns kept in sync via `BEFORE INSERT OR UPDATE OF location` trigger.
+    - **Entitlement shape = hybrid**: `subscriptions` table stays as the canonical mirror (history, idempotency target). Denormalized `current_subscription_id`, `current_plan_id`, `current_status`, `current_period_end` on `organizations` maintained by trigger on `subscriptions` INSERT/UPDATE/DELETE. Authz reads `organizations` directly, no join cost; reporting / dunning / audit hits `subscriptions`.
+  - **Migration `0007_denormalizations_and_latlng.sql`** lands all three: image_count + lat/lng + entitlement denorm + a `recompute_org_current_subscription(org_id)` SECURITY DEFINER function the trigger calls. Statuses ordered (active > trialing > past_due > incomplete > suspended > cancelled > expired) for the "best subscription per org" picker. Backfill runs at the end (fixture data populated correctly: org_a → fixture sub `active`, org_b → null).
+  - Drizzle schema updated with the new columns. Typecheck clean.
+  - **Stripe scaffolding** for the Checkout + webhook flow:
+    - `src/lib/billing/stripe.ts` — lazy-cached client + `verifyWebhookEvent()` helper.
+    - `src/lib/billing/checkout.ts` — `createAgentCheckoutSession()` (deliberately uses standard monthly/annual price; founder-rate gating happens at webhook time per `DECISIONS.md` "Founder-rate pricing is application-gated").
+    - `src/lib/billing/slug.ts` + 8 unit tests — diacritics-stripping org slug helper.
+    - `src/lib/billing/webhooks.ts` — `markEventProcessed()` idempotency dedup against `stripe_events_processed` (race-safe via INSERT + 23505 check).
+    - `src/lib/billing/handlers/checkout-session-completed.ts` — atomic creation of organizations row + organization_members(owner) row + subscriptions row from a completed Stripe Checkout. Idempotent under retry. Slug uniqueness via collision-suffix retry. Picks plan_id from the Stripe price ID by joining to the seeded `plans` table.
+    - `src/app/api/billing/checkout-session/route.ts` — POST endpoint.
+    - `src/app/api/webhooks/stripe/route.ts` — webhook entry: signature verification → dedup → handler dispatch → on handler failure, rolls back the dedup row so Stripe retries actually retry.
+- **What's still pending in the Stripe slice (next turns):**
+  - Handlers for `customer.subscription.updated` (status changes, plan changes, cancel-at-period-end), `customer.subscription.deleted`, `invoice.paid`, `invoice.payment_failed` (dunning kickoff), `invoice.payment_action_required`, `customer.updated`, `charge.refunded`. The dispatch table in `src/app/api/webhooks/stripe/route.ts` has the slot list as comments.
+  - `POST /api/billing/portal` — Customer Portal redirect.
+  - Founder-rate selection logic (advisory-locked counter against `founder_rate_grants`, fired inside the `checkout.session.completed` handler).
+  - Stripe CLI replay tests (`stripe trigger checkout.session.completed`, `stripe trigger invoice.payment_failed`) once the local webhook URL is reachable via `stripe listen --forward-to`.
+  - End-to-end real test card flow once dev server is running and Cloudflare bucket pieces land.
+- **Cumulative test count:** **88 / 88** (18 identity + 23 billing-RLS + 23 properties + 16 upload-unit + 8 slug-unit) in 20.7s. Typecheck + lint clean.
+- **Cloudflare:** still pending PO action on token scope.
+- **What changed since last session:** Same calendar day, continued. This entry succeeds the slice-1-weeks-6–7 entry below.
+- **Next session should start with:** Continue Stripe handlers in priority order — `customer.subscription.updated` (catch-all for plan changes, status flips, cancel_at_period_end set), then `invoice.paid` and `invoice.payment_failed` (dunning starts here). Founder-rate gating goes inside `checkout.session.completed` once the rest of the lifecycle is in place. Customer Portal endpoint is small; tail it onto whichever turn finishes early. **Friday EOD comprehensive update tomorrow (2026-05-01).**
+
+---
+
+## 2026-04-29 — Slice-1 weeks 6–7 scaffolded: i18n + theme + property detail + signed R2 upload (Cloudflare-pending integration)
+- **What shipped:** All four pre-Cloudflare items in the agreed order.
+  1. **i18n via `next-intl`** — `src/i18n/{config,routing,request}.ts`, `messages/{en,es}.json`, `next.config.ts` plugin, restructured `src/app/[locale]/...` (root layout removed; locale layout owns `<html>` + `<body>` + providers per next-intl App Router pattern). Path-prefix routing always-on (`/en/...`, `/es/...`); per-locale path translations registered (`/en/properties/[slug]` ↔ `/es/propiedades/[slug]`, `/en/privacy` ↔ `/es/privacidad`, `/en/terms` ↔ `/es/terminos`, `/en/pricing` ↔ `/es/precios`). `Locale` union typed against `LOCALES` array; runtime guards on every page that takes the param. **Middleware chain:** next-intl runs first; if it issued a redirect, return immediately; otherwise layer Supabase session refresh on the response so locale headers/cookies survive.
+  2. **Theme toggle (light / dark / system)** — `next-themes` via `src/components/theme-provider.tsx`, three-state segmented toggle in `src/components/theme-toggle.tsx` with translated labels and `aria-pressed`. **FOUC handled** with `suppressHydrationWarning` on `<html>` plus an inline blocking script in `<head>` that resolves stored/system preference and applies the class before paint. `LocaleToggle` component for switching locales while preserving the canonical pathname.
+  3. **Property detail page + SEO + JSON-LD** — `src/lib/listings/queries.ts` (typed `fetchPropertyByShortId` joining property_images embed; `parseSlugParam` extracting the trailing 6-char short ID), `src/lib/listings/seo.ts` (`buildSeoMeta`, `buildListingJsonLd`, `formatPrice`, `listingUrls`), `src/app/[locale]/properties/[slug]/page.tsx` (RSC; full `generateMetadata` with canonical, hreflang alternates, OG, Twitter Card, robots; JSON-LD inline as `<script type="application/ld+json">` using **`@type: RealEstateListing`** with `address: PostalAddress` and `offers: Offer` per spec §16.3 — geo block deferred until lat/lng materialization lands alongside the map view; canonical-slug 301 redirect when URL slug differs from current; "translation pending" banner when the listing is single-language and the user is on the missing locale).
+  4. **Signed-R2 upload route + unit tests** — Migration **`0006_property_images_upload_status.sql`** added `upload_status text not null default 'pending' check (...)` column, tightened the unique-primary partial index to require `is_primary AND upload_status='confirmed'`, added a sweep-target index on `(created_at) where upload_status='pending'`, and updated the public-read RLS to filter on `upload_status='confirmed'`. `@aws-sdk/client-s3` + `@aws-sdk/s3-request-presigner` added (R2 is S3-compatible); `src/lib/storage/r2.ts` exposes `presignPut` with 5-minute TTL. `src/lib/listings/upload.ts` has the pure validation logic (Zod schemas for upload + confirm requests, content-type allowlist, 25MB cap, 30-images-per-property cap, R2 key builder). `src/app/api/properties/[id]/images/route.ts` (POST = sign upload + insert pending row) and `src/app/api/properties/[id]/images/[imageId]/confirm/route.ts` (POST = flip to confirmed; idempotent on re-confirm). `tests/unit/upload.test.ts` covers all validation branches with **16 unit tests**.
+- **Test ergonomics:** `pnpm test` was running in watch mode (would hang in CI); changed to `vitest run` and added `pnpm test:watch` for the interactive case. Vitest now aliases `server-only` to a no-op (`tests/_mocks/server-only.ts`) so server-marked modules unit-test without throwing.
+- **Cumulative test count:** **80 / 80 tests pass** in 19.4s. (18 identity + 23 billing + 23 properties + 16 unit.)
+- **Typecheck clean. Lint clean.**
+- **Cloudflare:** still pending. The upload route is fully written; integration test ("PUT bytes to R2 via the signed URL") becomes a config flip the moment R2 bucket and `R2_ENDPOINT` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` / `R2_BUCKET_PROPERTY_IMAGES` are populated.
+- **What changed since last session:** Same calendar day, continued. This entry succeeds the properties-migration entry below.
+- **Cumulative file count:** ~80 source files. Migrations: 6. Test files: 4. App routes: home, privacy, terms, property detail (all under `[locale]`); 2 API routes (sign + confirm). Components: theme provider, theme toggle, locale toggle.
+- **Next session should start with:** Once Cloudflare token has expanded permissions, run the wrangler create chain (R2 buckets, KV namespaces, optionally Queues, Pages projects), commit a real `wrangler.toml`, populate the four `R2_*` env vars in `.env.local`, then end-to-end test the upload flow with a real PUT to R2. Adjacent work: (a) authenticated agent dashboard skeleton (list/create/edit listing flows) — slice-1 week 5–6 backend; (b) Stripe Checkout + webhook → entitlement (slice-1 week 3) which has been deferred while properties + i18n landed; (c) lat/lng generated columns for the JSON-LD geo block + map view. **Friday EOD comprehensive update tomorrow (2026-05-01).**
+
+---
+
+## 2026-04-29 — Properties migration shipped (0004 + 0005); 64/64 RLS tests pass
+- **What shipped:**
+  - **`0004_properties.sql`** — `properties` and `property_images` tables matching HANDOFF §4.3 (split title/description/slug per locale, PostGIS geography location, all CHECK constraints from spec, plus stricter ones I added: title-required-when-non-draft, slug-required-when-published, published_at consistency). Indexes per spec: status, org, GIST on location, country+city, partial on price (active only), partial on featured_until (only-not-null because `now()` can't appear in an index predicate), per-locale GIN tsvector for full-text search. `gen_short_id()` function for 6-char base62 short IDs as defaults. RLS: anon SELECT for active+published, org-member SELECT for all org's, org-agent+ INSERT (with cap check via SECURITY DEFINER `can_insert_listing(org_id)` that takes `pg_advisory_xact_lock` for race safety per CRITIQUE §B4), org-agent+ UPDATE/DELETE on own org, admin all. property_images RLS uses subquery joins to mirror property visibility.
+  - **`0005_properties_cap_fix.sql`** — discovered during testing that 0004's INSERT policy applied the cap to ALL inserts including drafts (wrong; drafts don't occupy slots), and the UPDATE policy ran cap on every active-row update (wrong; updates don't change the count). Fixed with: INSERT policy gates cap only when `status in ('active','pending')`; UPDATE policy drops cap clause; `enforce_listing_cap_on_transition` BEFORE UPDATE trigger now enforces the cap on `non-occupying → occupying` status transitions (uses OLD vs NEW which RLS WITH CHECK can't access).
+  - **Drizzle schema additions** for both tables. `geographyPoint` customType for `geography(Point, 4326)` (writes via `ST_SetSRID(ST_MakePoint(lng,lat),4326)::geography` SQL fragment or EWKT string). `Property` / `NewProperty` / `PropertyImage` / `NewPropertyImage` types exported. `PROPERTY_STATUSES`, `TRANSACTION_TYPES`, `PRICE_PERIODS` union types kept in sync with the SQL CHECKs.
+  - **`tests/rls/_setup.ts` extensions:**
+    - `clientCache` Map per-tier — Supabase Auth rate-limited `signInWithPassword` calls when 64 tests each opened fresh sessions. Now we sign in once per fixture user per test run and reuse.
+    - `ensureProperty()` and `ensurePropertyImage()` idempotent fixture helpers. EWKT format (`'SRID=4326;POINT(lng lat)'`) for the geography column — Supabase JS / PostgREST auto-casts text to geography.
+    - Two fixture properties on Org A: one `active+published`, one `draft`. Org B has none — used for cross-org isolation tests.
+    - `cleanupTestProperties()` — removes any property whose `short_id` starts with `fixtest`, preserving the `fix*` fixture rows.
+  - **`tests/rls/properties.test.ts`** — 23 tests: anon-reads-active / anon-cannot-see-draft / registered-no-org-sees-active-only / org-member-sees-both / cross-org-isolation / admin-sees-all / org-insert-own / org-insert-cross-fails / no-org-cannot-insert / **listing-cap blocks 6th active** / **drafts don't count toward cap** / org-update-own / cross-org-update-blocked / non-owner-cannot-delete / owner-can-delete / image-public-read-active / image-hidden-on-draft / image-org-member-sees-both / image-cross-org-blocked / image-org-insert-own / image-cross-org-insert-fails.
+- **Cumulative test count:** **64 / 64 RLS tests pass** in ~20s. (18 identity + 23 billing + 23 properties.)
+- **Typecheck still clean.**
+- **Cloudflare:** still scope-limited (PO is fixing).
+- **What changed since last session:** Same calendar day. This entry succeeds the Stripe-cleanup entry below.
+- **Next session should start with:** Once Cloudflare token has expanded permissions, run the wrangler create chain and commit a real `wrangler.toml` to close out week 1. Then in slice-1 weeks 6–7: i18n (next-intl) routing, the public property detail page with full SEO (title, description, canonical, hreflang, OG, Twitter Card, JSON-LD), theme toggle, image upload flow (signed R2 URL endpoint + Cloudflare Images variants pipeline). Reminder: Friday EOD comprehensive update tomorrow (2026-05-01).
+
+---
+
+## 2026-04-29 — Stripe cleanup complete; test-mode setup applied; properties migration next
+- **What shipped:**
+  - PO swapped `.env.local` keys to `sk_test_*` / `pk_test_*` (verified by prefix check).
+  - Test-mode audit: 0 pre-existing products, 0 pre-existing prices.
+  - `pnpm stripe:setup` ran in test mode (guardrail verified — would have refused live).
+  - **Test-mode IDs:**
+    - Product `prod_UQNhDg8GyWbhK7` (AHO Agent)
+    - `price_1TRWwJBsPTDRb0ccoIg87EkI` (agent_monthly $29, 7-day trial)
+    - `price_1TRWwKBsPTDRb0ccygVRnYNW` (agent_annual $290, no trial)
+    - `price_1TRWwKBsPTDRb0ccdV5YNykb` (agent_founder_monthly $19, archived, app-gated)
+  - Updated four `STRIPE_AGENT_*` env vars in `.env.local` via in-place sed.
+  - Re-ran `pnpm db:seed` — `plans` rows now reference test-mode price IDs (no longer the archived live IDs).
+  - DB state verified: 3 production plans + 1 RLS-test fixture; correct `is_visible` flags; correct test-mode price IDs.
+- **Cloudflare token still scope-limited.** Probed `wrangler r2 bucket list`, `kv namespace list`, `pages project list` — all fail with `Authentication failed (status: 400) [code: 9106]`. PO is fixing on their end; resource-creation chain stays held.
+- **Next:** since Cloudflare is the only thing blocking week-1 close-out and PO is on it, I'm starting the **properties migration (0004)** in parallel — it's slice-1 week 4–5 work that doesn't touch Cloudflare or Stripe. Will land: `0004_properties.sql` (properties + property_images tables, PostGIS location, listing-cap race fix via advisory lock per CRITIQUE §B4, public-read SECURITY DEFINER pattern per CRITIQUE §B12, full-text indexes per locale, slug+short_id columns); Drizzle schema additions; fixture extensions in `_setup.ts`; new `tests/rls/properties.test.ts` covering anon-public-read / org-member-private-read / cross-org-blocked / cap-enforcement / cap-race-safety.
+
+---
+
+## 2026-04-29 — Stripe live-mode cleanup; guardrails added; awaiting PO key swap to test mode
+- **What shipped:**
+  - Confirmed the live-mode-Stripe-creation was a process gap. PO message earlier today ("keep live and nobody is going to pay") was read as authorization to create live products; PO clarified intent was test mode all along. Adopting strict policy going forward.
+  - **Hard rule #9 added to `CLAUDE.md`:** "Any operation that creates billable resources or live-mode payment infrastructure requires explicit confirmation in chat before execution. The presence of a live API key is not implicit consent." Loaded every session.
+  - **Guardrail in `scripts/setup-stripe-products.ts`:** refuses to run with `sk_live_*` key. Removing the guard requires a DECISIONS.md entry approving the specific live-mode operation, with rollback plan and date.
+  - **One-off archive script** `scripts/stripe-archive-2026-04-29.ts` (refuses to run without `sk_live_`; not in `pnpm` lifecycle). Audited then archived all 4 live objects:
+    - `prod_UQNAhtN4rTQm3Y` (AHO Agent product) → `active=false`
+    - `price_1TRWQTHkr4MqMDqIi73Swonq` (agent_monthly $29) → `active=false`
+    - `price_1TRWQTHkr4MqMDqICouAeiPe` (agent_annual $290) → `active=false`
+    - `price_1TRWQUHkr4MqMDqIf2Y9P6jc` (agent_founder_monthly $19) → `active=false` (was already archived by original setup-script flag)
+  - **DECISIONS.md entry** "Live-mode Stripe objects created in error; archived; process gap closed" — full record with the four IDs marked DO NOT REUSE.
+  - **Typecheck still clean.**
+- **Blocked:** PO message said `.env.local` was corrected to `sk_test_*` but actual file still contains `sk_live_*` for both `STRIPE_SECRET_KEY` and `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (verified via key-prefix check). The IDE save may not have committed, or the line wasn't replaced. Need PO to swap keys in `.env.local` before continuing.
+- **What changed since last session:** Same calendar day. This entry succeeds the firing-order-complete entry below.
+- **`plans` table currently still references the now-archived live-mode price IDs.** Three rows in `public.plans` (`aho_agent_monthly`, `aho_agent_annual`, `aho_agent_founder_monthly`) point at archived prices. They will be re-pointed at fresh test-mode price IDs as soon as the test setup runs and `pnpm db:seed` is re-executed.
+- **Next session should start with:** PO swaps `STRIPE_SECRET_KEY` (and publishable key) in `.env.local` to test-mode values. Then I run: (1) `pnpm exec tsx -e "..."` quick audit of test-mode Stripe (confirm zero pre-existing products), (2) `pnpm stripe:setup` — guard-protected, will create test-mode equivalents, (3) post the JSON of new price IDs for PO review, (4) PO updates four `STRIPE_AGENT_*` env vars in `.env.local`, (5) `pnpm db:seed` to re-point `plans` rows at the new IDs. Cloudflare resource creation continues as a parallel track once token permissions are expanded.
+
+---
+
+## 2026-04-29 — Firing order completed (except Cloudflare); 41/41 RLS tests pass; DB seeded
+- **What shipped:** Migrated, tested, seeded. PostgreSQL is live with the v1 identity + billing layer.
+  - **Pooler URL fix saga:** sed-fixed missing `@` (mistakenly thought to be missing — see below). Discovered `cat >> .env.local <<EOF` had glued the next line onto the URL because the file's last line had no trailing newline; perl-fixed with newline insertion. Then the URL still failed to parse — hex dump of the env var showed the password was `Masterdominikana32$`, ending with `$`, and bash was expanding `$@` to empty during sourcing, eating the `@` and `$`. URL-encoded the `$` to `%24` (idempotent fix; postgres-js decodes it back). Then "Tenant or user not found" — probed multiple pooler hostnames, found the project is on `aws-1-us-east-1` not `aws-0-us-east-1`. Updated. URL parses, connection works.
+  - **Migrations applied** (`pnpm db:migrate`): 0001_init.sql, 0002_identity.sql, 0003_billing.sql. Tracked in `public.aho_migrations`.
+  - **RLS tests pass** (`pnpm test:rls`): **41 / 41 across 2 test files**, ~21s wall-clock. All policies in 0002 + 0003 exercised positive + negative from each affected tier including cross-org write attempts and admin-field escalation attempts. Vitest reports 41 individual cases (18 identity + 23 billing — the billing count is 23 not the 21 I previously reported because some `it()` blocks count differently in nested describes).
+  - **Plans seeded** (`pnpm db:seed`): 3 production plan rows in `public.plans` referencing the LIVE Stripe price IDs from earlier this session. Plus 1 fixture plan from RLS-test setup (`aho_agent_monthly_test` with `stripe_price_id=price_test_aho_agent_monthly`).
+  - **Typecheck clean.** Fixed: removed pinned `apiVersion` in `setup-stripe-products.ts` (let SDK use its bundled default); moved `SupabaseClient` import in `lib/supabase/client.ts` from `@supabase/ssr` to `@supabase/supabase-js` (the type lives there); typed `setAll(cookiesToSet)` in `lib/supabase/server.ts` and `middleware.ts` with a local `CookieToSet` type using `CookieOptions` from `@supabase/ssr`.
+  - **Lint clean.**
+- **DB state (post-migration + post-seed + post-RLS-test-fixtures):**
+  | Table | Rows | Notes |
+  |---|---|---|
+  | `aho_migrations` | 3 | One per applied SQL file |
+  | `plans` | 4 | 3 production (monthly, annual, founder) + 1 RLS-test fixture |
+  | `profiles` | 6 | All RLS-test fixture users |
+  | `organizations` | 2 | Both RLS-test fixtures |
+  | `organization_members` | 3 | Wired to fixture orgs |
+  | `subscriptions` | 1 | RLS-test fixture |
+  | `payments` | 1 | RLS-test fixture |
+  | `founder_rate_grants` | 1 | RLS-test fixture |
+  | `stripe_events_processed` | 0 | (used at webhook time) |
+  | `spatial_ref_sys` | 8500 | PostGIS reference data |
+- **Known issue — RLS-test fixtures live in the same DB as production:** The fixtures from `tests/rls/_setup.ts` (test users `*@aho.test`, orgs `aho-test-org-*`, plan `aho_agent_monthly_test`) sit in the same Supabase project that will eventually serve real users. Names are namespaced enough to avoid collision, but the fixture plan is `is_visible=true` and would show up if `/pricing` queried `plans` unfiltered. Long-term fix: dedicated test Supabase project (or per-PR Supabase branches when those mature). Short-term mitigation: when `/pricing` is built, filter by `stripe_price_id NOT LIKE 'price_test_%'`. Adding to `OPEN_QUESTIONS.md` + `RISKS.md`.
+- **Still blocked:** Cloudflare resource creation. The `aho-build` token authenticates for `whoami` but lacks `Workers R2 Storage: Edit` (and probably KV / Queues / Pages too). PO action: edit the token to add the full permission set from CLOUDFLARE_RESOURCES.md, plus enable R2 on the account if not already, plus optionally subscribe to Workers Paid for Queues. Once unblocked, the wrangler-creation chain takes ~30 seconds.
+- **What changed since last session:** Same calendar day. This entry succeeds the partial-firing-order entry below.
+- **Next session should start with:** Once the Cloudflare token has expanded permissions, run `wrangler r2 bucket create` × 3, `wrangler kv namespace create` × 2 (capture IDs), `wrangler queues create` × 4 (if Workers Paid), `wrangler pages project create` × 2; commit a real `wrangler.toml` with the captured IDs; close out week-1 of slice 1. Then begin properties migration (0004) with PostGIS + listing-cap race fix + public-read SECURITY DEFINER pattern per CRITIQUE §B12.
+
+---
+
+## 2026-04-29 — Firing order partially executed; Stripe LIVE products created; Cloudflare + migration blocked
+- **What shipped:** Resolved that direnv was never installed (no `brew`, no binary, no `~/.zshrc` hook, no `.envrc`). Workaround in place: `set -a && source .env.local && set +a` prefixed on every Bash command that needs env. `pnpm` invoked via `corepack pnpm@9.12.3` (no global symlink permissions for npm install). Added `wrangler@^4.86` to devDependencies. Replaced `db:migrate` script with a custom hand-written-SQL runner at `scripts/migrate.ts` (postgres-js with `simple()` protocol for multi-statement files; tracks applied migrations in a `public.aho_migrations` bookkeeping table). Fixed cosmetic bug in `scripts/setup-stripe-products.ts` where archived founder price showed `archived: false` in the JSON output (now returns the updated price object). `pnpm install` succeeded — `node_modules/` and `pnpm-lock.yaml` populated.
+- **Stripe LIVE products created** (PO confirmed live mode with no public surface yet):
+  - Product: `prod_UQNAhtN4rTQm3Y` ("AHO Agent")
+  - Monthly $29: `price_1TRWQTHkr4MqMDqIi73Swonq` (7-day trial on Price level)
+  - Annual $290: `price_1TRWQTHkr4MqMDqICouAeiPe` (no trial)
+  - Founder $19: `price_1TRWQUHkr4MqMDqIf2Y9P6jc` (7-day trial; archived; application-gated per `DECISIONS.md`)
+  - PO needs to add these as `STRIPE_AGENT_PRODUCT_ID`, `STRIPE_AGENT_MONTHLY_PRICE_ID`, `STRIPE_AGENT_ANNUAL_PRICE_ID`, `STRIPE_AGENT_FOUNDER_PRICE_ID` in `.env.local` so `pnpm db:seed` can populate the `plans` table after migrations.
+- **Blocked on:**
+  - **Cloudflare:** R2 bucket creation returns `Authentication error [code: 10000]`. Token authenticates for `whoami` but lacks `Workers R2 Storage: Edit` (likely also missing KV / Queues / Pages / Cache Purge / DNS). PO action: edit the `aho-build` token in the Cloudflare dashboard to add the full permission set, plus enable R2 on the account if not already, plus subscribe to Workers Paid for Queues (defer if not yet ready).
+  - **Migration:** `SUPABASE_POOLER_URL` is malformed — missing `@` between password and host. PO either fixes in `.env.local` or authorizes me to run the targeted `sed` substitution. Side effect: the DB password (`Masterdominikana32`) leaked into Claude's context via the postgres-js parse error. PO recommended to rotate via Supabase Dashboard → Project Settings → Database → Reset password (and pick a strong random one). Not blocking the migration after the URL fix.
+  - **Tests:** Blocked transitively on the migration.
+- **What changed since last session:** Same calendar day. This entry succeeds the billing-migration entry below and reflects partial execution of the firing order.
+- **Cumulative scaffolding:** 53 tracked files. Migrations: 3 written (extensions, identity, billing) — none applied yet. RLS tests: 39 written — none run yet. Stripe LIVE products: 1 + 3 prices in place.
+- **Next session should start with:** Two unblock paths in parallel — (a) PO updates Cloudflare token permissions + enables R2 (then I rerun the resource-creation chain, write a real `wrangler.toml`, and document the IDs); (b) PO fixes the pooler URL (`@` between password and host) — at which point I run `pnpm db:migrate` (apply 0001, 0002, 0003), then `pnpm test:rls` (must pass all 39), then `pnpm db:seed` (with the four `STRIPE_AGENT_*` env vars added). Either path can land first; the other follows independently.
+
+---
+
+## 2026-04-29 — Billing migration + RLS tests + middleware + seed script
+- **What shipped:** Identity layer joined by the billing layer. Slice 1 weeks 2–3 are now substantively pre-staged.
+  - `src/db/migrations/0003_billing.sql` — `plans`, `subscriptions`, `payments`, `stripe_events_processed` (idempotency dedup), `founder_rate_grants` (per `DECISIONS.md` "Founder-rate pricing is application-gated"). All `amount_cents` use `bigint` per CRITIQUE §C. `is_visible` flag on `plans` lets the founder rate be `is_active=true` (sellable via app logic) but `is_visible=false` (never on `/pricing`). `count_active_founder_grants()` SECURITY DEFINER function for the webhook handler's race-safe cap check via `pg_advisory_xact_lock`. RLS: anon+all reads visible+active plans; admins see all plans; org members read their org's subscription; org owners+managers read payments (plain agents do not); user-bound subs (Premium v1.1) self-read; `stripe_events_processed` has RLS enabled with no user-context policies (deny-by-default); founder_rate_grants self-read + admin all.
+  - `src/db/schema.ts` — Drizzle types added for all five new tables; SubscriptionStatus / PaymentStatus / BillingPeriod union types kept in sync with the SQL CHECKs. Mid-file imports cleaned up (moved to top, removed unused).
+  - `tests/rls/_setup.ts` — fixture chain extended: one fixture plan, one active subscription on org A, one successful payment, one founder-rate grant for the org A owner. Org B intentionally has none — used to test cross-org isolation.
+  - `tests/rls/billing.test.ts` — 21 RLS tests: anon-reads-visible-plans / cannot-see-invisible / admin-sees-all-plans / cannot-insert-rogue-plan; org-member-reads-sub / cross-org-blocked / write-blocked-via-user-context; owner-reads-payments / non-owner-agent-blocked / cross-org-blocked; stripe_events_processed locked to service-role; founder grant self-read + cross-user-blocked + admin-sees-all.
+  - `src/middleware.ts` — Next.js middleware that refreshes Supabase auth session cookies on every request. Excludes static assets and webhook endpoints. Locale handling deliberately deferred until next-intl wires up in weeks 6–7.
+  - `scripts/seed-plans.ts` + `pnpm db:seed` — idempotent upsert of `plans` rows from env vars (`STRIPE_AGENT_*_PRICE_ID`). Workflow: `pnpm stripe:setup` (creates Stripe objects, prints JSON of IDs) → PO reviews + adds IDs to `.env.local` → `pnpm db:seed` (populates `plans`). `.env.example` extended with the four new vars.
+- **What changed since last session:** Same calendar day (still 2026-04-29). Earlier today: doc scaffold + decisions; project skeleton + Stripe script + Cloudflare resources plan; identity migration + RLS harness; this entry — billing migration + tests + middleware + seed script.
+- **Cumulative scaffolding:** 51 tracked files. Migrations: 3 (extensions, identity, billing). RLS test files: 2 (identity, billing). Tests: 18 + 21 = 39 RLS tests across the policies of `0002` and `0003`.
+- **Blockers (unchanged):** Three credentials, in priority:
+  1. Cloudflare token visible in my Bash subprocess (PO running direnv setup).
+  2. GitHub repo URL once org is created.
+  3. Supabase keys + Stripe TEST key in `.env.local`.
+- **Next session should start with:** Whichever credential lands first. With billing migration + tests pre-staged, the moment Supabase keys arrive it's: `pnpm install` → `pnpm db:migrate` (applies 0001, 0002, 0003) → `pnpm test:rls` (must pass all 39 RLS tests). Then once Stripe key lands: `pnpm stripe:setup` → review IDs → add env vars → `pnpm db:seed`. After that: properties migration (0004) — the biggest single piece, with PostGIS + listing-cap enforcement + public-read SECURITY DEFINER pattern per CRITIQUE §B12. **Friday EOD this week (2026-05-01)** — comprehensive PROGRESS update covering whatever week-1 progress lands.
+
+---
+
+## 2026-04-29 — First migration + RLS test harness pre-staged
+- **What shipped:** Identity layer ready to apply the moment Supabase keys land.
+  - `src/db/migrations/0001_init.sql` — extensions (postgis, citext, pg_trgm, pgcrypto, pgsodium, uuid-ossp) + reusable `touch_updated_at()` trigger function. (22 lines.)
+  - `src/db/migrations/0002_identity.sql` — `profiles` (extends `auth.users`), `organizations`, `organization_members` with all CHECK constraints from spec §4.1; `handle_new_auth_user` trigger that auto-creates a profile row on every `auth.users` insert; `protect_profile_admin_fields` BEFORE-UPDATE trigger that resets `is_admin`/`admin_role` on user-context updates while letting service-role through (defense against R7); tier-resolution helpers split per CRITIQUE §B7 into `get_user_buyer_tier(uid)`, `get_user_org_role(p_org_id)`, `is_platform_admin()`; full RLS policies — self-select / self-update / admin-select / admin-update on profiles, member-select / owner-update / admin-all on organizations, self-select / org-admin-select / owner-CRUD / platform-admin-all on organization_members. (273 lines.)
+  - `src/db/schema.ts` — Drizzle TS schema for the three identity tables matching the SQL exactly (citext via customType; `char(2)`/`char(3)` via Drizzle's `char` builder), plus exported tier/role union types kept in sync with the SQL CHECK constraints. (134 lines.)
+  - `tests/rls/_setup.ts` — RLS test harness. Defensive guard refuses to run against staging/prod URLs. Idempotent fixture creation: 6 fixture users (one anon shape + registered_a, registered_b, agent_a_owner, agent_a_agent, agent_b_owner, admin), 2 fixture orgs (Org A, Org B), wired-up org_members. `clientFor(tier)` factory, `admin()` service-role escape hatch, `fixtureUserId(tier)` helper. (263 lines.)
+  - `tests/rls/identity.test.ts` — 18 RLS tests covering every policy in 0002 from each affected tier, positive and negative, plus the cross-org write attempt and the admin-field escalation attempt that exercises the protect trigger. (270 lines.)
+  - `vitest.config.ts` — single-fork sequential execution for the RLS suite (until per-PR ephemeral Supabase branches are wired up).
+- **What changed since last session:** Same calendar day; this is the third entry of today's session. Earlier: (1) doc scaffold + decisions; (2) project skeleton + Stripe script + Cloudflare resources plan; (3) this — migration + RLS harness.
+- **Cumulative scaffolding:** 47 tracked files. Total lines across SQL migrations + schema + RLS tests = 962. Total docs (HANDOFF, CRITIQUE, DECISIONS, OPEN_QUESTIONS, PROGRESS, RISKS, DNS, CLOUDFLARE_RESOURCES) ≈ 4,500 lines.
+- **Blockers (unchanged from prior entry):** Three credentials, in priority:
+  1. Cloudflare token visible in my Bash subprocess (PO running direnv setup).
+  2. GitHub repo URL once org is created (PO updates local remote).
+  3. Supabase keys + Stripe TEST key in `.env.local`.
+- **Next session should start with:** Whichever credential lands first. Pre-staged work means: (a) Cloudflare → `wrangler whoami` then create commands from `docs/CLOUDFLARE_RESOURCES.md`; (b) Supabase → `pnpm install`, `pnpm db:migrate` (applies 0001 + 0002), `pnpm test:rls` (must pass all 18 tests before moving on); (c) Stripe → `pnpm stripe:setup`, post resulting JSON of price IDs to PO. **Friday EOD this week (2026-05-01)** — comprehensive PROGRESS update covering whatever week-1 progress lands.
+
+---
+
+## 2026-04-29 — Pre-staged Stripe + Cloudflare prep; PO provisioning in flight
+- **What shipped:** Two new DECISIONS entries: migration tooling (hand-written SQL files in `src/db/migrations/` applied by `drizzle-kit migrate`; Drizzle TS schema is the runtime types source, kept in sync manually) and Stripe trial-period configuration (set on the Price level via `recurring.trial_period_days: 7`, not in checkout-session creation code). `scripts/setup-stripe-products.ts` written — idempotent script that creates the `aho_agent` product with three prices (`agent_monthly_29`, `agent_annual_290`, `agent_founder_monthly_19`) using metadata-keyed lookups so re-running it doesn't duplicate. Founder price auto-archived (never on `/pricing`; only assignable via application logic). `package.json` updated with `stripe`, `tsx`, and the `pnpm stripe:setup` script. `docs/CLOUDFLARE_RESOURCES.md` written — full inventory of what gets created when the Cloudflare token is visible in the shell, with the exact `wrangler` commands ready to run.
+- **What changed since last session:** Same calendar day, continuous work. Earlier today: scaffolding + decisions; this entry adds pre-staged execution scripts so the moment credentials land, the work fires without further deliberation.
+- **PO provisioning in flight (per their plan):** Today — GitHub org `advertisehomes-online` (or close alternative), Supabase project (US East), Stripe TEST account. Tomorrow — Resend, Sentry, PostHog, lawyer outreach, registrar nameserver change. Within 5 days — bank for Stripe payouts (separate, doesn't block test mode).
+- **Blockers:** Same as previous entry. Top three:
+  1. Cloudflare token in my Bash subprocess env (PO running direnv setup now).
+  2. GitHub repo URL once org is created — PO updates the local remote themselves per `git remote set-url origin <url>`.
+  3. Supabase keys + Stripe TEST key in `.env.local` as PO provisions each.
+- **Next session should start with:** Whichever credential lands first. Pre-staged work means: (a) Cloudflare → run `wrangler whoami`, then the create commands in `docs/CLOUDFLARE_RESOURCES.md`, then commit a real `wrangler.toml` once IDs are known; (b) Supabase → write the first migration (`0001_init.sql` with extensions, 5 core tables, RLS enable + initial public-read + agent-write policies, fixture user setup), update `src/db/schema.ts` to match, run `pnpm install` + `pnpm db:migrate` + first round of RLS tests; (c) Stripe → `pnpm stripe:setup`, post the resulting JSON of price IDs back to the PO for review per `DECISIONS.md` "Pricing locked". Friday EOD this week (2026-05-01): comprehensive PROGRESS update covering whatever lands by then.
+
+---
+
+## 2026-04-29 — Project scaffolded; awaiting credentials for first run
+- **What shipped:** Logged three more decisions in `docs/DECISIONS.md`: account-ownership model (PO owns all third-party services; secrets reach Claude via `.env.local`, not collaborator invites — there is no separate human dev), Supabase region override (US East, not EU — DR-latency reasoning), and founder-rate pricing mechanism (application-gated counter with a `founder_rate_grants` table; Stripe doesn't natively enforce "first 50"). Added a feedback memory `aho_collaboration_model.md` so this clarification persists across sessions.
+- **Project scaffolded:** `package.json`, `tsconfig.json`, `next.config.ts`, `.nvmrc` (Node 22), `postcss.config.mjs`, `eslint.config.mjs`, `.prettierrc.json`, `.env.example` (no secrets — placeholders + non-secret account ID), `next-env.d.ts`. `src/app/` with `layout.tsx`, `page.tsx` (placeholder home), `globals.css` (Tailwind v4), and substantive placeholder `/privacy` and `/terms` pages sufficient for Meta/LinkedIn app review submission. `src/lib/env.ts` (Zod-validated public + server env). `src/lib/supabase/{admin,server,client}.ts` with the admin/server/browser split documented inline (admin imports `'server-only'` to fail the build if it leaks to a client bundle). `drizzle.config.ts` + `src/db/schema.ts` (placeholder) + `src/db/migrations/.gitkeep`. `.github/workflows/ci.yml` (typecheck + lint + unit tests) + `.github/PULL_REQUEST_TEMPLATE.md`. `README.md` and `docs/DNS.md` (records draft for `advertisehomes.online`). Pruned `OPEN_QUESTIONS.md` to reflect engineering defaults all approved and decisions logged.
+- **What changed since last session:** Same calendar day, continuous work; this entry succeeds the earlier "v1 scope locked" entry below.
+- **Blockers:** Cannot do `pnpm install` / first build / `wrangler` calls / Drizzle migration generation until external access lands. Critical-path items in `OPEN_QUESTIONS.md` "Tier 1–3":
+  1. **direnv installed + `.envrc` created** so my Bash subprocess sees `CLOUDFLARE_API_TOKEN` (PO action — 5 min)
+  2. **GitHub repo location decided** (org vs. personal) so the git remote can be updated (PO action — 1 min)
+  3. **Supabase keys** (anon + service_role + db password + pooler URL) into `.env.local` (PO action — already provisioning per their plan)
+  4. **Stripe TEST secret key** into `.env.local` so I can create products/prices and send IDs back for review (PO action)
+- **Next session should start with:** Whichever credential lands first, do the corresponding work: (a) Cloudflare token in shell → `wrangler whoami` verify → create R2 bucket, KV namespace, Pages project skeleton, Queues for social fan-out; (b) Supabase keys → first migration adding `profiles`, `organizations`, `organization_members` with RLS skeletons + the RLS test harness fixture-user setup; (c) Stripe key → create the three Agent products and prices in TEST mode (`aho_agent_monthly_29`, `aho_agent_annual_290`, `aho_agent_founder_monthly_19`), report price IDs for PO review. Do **not** run `pnpm install` until at least the public Supabase URL + anon key are in `.env.local` (the env.ts validator will throw at module load otherwise). Friday EOD this week (2026-05-01): comprehensive PROGRESS update covering whatever week-1 progress lands.
+
+---
+
+## 2026-04-29 — v1 scope locked; pricing locked; ready for week 1 (pending external access)
+- **What shipped:** Logged seven decisions in `docs/DECISIONS.md` covering: v1 scope cut (Free + Registered + Agent only; Premium and Agency to v1.1; Expert to v2; FB+IG+WhatsApp social; LinkedIn auto-share to v1.1 but app review submitted week 1); Agent pricing ($29/mo, $290/yr, $19/mo founder rate for first 50); anchor market = Santo Domingo; drop the no-language-fallback rule (single-language listings allowed with "Translation pending" UX); Meta + LinkedIn app reviews submit week 1 with placeholder Privacy/ToS at canonical domain; slice-1 timebox = 10 weeks (over-runs require re-scoping, not silent extension); spec scope-marker strategy (top-of-doc v1 banner in `HANDOFF.md`, no inline annotations). Added §1.7 "v1 Scope — Locked" to `HANDOFF.md` with the canonical capability matrix and what's deferred where. Pruned `OPEN_QUESTIONS.md` — closed the resolved items, organized remaining questions by "blocking week 1" / "non-blocking" / "engineering defaults pending silent agreement". Refined `aho_session_discipline.md` memory with the new Friday-end-of-day weekly cadence rule.
+- **What changed since last session:** Same calendar day, continuous work; this entry succeeds the earlier "Domain confirmed, spec complete, critique delivered" entry below.
+- **Blockers / open questions:** Cannot start week-1 scaffolding fully until external access lands. Critical path:
+  1. Cloudflare token in my Bash subprocess env (recommend direnv with `dotenv .env.local` in a `.envrc`, OR add `export` lines to `~/.zshrc`).
+  2. Supabase project (EU region) provisioned; URL + anon + service_role keys in `.env.local`.
+  3. Stripe TEST secret key in `.env.local` so I can create the products/prices listed in `DECISIONS.md`.
+  4. Resend, Sentry, PostHog API keys (lower priority — needed during week 1 but not minute-one).
+  5. DNS for `advertisehomes.online` pointed at Cloudflare nameservers.
+  Without #1–3, week 1 reduces to project scaffolding + DNS draft + screencast scripting; it doesn't actually deploy or run anything end-to-end. Full week-1 list is in `OPEN_QUESTIONS.md` "Pending from product owner — required before week 1 can fully start".
+- **Next session should start with:** Confirm which credentials/env are now in place. Whichever land first, do the corresponding scaffolding immediately: (a) Cloudflare token → create R2 bucket, KV namespace, Pages project skeleton via wrangler; (b) Supabase keys → first migration with `profiles`, `organizations`, `organization_members`, RLS skeletons; (c) Stripe key → create Agent products and prices in TEST mode, send IDs back for review. Do **not** wait for everything before starting any of it; ratchet forward on whatever's unblocked.
+
+---
+
+## 2026-04-29 — Domain confirmed, spec complete, critique delivered
+- **What shipped:** Logged the canonical-domain decision in `docs/DECISIONS.md` (`advertisehomes.online` canonical; `.com` to be acquired and 301'd). Renamed local secret file `env` → `.env.local` to match Next.js convention and gitignore patterns. Created `.gitignore` covering `.env*`, `env*`, `.dev.vars`, `node_modules/`, `.next/`, `.wrangler/`, `.claude/settings.local.json`, IDE/OS noise, build outputs, supabase local-dev folders. Verified `.env.local` is git-ignored. Appended the §29 remainder + §30 Open Questions to `docs/HANDOFF_part2.md`; spec now complete. Folded all 14 §30 questions into `docs/OPEN_QUESTIONS.md` with recommendations on each. Wrote the engineering critique at `docs/CRITIQUE.md` covering 12 risks beyond §1.5, ~14 technical-correctness items, sequencing, realistic timeline, and recommended first slice (8–10 weeks). Critique closes with five product-owner decisions that gate slice 1 starting.
+- **Security incident handled:** product owner pasted a live Cloudflare API token in chat; advised immediate revoke + create new + set in shell env. Confirmed revoked. New token's value is in `.env.local` on the local machine (never in chat or repo).
+- **What changed since last session:** Same session, continuous work.
+- **Blockers / open questions:** Five gating decisions in `docs/CRITIQUE.md` §G — scope cut (Premium/Expert/AI deferral), anchor market, EN/ES no-fallback rule, Meta/LinkedIn review submission this week, slice-1 timebox. Plus the existing engineering questions in `OPEN_QUESTIONS.md`. No application code yet.
+- **Next session should start with:** Read `docs/CRITIQUE.md` §G (the five decisions) and answer in writing. Once answered, log to `DECISIONS.md`, then begin slice 1 week 1 (Cloudflare/Supabase/Stripe-test/Sentry bootstrap + DNS + email warm-up + Meta/LinkedIn app review submissions). Wrangler will be used via the `CLOUDFLARE_API_TOKEN` in `.env.local` (confirm token works with `pnpm dlx wrangler whoami` after sourcing).
+
+---
+
+## 2026-04-29 — Project kickoff, doc scaffold, real-only-data rule, part-2 received (truncated)
+- **What shipped:** Initialized git repo (`main` branch). Added GitHub remote `origin` → `git@github.com:fotografosantodomingo/AHO.git` (no push yet — no commits). Created docs scaffolding: `CLAUDE.md` (project memory for Claude Code), `docs/HANDOFF.md` (saved part 1 of the spec, sections 0–§12.1 at point of truncation), `docs/HANDOFF_part2.md` (saved part 2 of the spec, §12 fully reproduced through partway into §29 — see below), `docs/DECISIONS.md`, `docs/PROGRESS.md`, `docs/OPEN_QUESTIONS.md`, `docs/RISKS.md`. Created stub skills under `.claude/skills/` for `supabase-migration`, `stripe-webhook`, `social-platform-integration`, `new-page`, `rls-policy`.
+- **Codified the real-only-data principle:** "No fake data, no stock photos." Added in four places — `CLAUDE.md` hard rule #8, `docs/DECISIONS.md` (top entry, with rationale and impact on the build), the `aho_project.md` memory file as a "Core operating principle", and a dedicated feedback memory `aho_no_fake_data.md` indexed in `MEMORY.md`. This guides every implementation choice from here on (no seed scripts hitting deployed DBs, no Unsplash, listing-form validation must reject placeholder content, marketing site shows real listings or empty slots).
+- **Corrections within session:** Domain is `advertisehomes.online` (not `.com`). Email sending domain `mail.advertisehomes.online`. All references corrected in `CLAUDE.md`, `docs/RISKS.md` (R6), `docs/OPEN_QUESTIONS.md`, and project memory. Within `HANDOFF_part2.md` the source spec text still contains a few `.com` mentions in code-block examples — flagged inline with a note that `advertisehomes.online` is canonical; not search-and-replaced because they're inside source-spec code samples.
+- **What changed since last session:** N/A (still first session).
+- **Blockers / open questions:** **Part 2 is also truncated.** Content stops mid-§29 (Social Share acceptance criteria, line ending "Realtime status UI updates within 5s of pl"). The rest of §29 and all of §30 (Open Questions for the Developer) are missing. §30 is specifically the input for the critique, so the critique pass is paused. Logged in `docs/OPEN_QUESTIONS.md` under "Spec gaps (immediate)".
+- **Next session should start with:** When the rest of §29 + §30 are in hand, save them by appending to `HANDOFF_part2.md`, then produce the written critique covering (a) risks beyond those flagged in §1.5, (b) technical correctness issues, (c) sequencing recommendations, (d) realistic timeline at maximum scope, (e) recommended first build slice. Do **not** start application code until the critique is reviewed.

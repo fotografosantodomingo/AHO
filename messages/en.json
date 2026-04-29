@@ -1,0 +1,315 @@
+{
+  "site": {
+    "name": "AHO",
+    "tagline": "Advertise Homes Online",
+    "description": "Real estate listings platform for Santo Domingo and beyond."
+  },
+  "nav": {
+    "browse": "Browse",
+    "pricing": "Pricing",
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "dashboard": "Dashboard"
+  },
+  "pricing": {
+    "heading": "Pricing",
+    "subheading": "One plan, two billing options. Cancel anytime in the Customer Portal.",
+    "agentPlanName": "AHO Agent",
+    "monthly": "Monthly",
+    "annual": "Annual",
+    "monthlyPrice": "$29 / month",
+    "annualPrice": "$290 / year",
+    "annualSavings": "~17% off vs. monthly",
+    "trialNote": "7-day free trial on monthly. Cancel before the trial ends and you're not charged.",
+    "features": {
+      "listings": "Up to 5 active listings",
+      "social": "One-click share to Facebook + Instagram",
+      "whatsapp": "WhatsApp lead capture from your listings",
+      "inbox": "Lead inbox with status tracking",
+      "analytics": "Performance analytics per listing",
+      "billing": "Manage billing + plan changes via Stripe Customer Portal"
+    },
+    "orgNameLabel": "Organization name",
+    "orgNameHelp": "How agents and buyers see your brand. You can change this later.",
+    "subscribeMonthly": "Subscribe monthly",
+    "subscribeAnnual": "Subscribe annually",
+    "redirecting": "Redirecting to checkout…",
+    "alreadySubscribed": "You already have an Agent subscription. Manage it in your dashboard.",
+    "manageBilling": "Manage billing",
+    "openDashboard": "Open dashboard",
+    "needsSignIn": "Sign in to subscribe",
+    "errors": {
+      "session_create_failed": "Couldn't start checkout. Please try again."
+    }
+  },
+  "home": {
+    "heading": "Real estate, real listings",
+    "leadCopy": "Find homes in Santo Domingo. List your properties with one click to Facebook and Instagram.",
+    "ctaForBuyers": "Browse listings",
+    "ctaForAgents": "List as an agent",
+    "searchPlaceholder": "City, neighborhood, or keyword",
+    "searchSubmit": "Search",
+    "featuredHeading": "Recently listed",
+    "featuredEmpty": "No listings yet — check back soon."
+  },
+  "search": {
+    "heading": "Browse listings",
+    "filtersHeading": "Filters",
+    "queryLabel": "Keyword",
+    "queryPlaceholder": "Beach, garage, pool…",
+    "cityLabel": "City",
+    "transactionLabel": "Type",
+    "transactionAny": "Sale or rent",
+    "minPrice": "Min price",
+    "maxPrice": "Max price",
+    "bedroomsLabel": "Bedrooms",
+    "bedsAny": "Any",
+    "applyFilters": "Apply filters",
+    "clearFilters": "Clear",
+    "resultsCount_one": "1 listing",
+    "resultsCount_other": "{count} listings",
+    "noResults": "No listings match these filters.",
+    "noResultsHint": "Try widening the price range or removing filters.",
+    "previousPage": "Previous",
+    "nextPage": "Next"
+  },
+  "card": {
+    "viewListing": "View listing"
+  },
+  "footer": {
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "rights": "All rights reserved."
+  },
+  "theme": {
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "locale": {
+    "label": "Language",
+    "en": "English",
+    "es": "Español"
+  },
+  "property": {
+    "translationPending": "Spanish translation pending — showing English content.",
+    "bedrooms_one": "{count} bedroom",
+    "bedrooms_other": "{count} bedrooms",
+    "bathrooms_one": "{count} bathroom",
+    "bathrooms_other": "{count} bathrooms",
+    "areaSqm": "{value} m²",
+    "transactionType": {
+      "sale": "For sale",
+      "rent": "For rent",
+      "short_term": "Short-term rental"
+    },
+    "pricePeriod": {
+      "total": "",
+      "monthly": "/ month",
+      "weekly": "/ week",
+      "nightly": "/ night"
+    },
+    "contactAgent": "Contact the agent",
+    "chatOnWhatsapp": "Chat on WhatsApp",
+    "signUpToContact": "Sign up to contact the agent"
+  },
+  "errors": {
+    "notFound": "Listing not found",
+    "notFoundBody": "The listing you’re looking for is no longer available or has been removed."
+  },
+  "onboarding": {
+    "activeHeading": "You're subscribed — welcome to AHO",
+    "activeBody": "Your AHO Agent subscription is active. Head to your dashboard to publish your first listing.",
+    "openDashboard": "Open dashboard",
+    "pendingHeading": "Finishing setup…",
+    "pendingBody": "Your payment was received. We're activating your subscription — this usually takes a few seconds.",
+    "pendingNote": "This page refreshes automatically.",
+    "pendingTakingLong": "Still loading? Try refreshing. If the issue persists, contact support.",
+    "missingSession": "We couldn't find your checkout session. If you just paid, try reloading; otherwise start from the pricing page.",
+    "backToPricing": "Back to pricing"
+  },
+  "dashboard": {
+    "navListings": "My Listings",
+    "navLeads": "Leads",
+    "navBilling": "Billing",
+    "manageBilling": "Manage billing",
+    "listingsHeading": "My Listings",
+    "newListing": "New listing",
+    "listingsEmpty": "You haven't published any listings yet.",
+    "listingsEmptyCta": "Create your first listing",
+    "createListingHeading": "Create a listing",
+    "editListingHeading": "Edit listing",
+    "saveDraft": "Save as draft",
+    "publish": "Publish",
+    "publishedAt": "Published {date}",
+    "noOrgHeading": "You don't have an Agent subscription yet",
+    "noOrgBody": "Subscribe to the Agent plan to publish properties on AHO.",
+    "noOrgCta": "See pricing",
+    "table": {
+      "title": "Title",
+      "status": "Status",
+      "city": "City",
+      "price": "Price",
+      "images": "Images",
+      "updated": "Updated"
+    },
+    "status": {
+      "draft": "Draft",
+      "active": "Active",
+      "pending": "Pending",
+      "sold": "Sold",
+      "rented": "Rented",
+      "archived": "Archived"
+    },
+    "leads": {
+      "heading": "Leads",
+      "empty": "No leads yet.",
+      "emptyHint": "When buyers contact you via the form or WhatsApp, they'll appear here.",
+      "viewProperty": "View property",
+      "received": "Received {date}",
+      "noProperty": "(property removed)",
+      "filterAll": "All",
+      "filterNew": "New",
+      "filterContacted": "In progress",
+      "filterClosed": "Closed",
+      "noContact": "No contact details",
+      "anonymous": "Anonymous lead",
+      "source": {
+        "form": "Contact form",
+        "phone_click": "Phone click",
+        "whatsapp_click": "WhatsApp click",
+        "email_click": "Email click"
+      },
+      "leadStatus": {
+        "new": "New",
+        "contacted": "Contacted",
+        "qualified": "Qualified",
+        "won": "Won",
+        "lost": "Lost"
+      }
+    }
+  },
+  "listingForm": {
+    "sectionBasics": "Basics",
+    "sectionLocation": "Location",
+    "sectionDetails": "Details",
+    "sectionDescription": "Description",
+    "transactionType": "For",
+    "propertyType": "Property type",
+    "titleEn": "Title (English)",
+    "titleEs": "Title (Spanish)",
+    "descriptionEn": "Description (English)",
+    "descriptionEs": "Description (Spanish)",
+    "atLeastOneLanguage": "Provide at least a title in English or Spanish.",
+    "price": "Price",
+    "currency": "Currency",
+    "pricePeriod": "Period",
+    "bedrooms": "Bedrooms",
+    "bathrooms": "Bathrooms",
+    "areaSqm": "Area (m²)",
+    "yearBuilt": "Year built",
+    "addressLine": "Address",
+    "neighborhood": "Neighborhood",
+    "city": "City",
+    "stateRegion": "State / Region",
+    "countryCode": "Country (ISO 2-letter)",
+    "postalCode": "Postal code",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "displayAddress": "Show the exact street address publicly.",
+    "saved": "Saved.",
+    "publishedSuccess": "Listing published.",
+    "errors": {
+      "titleRequired": "Title in at least one language is required.",
+      "priceRequired": "Price is required.",
+      "cityRequired": "City is required.",
+      "countryRequired": "Country code is required (2-letter ISO).",
+      "latRequired": "Latitude is required.",
+      "lngRequired": "Longitude is required."
+    }
+  },
+  "contact": {
+    "heading": "Contact the agent",
+    "name": "Your name",
+    "email": "Your email",
+    "phone": "Your phone (optional)",
+    "message": "Message",
+    "messagePlaceholder": "Hi, I'm interested in this property…",
+    "send": "Send message",
+    "sending": "Sending…",
+    "sent": "Thanks — your message has been sent. The agent will be in touch.",
+    "errors": {
+      "nameRequired": "Please tell us your name.",
+      "emailRequired": "Please provide a valid email so the agent can reply.",
+      "emailInvalid": "Enter a valid email address.",
+      "messageRequired": "A short message helps the agent respond.",
+      "send_failed": "Couldn't send your message. Please try again or use WhatsApp."
+    }
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "signInHeading": "Sign in",
+    "signUpHeading": "Create an account",
+    "signInCta": "Sign in",
+    "signingIn": "Signing in…",
+    "signUpCta": "Create account",
+    "signingUp": "Creating account…",
+    "signOut": "Sign out",
+    "noAccountQuestion": "No account yet?",
+    "haveAccountQuestion": "Already have an account?",
+    "createOne": "Create one",
+    "passwordHelp": "At least 8 characters, one uppercase letter, one number.",
+    "acceptTerms": "I accept the {termsLink} and {privacyLink}.",
+    "termsLinkText": "Terms",
+    "privacyLinkText": "Privacy Policy",
+    "marketingOptIn": "Send me product updates and tips by email.",
+    "checkYourEmailHeading": "Check your email",
+    "checkYourEmailBody": "We just sent a confirmation link to {email}. Click it to finish creating your account.",
+    "forgotPasswordLink": "Forgot password?",
+    "magicLinkAlt": "Sign in with a magic link instead",
+    "passwordSigninAlt": "Use email + password instead",
+    "forgot": {
+      "heading": "Reset your password",
+      "intro": "Enter the email on your account. We'll send you a link to set a new password.",
+      "submit": "Send reset link",
+      "submitting": "Sending…",
+      "checkEmailHeading": "Check your email",
+      "checkEmailBody": "If an account exists for {email}, we just sent it a password-reset link. The link is valid for one hour."
+    },
+    "reset": {
+      "heading": "Set a new password",
+      "intro": "Enter a new password for your account.",
+      "newPassword": "New password",
+      "submit": "Update password",
+      "submitting": "Updating…",
+      "success": "Password updated. You're signed in.",
+      "noSession": "This reset link has expired or been used. Request a new one.",
+      "requestNewLink": "Request a new link"
+    },
+    "magic": {
+      "heading": "Sign in with a magic link",
+      "intro": "Enter your email and we'll send a one-click sign-in link.",
+      "submit": "Send magic link",
+      "submitting": "Sending…",
+      "checkEmailHeading": "Check your email",
+      "checkEmailBody": "If an account exists for {email}, we just sent it a sign-in link. The link is valid for ten minutes."
+    },
+    "error": {
+      "heading": "Authentication problem",
+      "body": "We couldn't complete the sign-in. The link may have expired or been used.",
+      "tryAgainCta": "Back to sign in",
+      "details": "Details: {reason}"
+    },
+    "errors": {
+      "emailInvalid": "Enter a valid email address.",
+      "passwordRequired": "Password is required.",
+      "min8": "At least 8 characters.",
+      "needsUppercase": "Include at least one uppercase letter.",
+      "needsNumber": "Include at least one number.",
+      "mustAcceptTerms": "You must accept the Terms and Privacy Policy.",
+      "generic": "Something went wrong. Try again."
+    }
+  }
+}
