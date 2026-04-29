@@ -86,7 +86,7 @@ export default async function LocaleLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="min-h-screen antialiased">
+      <body className="min-h-screen bg-white text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100">
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>
             <header className="border-b border-zinc-200 dark:border-zinc-800">

@@ -2,7 +2,7 @@
   "site": {
     "name": "AHO",
     "tagline": "Anuncia Propiedades Online",
-    "description": "Plataforma de anuncios inmobiliarios para Santo Domingo y más allá."
+    "description": "Anuncios inmobiliarios en todo el mundo — encuentra inmuebles donde sea, publica los tuyos en cualquier mercado."
   },
   "nav": {
     "browse": "Explorar",
@@ -43,8 +43,8 @@
     }
   },
   "home": {
-    "heading": "Propiedades reales, anuncios reales",
-    "leadCopy": "Encuentra inmuebles en Santo Domingo. Publica tus propiedades con un clic en Facebook e Instagram.",
+    "heading": "Inmuebles reales, anuncios reales — donde sea",
+    "leadCopy": "Encuentra inmuebles en cualquier ciudad o país. Agentes: publica tus anuncios con un clic en Facebook e Instagram.",
     "ctaForBuyers": "Explorar anuncios",
     "ctaForAgents": "Publicar como agente",
     "searchPlaceholder": "Ciudad, barrio o palabra clave",

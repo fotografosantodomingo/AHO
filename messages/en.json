@@ -2,7 +2,7 @@
   "site": {
     "name": "AHO",
     "tagline": "Advertise Homes Online",
-    "description": "Real estate listings platform for Santo Domingo and beyond."
+    "description": "Worldwide real estate listings — find homes anywhere, list your properties everywhere."
   },
   "nav": {
     "browse": "Browse",
@@ -43,8 +43,8 @@
     }
   },
   "home": {
-    "heading": "Real estate, real listings",
-    "leadCopy": "Find homes in Santo Domingo. List your properties with one click to Facebook and Instagram.",
+    "heading": "Real estate, real listings — anywhere",
+    "leadCopy": "Find homes wherever you're looking, in any market. Agents: list your properties with one click to Facebook and Instagram.",
     "ctaForBuyers": "Browse listings",
     "ctaForAgents": "List as an agent",
     "searchPlaceholder": "City, neighborhood, or keyword",

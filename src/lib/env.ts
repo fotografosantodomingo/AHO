@@ -10,7 +10,11 @@ import { z } from 'zod';
  */
 
 const publicSchema = z.object({
-  NEXT_PUBLIC_SITE_URL: z.string().url().default('http://localhost:3000'),
+  // Required at build + runtime — no default. A missing value used to silently
+  // resolve to localhost:3000, which then leaked into Supabase email-redirect
+  // URLs in deployed builds. Better to fail at module-load than to ship a
+  // build that emails users a localhost link.
+  NEXT_PUBLIC_SITE_URL: z.string().url(),
   NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
   NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),

@@ -1,34 +1,10 @@
 @import 'tailwindcss';
 
+/* Body bg + text colors live as Tailwind classes on <body> in the layout
+   (`bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100`). Keeping
+   them there avoids the palette mismatch we had when the body used
+   gray-900 and components used zinc-950 (subtle blue tint vs. neutral). */
 @layer base {
-  :root {
-    color-scheme: light;
-    --background: 255 255 255;
-    --foreground: 17 24 39;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      color-scheme: dark;
-      --background: 17 24 39;
-      --foreground: 243 244 246;
-    }
-  }
-
-  html.light {
-    color-scheme: light;
-    --background: 255 255 255;
-    --foreground: 17 24 39;
-  }
-
-  html.dark {
-    color-scheme: dark;
-    --background: 17 24 39;
-    --foreground: 243 244 246;
-  }
-
-  body {
-    background-color: rgb(var(--background));
-    color: rgb(var(--foreground));
-  }
+  html.light { color-scheme: light; }
+  html.dark  { color-scheme: dark; }
 }

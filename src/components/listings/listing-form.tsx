@@ -51,8 +51,6 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
       transaction_type: 'sale',
       property_type: 'apartment',
       currency: 'USD',
-      country_code: 'DO',
-      city: 'Santo Domingo',
       display_address: true,
       ...initialValues,
     },
