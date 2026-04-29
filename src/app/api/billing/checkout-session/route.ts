@@ -7,6 +7,8 @@ import {
 } from '@/lib/billing/checkout';
 import { z } from 'zod';
 
+export const runtime = 'edge';
+
 /**
  * POST /api/billing/checkout-session
  *

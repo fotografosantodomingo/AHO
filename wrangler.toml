@@ -1,0 +1,13 @@
+name = "aho-web"
+compatibility_date = "2025-09-23"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
+
+# Per-environment config is intentionally minimal at this stage.
+# Env vars (NEXT_PUBLIC_*, SUPABASE_*, STRIPE_*) are set on the Pages project
+# via `wrangler pages secret put` — never committed.
+#
+# `compatibility_flags = ["nodejs_compat"]` enables the Node.js polyfills the
+# Edge runtime needs for our deps (Stripe SDK, Supabase JS, Resend, AWS SDK
+# v3 for R2 presigning). Without it, `Buffer`, `process.nextTick`, and a
+# handful of other globals would be missing at runtime.

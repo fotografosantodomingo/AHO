@@ -4,6 +4,8 @@ import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { BillingPortalButton } from '@/components/billing/billing-portal-button';
 
+export const runtime = 'edge';
+
 // Auth-dependent — must run per-request, not pre-rendered.
 export const dynamic = 'force-dynamic';
 

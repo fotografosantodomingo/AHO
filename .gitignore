@@ -21,6 +21,9 @@ out/
 .turbo/
 *.tsbuildinfo
 
+# Cloudflare next-on-pages build output (Vercel build format)
+.vercel/
+
 # Build outputs
 dist/
 build/

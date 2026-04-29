@@ -5,6 +5,8 @@ import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { ForgotPasswordForm } from '@/components/auth/forgot-password-form';
 
+export const runtime = 'edge';
+
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({

@@ -5,6 +5,8 @@ import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { MagicLinkForm } from '@/components/auth/magic-link-form';
 
+export const runtime = 'edge';
+
 export const dynamic = 'force-dynamic';
 
 interface PageProps {

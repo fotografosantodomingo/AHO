@@ -2,6 +2,8 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { ListingForm } from '@/components/listings/listing-form';
 
+export const runtime = 'edge';
+
 export const dynamic = 'force-dynamic';
 
 export default async function NewListingPage({

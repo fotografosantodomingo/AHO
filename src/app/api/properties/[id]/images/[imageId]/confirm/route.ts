@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { ConfirmRequestSchema } from '@/lib/listings/upload';
 
+export const runtime = 'edge';
+
 /**
  * POST /api/properties/:id/images/:imageId/confirm
  *

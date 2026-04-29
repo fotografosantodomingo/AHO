@@ -5,6 +5,8 @@ import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { SignInForm } from '@/components/auth/sign-in-form';
 
+export const runtime = 'edge';
+
 // Auth-dependent — the redirect for already-signed-in users must run per-request.
 export const dynamic = 'force-dynamic';
 

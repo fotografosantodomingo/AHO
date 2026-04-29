@@ -3,6 +3,8 @@ import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { ResetPasswordForm } from '@/components/auth/reset-password-form';
 
+export const runtime = 'edge';
+
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({

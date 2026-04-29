@@ -5,6 +5,8 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { formatPrice } from '@/lib/listings/seo';
 import { PublishButton } from '@/components/listings/publish-button';
 
+export const runtime = 'edge';
+
 export const dynamic = 'force-dynamic';
 
 export default async function EditListingPage({

@@ -1,5 +1,4 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { randomUUID } from 'node:crypto';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { serverEnv } from '@/lib/env';
 import { presignPut } from '@/lib/storage/r2';
@@ -8,6 +7,8 @@ import {
   buildR2Key,
   checkImageCap,
 } from '@/lib/listings/upload';
+
+export const runtime = 'edge';
 
 /**
  * POST /api/properties/:id/images
@@ -81,7 +82,7 @@ export async function POST(
     );
   }
 
-  const imageId = randomUUID();
+  const imageId = crypto.randomUUID();
   const r2Key = buildR2Key(propertyId, imageId, parsed.data.contentType);
 
   // Insert pending row. RLS WITH CHECK validates the user's org membership.

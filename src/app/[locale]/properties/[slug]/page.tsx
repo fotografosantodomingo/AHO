@@ -11,6 +11,8 @@ import { buildSeoMeta, buildListingJsonLd, formatPrice, listingUrls } from '@/li
 import { buildWhatsAppLink } from '@/lib/leads/whatsapp';
 import { ContactForm } from '@/components/listings/contact-form';
 
+export const runtime = 'edge';
+
 /**
  * Property detail page — `/{locale}/properties/{slug}-{shortId}` (en) and
  * `/{locale}/propiedades/{slug}-{shortId}` (es) via next-intl path

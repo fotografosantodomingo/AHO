@@ -6,6 +6,8 @@ import { renderLeadNotificationEmail } from '@/lib/email/templates/lead-notifica
 import { formatPrice } from '@/lib/listings/seo';
 import { publicEnv } from '@/lib/env';
 
+export const runtime = 'edge';
+
 /**
  * POST /api/leads
  *

@@ -11,6 +11,8 @@ import { handleInvoicePaymentActionRequired } from '@/lib/billing/handlers/invoi
 import { handleCustomerUpdated } from '@/lib/billing/handlers/customer-updated';
 import { handleChargeRefunded } from '@/lib/billing/handlers/charge-refunded';
 
+export const runtime = 'edge';
+
 /**
  * POST /api/webhooks/stripe
  *

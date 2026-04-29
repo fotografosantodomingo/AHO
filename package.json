@@ -12,6 +12,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "pages:build": "next-on-pages",
+    "pages:dev": "wrangler pages dev .vercel/output/static --compatibility-flag=nodejs_compat",
+    "pages:deploy": "wrangler pages deploy .vercel/output/static --project-name=aho-web --branch=main",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
@@ -51,6 +54,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@cloudflare/next-on-pages": "^1.13.16",
     "@eslint/eslintrc": "^3.2.0",
     "@playwright/test": "^1.49.0",
     "@tailwindcss/postcss": "^4.0.0",
@@ -67,7 +71,8 @@
     "tailwindcss": "^4.0.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
+    "vercel": "^52.2.0",
     "vitest": "^2.1.8",
-    "wrangler": "^4.86"
+    "wrangler": "^4.86.0"
   }
 }

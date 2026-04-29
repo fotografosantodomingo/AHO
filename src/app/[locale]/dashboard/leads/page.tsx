@@ -4,6 +4,8 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { LeadStatusSelect } from '@/components/leads/lead-status-select';
 import type { LeadStatus, LeadSource } from '@/db/schema';
 
+export const runtime = 'edge';
+
 export const dynamic = 'force-dynamic';
 
 const FILTER_GROUPS = {

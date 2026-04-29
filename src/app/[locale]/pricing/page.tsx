@@ -5,6 +5,8 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { PricingForm } from '@/components/billing/pricing-form';
 import { BillingPortalButton } from '@/components/billing/billing-portal-button';
 
+export const runtime = 'edge';
+
 // Auth-dependent: branches on session + existing org membership.
 export const dynamic = 'force-dynamic';
 

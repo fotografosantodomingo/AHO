@@ -3,6 +3,8 @@ import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { formatPrice } from '@/lib/listings/seo';
 
+export const runtime = 'edge';
+
 export const dynamic = 'force-dynamic';
 
 interface ListingRow {

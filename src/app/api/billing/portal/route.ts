@@ -4,6 +4,8 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getStripeClient } from '@/lib/billing/stripe';
 import { publicEnv } from '@/lib/env';
 
+export const runtime = 'edge';
+
 /**
  * POST /api/billing/portal
  *

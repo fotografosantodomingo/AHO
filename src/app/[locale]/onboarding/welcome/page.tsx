@@ -5,6 +5,8 @@ import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { WelcomePoller } from '@/components/billing/welcome-poller';
 
+export const runtime = 'edge';
+
 // Auth-required + reads the user's freshly-created org row, which is
 // written by the Stripe webhook between Checkout success and the user
 // landing here. Every render must be live.

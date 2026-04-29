@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 
+export const runtime = 'edge';
+
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({

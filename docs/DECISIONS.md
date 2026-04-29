@@ -12,6 +12,23 @@ One entry per significant choice. Newest on top. Format:
 
 ---
 
+## 2026-04-29 — Cloudflare adapter: `@cloudflare/next-on-pages` + Pages (despite npm-level deprecation), all routes opt into Edge runtime
+**Decision:** Wire AHO's Cloudflare deploy via **`@cloudflare/next-on-pages` v1.13.16** targeting **Cloudflare Pages**. Not OpenNext. Every non-static route declares `export const runtime = 'edge'` (25 routes total), `wrangler.toml` sets `compatibility_flags = ["nodejs_compat"]`, build output is `.vercel/output/static`. Deploys via `wrangler pages deploy` from a GitHub Actions workflow on push to `main`.
+**Why:** PO explicitly chose this path on 2026-04-29 with awareness that the package is npm-deprecated and Cloudflare officially recommends `@opennextjs/cloudflare` (which targets Workers, not Pages). The reasoning was "matches the spec, older tooling" — `CLAUDE.md` and `HANDOFF.md` §3.4 nominate Cloudflare Pages, and PO valued spec adherence over chasing the latest tool. The migration debt is acknowledged and accepted.
+**Alternatives considered:**
+- `@opennextjs/cloudflare` → Workers (the modern Cloudflare-recommended path; better Node.js compat; targets `*.workers.dev` instead of `*.pages.dev`). Rejected per PO direction; spec says Pages.
+- Bumping the Next.js peer-dep cap via pnpm `peerDependencyRules.allowedVersions` (we're on 15.5.15; adapter caps at 15.5.2). Not done — peer-dep mismatch is silent at runtime today; logging here so we know to revisit if a future Next.js bump breaks the adapter.
+- Cloudflare Workers Static Assets directly (no adapter at all). Rejected — would require rewriting our Server Components and middleware to vanilla Workers, no Next.js conventions, multi-week refactor.
+**Reconsider if:** (a) `@cloudflare/next-on-pages` becomes incompatible with a Next.js minor we need (the Next.js peer-dep cap is the leading indicator), (b) Cloudflare formally end-of-lifes the adapter, or (c) we hit a feature limitation that OpenNext supports cleanly (notably: Node.js runtime for specific routes, ISR with on-demand revalidation, Image Optimization that needs Sharp).
+**Build implications:**
+- All 25 non-static routes now have `export const runtime = 'edge'` at the top. New routes must add it too — added to the `new-page` skill.
+- Local pages-build wrapper: corepack-managed `pnpm` isn't on PATH for adapter subprocesses, so `node_modules/.bin/pnpm` is a tiny shell shim (`exec corepack pnpm@9.12.3 "$@"`) created post-install. CI uses `pnpm/action-setup@v4` and doesn't need the shim.
+- `wrangler.toml`: `name="aho-web"`, `compatibility_date="2025-09-23"`, `compatibility_flags=["nodejs_compat"]`, `pages_build_output_dir=".vercel/output/static"`.
+- `.gitignore`: added `.vercel/`.
+- Deps: added `@cloudflare/next-on-pages`, `wrangler`, `vercel` as devDeps. The npm install logs a deprecation banner — expected.
+
+---
+
 ## 2026-04-29 — Visual design language: HashiCorp-style (`getdesign.md` HashiCorp template), parent palette only, Inter substituted for HashiCorp Sans
 **Decision:** AHO's visual language adopts the HashiCorp design system as documented in the `getdesign.md` HashiCorp template (npm `getdesign@0.6.10`, captured to `docs/DESIGN_REFERENCE.md`). We use the **parent** palette and component patterns — black/white + dual-mode (light surface + `#15181e` / `#0d0e12` dark hero), micro-shadows at 0.05 opacity, tight-headings (1.17–1.21) over relaxed body (1.50–1.69), 2–8px radius scale (no pills), uppercase 13px/600/1.3px-tracking labels, 3px solid focus rings — and explicitly **drop** the multi-product color tokens (Terraform purple, Vault yellow, etc.) since AHO is a single product. Brand font HashiCorp Sans is replaced with **Inter** (variable, weights 500–700, OFL-licensed); system-ui remains the body stack.
 **Why:** PO requested the HashiCorp visual style on 2026-04-29. The template's enterprise-clean aesthetic suits a real-estate marketplace where trust + density of data matters more than expressive flourish. The spec is concrete enough (specific hex codes, exact line-heights, asymmetric button padding) to be copy-pasted into Tailwind v4 `@theme` tokens, which eliminates ambiguity in implementation. The product brand colors are tied to HashiCorp's portfolio scope and would just be noise here. Inter is the closest free analog to HashiCorp Sans's geometric, kerned-tightly feel.

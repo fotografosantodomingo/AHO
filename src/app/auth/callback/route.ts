@@ -6,6 +6,8 @@ import { renderWelcomeEmail } from '@/lib/email/templates/welcome';
 import { publicEnv } from '@/lib/env';
 import { LOCALES, type Locale } from '@/i18n/config';
 
+export const runtime = 'edge';
+
 /**
  * GET /auth/callback
  *

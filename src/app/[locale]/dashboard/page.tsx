@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation';
 import { LOCALES, type Locale } from '@/i18n/config';
 
+export const runtime = 'edge';
+
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardIndexPage({

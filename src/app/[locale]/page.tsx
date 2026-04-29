@@ -3,6 +3,8 @@ import { LOCALES, type Locale } from '@/i18n/config';
 import { searchListings } from '@/lib/listings/search';
 import { ListingCard } from '@/components/listings/listing-card';
 
+export const runtime = 'edge';
+
 export default async function HomePage({
   params,
 }: {

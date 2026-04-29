@@ -9,6 +9,8 @@ import {
 import { ListingCard } from '@/components/listings/listing-card';
 import { SearchFilters } from '@/components/listings/search-filters';
 
+export const runtime = 'edge';
+
 export async function generateMetadata({
   params,
 }: {
