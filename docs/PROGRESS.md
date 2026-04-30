@@ -12,6 +12,21 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-29 — Auth + pricing + chrome design migration (closes most-visible surfaces)
+- **What shipped (1 commit, 9 files, deployed):**
+  - **Auth forms (3)** — `forgot-password-form`, `reset-password-form`, `magic-link-form` all get the same input class as sign-in/sign-up (`rounded-lg` + `border-border-strong` + `shadow-whisper` + 3px focus ring in `--color-action`) and the primary-dark submit button shape. Reset-password's "request a new link" pill (no-session branch) switches to the bordered-secondary button shape.
+  - **Pricing surface** — `/pricing` page card uses `rounded-card` + `border-border` + `bg-surface`/`dark:bg-surface-deep` + `shadow-whisper`. H1 at 42px font-brand (Feature Heading scale). Plan radios are now proper cards with the `has-[input:checked]:border-ink` selected-state pattern. "Already subscribed" panel buttons match the rest of the app's primary/secondary chrome.
+  - **`<PricingForm>`** — input + submit migrated to design tokens; legend uses uppercase wayfinding style.
+  - **`<BillingPortalButton>`** — `rounded-lg` + `hover:bg-surface-muted`/`dark:hover:bg-surface-dark` (matches the secondary chrome elsewhere).
+  - **Header chrome** — `<ThemeToggle>` + `<LocaleToggle>` + `<AuthMenu>` all migrated. Theme-toggle's selected-state pill uses `bg-surface-muted`/`dark:bg-surface-dark`. Auth-menu signup button is the primary-dark shape with shadow-whisper.
+- **Verified:** typecheck clean, 128/128 tests, pages:build green, live URL probes return 200 on `/en/forgot-password`, `/en/magic-link`, `/en/pricing`, `/es/precios`.
+- **What's left on `zinc-*`:** `<DashboardLayout>` sidebar nav · `<ListingForm>` (the large agent-edit form, ~25 fields). Both are agent-facing and only seen after auth + subscription. Not blocking visible polish; the entire **public** surface (homepage / search / property detail / contact / pricing / signup / signin / forgot / reset / magic-link) is now consistent with the design system.
+- **What changed since last session:** Same calendar day. This entry succeeds the buyer-journey migration entry below.
+- **Slice 1 status:** still `~88%` (design polish doesn't move the gate; bounded by Resend / R2 / domain / soft-beta agents).
+- **Next session should start with:** the dashboard + listing-form migration (closes the agent-facing surface), OR start the agent-onboarding-empty-state polish (when an agent first lands on `/dashboard/properties`, the empty state should say "create your first listing" with a clear CTA — currently it shows the i18n string `listingsEmpty` which renders fine but isn't visually emphasized), OR pause design and work on a non-design closing item.
+
+---
+
 ## 2026-04-29 — Buyer-journey design migration (search + property detail + contact form)
 - **What shipped (1 commit, deployed):**
   - **Search page** (`src/app/[locale]/search/page.tsx`) — H1 to font-brand at 34px (HashiCorp Sub-heading scale), empty-state card uses rounded-card + border-border-strong/60 dashed, result-count strap + section labels use the uppercase wayfinding style, pagination buttons use rounded-lg + border-border-strong with hover bumps.
