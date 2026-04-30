@@ -9,7 +9,7 @@ import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { SignUpSchema, type SignUpInput } from '@/lib/auth/schemas';
 
 const inputClass =
-  'mt-1 block w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:ring-zinc-100';
+  'mt-1 block w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm shadow-whisper outline-hidden focus:ring-3 focus:ring-action dark:bg-surface-deep dark:focus:ring-action-dark';
 
 const ERROR_KEYS = ['min8', 'needsUppercase', 'needsNumber', 'mustAcceptTerms'] as const;
 type KnownErrorKey = (typeof ERROR_KEYS)[number];
@@ -109,7 +109,7 @@ export function SignUpForm() {
           {...register('password')}
           className={inputClass}
         />
-        <p id="password-help" className="mt-1 text-xs text-zinc-500">
+        <p id="password-help" className="mt-1 text-xs text-helper">
           {t('passwordHelp')}
         </p>
         {passwordErrorMessage && (
@@ -124,7 +124,7 @@ export function SignUpForm() {
           id="acceptTerms"
           type="checkbox"
           {...register('acceptTerms')}
-          className="mt-1 h-4 w-4 rounded border-zinc-300"
+          className="mt-1 h-4 w-4 rounded-sm border-border-strong"
         />
         <label htmlFor="acceptTerms" className="text-sm">
           {t.rich('acceptTerms', {
@@ -150,9 +150,9 @@ export function SignUpForm() {
           id="marketingOptIn"
           type="checkbox"
           {...register('marketingOptIn')}
-          className="mt-1 h-4 w-4 rounded border-zinc-300"
+          className="mt-1 h-4 w-4 rounded-sm border-border-strong"
         />
-        <label htmlFor="marketingOptIn" className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor="marketingOptIn" className="text-sm text-helper">
           {t('marketingOptIn')}
         </label>
       </div>
@@ -169,7 +169,7 @@ export function SignUpForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+        className="w-full rounded-lg bg-surface-dark px-4 py-2.5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink disabled:opacity-50"
       >
         {isSubmitting ? t('signingUp') : t('signUpCta')}
       </button>
