@@ -12,6 +12,25 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-30 — Map view on /search (slice-2 #5 of 5 — slice 2 surfaces functionally complete)
+- **What shipped (3 commits, deployed):**
+  - **`<PropertyMap>`** at `src/components/listings/property-map.tsx` — Client Component. Vanilla Leaflet via `useRef` + `useEffect` (NOT `react-leaflet` — peer-dep mismatch with React 19 + Next.js 15). Renders all current search results as map markers with bound click → property-detail popup. Auto-fits bounds for 2+ pins; centers + zooms in for single pins; defaults to Santo Domingo for no-pin (no listings yet). OpenStreetMap tiles (free for v1 traffic; attribution rendered automatically).
+  - **`<MapView>`** thin wrapper at `src/components/listings/map-view.tsx` — re-exports PropertyMap. After two iterations: started with `next/dynamic({ssr:false})` (broke; turned out next-on-pages 500s on dynamic+ssr:false in Next.js 15), ended with a plain re-export since PropertyMap already lazy-imports Leaflet inside useEffect.
+  - **`searchListings`, `searchCityLanding`, `fetchAgentProfile`** all now SELECT and surface `latitude`/`longitude` from the denormalized columns (populated by the lat/lng trigger from migration 0007). `SearchListing` interface extended.
+  - **`/search` page** gains a List/Map view toggle in its header. `?view=map` is querystring source of truth — bookmarkable + shareable. Both filter state and view state preserved across the toggle.
+  - **i18n**: `search.viewList` / `search.viewMap` in EN + ES.
+  - Deps: `leaflet ^1.9.4`, `react-leaflet ^5` (added but unused; leaving in package.json so the option exists if we revisit), `@types/leaflet ^1.9.21` devDep.
+- **🐛 Two issues caught + fixed during live verification:**
+  1. **First deploy: `/search?view=map` → HTTP 500.** Cause: bare `import L from 'leaflet'` at top of property-map.tsx evaluated during Edge runtime SSR pass, and Leaflet calls `window.HTMLElement` at module-load. → Switched to `await import('leaflet')` inside `useEffect`. Type-only `import type { Map as LeafletMap }` retained (erased at compile-time).
+  2. **Second deploy: still 500.** Cause: `next/dynamic({ssr:false})` wrapper was causing the SSR pass to choke even though the inner component shouldn't render server-side. Known Next.js 15 + next-on-pages interop issue. → Removed the dynamic wrapper; PropertyMap's runtime-only Leaflet import already prevents SSR from touching it.
+  3. CSS: `import 'leaflet/dist/leaflet.css'` (CSS-in-JS) replaced with a one-shot `<link>` tag injection on map mount, pointing at unpkg's CDN with SRI hash.
+- **Verified live:** `/en/search?view=map` and `/es/buscar?view=map` → 200; placeholder div with `role="application"` and `aria-label="Map of property listings"` is in the SSR'd HTML; List view + filter state + pagination unaffected.
+- **What changed since last session:** Same calendar day. This entry succeeds the saved-searches entry below.
+- **Slice 2 status:** **~30% functional, but all 5 surfaces are now live.** What "30%" reflects rather than 100%: the email-alert worker (saved searches → Resend) is still missing; the map only shows current-page results (no bbox-driven re-fetch as the user pans/zooms — that's a slice-3 concern); admin dashboard is moderation-only (no analytics, no user management UI yet).
+- **Next session should start with:** the polish-phase setup (rotated 21st.dev key + install ui-ux-pro-max skill + `.claude/mcp.json` config, per `docs/DECISIONS.md` "2026-04-30 — UI/UX polish phase"). The five slice-2 surfaces are functionally in place; polish is the next material upgrade. Or pivot to one of the PO action items if any unblock (Resend, R2, custom domain, soft-beta agents).
+
+---
+
 ## 2026-04-30 — Saved searches scaffold (slice-2 #4) + homepage JSON-LD baseline
 - **What shipped (2 commits, deployed):**
   - **Homepage Organization + WebSite + SearchAction JSON-LD** at `src/app/[locale]/page.tsx` — baseline rich-result eligibility for branded searches. Two graphs emitted inline: Organization (Knowledge Panel) + WebSite with potentialAction(SearchAction) (sitelinks searchbox targeting `/{locale}/search?q={query}`). Locale-aware (each language emits its own graph).
