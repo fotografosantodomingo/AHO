@@ -118,6 +118,19 @@
     "notFound": "Anuncio no encontrado",
     "notFoundBody": "El anuncio que buscas ya no está disponible o ha sido eliminado."
   },
+  "notFound": {
+    "heading": "Página no encontrada",
+    "body": "La página que buscas no existe o ha sido movida.",
+    "homeCta": "Volver al inicio",
+    "browseCta": "Explorar anuncios"
+  },
+  "error": {
+    "heading": "Algo salió mal",
+    "body": "Ocurrió un error inesperado de nuestro lado. Inténtalo de nuevo o vuelve al inicio.",
+    "retryCta": "Intentar de nuevo",
+    "homeCta": "Volver al inicio",
+    "details": "ID de referencia: {digest}"
+  },
   "onboarding": {
     "activeHeading": "Te suscribiste — bienvenido a AHO",
     "activeBody": "Tu suscripción de AHO Agente está activa. Entra al panel y publica tu primer anuncio.",

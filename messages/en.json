@@ -118,6 +118,19 @@
     "notFound": "Listing not found",
     "notFoundBody": "The listing you’re looking for is no longer available or has been removed."
   },
+  "notFound": {
+    "heading": "Page not found",
+    "body": "The page you're looking for doesn't exist or has moved.",
+    "homeCta": "Back to home",
+    "browseCta": "Browse listings"
+  },
+  "error": {
+    "heading": "Something went wrong",
+    "body": "An unexpected error happened on our side. Try again, or head back home.",
+    "retryCta": "Try again",
+    "homeCta": "Back to home",
+    "details": "Reference ID: {digest}"
+  },
   "onboarding": {
     "activeHeading": "You're subscribed — welcome to AHO",
     "activeBody": "Your AHO Agent subscription is active. Head to your dashboard to publish your first listing.",
