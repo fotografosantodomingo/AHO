@@ -71,7 +71,9 @@
     "noResults": "Ningún anuncio coincide con estos filtros.",
     "noResultsHint": "Prueba ampliar el rango de precio o quitar filtros.",
     "previousPage": "Anterior",
-    "nextPage": "Siguiente"
+    "nextPage": "Siguiente",
+    "viewList": "Lista",
+    "viewMap": "Mapa"
   },
   "card": {
     "viewListing": "Ver anuncio"

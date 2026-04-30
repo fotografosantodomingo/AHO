@@ -79,6 +79,10 @@ export interface SearchListing {
   imageCount: number;
   /** Primary image's CF Image ID, if a confirmed primary exists. */
   primaryImageId: string | null;
+  /** Denormalized lat/lng (from migration 0007 trigger). Used by the
+   *  map view; null if location wasn't set or the trigger hasn't run. */
+  latitude: number | null;
+  longitude: number | null;
 }
 
 export interface SearchResult {
@@ -97,7 +101,7 @@ export async function searchListings(
   let query = supabase
     .from('properties')
     .select(
-      'id, short_id, slug_en, slug_es, title_en, title_es, transaction_type, property_type, price_cents, currency, price_period, bedrooms, bathrooms, area_sqm, neighborhood, city, country_code, image_count, featured_until, published_at',
+      'id, short_id, slug_en, slug_es, title_en, title_es, transaction_type, property_type, price_cents, currency, price_period, bedrooms, bathrooms, area_sqm, neighborhood, city, country_code, image_count, featured_until, published_at, latitude, longitude',
     )
     .eq('status', 'active')
     .not('published_at', 'is', null);
@@ -166,6 +170,8 @@ export async function searchListings(
       countryCode: r.country_code,
       imageCount: r.image_count,
       primaryImageId: imageMap.get(r.id) ?? null,
+      latitude: r.latitude != null ? Number(r.latitude) : null,
+      longitude: r.longitude != null ? Number(r.longitude) : null,
     })),
     hasMore,
   };
@@ -236,7 +242,7 @@ export async function searchCityLanding(
   const { data, error } = await supabase
     .from('properties')
     .select(
-      'id, short_id, slug_en, slug_es, title_en, title_es, transaction_type, property_type, price_cents, currency, price_period, bedrooms, bathrooms, area_sqm, neighborhood, city, country_code, image_count, featured_until, published_at, organizations!inner(slug)',
+      'id, short_id, slug_en, slug_es, title_en, title_es, transaction_type, property_type, price_cents, currency, price_period, bedrooms, bathrooms, area_sqm, neighborhood, city, country_code, image_count, featured_until, published_at, latitude, longitude, organizations!inner(slug)',
     )
     .eq('status', 'active')
     .not('published_at', 'is', null)
@@ -296,6 +302,8 @@ export async function searchCityLanding(
     countryCode: r.country_code,
     imageCount: r.image_count,
     primaryImageId: imageMap.get(r.id) ?? null,
+    latitude: r.latitude != null ? Number(r.latitude) : null,
+    longitude: r.longitude != null ? Number(r.longitude) : null,
   }));
 
   return {
@@ -383,7 +391,7 @@ export async function fetchAgentProfile(
   const { data: listingsRows, error: listingsErr } = await supabase
     .from('properties')
     .select(
-      'id, short_id, slug_en, slug_es, title_en, title_es, transaction_type, property_type, price_cents, currency, price_period, bedrooms, bathrooms, area_sqm, neighborhood, city, country_code, image_count, featured_until, published_at',
+      'id, short_id, slug_en, slug_es, title_en, title_es, transaction_type, property_type, price_cents, currency, price_period, bedrooms, bathrooms, area_sqm, neighborhood, city, country_code, image_count, featured_until, published_at, latitude, longitude',
     )
     .eq('org_id', orgRow.id)
     .eq('status', 'active')
@@ -440,6 +448,8 @@ export async function fetchAgentProfile(
     countryCode: r.country_code,
     imageCount: r.image_count,
     primaryImageId: imageMap.get(r.id) ?? null,
+    latitude: r.latitude != null ? Number(r.latitude) : null,
+    longitude: r.longitude != null ? Number(r.longitude) : null,
   }));
 
   return { org, listings, totalShown: listings.length, hasMore };

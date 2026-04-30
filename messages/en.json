@@ -71,7 +71,9 @@
     "noResults": "No listings match these filters.",
     "noResultsHint": "Try widening the price range or removing filters.",
     "previousPage": "Previous",
-    "nextPage": "Next"
+    "nextPage": "Next",
+    "viewList": "List",
+    "viewMap": "Map"
   },
   "card": {
     "viewListing": "View listing"

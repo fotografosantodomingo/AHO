@@ -8,6 +8,7 @@ import {
 } from '@/lib/listings/search';
 import { ListingCard } from '@/components/listings/listing-card';
 import { SearchFilters } from '@/components/listings/search-filters';
+import { MapView } from '@/components/listings/map-view';
 import { SaveSearchButton } from '@/components/saved-searches/save-search-button';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
@@ -45,6 +46,12 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
   const t = await getTranslations({ locale, namespace: 'search' });
   const result = await searchListings(filters, typedLocale);
 
+  // View toggle: ?view=map switches the results grid for a Leaflet map.
+  // Default is the list view. Querystring source of truth so map view is
+  // bookmarkable + shareable.
+  const rawView = typeof sp.view === 'string' ? sp.view : 'list';
+  const view: 'list' | 'map' = rawView === 'map' ? 'map' : 'list';
+
   // Auth check for the Save Search button — we only want to expose the
   // save action to signed-in users; anon callers see a "Sign in to save"
   // link instead. Don't block the search page on auth — anon browse stays
@@ -60,6 +67,19 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
   const nextHref = result.hasMore
     ? buildSearchUrl(typedLocale, { ...filters, page: filters.page + 1 })
     : null;
+
+  // View-toggle URLs preserve all current filters; we only flip the
+  // `view` param. buildSearchUrl doesn't know about `view`, so append.
+  const filterQs = (() => {
+    const url = new URL(`http://x${buildSearchUrl(typedLocale, filters)}`);
+    return url.search.replace(/^\?/, '');
+  })();
+  const listViewHref = `/${locale}/${typedLocale === 'es' ? 'buscar' : 'search'}${
+    filterQs ? `?${filterQs}` : ''
+  }`;
+  const mapViewHref = `/${locale}/${typedLocale === 'es' ? 'buscar' : 'search'}?${
+    filterQs ? `${filterQs}&` : ''
+  }view=map`;
 
   return (
     <main className="mx-auto max-w-6xl space-y-6 px-6 py-8">
@@ -82,6 +102,29 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
 
       <SearchFilters locale={typedLocale} filters={filters} />
 
+      <nav aria-label="View toggle" className="flex gap-1">
+        <a
+          href={listViewHref}
+          className={`inline-flex h-8 items-center rounded-lg px-3 text-sm transition ${
+            view === 'list'
+              ? 'bg-surface-dark text-ink-inverse-muted shadow-whisper'
+              : 'border border-border-strong text-helper hover:bg-surface-muted dark:hover:bg-surface-dark'
+          }`}
+        >
+          {t('viewList')}
+        </a>
+        <a
+          href={mapViewHref}
+          className={`inline-flex h-8 items-center rounded-lg px-3 text-sm transition ${
+            view === 'map'
+              ? 'bg-surface-dark text-ink-inverse-muted shadow-whisper'
+              : 'border border-border-strong text-helper hover:bg-surface-muted dark:hover:bg-surface-dark'
+          }`}
+        >
+          {t('viewMap')}
+        </a>
+      </nav>
+
       {result.listings.length === 0 ? (
         <div className="rounded-card border border-dashed border-border-strong/60 p-10 text-center text-sm text-ink-muted dark:text-ink-inverse-muted">
           <p>{t('noResults')}</p>
@@ -93,13 +136,17 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
             {t('resultsCount_other', { count: result.listings.length })}
             {result.hasMore ? '+' : ''}
           </p>
-          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {result.listings.map((l) => (
-              <li key={l.id}>
-                <ListingCard listing={l} locale={typedLocale} />
-              </li>
-            ))}
-          </ul>
+          {view === 'map' ? (
+            <MapView listings={result.listings} locale={typedLocale} />
+          ) : (
+            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {result.listings.map((l) => (
+                <li key={l.id}>
+                  <ListingCard listing={l} locale={typedLocale} />
+                </li>
+              ))}
+            </ul>
+          )}
         </>
       )}
 
