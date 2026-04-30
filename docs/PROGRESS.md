@@ -12,6 +12,30 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-29 — Autonomous session: HashiCorp design tokens + Inter font + lead RLS tests + Stripe webhook replay (and a real production bug it caught)
+- **What shipped (4 commits, all auto-deployed):**
+  - **HashiCorp design tokens via Tailwind v4 `@theme`** at `src/app/globals.css` — full color palette (`--color-surface*`, `--color-ink*`, `--color-helper`, `--color-border*`, `--color-action*`, `--color-warn*`, `--color-error`), radius scale (`--radius-xs/sm/md/lg/card`, max 8px — no pills), `--shadow-whisper` (the dual-layer 5%-opacity shadow per spec), and font tokens (`--font-brand`, `--font-system`). Tailwind generates utility classes from each (verified: `border-border`, `text-helper`, `font-brand`, `shadow-whisper`, `rounded-card` all appear in compiled CSS).
+  - **Inter wired via `next/font/google`** at `[locale]/layout.tsx` — substituted for HashiCorp Sans (proprietary; no license per `docs/DECISIONS.md` "2026-04-29 — Visual design language"). Bound to `--font-inter` → consumed by `--font-brand`. Headings use brand font with kern + 1.19 line-height; body uses system stack with 1.5+ line-height.
+  - **Layout chrome migrated to tokens** — `<body>` now picks up surfaces via globals.css selectors (`html.dark body { ... }`); header + footer use `border-border` and `text-helper`; AHO wordmark uses brand font.
+  - **`tests/rls/leads.test.ts` (17 tests)** — closes hard-rule-#2 coverage on the `leads` table. SELECT (anon/registered denied; org members allowed; cross-org isolation), UPDATE (owner/manager/agent allowed; non-org-member denied; cross-org denied), INSERT (no user-context policy at all — explicit deny for anon, registered, AND owner — regression guard against future "fix dashboard insert" PRs that would open spam vectors), DELETE (admin-only; org owner cannot), and the `get_listing_contact` SECURITY DEFINER RPC (returns rows for active+published listings; no rows for drafts). Test count: 111 → 128 passing.
+  - **`scripts/stripe-webhook-replay.ts` (`pnpm stripe:replay`)** — fires synthesized signed events at the deployed `aho-web.pages.dev/api/webhooks/stripe` endpoint and validates 4 contract guarantees: missing-signature → 400, bad-signature → 400, valid-signature → 200, idempotent dedup of same event id → 200 + `deduped:true`, and unhandled event type → 200 + `ignored:<type>`. Hand-rolls Stripe's `t=...,v1=...` HMAC scheme via `node:crypto` (verified to match Stripe SDK's `generateTestHeaderString` byte-for-byte) so the script doesn't need the heavy Stripe SDK at runtime.
+  - **NEXT_PUBLIC_SITE_URL added to `.env.local`** — was only set as Pages binding + GH secret, missing from local. Pinned to `https://aho-web.pages.dev` for parity with what the deployed runtime sees.
+- **🐛 Production bug caught + fixed by the new replay script (this is the win):**
+  - **`Stripe webhook signature verification was silently broken on Edge runtime.`** Our `verifyWebhookEvent` called `client.webhooks.constructEvent()` (sync), which uses Node's `crypto` module under the hood. Cloudflare Pages Edge runtime doesn't expose Node's `crypto` the same way — Stripe's polyfill silently mis-verifies and returns "invalid signature" for **every** signed event, including real Stripe deliveries. The route's existing 400 path masked it: I'd only ever sent unsigned/bad-sig requests in earlier curls, which correctly returned 400 — making the broken handler look like it was working.
+  - **Fix:** switched to `constructEventAsync()` (uses Web Crypto / SubtleCrypto, available on Edge). One-line code change + propagating `await` through the route handler. After redeploy, all 5 replay-test cases pass against the live URL.
+  - **Without this catch:** the first real paying agent's Checkout completion would have hit the webhook, the signature check would have rejected it as `invalid_signature`, the org/subscription/member rows would NEVER have been created, and the user would be stuck in the `/onboarding/welcome` polling state forever. They'd have a Stripe charge with no AHO entitlement. **The replay test paid for itself before slice 1 even has a paying user.**
+- **Verified:** typecheck clean; 128/128 tests; pages:build clean; 5/5 webhook-replay tests pass on the live URL; 4 commits auto-deployed via GH Actions.
+- **What changed since last session:** Same calendar day. This entry succeeds the deploy entry below. Slice-1 readiness check moved from "85% — Stripe webhook untested" to "~88% — Stripe webhook proven end-to-end on live URL".
+- **Slice 1 closing list:**
+  - **Resend API key** + DNS for `mail.advertisehomes.online` — PO action.
+  - **R2 enablement** + image upload UI — PO action (paid-tier opt-in per CLAUDE.md hard rule #9).
+  - **Custom domain** `advertisehomes.online` → Pages — PO action (DNS).
+  - **Soft-beta agent recruitment** (3–5 real Santo Domingo agents) — PO action.
+  - **Per-component design-token migration** (cards, forms, buttons) — gradual; happens as components are touched.
+- **Next session should start with:** Resend wiring once the API key exists (the wrapper already no-ops without one — just need to add the key to Pages binding + GH secret + .env.local), OR start the per-component design migration (highest visible polish remaining).
+
+---
+
 ## 2026-04-29 — Live on Cloudflare Pages 🚀 (`@cloudflare/next-on-pages` adapter wired, GH Actions deploy, env bindings + repo secrets, first deploy green)
 - **Live URL:** **https://aho-web.pages.dev** — `/en` 200, `/es` 200, `/en/pricing` 200, `/es/precios` 200, root `/` 307→`/en` (next-intl locale resolution).
 - **What shipped this turn:**
