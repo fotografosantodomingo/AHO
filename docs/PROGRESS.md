@@ -12,6 +12,22 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-30 — Sitemap extension: city landing + agent profile URLs derived from active listings
+- **What shipped (1 commit, deployed):**
+  - **`src/app/sitemap.ts`** now includes two new derived URL types:
+    - **City landing pages** (`/properties-in/{country}/{city}` + ES) — one entry per distinct (country, city) pair across active+published listings. City slug derived via the existing `citySlug()` helper (same path the city-landing route uses to resolve slugs back to listings → round-trip guaranteed correct).
+    - **Agent profile pages** (`/agents/{slug}` + ES) — one entry per distinct organization that has at least one active+published listing. Org's `updated_at` is the lastModified.
+  - Both new types ship hreflang alternates (en / es / x-default).
+  - Single Supabase query (the existing properties one, extended to return `country_code`, `city`, joined org `slug` + `updated_at`). Both new lists are deduped via `Map` keyed by `country/citySlug` and by `org.slug`. No additional round-trips.
+  - Test-fixture exclusion inherited from the existing inner-join `.not('organizations.slug', 'like', 'aho-test-org-%')` + defensive in-loop listing-slug check.
+- **Verified live:** `/sitemap.xml` currently shows 8 marketing URLs (no real listings yet → no derived city/agent URLs). The moment a real listing is published, the sitemap will auto-include: the listing URL (en + es), its city landing URL (en + es), and the agent profile URL (en + es) — a handful of related URLs surface to crawlers per listing, which is exactly what a real-estate SEO sitemap should do.
+- **What changed since last session:** Same calendar day. This entry succeeds the marker-clustering entry below.
+- **What's still NOT in the sitemap (intentional):** /search & /buscar (faceted, infinite crawl), /admin (internal), /dashboard / /panel / /onboarding / /inicio / /api / /auth (non-public).
+- **Slice 3 status:** SEO infrastructure is now comprehensive — sitemap covers every indexable page-type AHO emits.
+- **Next session should start with:** fixture-Stripe-state harness (unlocks the 5 deferred webhook-replay cases), HANDOFF.md spec alignment, or the polish phase if the 21st.dev key has been rotated.
+
+---
+
 ## 2026-04-30 — Marker clustering on the map (Zillow / Redfin pattern)
 - **What shipped (1 commit, deployed):**
   - **`leaflet.markercluster ^1.5.3`** added as runtime dep + `@types/leaflet.markercluster` as devDep.
