@@ -78,22 +78,28 @@ export default async function SavedSearchesPage({
 
   return (
     <main className="mx-auto max-w-3xl space-y-6 px-6 py-12">
-      <header className="space-y-2">
+      <header className="space-y-3">
+        <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+          {typedLocale === 'es' ? 'Tu cuenta' : 'Your account'}
+        </p>
         <h1 className="font-brand text-2xl font-semibold tracking-tight md:text-[34px] md:leading-[1.18]">
           {t('heading')}
         </h1>
-        <p className="text-sm text-helper">{t('alertsBlocked')}</p>
+        <div className="inline-flex items-center gap-2 rounded-md border border-warn/30 bg-warn-bg/50 px-3 py-1.5 text-xs text-warn">
+          <span aria-hidden="true">⚠</span>
+          <span>{t('alertsBlocked')}</span>
+        </div>
       </header>
 
       {searches.length === 0 ? (
-        <div className="rounded-card border border-dashed border-border-strong/60 p-10 text-center">
-          <p className="text-sm">{t('empty')}</p>
-          <p className="mx-auto mt-2 max-w-md text-xs text-helper">
+        <div className="rounded-card border border-dashed border-border-strong/60 bg-surface-muted p-10 text-center dark:bg-surface-deep">
+          <p className="font-brand text-base font-semibold">{t('empty')}</p>
+          <p className="mx-auto mt-2 max-w-md text-sm text-helper">
             {t('emptyHint')}
           </p>
           <a
             href={browseHref}
-            className="mt-6 inline-flex h-10 items-center justify-center rounded-lg border border-border-strong px-5 text-sm font-medium transition hover:bg-surface-muted dark:hover:bg-surface-dark"
+            className="mt-6 inline-flex h-10 items-center justify-center rounded-lg bg-surface-dark px-5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink dark:bg-surface dark:text-ink dark:hover:bg-surface-muted"
           >
             {t('browseCta')}
           </a>

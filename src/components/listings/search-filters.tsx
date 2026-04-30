@@ -21,6 +21,18 @@ export async function SearchFilters({ locale, filters }: Props) {
   const tProperty = await getTranslations({ locale, namespace: 'property' });
   const action = `/${locale}/${locale === 'es' ? 'buscar' : 'search'}`;
 
+  // Count of non-default filter values, used to show a subtle "X filters
+  // active" pill and to gate visibility of the Clear button. Page param
+  // is excluded — it's pagination, not a filter.
+  const activeCount = [
+    filters.q,
+    filters.city,
+    filters.transaction,
+    filters.minPrice,
+    filters.maxPrice,
+    filters.bedsMin,
+  ].filter((v) => v != null && v !== '').length;
+
   return (
     <form
       method="get"
@@ -128,26 +140,39 @@ export async function SearchFilters({ locale, filters }: Props) {
         />
       </Field>
 
-      <div className="md:col-span-6 flex items-center gap-3 border-t border-border pt-3">
+      <div className="md:col-span-6 flex flex-wrap items-center gap-3 border-t border-border pt-3">
         <button
           type="submit"
-          className="inline-flex h-9 items-center rounded-lg bg-surface-dark px-4 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink"
+          className="inline-flex h-9 items-center rounded-lg bg-surface-dark px-4 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink dark:bg-surface dark:text-ink dark:hover:bg-surface-muted"
         >
           {t('applyFilters')}
         </button>
-        <a
-          href={action}
-          className="inline-flex h-9 items-center rounded-lg border border-border-strong bg-surface px-4 text-sm transition hover:bg-surface-muted dark:bg-surface-deep dark:hover:bg-surface-dark"
-        >
-          {t('clearFilters')}
-        </a>
+        {activeCount > 0 && (
+          <>
+            <a
+              href={action}
+              className="inline-flex h-9 items-center rounded-lg border border-border-strong bg-surface px-4 text-sm transition hover:bg-surface-muted dark:bg-surface-deep dark:hover:bg-surface-dark"
+            >
+              {t('clearFilters')}
+            </a>
+            <span className="ml-auto inline-flex items-center rounded-full bg-action/10 px-2.5 py-0.5 text-xs font-medium text-action dark:bg-action-dark/15 dark:text-action-dark">
+              {activeCount === 1
+                ? locale === 'es'
+                  ? '1 filtro activo'
+                  : '1 filter active'
+                : locale === 'es'
+                ? `${activeCount} filtros activos`
+                : `${activeCount} filters active`}
+            </span>
+          </>
+        )}
       </div>
     </form>
   );
 }
 
 const inputClass =
-  'mt-1 block w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm shadow-whisper outline-hidden focus:ring-3 focus:ring-action dark:bg-surface-deep dark:focus:ring-action-dark';
+  'mt-1 block w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm shadow-whisper outline-hidden transition focus:border-action focus:ring-3 focus:ring-action/30 dark:bg-surface-deep dark:focus:border-action-dark dark:focus:ring-action-dark/30';
 
 function Field({ children, className }: { children: React.ReactNode; className?: string }) {
   return <div className={className}>{children}</div>;
