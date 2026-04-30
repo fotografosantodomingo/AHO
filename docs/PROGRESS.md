@@ -12,6 +12,22 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-30 — loading.tsx skeletons (and a soft-404 regression caught + fixed)
+- **What shipped (2 commits, deployed):**
+  - **`src/app/[locale]/search/loading.tsx`** — mirrors the search page layout (H1 + Save-search button row, filter card with 6 field placeholders, view toggle, result-count strap, 6-card listing grid). Layout-stable swap when real content arrives.
+  - **`src/app/[locale]/properties/[slug]/loading.tsx`** — title + price + 4-stat grid + 4-line description placeholder + contact card with form placeholders.
+  - **`src/app/[locale]/dashboard/loading.tsx`** — fits inside the dashboard layout's `<section>` slot (sidebar renders eagerly). Header + 8-row table placeholder.
+- **🐛 Regression caught + fixed during live verification:**
+  - First push included a top-level `src/app/[locale]/loading.tsx` (catch-all skeleton). After deploy, `/en/this-route-does-not-exist` returned **HTTP 200** with the AHO 404 page content — a "soft 404" that drops indexing eligibility on unmatched URLs.
+  - Cause: the top-level loading.tsx created a Suspense boundary above the catchall route (`[locale]/[...catchall]/page.tsx`). Streaming SSR sent `200 OK` with the loading skeleton first; when the catchall's `notFound()` threw, the server pivoted to render `not-found.tsx` but the wire status had already shipped.
+  - Fix: removed `src/app/[locale]/loading.tsx`. The leaf loading.tsx files only fire for their specific routes (search, property detail, dashboard) — not for the catchall — so `notFound()` now propagates cleanly as a real HTTP 404.
+  - **Verified live:** `/en/this-route-does-not-exist` → 404 ✓, `/es/esta-ruta-no-existe` → 404 ✓, `/this-doesnt-exist-either` → 307 → 404 ✓ (next-intl middleware redirect is correct cascade). All existing routes still 200.
+- **What changed since last session:** Same calendar day. This entry succeeds the saved-searches-discoverability entry below.
+- **Slice 2 status:** Unchanged at all 5 surfaces shipped. This session was perceived-perf polish.
+- **Next session should start with:** the polish-phase setup once the 21st.dev key is rotated and pasted into `.env.local` (per `docs/DECISIONS.md` "2026-04-30 — UI/UX polish phase"). Or pick another autonomous chunk: bbox-driven map re-fetch (slice-3 polish; PostGIS `ST_Within` query + debounced client-side fetch on map move/zoom), OG image generation, or doc sync between HANDOFF.md and current implementation.
+
+---
+
 ## 2026-04-30 — Saved-searches discoverability + dashboard empty-state polish
 - **What shipped (1 commit, deployed):**
   - **AuthMenu (header, signed-in state)** now shows `[My Listings if hasOrg] · Saved searches · email · Sign out`. Org-membership check re-uses the existing `organization_members` lookup pattern from the dashboard layout. Anon state unchanged (Sign in · Sign up).
