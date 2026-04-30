@@ -49,9 +49,9 @@ export async function ListingCard({ listing, locale }: ListingCardProps) {
   return (
     <a
       href={href}
-      className="group block overflow-hidden rounded-lg border border-zinc-200 bg-white transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
+      className="group block overflow-hidden rounded-card border border-border bg-surface shadow-whisper transition-shadow hover:shadow-lg dark:bg-surface-deep"
     >
-      <div className="aspect-[4/3] w-full bg-zinc-100 dark:bg-zinc-900">
+      <div className="aspect-[4/3] w-full bg-surface-muted dark:bg-surface-dark">
         {imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -62,24 +62,26 @@ export async function ListingCard({ listing, locale }: ListingCardProps) {
             className="h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-xs uppercase tracking-wide text-zinc-400">
+          <div className="flex h-full w-full items-center justify-center font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
             {tCard('viewListing')}
           </div>
         )}
       </div>
       <div className="space-y-2 p-4">
-        <p className="text-xs uppercase tracking-wide text-zinc-500">
+        <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
           {transactionLabel} · {listing.city}
           {listing.countryCode && `, ${listing.countryCode}`}
         </p>
-        <h3 className="line-clamp-2 text-base font-medium tracking-tight">{title}</h3>
+        <h3 className="font-brand line-clamp-2 text-[19px] font-bold leading-[1.21] tracking-tight">
+          {title}
+        </h3>
         <p className="text-lg font-semibold">
           {priceLabel}
           {periodLabel && (
-            <span className="ml-1 text-sm font-normal text-zinc-500">{periodLabel}</span>
+            <span className="ml-1 text-sm font-normal text-helper">{periodLabel}</span>
           )}
         </p>
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-helper">
           {[
             listing.bedrooms != null && `${listing.bedrooms}bd`,
             listing.bathrooms != null && `${listing.bathrooms}ba`,

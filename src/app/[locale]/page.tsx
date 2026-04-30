@@ -28,11 +28,15 @@ export default async function HomePage({
 
   return (
     <main>
-      {/* Hero */}
-      <section className="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="mx-auto max-w-5xl px-6 py-16">
-          <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">{t('heading')}</h1>
-          <p className="mt-4 max-w-2xl text-lg text-zinc-600 dark:text-zinc-400">
+      {/* Hero. Surface-muted (#f1f2f3) in light, surface-deep (#0d0e12) in
+          dark — a half-step away from the body so the section reads as a
+          distinct band. Border uses the spec's translucent --color-border. */}
+      <section className="border-b border-border bg-surface-muted dark:bg-surface-deep">
+        <div className="mx-auto max-w-5xl px-6 py-20">
+          <h1 className="font-brand text-4xl font-semibold tracking-tight md:text-[52px] md:leading-[1.19]">
+            {t('heading')}
+          </h1>
+          <p className="mt-5 max-w-2xl text-lg text-ink-muted dark:text-ink-inverse-muted">
             {t('leadCopy')}
           </p>
 
@@ -47,27 +51,29 @@ export default async function HomePage({
               name="q"
               placeholder={t('searchPlaceholder')}
               aria-label={t('searchPlaceholder')}
-              className="block flex-1 rounded-md border border-zinc-300 bg-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:ring-zinc-100"
+              className="block flex-1 rounded-lg border border-border-strong bg-surface px-4 py-2.5 text-sm shadow-whisper outline-hidden focus:ring-3 focus:ring-action dark:bg-surface-deep dark:focus:ring-action-dark"
             />
             <button
               type="submit"
-              className="inline-flex items-center rounded-md bg-zinc-900 px-5 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
+              className="inline-flex items-center rounded-lg bg-surface-dark px-5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink"
             >
               {t('searchSubmit')}
             </button>
           </form>
 
-          <div className="mt-4 flex gap-3 text-sm">
+          <div className="mt-5 flex gap-3 text-sm">
             <a
               href={searchPath}
-              className="text-zinc-600 underline-offset-2 hover:underline dark:text-zinc-400"
+              className="text-helper underline-offset-2 hover:underline"
             >
               {t('ctaForBuyers')}
             </a>
-            <span className="text-zinc-300 dark:text-zinc-700">·</span>
+            <span className="text-border-strong/60" aria-hidden="true">
+              ·
+            </span>
             <a
               href={pricingPath}
-              className="text-zinc-600 underline-offset-2 hover:underline dark:text-zinc-400"
+              className="text-helper underline-offset-2 hover:underline"
             >
               {t('ctaForAgents')}
             </a>
@@ -75,12 +81,14 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* Featured listings */}
-      <section className="mx-auto max-w-5xl px-6 py-12">
-        <h2 className="text-xl font-semibold tracking-tight">{t('featuredHeading')}</h2>
+      {/* Featured listings. Section label uses the HashiCorp uppercase wayfinding pattern (13px / 600 / 1.3px tracking). */}
+      <section className="mx-auto max-w-5xl px-6 py-16">
+        <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+          {t('featuredHeading')}
+        </p>
 
         {featured.listings.length === 0 ? (
-          <p className="mt-4 text-sm text-zinc-500">{t('featuredEmpty')}</p>
+          <p className="mt-4 text-sm text-helper">{t('featuredEmpty')}</p>
         ) : (
           <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {featured.listings.slice(0, 6).map((l) => (
