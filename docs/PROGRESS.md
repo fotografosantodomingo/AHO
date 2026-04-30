@@ -12,6 +12,19 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-29 — SEO infrastructure: sitemap.xml + robots.txt (and a fixture-leak bug caught on first probe)
+- **What shipped (3 commits, deployed):**
+  - **`src/app/sitemap.ts`** — Edge-runtime, force-dynamic. Emits 8 marketing URLs (homepage / pricing / privacy / terms in both locales) plus one entry per active+published property (both locales, with hreflang `alternates.languages`). Sitemap-protocol cap at 50k URLs. Uses Next.js's `MetadataRoute.Sitemap` convention.
+  - **`src/app/robots.ts`** — Edge-runtime. Allow `/`; disallow `/api/`, `/auth/`, `/dashboard/`, `/panel/`, `/onboarding/`, `/inicio/`, `/en/search`, `/es/buscar`. References sitemap.xml explicitly.
+  - **Middleware fix** at `src/middleware.ts` — added `sitemap\.xml` and `robots\.txt` to the negative-lookahead in the matcher. Without this, next-intl was rewriting `/sitemap.xml` → `/en/sitemap.xml` and `/robots.txt` → `/en/robots.txt` (HTTP 307), which crawlers ignore. Caught on first live probe.
+  - **Fixture-leak fix** in `sitemap.ts` — first deploy surfaced the test fixture `aho-fixture-active-listing-santo-domingo-fixaa1` to crawlers because RLS fixtures live in the production Supabase project (per CLAUDE.md "Local-dev quirks" until a dedicated test project lands). That violates CLAUDE.md hard rule #8 (no fake data in user-facing contexts; sitemap.xml is user-facing — Google's the user). Two-layer filter added: (1) PostgREST `.not('organizations.slug', 'like', 'aho-test-org-%')` via inner-join, (2) defensive in-loop drop of any listing whose en/es slug starts with `aho-fixture-`.
+- **Verified:** typecheck clean, 128/128 tests, pages:build green (27 Edge Function Routes; was 25 before sitemap + robots), live `/robots.txt` serves correct directives, live `/sitemap.xml` lists exactly the 8 marketing URLs with hreflang alternates and zero fixtures.
+- **What changed since last session:** Same calendar day. This entry succeeds the agent-surface migration entry below.
+- **Slice 1 status:** still `~88%` (SEO infra doesn't move the launch gate; bounded by Resend / R2 / domain / soft-beta agents). Notable: the moment a real agent posts a real listing, the sitemap automatically includes it (no rebuild required — force-dynamic).
+- **Next session should start with:** continuing autonomous polish — open/graph image generation for property pages, 404 handling polish, OR pivot to slice-2 prep work (city landing pages would benefit SEO most). Or pause and resume when one of the PO-action items unblocks.
+
+---
+
 ## 2026-04-29 — Agent-surface design migration (dashboard + listing-form). Whole app now on design tokens.
 - **What shipped (1 commit, 6 files, deployed):**
   - **Dashboard layout** sidebar → `border-border` + `rounded-lg` nav items with `surface-muted`/`surface-dark` hover.
