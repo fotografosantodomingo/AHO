@@ -12,6 +12,29 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-30 — Polish phase batches 2 + 3: token-drift cleanup, auth surfaces, listing gallery, search-filter polish
+
+Two more polish batches landed after batch 1, all hand-crafted (Magic MCP still requires a session restart to activate). Three commits.
+
+- **`8ba4d72` — Batch 2: token-drift cleanup + auth surfaces + listing detail gallery (14 files):**
+  - **Token drift cleanup** across 12 files. Replaced raw `zinc-*` / `gray-*` utilities with HashiCorp tokens from `globals.css`. Mapping: `text-zinc-600 dark:text-zinc-400` → `text-helper`; `bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900` → `bg-surface-dark dark:bg-surface text-ink-inverse-muted dark:text-ink shadow-whisper hover:bg-ink dark:hover:bg-surface-muted`; `border-zinc-200 dark:border-zinc-800` → `border-border` (or `border-border-strong/40` for stronger variants). Affected: `signin`, `signup`, `magic-link`, `forgot-password`, `reset-password`, `auth/error`, `onboarding/welcome`, `privacy`, `terms`, `sign-out-button`, `sign-up-form`, `publish-button`. Verified `grep -rn 'zinc-|gray-|slate-' src/` returns 0 hits.
+  - **Auth-surface visual polish.** All 5 auth pages (`signin`, `signup`, `magic-link`, `forgot-password`, `reset-password`) and `auth/error` now wrap the form in a token-styled card (`rounded-card border border-border-strong/40 bg-surface p-7 shadow-whisper`) on top of a dot-grid + radial-glow background. AHO eyebrow label, action-color hover states on helper links, `border-t border-border` separator above secondary actions. Visually consistent with homepage / pricing / city / agent.
+  - **Listing detail page upgrade [`src/app/[locale]/properties/[slug]/page.tsx`](src/app/%5Blocale%5D/properties/%5Bslug%5D/page.tsx)**. New `<PropertyGallery>` component (`src/components/listings/property-gallery.tsx`) renders the property images that were already being fetched but never displayed (responsive 4-col grid: primary spans 2x2 on md+, up to 4 secondaries fill cols 3-4 in 2x2; thumbnails scroll horizontally on mobile). Title block now 2-column on md+ with transaction chip + price stacked on the right. Spec strip converted from `<dl>` to pill row matching listing-card style. Description band gets `bg-surface-muted` background.
+- **`4ab0b94` — Batch 3: search-filter UX + saved-searches header polish:**
+  - **Search filters [`src/components/listings/search-filters.tsx`](src/components/listings/search-filters.tsx):** count of non-default filter values; Clear button + `X filters active` pill only surface when at least one filter is set. Focus rings tightened to `focus:ring-action/30` alpha (matches homepage hero search form). EN/ES localized count strings.
+  - **Saved searches [`src/app/[locale]/saved-searches/page.tsx`](src/app/%5Blocale%5D/saved-searches/page.tsx):** eyebrow + bigger heading; alerts-pending callout split into its own warn-styled chip (`border-warn/30 bg-warn-bg/50 text-warn`) so it reads as a real status notice instead of a buried helper line; empty state given a real surface treatment (`bg-surface-muted` + primary-button CTA).
+- **`20170d6` — PROGRESS log for batch 1.** Logged separately so the batch-1 entry stayed standalone in the log.
+- **Verified across all batches:** typecheck, lint (only pre-existing `_req` warning), 141/141 tests, `next build` (38 routes), Cloudflare Pages build. Bundle deltas across batches 2+3: every route within ±0.2 kB of pre-polish baseline.
+- **What changed since last session:** Same calendar day. This entry succeeds the batch-1 polish entry below.
+- **Polish phase status:** 3 batches complete. ~14 surfaces touched. Token drift fully cleaned. Magic MCP wired but inactive in this session — activates on next Claude Code launch with `TWENTY_FIRST_DEV_API_KEY` exported.
+- **Pending PO unblocks (3 of 4 still open):**
+  1. Resend API key + DKIM/SPF/DMARC → emails actually send.
+  2. R2 enablement → image upload UI.
+  3. Soft-beta agent recruitment → first real listings.
+- **Next session should start with:** if Resend / R2 / soft-beta land, fire those. Otherwise, PO relaunch with key in env + Magic MCP approval, then batch 4 polishes the remaining lower-traffic surfaces (search results pagination, dashboard property edit form, contact form) using Magic-generated primitives.
+
+---
+
 ## 2026-04-30 — Polish phase begins: 5 surfaces upgraded + 21st.dev Magic MCP wired
 
 PO rotated the 21st.dev API key. Two commits in this entry.
