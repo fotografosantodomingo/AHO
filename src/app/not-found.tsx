@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 /**
  * Root not-found.tsx — handles any URL that doesn't match a registered
  * route at all (the locale-aware version at `[locale]/not-found.tsx` only
@@ -28,18 +30,18 @@ export default function GlobalNotFound() {
             The page you&rsquo;re looking for doesn&rsquo;t exist or has moved.
           </p>
           <div className="mt-8 flex flex-col gap-2 sm:flex-row">
-            <a
+            <Link
               href="/en"
               className="inline-flex h-10 items-center justify-center rounded-lg bg-surface-dark px-5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink"
             >
               Back to home
-            </a>
-            <a
+            </Link>
+            <Link
               href="/en/search"
               className="inline-flex h-10 items-center justify-center rounded-lg border border-border-strong px-5 text-sm font-medium transition hover:bg-surface-muted dark:hover:bg-surface-dark"
             >
               Browse listings
-            </a>
+            </Link>
           </div>
         </main>
       </body>
