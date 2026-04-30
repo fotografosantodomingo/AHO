@@ -12,6 +12,23 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-30 — Saved searches scaffold (slice-2 #4) + homepage JSON-LD baseline
+- **What shipped (2 commits, deployed):**
+  - **Homepage Organization + WebSite + SearchAction JSON-LD** at `src/app/[locale]/page.tsx` — baseline rich-result eligibility for branded searches. Two graphs emitted inline: Organization (Knowledge Panel) + WebSite with potentialAction(SearchAction) (sitelinks searchbox targeting `/{locale}/search?q={query}`). Locale-aware (each language emits its own graph).
+  - **Migration `0010_saved_searches.sql`** — `saved_searches` table (user_id FK, name, JSONB filters, locale, notify_email, last_seen_at, timestamps), indexes (by user_id; partial on updated_at WHERE notify_email=true for the alert-worker scan), RLS owner-only (SELECT/INSERT/UPDATE/DELETE) + admin-all, touch_updated_at trigger. Drizzle schema mirror in `src/db/schema.ts`.
+  - **13 RLS tests** in `tests/rls/saved-searches.test.ts` (paired per CLAUDE.md hard rule #2): SELECT (anon denied; non-owner denied; owner allowed; admin sees all), INSERT (own user_id; reject mismatched; reject anon), UPDATE (owner; cross-owner silent zero-row), DELETE (cross-owner blocked; owner deletes; admin deletes anyone). Two fixture saved searches added to `_setup.ts` (one per registered fixture user). Test count: 128 → **141**.
+  - **Server actions** at `src/lib/saved-searches/actions.ts` — `saveSearch` (zod-strict filter schema, dedup against identical existing rows for same user, RLS WITH CHECK enforces ownership), `deleteSavedSearch`, `toggleSavedSearchNotify`. All `revalidatePath('/[locale]/saved-searches')` after.
+  - **`/{locale}/saved-searches`** at top-level (NOT under `/dashboard`; saved searches are a buyer feature — non-org users need access). PATHNAMES: `/saved-searches` ↔ `/busquedas-guardadas`. Auth-gated, robots noindex,nofollow. Header carries an "alerts gated by Resend" notice — honest UX about the current email-transport state.
+  - **`<SavedSearchRow>`** Client Component — filter chips, "Saved {date}" wayfinding, view-results link, alerts toggle, delete (with confirm). Uses `useTransition` for pending state.
+  - **`<SaveSearchButton>`** Client Component on `/search` page header — three states: anon → "Sign in to save" link; signed-in idle → "Save this search"; pending/saved/error transient states.
+  - **i18n**: `savedSearches.*` namespace in EN + ES (filter chip templates use the existing `property.transactionType` translations for type labels). `dashboard.navSavedSearches` added (pre-emptive — for when we wire the dashboard sidebar link).
+- **Verified live:** `/en/saved-searches` + `/es/busquedas-guardadas` → 307 (anon redirected to signin); `/search` page shows "Save this search" / "Sign in to save" buttons depending on auth state; homepage HTML now contains `@type":"Organization"` + `@type":"WebSite"` + `@type":"SearchAction"` JSON-LD blocks. Pages:build green at 32 Edge Function Routes (was 31).
+- **What changed since last session:** Same calendar day. This entry succeeds the admin-surface entry below.
+- **Slice 2 status:** **~25%** — four of five surfaces live (city landing, agent profile, admin, saved-searches). The fifth (search/filter/map with PostGIS) is the only one still purely "to do"; lead inbox already shipped in slice 1.
+- **Next session should start with:** the polish-phase setup once 21st.dev key is rotated and pasted into `.env.local` (install `ui-ux-pro-max` skill at `.claude/skills/ui-ux-pro-max/`, configure `.claude/mcp.json`, pair the rotated key as MCP auth — see `docs/DECISIONS.md` "2026-04-30 — UI/UX polish phase"). Or start the search/map work (PostGIS-backed filtered map view; needs a map provider — Leaflet + OSM tiles is doable without an API key).
+
+---
+
 ## 2026-04-30 — Admin moderation surface (slice-2 #3 of 5 surfaces)
 - **What shipped (1 commit, deployed):**
   - **`/{locale}/admin`** at `src/app/[locale]/admin/page.tsx` — Server Component, Edge runtime, force-dynamic. Internal moderation page; same path in both locales (admin = us, not localized). Auth gate redirects unauth users to signin and non-admins to the agent dashboard. `robots: noindex, nofollow`.
