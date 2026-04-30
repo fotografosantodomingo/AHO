@@ -41,9 +41,10 @@ export default function robots(): MetadataRoute.Robots {
           '/es/buscar',
           // Internal moderation surface — auth-gated by is_admin flag,
           // but we also tell crawlers explicitly to stay out so the URL
-          // doesn't show up in any indexed snippet.
-          '/en/admin',
-          '/es/admin',
+          // doesn't show up in any indexed snippet. Includes all /admin
+          // sub-paths (orgs, leads, etc.) via the trailing slash.
+          '/en/admin/',
+          '/es/admin/',
         ],
       },
     ],

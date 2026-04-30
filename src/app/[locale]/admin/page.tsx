@@ -1,31 +1,23 @@
-import { redirect } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { formatPrice } from '@/lib/listings/seo';
+import { formatPrice } from '@/lib/listings/format';
 import { ArchiveButton } from '@/components/admin/archive-button';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
 /**
- * Internal admin moderation surface. Single page for now — all listings
- * across all orgs with a status filter and an archive action.
+ * Admin → Listings tab. Shows all listings across all orgs with a status
+ * filter and an archive action. Auth + tab nav live in the parent layout.
  *
- * Auth gate: signed-in + `is_admin = true`. Non-admins get bounced to the
- * agent dashboard (we don't 404 — leaking "this URL exists" to non-admins
- * isn't a real risk; the RLS policies are the authoritative gate).
- *
- * Robots: noindex,nofollow (set on the metadata below). The path is also
- * disallowed in /robots.txt.
- *
- * Fixture exclusion: not applied here — admins SHOULD see fixture rows
- * during dev so they can spot anomalies. In a dedicated test Supabase
- * project (CLAUDE.md "Local-dev quirks" — pending) this won't be an issue.
+ * Fixture exclusion: NOT applied here — admins SHOULD see fixture rows
+ * during dev so they can spot anomalies. Public surfaces (sitemap, city
+ * landing, agent profiles, by-bbox API) all filter fixtures correctly.
  */
 
 export const metadata = {
-  title: 'Admin · AHO',
+  title: 'Admin · Listings · AHO',
   robots: { index: false, follow: false },
 };
 
@@ -56,7 +48,7 @@ interface SearchParams {
 const STATUS_FILTERS = ['all', 'draft', 'active', 'pending', 'archived'] as const;
 type StatusFilter = (typeof STATUS_FILTERS)[number];
 
-export default async function AdminPage({
+export default async function AdminListingsPage({
   params,
   searchParams,
 }: {
@@ -68,29 +60,6 @@ export default async function AdminPage({
   const typedLocale = locale as Locale;
   setRequestLocale(typedLocale);
 
-  const supabase = await createServerSupabaseClient();
-  const { data: userResult } = await supabase.auth.getUser();
-  if (!userResult.user) {
-    redirect(
-      `/${locale}/${locale === 'es' ? 'iniciar-sesion' : 'signin'}?next=${encodeURIComponent(
-        `/${locale}/admin`,
-      )}`,
-    );
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('is_admin')
-    .eq('id', userResult.user.id)
-    .maybeSingle();
-
-  if (!profile?.is_admin) {
-    // Non-admins land on the agent dashboard rather than seeing a 403.
-    // The dashboard's own auth-and-org check handles whether they can
-    // view that surface.
-    redirect(`/${locale}/${locale === 'es' ? 'panel' : 'dashboard'}`);
-  }
-
   const sp = await searchParams;
   const rawStatus = sp.status ?? 'all';
   const statusFilter: StatusFilter = (
@@ -99,6 +68,7 @@ export default async function AdminPage({
     ? (rawStatus as StatusFilter)
     : 'all';
 
+  const supabase = await createServerSupabaseClient();
   let query = supabase
     .from('properties')
     .select(
@@ -114,12 +84,9 @@ export default async function AdminPage({
   const { data: rows, error } = await query;
   if (error) {
     return (
-      <main className="mx-auto max-w-6xl px-6 py-12">
-        <h1 className="font-brand text-2xl font-semibold">Admin</h1>
-        <p role="alert" className="mt-4 text-sm text-red-600">
-          {error.message}
-        </p>
-      </main>
+      <p role="alert" className="text-sm text-red-600">
+        {error.message}
+      </p>
     );
   }
 
@@ -155,16 +122,11 @@ export default async function AdminPage({
   };
 
   return (
-    <main className="mx-auto max-w-7xl space-y-6 px-6 py-8">
-      <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
-            Admin
-          </p>
-          <h1 className="font-brand text-2xl font-semibold tracking-tight md:text-[26px] md:leading-[1.19]">
-            Moderation
-          </h1>
-        </div>
+    <>
+      <div className="flex items-center justify-between">
+        <h1 className="font-brand text-2xl font-semibold tracking-tight md:text-[26px] md:leading-[1.19]">
+          Listings ({listings.length})
+        </h1>
         <nav className="flex flex-wrap gap-1" aria-label="Status filter">
           {filterTab('all', 'All')}
           {filterTab('active', 'Active')}
@@ -172,7 +134,7 @@ export default async function AdminPage({
           {filterTab('pending', 'Pending')}
           {filterTab('archived', 'Archived')}
         </nav>
-      </header>
+      </div>
 
       {listings.length === 0 ? (
         <div className="rounded-card border border-dashed border-border-strong/60 p-10 text-center text-sm text-ink-muted dark:text-ink-inverse-muted">
@@ -250,7 +212,7 @@ export default async function AdminPage({
           </table>
         </div>
       )}
-    </main>
+    </>
   );
 }
 
