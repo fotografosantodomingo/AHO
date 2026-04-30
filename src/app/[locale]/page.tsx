@@ -2,6 +2,7 @@ import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { searchListings } from '@/lib/listings/search';
 import { ListingCard } from '@/components/listings/listing-card';
+import { publicEnv } from '@/lib/env';
 
 export const runtime = 'edge';
 
@@ -16,6 +17,7 @@ export default async function HomePage({
   setRequestLocale(typedLocale);
 
   const t = await getTranslations({ locale, namespace: 'home' });
+  const tSite = await getTranslations({ locale, namespace: 'site' });
   const searchPath = `/${locale}/${locale === 'es' ? 'buscar' : 'search'}`;
   const pricingPath = `/${locale}/${locale === 'es' ? 'precios' : 'pricing'}`;
 
@@ -26,8 +28,50 @@ export default async function HomePage({
     typedLocale,
   );
 
+  // Structured data for the homepage. Two graphs:
+  //   1. Organization (publisher info — Knowledge Panel eligibility for
+  //      branded "AHO" / "Advertise Homes Online" searches).
+  //   2. WebSite + SearchAction (lets Google surface a site-search box
+  //      directly in the SERP for branded queries — sitelinks searchbox).
+  // Per HANDOFF.md §16: structured data is part of the SEO baseline, and
+  // the homepage is where these top-level graphs belong.
+  const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
+  const homeUrl = `${site}/${locale}`;
+  const organizationLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: tSite('name'),
+    alternateName: tSite('tagline'),
+    url: homeUrl,
+    description: tSite('description'),
+    logo: `${site}/icon.svg`,
+  };
+  const websiteLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: tSite('name'),
+    url: homeUrl,
+    inLanguage: locale === 'es' ? 'es' : 'en',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${site}${searchPath}?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  };
+
   return (
     <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
+      />
       {/* Hero. Surface-muted (#f1f2f3) in light, surface-deep (#0d0e12) in
           dark — a half-step away from the body so the section reads as a
           distinct band. Border uses the spec's translucent --color-border. */}
