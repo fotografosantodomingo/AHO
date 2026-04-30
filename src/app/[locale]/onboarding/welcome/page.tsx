@@ -80,12 +80,12 @@ export default async function OnboardingWelcomePage({
   if (!session_id) {
     return (
       <main className="mx-auto max-w-md px-6 py-16 text-center">
-        <p className="text-sm text-zinc-700 dark:text-zinc-300">
+        <p className="text-sm text-ink-muted dark:text-ink-inverse-muted">
           {t('missingSession')}
         </p>
         <a
           href={pricingPath}
-          className="mt-4 inline-block rounded-md border border-zinc-300 px-4 py-2 text-sm dark:border-zinc-700"
+          className="mt-4 inline-flex items-center justify-center rounded-lg border border-border-strong px-4 py-2 text-sm font-medium transition hover:bg-surface-muted dark:hover:bg-surface-dark"
         >
           {t('backToPricing')}
         </a>
@@ -108,12 +108,12 @@ export default async function OnboardingWelcomePage({
           <h1 className="text-2xl font-semibold tracking-tight">
             {t('activeHeading')}
           </h1>
-          <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="mt-3 text-sm text-helper">
             {t('activeBody')}
           </p>
           <a
             href={dashboardPath}
-            className="mt-6 inline-flex items-center justify-center rounded-md bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
+            className="mt-6 inline-flex items-center justify-center rounded-lg bg-surface-dark px-5 py-2.5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink dark:bg-surface dark:text-ink dark:hover:bg-surface-muted"
           >
             {t('openDashboard')}
           </a>
@@ -123,13 +123,13 @@ export default async function OnboardingWelcomePage({
           <h1 className="text-2xl font-semibold tracking-tight">
             {t('pendingHeading')}
           </h1>
-          <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="mt-3 text-sm text-helper">
             {t('pendingBody')}
           </p>
-          <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+          <p className="mt-2 text-xs text-helper">
             {t('pendingNote')}
           </p>
-          <p className="mt-6 text-xs text-zinc-500 dark:text-zinc-400">
+          <p className="mt-6 text-xs text-helper">
             {t('pendingTakingLong')}
           </p>
           <WelcomePoller />

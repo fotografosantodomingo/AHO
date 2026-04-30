@@ -24,7 +24,7 @@ export function SignOutButton() {
       type="button"
       onClick={onClick}
       disabled={isPending}
-      className="inline-flex h-9 items-center rounded-md border border-zinc-200 px-3 text-sm hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+      className="inline-flex h-9 items-center rounded-lg border border-border-strong/40 px-3 text-sm transition hover:bg-surface-muted disabled:opacity-50 dark:hover:bg-surface-dark"
     >
       {t('signOut')}
     </button>

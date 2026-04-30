@@ -42,7 +42,7 @@ export default async function PrivacyPage({
           <h1 className="text-3xl font-semibold">
             {locale === 'es' ? 'Política de Privacidad' : 'Privacy Policy'}
           </h1>
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-helper">
             {locale === 'es' ? 'Última actualización' : 'Last updated'}: April 29, 2026
           </p>
         </header>

@@ -30,7 +30,7 @@ export function PublishButton({ id }: { id: string }) {
         type="button"
         onClick={go}
         disabled={isPending}
-        className="inline-flex h-9 items-center rounded-md bg-zinc-900 px-3 text-sm font-medium text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+        className="inline-flex h-9 items-center rounded-lg bg-surface-dark px-4 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink disabled:opacity-50 dark:bg-surface dark:text-ink dark:hover:bg-surface-muted"
       >
         {isPending ? '…' : t('publish')}
       </button>

@@ -10,6 +10,7 @@ import {
 import { buildSeoMeta, buildListingJsonLd, formatPrice, listingUrls } from '@/lib/listings/seo';
 import { buildWhatsAppLink } from '@/lib/leads/whatsapp';
 import { ContactForm } from '@/components/listings/contact-form';
+import { PropertyGallery } from '@/components/listings/property-gallery';
 
 export const runtime = 'edge';
 
@@ -140,7 +141,7 @@ export default async function PropertyDetailPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <main className="mx-auto max-w-4xl px-6 py-10">
+      <main className="mx-auto max-w-5xl px-6 py-8 md:py-10">
         {usingFallback && (
           <div
             role="status"
@@ -150,58 +151,84 @@ export default async function PropertyDetailPage({
           </div>
         )}
 
-        <header className="space-y-3">
-          <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
-            {transactionLabel} · {property.city}, {property.countryCode}
-          </p>
-          <h1 className="font-brand text-3xl font-semibold tracking-tight md:text-[42px] md:leading-[1.19]">
-            {title}
-          </h1>
-          <p className="font-brand text-2xl font-bold">
-            {price}
-            {periodLabel ? (
-              <span className="text-base font-normal text-helper"> {periodLabel}</span>
-            ) : null}
-          </p>
+        {/* Hero gallery — primary photo + up to 4 secondaries. Token-styled
+            empty placeholder if no images yet (no fake stock photos). */}
+        <PropertyGallery
+          images={property.images}
+          locale={typedLocale}
+          fallbackAlt={title}
+        />
+
+        {/* Title block. Two columns on md+: location/title on the left,
+            transaction-type chip + price stacked on the right. */}
+        <header className="mt-8 grid gap-6 md:grid-cols-[1fr_auto] md:items-start">
+          <div className="space-y-2">
+            <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+              {property.city}, {property.countryCode}
+            </p>
+            <h1 className="font-brand text-3xl font-semibold tracking-tight md:text-[40px] md:leading-[1.12]">
+              {title}
+            </h1>
+            {property.neighborhood && (
+              <p className="text-sm text-helper">
+                {property.neighborhood}
+                {property.displayAddress && property.addressLine
+                  ? ` · ${property.addressLine}`
+                  : ''}
+              </p>
+            )}
+          </div>
+          <div className="md:text-right">
+            <span className="inline-flex items-center rounded-md border border-border bg-surface-muted px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-ink dark:bg-surface-dark dark:text-ink-inverse">
+              {transactionLabel}
+            </span>
+            <p className="mt-2 font-brand text-3xl font-bold tabular-nums tracking-tight md:text-[34px]">
+              {price}
+              {periodLabel ? (
+                <span className="ml-1 text-base font-normal text-helper">{periodLabel}</span>
+              ) : null}
+            </p>
+          </div>
         </header>
 
-        <dl className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {/* Spec strip — pill row instead of a dl, more visually consistent
+            with the listing card. Bd / ba / m² / property type. */}
+        <ul className="mt-6 flex flex-wrap gap-2">
           {property.bedrooms != null && (
-            <div>
-              <dt className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
-                {t('bedrooms_other', { count: property.bedrooms })}
-              </dt>
-              <dd className="text-lg font-medium">{property.bedrooms}</dd>
-            </div>
+            <li className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-muted px-3 py-1.5 text-sm dark:bg-surface-dark">
+              <span className="font-medium tabular-nums">{property.bedrooms}</span>
+              <span className="text-helper">
+                {t('bedrooms_other', { count: property.bedrooms }).replace(
+                  /^[0-9]+\s*/,
+                  '',
+                )}
+              </span>
+            </li>
           )}
           {property.bathrooms != null && (
-            <div>
-              <dt className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
-                {t('bathrooms_other', { count: Math.ceil(property.bathrooms) })}
-              </dt>
-              <dd className="text-lg font-medium">{property.bathrooms}</dd>
-            </div>
+            <li className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-muted px-3 py-1.5 text-sm dark:bg-surface-dark">
+              <span className="font-medium tabular-nums">{property.bathrooms}</span>
+              <span className="text-helper">
+                {t('bathrooms_other', { count: Math.ceil(property.bathrooms) }).replace(
+                  /^[0-9]+\s*/,
+                  '',
+                )}
+              </span>
+            </li>
           )}
           {property.areaSqm != null && (
-            <div>
-              <dt className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
-                m²
-              </dt>
-              <dd className="text-lg font-medium">{t('areaSqm', { value: property.areaSqm })}</dd>
-            </div>
+            <li className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-muted px-3 py-1.5 text-sm dark:bg-surface-dark">
+              <span className="font-medium tabular-nums">{property.areaSqm}</span>
+              <span className="text-helper">m²</span>
+            </li>
           )}
-        </dl>
+        </ul>
 
         {description && (
-          <section className="mt-10 max-w-none leading-relaxed">
-            <p className="whitespace-pre-line">{description}</p>
-          </section>
-        )}
-
-        {property.neighborhood && (
-          <section className="mt-8 text-sm text-helper">
-            {property.neighborhood}, {property.city}
-            {property.displayAddress && property.addressLine && ` — ${property.addressLine}`}
+          <section className="mt-10 rounded-card border border-border bg-surface-muted p-6 leading-relaxed dark:bg-surface-deep">
+            <p className="whitespace-pre-line text-ink-muted dark:text-ink-inverse-muted">
+              {description}
+            </p>
           </section>
         )}
 

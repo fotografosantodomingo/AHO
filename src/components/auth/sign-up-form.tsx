@@ -58,7 +58,7 @@ export function SignUpForm() {
     return (
       <div role="status" className="space-y-3">
         <h2 className="text-xl font-semibold">{t('checkYourEmailHeading')}</h2>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="text-sm text-helper">
           {t('checkYourEmailBody', { email: submittedEmail })}
         </p>
       </div>

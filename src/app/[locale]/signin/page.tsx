@@ -44,37 +44,67 @@ export default async function SignInPage({ params, searchParams }: PageProps) {
   const t = await getTranslations({ locale, namespace: 'auth' });
 
   return (
-    <main className="mx-auto max-w-sm px-6 py-16">
-      <h1 className="text-2xl font-semibold tracking-tight">{t('signInHeading')}</h1>
-      <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-        {t('noAccountQuestion')}{' '}
-        <a
-          className="underline"
-          href={`/${locale}/${locale === 'es' ? 'registrarse' : 'signup'}`}
-        >
-          {t('createOne')}
-        </a>
-      </p>
+    <main className="relative overflow-hidden">
+      {/* Same dot-grid + radial-glow treatment as homepage / pricing /
+          city / agent — buyers and agents experience auth as part of the
+          same surface family, not a context switch. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-[0.35] dark:opacity-[0.18]"
+        style={{
+          backgroundImage:
+            'radial-gradient(rgb(97 104 117 / 0.35) 1px, transparent 1px)',
+          backgroundSize: '24px 24px',
+          maskImage:
+            'radial-gradient(ellipse 60% 50% at 50% 30%, #000 30%, transparent 75%)',
+          WebkitMaskImage:
+            'radial-gradient(ellipse 60% 50% at 50% 30%, #000 30%, transparent 75%)',
+        }}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-action/10 blur-3xl dark:bg-action-dark/15"
+      />
 
-      <div className="mt-6">
-        <SignInForm next={next ?? `/${locale}`} />
-      </div>
+      <div className="relative mx-auto flex min-h-[calc(100vh-12rem)] max-w-sm flex-col items-stretch px-6 py-16">
+        <div className="rounded-card border border-border-strong/40 bg-surface p-7 shadow-whisper dark:bg-surface-deep">
+          <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+            AHO
+          </p>
+          <h1 className="mt-2 font-brand text-2xl font-semibold tracking-tight md:text-3xl">
+            {t('signInHeading')}
+          </h1>
+          <p className="mt-2 text-sm text-helper">
+            {t('noAccountQuestion')}{' '}
+            <a
+              className="text-action underline-offset-2 hover:underline dark:text-action-dark"
+              href={`/${locale}/${locale === 'es' ? 'registrarse' : 'signup'}`}
+            >
+              {t('createOne')}
+            </a>
+          </p>
 
-      <div className="mt-6 flex flex-col items-start gap-2 text-sm">
-        <a
-          className="underline text-zinc-600 dark:text-zinc-400"
-          href={`/${locale}/${locale === 'es' ? 'recuperar-contrasena' : 'forgot-password'}`}
-        >
-          {t('forgotPasswordLink')}
-        </a>
-        <a
-          className="underline text-zinc-600 dark:text-zinc-400"
-          href={`/${locale}/${locale === 'es' ? 'enlace-magico' : 'magic-link'}${
-            next ? `?next=${encodeURIComponent(next)}` : ''
-          }`}
-        >
-          {t('magicLinkAlt')}
-        </a>
+          <div className="mt-6">
+            <SignInForm next={next ?? `/${locale}`} />
+          </div>
+
+          <div className="mt-6 flex flex-col items-start gap-2 border-t border-border pt-5 text-sm">
+            <a
+              className="text-helper underline-offset-2 hover:text-action hover:underline dark:hover:text-action-dark"
+              href={`/${locale}/${locale === 'es' ? 'recuperar-contrasena' : 'forgot-password'}`}
+            >
+              {t('forgotPasswordLink')}
+            </a>
+            <a
+              className="text-helper underline-offset-2 hover:text-action hover:underline dark:hover:text-action-dark"
+              href={`/${locale}/${locale === 'es' ? 'enlace-magico' : 'magic-link'}${
+                next ? `?next=${encodeURIComponent(next)}` : ''
+              }`}
+            >
+              {t('magicLinkAlt')}
+            </a>
+          </div>
+        </div>
       </div>
     </main>
   );

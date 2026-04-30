@@ -39,12 +39,35 @@ export default async function ResetPasswordPage({
   const t = await getTranslations({ locale, namespace: 'auth.reset' });
 
   return (
-    <main className="mx-auto max-w-sm px-6 py-16">
-      <h1 className="text-2xl font-semibold tracking-tight">{t('heading')}</h1>
-      <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{t('intro')}</p>
+    <main className="relative overflow-hidden">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-[0.35] dark:opacity-[0.18]"
+        style={{
+          backgroundImage:
+            'radial-gradient(rgb(97 104 117 / 0.35) 1px, transparent 1px)',
+          backgroundSize: '24px 24px',
+          maskImage:
+            'radial-gradient(ellipse 60% 50% at 50% 30%, #000 30%, transparent 75%)',
+          WebkitMaskImage:
+            'radial-gradient(ellipse 60% 50% at 50% 30%, #000 30%, transparent 75%)',
+        }}
+      />
 
-      <div className="mt-6">
-        <ResetPasswordForm />
+      <div className="relative mx-auto max-w-sm px-6 py-16">
+        <div className="rounded-card border border-border-strong/40 bg-surface p-7 shadow-whisper dark:bg-surface-deep">
+          <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+            AHO
+          </p>
+          <h1 className="mt-2 font-brand text-2xl font-semibold tracking-tight md:text-3xl">
+            {t('heading')}
+          </h1>
+          <p className="mt-2 text-sm text-helper">{t('intro')}</p>
+
+          <div className="mt-6">
+            <ResetPasswordForm />
+          </div>
+        </div>
       </div>
     </main>
   );
