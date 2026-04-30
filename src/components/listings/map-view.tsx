@@ -1,28 +1,22 @@
 'use client';
 
-import dynamic from 'next/dynamic';
+import { PropertyMap } from './property-map';
 import type { SearchListing } from '@/lib/listings/search';
 import type { Locale } from '@/i18n/config';
 
 /**
- * Browser-only wrapper around <PropertyMap>. Leaflet touches `window`
- * at module-load time, so it can't be imported into a Server Component
- * tree. `next/dynamic` with `ssr: false` defers the import to the
- * browser entirely; the server emits a placeholder div.
+ * Thin re-export that gives the search page a stable import path.
+ *
+ * We deliberately do NOT wrap PropertyMap in `next/dynamic({ssr:false})`
+ * — that pattern has had interop issues with Next.js 15 + next-on-pages
+ * (manifest as 500s on the SSR pass even when the inner component isn't
+ * supposed to be rendered server-side).
+ *
+ * Instead, PropertyMap lazy-imports Leaflet INSIDE useEffect — server
+ * renders the placeholder div, browser fetches Leaflet on mount. Same
+ * net effect as ssr:false, but the bundler treats this Client Component
+ * as a normal one and doesn't get confused.
  */
-const PropertyMap = dynamic(
-  () => import('./property-map').then((m) => m.PropertyMap),
-  {
-    ssr: false,
-    loading: () => (
-      <div
-        aria-hidden="true"
-        className="aspect-[4/3] w-full animate-pulse rounded-card border border-border bg-surface-muted shadow-whisper sm:aspect-[16/9] dark:bg-surface-dark"
-      />
-    ),
-  },
-);
-
 interface MapViewProps {
   listings: SearchListing[];
   locale: Locale;
