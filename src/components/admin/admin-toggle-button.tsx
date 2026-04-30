@@ -32,7 +32,7 @@ export function AdminToggleButton({
   if (isSelf) {
     return (
       <span
-        className="inline-flex h-7 cursor-not-allowed items-center rounded-lg border border-border-strong/40 bg-surface-muted px-2 text-xs text-helper dark:bg-surface-dark"
+        className="inline-flex h-7 cursor-not-allowed items-center rounded-lg border border-border-strong/40 bg-border-strong/15 px-2 text-xs text-helper"
         title="You can't change your own admin status"
       >
         you
@@ -43,7 +43,7 @@ export function AdminToggleButton({
   const verb = isAdmin ? 'Demote' : 'Promote';
   const tone = isAdmin
     ? 'border-warn/40 bg-warn-bg/40 text-warn hover:bg-warn-bg'
-    : 'border-border-strong hover:bg-surface-muted dark:hover:bg-surface-dark';
+    : 'border-border-strong hover:bg-black/5 dark:hover:bg-white/5';
 
   return (
     <button

@@ -34,7 +34,7 @@ export function ArchiveButton({ propertyId, status }: ArchiveButtonProps) {
             if (!r.ok) setError(r.error ?? 'failed');
           });
         }}
-        className="inline-flex h-7 items-center rounded-lg border border-border-strong px-2 text-xs transition hover:bg-surface-muted disabled:opacity-50 dark:hover:bg-surface-dark"
+        className="inline-flex h-7 items-center rounded-lg border border-border-strong px-2 text-xs transition hover:bg-black/5 disabled:opacity-50 dark:hover:bg-white/5"
         title={error ?? 'Restore to draft'}
       >
         {isPending ? '…' : 'Unarchive'}

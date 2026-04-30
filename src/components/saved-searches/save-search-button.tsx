@@ -35,7 +35,7 @@ export function SaveSearchButton({ filters, isAuthenticated }: SaveSearchButtonP
     return (
       <a
         href={signinHref}
-        className="inline-flex h-9 items-center rounded-lg border border-border-strong px-3 text-sm transition hover:bg-surface-muted dark:hover:bg-surface-dark"
+        className="inline-flex h-9 items-center rounded-lg border border-border-strong px-3 text-sm transition hover:bg-black/5 dark:hover:bg-white/5"
       >
         {t('saveButtonAuth')}
       </a>
@@ -75,7 +75,7 @@ export function SaveSearchButton({ filters, isAuthenticated }: SaveSearchButtonP
           }
         });
       }}
-      className="inline-flex h-9 items-center rounded-lg border border-border-strong px-3 text-sm transition hover:bg-surface-muted disabled:opacity-50 dark:hover:bg-surface-dark"
+      className="inline-flex h-9 items-center rounded-lg border border-border-strong px-3 text-sm transition hover:bg-black/5 disabled:opacity-50 dark:hover:bg-white/5"
     >
       {pending
         ? t('saveButtonSaving')

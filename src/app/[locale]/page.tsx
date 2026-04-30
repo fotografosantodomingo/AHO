@@ -204,7 +204,7 @@ export default async function HomePage({
       {/* How AHO works. Three-step explainer for visitors who arrive without
           context. Pure structural copy — no images, no fake testimonials.
           Borders + numbered chips keep it dense without feeling hollow. */}
-      <section className="border-t border-border bg-surface-muted dark:bg-surface-deep">
+      <section className="border-t border-border bg-surface dark:bg-surface-deep">
         <div className="mx-auto max-w-5xl px-6 py-20">
           <h2 className="font-brand text-3xl font-semibold tracking-tight md:text-[40px] md:leading-[1.15]">
             {t('howHeading')}
@@ -217,9 +217,9 @@ export default async function HomePage({
             {([1, 2, 3] as const).map((n) => (
               <li
                 key={n}
-                className="flex flex-col gap-3 rounded-card border border-border bg-surface p-6 shadow-whisper dark:bg-surface-dark"
+                className="flex flex-col gap-3 rounded-card border border-border bg-surface-muted p-6 shadow-whisper dark:bg-surface-dark"
               >
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border-strong/30 bg-surface-muted font-brand text-sm font-semibold text-action dark:bg-surface-deep dark:text-action-dark">
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border-strong/30 bg-surface font-brand text-sm font-semibold text-action shadow-whisper dark:bg-surface-deep dark:text-action-dark">
                   {n}
                 </span>
                 <h3 className="font-brand text-lg font-semibold tracking-tight">

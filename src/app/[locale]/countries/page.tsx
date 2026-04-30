@@ -89,7 +89,7 @@ export default async function CountriesPage({
 
       <div className="mx-auto max-w-5xl px-6 py-12">
         {rows.length === 0 ? (
-          <div className="rounded-card border border-dashed border-border-strong/60 bg-surface-muted p-10 text-center dark:bg-surface-deep">
+          <div className="rounded-card border border-dashed border-border-strong/60 bg-surface p-10 text-center shadow-whisper dark:bg-surface-deep">
             <p className="font-brand text-base font-semibold">{t('emptyHeading')}</p>
             <p className="mx-auto mt-3 max-w-md text-sm text-helper">
               {t('emptyBody')}
@@ -103,7 +103,7 @@ export default async function CountriesPage({
               </Link>
               <Link
                 href={browseHref}
-                className="inline-flex h-10 items-center justify-center rounded-lg border border-border-strong px-5 text-sm font-medium transition hover:bg-surface-muted dark:hover:bg-surface-dark"
+                className="inline-flex h-10 items-center justify-center rounded-lg border border-border-strong px-5 text-sm font-medium transition hover:bg-black/5 dark:hover:bg-white/5"
               >
                 {t('browseAllCta')}
               </Link>

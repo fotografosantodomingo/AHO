@@ -117,7 +117,7 @@ export function SavedSearchRow({
         <div className="flex flex-col items-end gap-2 shrink-0">
           <a
             href={viewUrl}
-            className="inline-flex h-8 items-center rounded-lg border border-border-strong px-3 text-xs transition hover:bg-surface-muted dark:hover:bg-surface-dark"
+            className="inline-flex h-8 items-center rounded-lg border border-border-strong px-3 text-xs transition hover:bg-black/5 dark:hover:bg-white/5"
           >
             {t('viewResults')}
           </a>
@@ -132,7 +132,7 @@ export function SavedSearchRow({
                 if (!r.ok) setNotifyState(!next); // revert on failure
               });
             }}
-            className="inline-flex h-8 items-center rounded-lg border border-border-strong/60 px-3 text-xs transition hover:bg-surface-muted disabled:opacity-50 dark:hover:bg-surface-dark"
+            className="inline-flex h-8 items-center rounded-lg border border-border-strong/60 px-3 text-xs transition hover:bg-black/5 disabled:opacity-50 dark:hover:bg-white/5"
           >
             {notifyState ? t('alertsToggleOff') : t('alertsToggleOn')}
           </button>

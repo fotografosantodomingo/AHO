@@ -179,7 +179,7 @@ export default async function PropertyDetailPage({
             )}
           </div>
           <div className="md:text-right">
-            <span className="inline-flex items-center rounded-md border border-border bg-surface-muted px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-ink dark:bg-surface-dark dark:text-ink-inverse">
+            <span className="inline-flex items-center rounded-md border border-border bg-surface px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-ink shadow-whisper dark:bg-surface-deep dark:text-ink-inverse">
               {transactionLabel}
             </span>
             <p className="mt-2 font-brand text-3xl font-bold tabular-nums tracking-tight md:text-[34px]">
@@ -195,7 +195,7 @@ export default async function PropertyDetailPage({
             with the listing card. Bd / ba / m² / property type. */}
         <ul className="mt-6 flex flex-wrap gap-2">
           {property.bedrooms != null && (
-            <li className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-muted px-3 py-1.5 text-sm dark:bg-surface-dark">
+            <li className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-sm shadow-whisper dark:bg-surface-deep">
               <span className="font-medium tabular-nums">{property.bedrooms}</span>
               <span className="text-helper">
                 {t('bedrooms_other', { count: property.bedrooms }).replace(
@@ -206,7 +206,7 @@ export default async function PropertyDetailPage({
             </li>
           )}
           {property.bathrooms != null && (
-            <li className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-muted px-3 py-1.5 text-sm dark:bg-surface-dark">
+            <li className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-sm shadow-whisper dark:bg-surface-deep">
               <span className="font-medium tabular-nums">{property.bathrooms}</span>
               <span className="text-helper">
                 {t('bathrooms_other', { count: Math.ceil(property.bathrooms) }).replace(
@@ -217,7 +217,7 @@ export default async function PropertyDetailPage({
             </li>
           )}
           {property.areaSqm != null && (
-            <li className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-muted px-3 py-1.5 text-sm dark:bg-surface-dark">
+            <li className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-sm shadow-whisper dark:bg-surface-deep">
               <span className="font-medium tabular-nums">{property.areaSqm}</span>
               <span className="text-helper">m²</span>
             </li>
@@ -225,7 +225,7 @@ export default async function PropertyDetailPage({
         </ul>
 
         {description && (
-          <section className="mt-10 rounded-card border border-border bg-surface-muted p-6 leading-relaxed dark:bg-surface-deep">
+          <section className="mt-10 rounded-card border border-border bg-surface p-6 leading-relaxed shadow-whisper dark:bg-surface-deep">
             <p className="whitespace-pre-line text-ink-muted dark:text-ink-inverse-muted">
               {description}
             </p>

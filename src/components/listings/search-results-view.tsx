@@ -121,7 +121,7 @@ export function SearchResultsView({
   return (
     <>
       {bboxActive && (
-        <div className="flex items-center justify-between rounded-lg border border-border-strong/60 bg-surface-muted px-3 py-2 text-xs dark:bg-surface-dark">
+        <div className="flex items-center justify-between rounded-lg border border-border-strong/60 bg-surface px-3 py-2 text-xs shadow-whisper dark:bg-surface-deep">
           <p className="text-helper">{bboxActiveLabel}</p>
           <button
             type="button"
@@ -176,7 +176,7 @@ export function SearchResultsView({
           {prevHref ? (
             <a
               href={prevHref}
-              className="inline-flex h-9 items-center rounded-lg border border-border-strong px-3 text-sm transition hover:bg-surface-muted dark:hover:bg-surface-dark"
+              className="inline-flex h-9 items-center rounded-lg border border-border-strong px-3 text-sm transition hover:bg-black/5 dark:hover:bg-white/5"
             >
               {prevPageLabel}
             </a>
@@ -186,7 +186,7 @@ export function SearchResultsView({
           {nextHref && (
             <a
               href={nextHref}
-              className="inline-flex h-9 items-center rounded-lg border border-border-strong px-3 text-sm transition hover:bg-surface-muted dark:hover:bg-surface-dark"
+              className="inline-flex h-9 items-center rounded-lg border border-border-strong px-3 text-sm transition hover:bg-black/5 dark:hover:bg-white/5"
             >
               {nextPageLabel}
             </a>

@@ -274,7 +274,7 @@ export function PropertyMap({
         ref={mapEl}
         role="application"
         aria-label="Map of property listings"
-        className="aspect-[4/3] w-full overflow-hidden rounded-card border border-border bg-surface-muted shadow-whisper sm:aspect-[16/9] dark:bg-surface-dark"
+        className="aspect-[4/3] w-full overflow-hidden rounded-card border border-border bg-surface shadow-whisper sm:aspect-[16/9] dark:bg-surface-deep"
       />
       {ready && pinned.length === 0 && listings.length > 0 && !fetching && (
         <p className="absolute left-3 top-3 rounded-lg bg-surface/90 px-3 py-1.5 text-xs text-helper backdrop-blur-sm dark:bg-surface-deep/90">

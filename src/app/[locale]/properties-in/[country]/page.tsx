@@ -133,7 +133,7 @@ export default async function CountryLandingPage({
 
       <div className="mx-auto max-w-6xl px-6 py-12">
         {result.cities.length === 0 ? (
-          <div className="rounded-card border border-dashed border-border-strong/60 bg-surface-muted p-12 text-center dark:bg-surface-deep">
+          <div className="rounded-card border border-dashed border-border-strong/60 bg-surface p-12 text-center shadow-whisper dark:bg-surface-deep">
             <h2 className="font-brand text-xl font-semibold">
               {t('emptyHeading', { country: display })}
             </h2>
@@ -149,7 +149,7 @@ export default async function CountryLandingPage({
               </Link>
               <Link
                 href={countriesPath}
-                className="inline-flex h-10 items-center justify-center rounded-lg border border-border-strong px-5 text-sm font-medium transition hover:bg-surface-muted dark:hover:bg-surface-dark"
+                className="inline-flex h-10 items-center justify-center rounded-lg border border-border-strong px-5 text-sm font-medium transition hover:bg-black/5 dark:hover:bg-white/5"
               >
                 {t('browseCountriesCta')}
               </Link>
@@ -187,7 +187,7 @@ export default async function CountryLandingPage({
             <div className="mt-8">
               <Link
                 href={browseHref}
-                className="inline-flex h-10 items-center justify-center rounded-lg border border-border-strong px-5 text-sm font-medium transition hover:bg-surface-muted dark:hover:bg-surface-dark"
+                className="inline-flex h-10 items-center justify-center rounded-lg border border-border-strong px-5 text-sm font-medium transition hover:bg-black/5 dark:hover:bg-white/5"
               >
                 {t('viewAllInCountry', { country: display })}
               </Link>

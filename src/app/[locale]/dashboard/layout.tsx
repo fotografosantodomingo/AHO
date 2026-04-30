@@ -71,19 +71,19 @@ export default async function DashboardLayout({
         >
           <a
             href={propertiesPath}
-            className="shrink-0 rounded-lg px-3 py-2 transition hover:bg-surface-muted dark:hover:bg-surface-dark md:block"
+            className="shrink-0 rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5 md:block"
           >
             {t('navListings')}
           </a>
           <a
             href={leadsPath}
-            className="shrink-0 rounded-lg px-3 py-2 transition hover:bg-surface-muted dark:hover:bg-surface-dark md:block"
+            className="shrink-0 rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5 md:block"
           >
             {t('navLeads')}
           </a>
           <a
             href={savedSearchesPath}
-            className="shrink-0 rounded-lg px-3 py-2 transition hover:bg-surface-muted dark:hover:bg-surface-dark md:block"
+            className="shrink-0 rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5 md:block"
           >
             {t('navSavedSearches')}
           </a>

@@ -92,7 +92,7 @@ export default async function SavedSearchesPage({
       </header>
 
       {searches.length === 0 ? (
-        <div className="rounded-card border border-dashed border-border-strong/60 bg-surface-muted p-10 text-center dark:bg-surface-deep">
+        <div className="rounded-card border border-dashed border-border-strong/60 bg-surface p-10 text-center shadow-whisper dark:bg-surface-deep">
           <p className="font-brand text-base font-semibold">{t('empty')}</p>
           <p className="mx-auto mt-2 max-w-md text-sm text-helper">
             {t('emptyHint')}

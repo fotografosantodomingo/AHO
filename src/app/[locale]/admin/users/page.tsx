@@ -114,7 +114,7 @@ export default async function AdminUsersPage({
         className={`inline-flex h-8 items-center rounded-lg px-3 text-sm transition ${
           isActive
             ? 'bg-surface-dark text-ink-inverse-muted shadow-whisper'
-            : 'text-helper hover:bg-surface-muted dark:hover:bg-surface-dark'
+            : 'text-helper hover:bg-black/5 dark:hover:bg-white/5'
         }`}
       >
         {label}
@@ -164,7 +164,7 @@ export default async function AdminUsersPage({
                 return (
                   <tr
                     key={user.id}
-                    className="transition hover:bg-surface-muted dark:hover:bg-surface-dark"
+                    className="transition hover:bg-black/5 dark:hover:bg-white/5"
                   >
                     <td className="px-3 py-2 font-mono text-xs">
                       {user.email ?? '(no email)'}

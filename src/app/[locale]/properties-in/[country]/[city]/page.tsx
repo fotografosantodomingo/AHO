@@ -200,7 +200,7 @@ export default async function CityLandingPage({
               </Link>
               <Link
                 href={browseAllHref}
-                className="inline-flex h-10 items-center justify-center rounded-lg border border-border-strong px-5 text-sm font-medium transition hover:bg-surface-muted dark:hover:bg-surface-dark"
+                className="inline-flex h-10 items-center justify-center rounded-lg border border-border-strong px-5 text-sm font-medium transition hover:bg-black/5 dark:hover:bg-white/5"
               >
                 {t('browseAllCta')}
               </Link>
@@ -225,7 +225,7 @@ export default async function CityLandingPage({
               <div className="flex justify-center pt-4">
                 <Link
                   href={allListingsHref}
-                  className="inline-flex h-10 items-center justify-center rounded-lg border border-border-strong px-5 text-sm font-medium transition hover:bg-surface-muted dark:hover:bg-surface-dark"
+                  className="inline-flex h-10 items-center justify-center rounded-lg border border-border-strong px-5 text-sm font-medium transition hover:bg-black/5 dark:hover:bg-white/5"
                 >
                   {t('viewAllCta')}
                 </Link>

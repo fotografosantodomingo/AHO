@@ -172,7 +172,7 @@ export async function SearchFilters({ locale, filters }: Props) {
           <>
             <a
               href={action}
-              className="inline-flex h-9 items-center rounded-lg border border-border-strong bg-surface px-4 text-sm transition hover:bg-surface-muted dark:bg-surface-deep dark:hover:bg-surface-dark"
+              className="inline-flex h-9 items-center rounded-lg border border-border-strong bg-surface px-4 text-sm transition hover:bg-black/5 dark:bg-surface-deep dark:hover:bg-white/5"
             >
               {t('clearFilters')}
             </a>

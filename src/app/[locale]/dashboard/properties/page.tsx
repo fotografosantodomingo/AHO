@@ -134,7 +134,7 @@ export default async function DashboardListingsPage({
                 return (
                   <tr
                     key={row.id}
-                    className="transition hover:bg-surface-muted dark:hover:bg-surface-dark"
+                    className="transition hover:bg-black/5 dark:hover:bg-white/5"
                   >
                     <td className="px-3 py-2">
                       <a className="underline" href={editPathFor(row.id)}>
@@ -170,7 +170,7 @@ function StatusBadge({ status, label }: { status: string; label: string }) {
       case 'active':
         return 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-200';
       case 'draft':
-        return 'bg-surface-muted text-ink-muted dark:bg-surface-dark dark:text-ink-inverse-muted';
+        return 'bg-border-strong/15 text-ink-muted dark:text-ink-inverse-muted';
       case 'pending':
         return 'bg-warn-bg text-warn dark:bg-warn-bg/30 dark:text-warn';
       case 'sold':
@@ -178,7 +178,7 @@ function StatusBadge({ status, label }: { status: string; label: string }) {
         return 'bg-blue-100 text-blue-900 dark:bg-blue-950/60 dark:text-blue-200';
       case 'archived':
       default:
-        return 'bg-surface-muted text-helper dark:bg-surface-dark';
+        return 'bg-border-strong/15 text-helper';
     }
   })();
   return (

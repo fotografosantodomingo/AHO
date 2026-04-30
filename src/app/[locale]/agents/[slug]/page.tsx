@@ -260,7 +260,7 @@ export default async function AgentProfilePage({
               </p>
               <Link
                 href={browseAllHref}
-                className="mt-6 inline-flex h-10 items-center justify-center rounded-lg border border-border-strong px-5 text-sm font-medium transition hover:bg-surface-muted dark:hover:bg-surface-dark"
+                className="mt-6 inline-flex h-10 items-center justify-center rounded-lg border border-border-strong px-5 text-sm font-medium transition hover:bg-black/5 dark:hover:bg-white/5"
               >
                 {t('browseAllCta')}
               </Link>

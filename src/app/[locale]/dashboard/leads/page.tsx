@@ -104,7 +104,7 @@ export default async function LeadsPage({
         className={`inline-flex h-8 items-center rounded-lg px-3 text-sm transition ${
           isActive
             ? 'bg-surface-dark text-ink-inverse-muted shadow-whisper'
-            : 'text-helper hover:bg-surface-muted dark:hover:bg-surface-dark'
+            : 'text-helper hover:bg-black/5 dark:hover:bg-white/5'
         }`}
       >
         {label}
@@ -232,7 +232,7 @@ function StatusBadge({ status, label }: { status: LeadStatus; label: string }) {
       case 'won':
         return 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-200';
       case 'lost':
-        return 'bg-surface-muted text-helper dark:bg-surface-dark';
+        return 'bg-border-strong/15 text-helper';
     }
   })();
   return (

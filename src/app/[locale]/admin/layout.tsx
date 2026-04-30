@@ -78,7 +78,7 @@ export default async function AdminLayout({
             <a
               key={tab.href}
               href={tab.href}
-              className="inline-flex h-8 items-center rounded-lg border border-border-strong px-3 text-sm transition hover:bg-surface-muted dark:hover:bg-surface-dark"
+              className="inline-flex h-8 items-center rounded-lg border border-border-strong px-3 text-sm transition hover:bg-black/5 dark:hover:bg-white/5"
             >
               {tab.label}
             </a>

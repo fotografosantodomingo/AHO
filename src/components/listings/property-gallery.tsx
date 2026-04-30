@@ -42,7 +42,7 @@ export function PropertyGallery({ images, locale, fallbackAlt }: Props) {
     return (
       <div
         aria-hidden="true"
-        className="flex aspect-[16/9] w-full items-center justify-center rounded-card border border-dashed border-border-strong/40 bg-surface-muted dark:bg-surface-deep"
+        className="flex aspect-[16/9] w-full items-center justify-center rounded-card border border-dashed border-border-strong/40 bg-surface shadow-whisper dark:bg-surface-deep"
         style={{
           backgroundImage:
             'linear-gradient(135deg, rgb(97 104 117 / 0.04), rgb(97 104 117 / 0.01))',

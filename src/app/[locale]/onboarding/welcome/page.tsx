@@ -85,7 +85,7 @@ export default async function OnboardingWelcomePage({
         </p>
         <a
           href={pricingPath}
-          className="mt-4 inline-flex items-center justify-center rounded-lg border border-border-strong px-4 py-2 text-sm font-medium transition hover:bg-surface-muted dark:hover:bg-surface-dark"
+          className="mt-4 inline-flex items-center justify-center rounded-lg border border-border-strong px-4 py-2 text-sm font-medium transition hover:bg-black/5 dark:hover:bg-white/5"
         >
           {t('backToPricing')}
         </a>

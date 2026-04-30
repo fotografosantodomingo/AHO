@@ -37,7 +37,7 @@ export function ThemeToggle() {
         title={t('light')}
         onClick={() => setTheme('light')}
         className={`inline-flex h-9 w-9 items-center justify-center text-sm ${
-          theme === 'light' ? 'bg-surface-muted dark:bg-surface-dark' : ''
+          theme === 'light' ? 'bg-action/15 text-action dark:bg-action-dark/20 dark:text-action-dark' : ''
         }`}
       >
         <Sun aria-hidden="true" className="h-4 w-4" />
@@ -49,7 +49,7 @@ export function ThemeToggle() {
         title={t('system')}
         onClick={() => setTheme('system')}
         className={`inline-flex h-9 w-9 items-center justify-center text-sm ${
-          theme === 'system' ? 'bg-surface-muted dark:bg-surface-dark' : ''
+          theme === 'system' ? 'bg-action/15 text-action dark:bg-action-dark/20 dark:text-action-dark' : ''
         }`}
       >
         <Monitor aria-hidden="true" className="h-4 w-4" />
@@ -61,7 +61,7 @@ export function ThemeToggle() {
         title={t('dark')}
         onClick={() => setTheme('dark')}
         className={`inline-flex h-9 w-9 items-center justify-center text-sm ${
-          theme === 'dark' ? 'bg-surface-muted dark:bg-surface-dark' : ''
+          theme === 'dark' ? 'bg-action/15 text-action dark:bg-action-dark/20 dark:text-action-dark' : ''
         }`}
       >
         <Moon aria-hidden="true" className="h-4 w-4" />

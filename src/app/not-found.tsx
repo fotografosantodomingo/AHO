@@ -38,7 +38,7 @@ export default function GlobalNotFound() {
             </Link>
             <Link
               href="/en/search"
-              className="inline-flex h-10 items-center justify-center rounded-lg border border-border-strong px-5 text-sm font-medium transition hover:bg-surface-muted dark:hover:bg-surface-dark"
+              className="inline-flex h-10 items-center justify-center rounded-lg border border-border-strong px-5 text-sm font-medium transition hover:bg-black/5 dark:hover:bg-white/5"
             >
               Browse listings
             </Link>
