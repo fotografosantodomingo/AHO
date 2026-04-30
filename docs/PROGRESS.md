@@ -12,6 +12,25 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-30 — List-view sync to map bbox (Zillow-style split view)
+- **What shipped (1 commit, deployed):**
+  - **`<SearchResultsView>` Client Component** at `src/components/listings/search-results-view.tsx` — owns `bboxActive` flag + `listings` state. Initial value: server-rendered `initialListings`. When the map calls back with new bounds, it fetches `/api/properties/by-bbox` (with current filters + bounds) and replaces `listings`. The view toggle (list | map) is purely presentational; both children render off the same `listings` array. Switching views is instant; the rendered set stays consistent.
+  - **Bbox API extended** (`/api/properties/by-bbox`) — now accepts the same filter params as `/search` (`q`, `city`, `transaction`, `min_price`, `max_price`, `beds_min`) and returns the **full SearchListing shape** (bedrooms, bathrooms, area_sqm, primary image, etc.) so list view can render `<ListingCard>` from the response.
+  - **`<PropertyMap>` refactored** — drops internal fetching; emits new bounds via `onBoundsChange` callback (debounced 400ms after `moveend`). Optional `fetching` prop renders the "Updating" chip.
+  - **`<ListingCard>` converted to Client Component** — required because it's now used inside a Client tree. Switched `getTranslations` → `useTranslations`. Functionally identical otherwise.
+  - **`formatPrice` extracted** to a new `src/lib/listings/format.ts` (out of the `'server-only'`-marked `seo.ts`) so Client Components can import it. `seo.ts` re-exports for backwards compat — every existing call site keeps working.
+  - **UX surface:** when bbox-driven mode is active, a chip appears explaining "Showing listings in this map area" with a "Reset to all results" button. Pagination links hide while bbox is active (capped 200, doesn't paginate the same way).
+  - **i18n:** `search.bboxActive` + `search.resetBbox` in EN + ES.
+- **Build hiccups caught + fixed during verification:**
+  - **First build failed:** ListingCard → `formatPrice` from `seo.ts` (which has `import 'server-only'`) — Client Components can't import from server-only modules. Fix: extracted `formatPrice` to `format.ts`.
+  - **Second typecheck failed:** seo.ts used `formatPrice` locally but only re-exported it. Fix: import + re-export both.
+- **Verified live:** `/en/search`, `/en/search?view=map`, `/es/buscar`, `/es/buscar?view=map`, `/en`, `/en/properties-in/do/santo-domingo` all 200; `/api/properties/by-bbox` 200 with and without filter params; pages:build green at 33 Edge Function Routes (unchanged).
+- **What changed since last session:** Same calendar day. This entry succeeds the doc-sync entry below.
+- **Slice 3 status:** the search experience now feels like a real Zillow-style split view (when listings exist). One of the bigger autonomous deliverables this session.
+- **Next session should start with:** OG image generation (`opengraph-image.tsx` for property pages — small autonomous win). Or fixture-Stripe-state harness (unlocks 5 deferred webhook-replay cases). Or the polish phase if the 21st.dev key has been rotated.
+
+---
+
 ## 2026-04-30 — CLAUDE.md doc sync (status + folder map + local-dev quirks + current focus)
 - **What shipped (1 commit):**
   - **Status:** was "v1 build, pre-development. No application code yet." → now describes the live URL, slice progress, route count, test count, pointer to PROGRESS.md.
