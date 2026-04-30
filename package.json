@@ -28,6 +28,7 @@
     "db:migrate": "tsx scripts/migrate.ts",
     "db:studio": "drizzle-kit studio",
     "stripe:setup": "tsx scripts/setup-stripe-products.ts",
+    "stripe:replay": "tsx scripts/stripe-webhook-replay.ts",
     "db:seed": "tsx scripts/seed-plans.ts",
     "prepare": "echo 'no prepare step yet'"
   },

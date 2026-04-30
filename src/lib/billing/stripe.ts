@@ -22,17 +22,25 @@ export function getStripeClient(): Stripe {
   return cachedClient;
 }
 
-/** Verify a webhook payload's signature; throws on mismatch. */
-export function verifyWebhookEvent(args: {
+/**
+ * Verify a webhook payload's signature; throws on mismatch.
+ *
+ * Uses `constructEventAsync` (Web Crypto / SubtleCrypto-backed) instead of
+ * the sync `constructEvent`. The deployed runtime is Cloudflare Pages Edge,
+ * where the sync path silently mis-verifies — every signed event comes back
+ * as "invalid_signature". Stripe's Node SDK documents this: sync uses
+ * Node's `crypto` module, async uses Web Crypto. Edge has the latter.
+ */
+export async function verifyWebhookEvent(args: {
   rawBody: string;
   signature: string;
-}): Stripe.Event {
+}): Promise<Stripe.Event> {
   const env = serverEnv();
   if (!env.STRIPE_WEBHOOK_SECRET) {
     throw new Error('STRIPE_WEBHOOK_SECRET is not set.');
   }
   const client = getStripeClient();
-  return client.webhooks.constructEvent(
+  return client.webhooks.constructEventAsync(
     args.rawBody,
     args.signature,
     env.STRIPE_WEBHOOK_SECRET,
