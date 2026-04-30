@@ -118,6 +118,18 @@
     "notFound": "Listing not found",
     "notFoundBody": "The listing you’re looking for is no longer available or has been removed."
   },
+  "agentProfile": {
+    "headingTemplate": "{name}",
+    "subheadingTemplate": "Real estate agent · {location}",
+    "subheadingNoLocation": "Real estate agent on AHO",
+    "listingsHeading": "Active listings",
+    "listingsCount_one": "1 active listing",
+    "listingsCount_other": "{count} active listings",
+    "emptyHeading": "No active listings right now",
+    "emptyBody": "{name} doesn't have any active listings on AHO at the moment.",
+    "browseAllCta": "Browse listings worldwide",
+    "websiteCta": "Visit website"
+  },
   "cityLanding": {
     "headingTemplate": "Real estate in {city}, {country}",
     "subheading": "Browse real estate listings in {city} from agents using AHO.",

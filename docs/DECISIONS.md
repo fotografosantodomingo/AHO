@@ -12,6 +12,26 @@ One entry per significant choice. Newest on top. Format:
 
 ---
 
+## 2026-04-30 — UI/UX polish phase will use the `ui-ux-pro-max` skill via 21st.dev MCP
+**Decision:** During the post-slice-2 polish phase, AHO will use the [`ui-ux-pro-max-skill`](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) from `nextlevelbuilder` (Claude Code skill) backed by the [21st.dev](https://21st.dev) MCP server + component library to upgrade the visual polish on every public surface. The skill provides curated, production-grade UI patterns; 21st.dev hosts the component asset library and the MCP search interface.
+**Why:** PO directive on 2026-04-30. The current design system (HashiCorp tokens + Inter, per `2026-04-29 — Visual design language`) gives us a coherent foundational palette but is intentionally minimal. 21st.dev's library has battle-tested components for hero sections, marquees, testimonial walls, pricing comparison tables, animated transitions, etc. that would take many sessions to handcraft. Using the skill once the slice-2 surface is functionally complete buys a "stunning" visual upgrade with low marginal effort.
+**Setup required (not yet done):**
+1. Rotate the API key the PO accidentally pasted in chat on 2026-04-30 (current key revoked; new key needed). Stored as `TWENTY_FIRST_DEV_API_KEY` in `.env.local` — **never** committed (CLAUDE.md hard rule #1).
+2. Install the `ui-ux-pro-max` skill at the project level (`.claude/skills/ui-ux-pro-max/`) so any future session can invoke it.
+3. Configure the 21st.dev MCP server in `.claude/mcp.json` so the skill can reach the asset library.
+4. Pair the rotated API key as the MCP server's auth credential.
+**Alternatives considered:**
+- Hand-craft every component on top of the current tokens. Rejected for ROI — the design system underpins everything but doesn't ship "wow" moments by itself; building those from scratch would consume weeks. Better to layer 21st.dev's primitives on top of our tokens.
+- Use a different component library (shadcn/ui, Material, etc.). Rejected — we're already past the "pick a base library" decision (Tailwind v4 + design tokens), and shadcn-style components don't carry the same level of "stunning marketing surfaces" curation that 21st.dev does.
+- Defer entirely. Rejected — the PO is right that visual polish drives signup conversion and agent perception. Shipping a functional-but-plain product to soft-beta agents will get muted reactions; a polished product will earn referrals.
+**Reconsider if:** (a) 21st.dev's terms or pricing change in a way that makes us pay more than the polish phase's value, (b) a particular surface needs a custom component the library doesn't have, (c) the rotated API key gets re-exposed (rotate again; this is operational, not a decision-level concern).
+**Build implications:**
+- Polish phase scheduled AFTER slice 2 functionally lands (city landing pages already shipped; agent profiles + saved searches + admin dashboard remain). Rationale: don't polish a surface that's still being designed structurally.
+- The skill, once installed, gets invoked per-component. Each polish PR touches one surface and uses 21st.dev primitives composed against our existing design tokens (so the palette stays consistent — we don't import 21st.dev's color system).
+- A future session needs to do the install + MCP wiring; this entry is the marker that the path is decided.
+
+---
+
 ## 2026-04-29 — Cloudflare adapter: `@cloudflare/next-on-pages` + Pages (despite npm-level deprecation), all routes opt into Edge runtime
 **Decision:** Wire AHO's Cloudflare deploy via **`@cloudflare/next-on-pages` v1.13.16** targeting **Cloudflare Pages**. Not OpenNext. Every non-static route declares `export const runtime = 'edge'` (25 routes total), `wrangler.toml` sets `compatibility_flags = ["nodejs_compat"]`, build output is `.vercel/output/static`. Deploys via `wrangler pages deploy` from a GitHub Actions workflow on push to `main`.
 **Why:** PO explicitly chose this path on 2026-04-29 with awareness that the package is npm-deprecated and Cloudflare officially recommends `@opennextjs/cloudflare` (which targets Workers, not Pages). The reasoning was "matches the spec, older tooling" — `CLAUDE.md` and `HANDOFF.md` §3.4 nominate Cloudflare Pages, and PO valued spec adherence over chasing the latest tool. The migration debt is acknowledged and accepted.

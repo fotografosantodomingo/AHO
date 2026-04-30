@@ -118,6 +118,18 @@
     "notFound": "Anuncio no encontrado",
     "notFoundBody": "El anuncio que buscas ya no está disponible o ha sido eliminado."
   },
+  "agentProfile": {
+    "headingTemplate": "{name}",
+    "subheadingTemplate": "Agente inmobiliario · {location}",
+    "subheadingNoLocation": "Agente inmobiliario en AHO",
+    "listingsHeading": "Anuncios activos",
+    "listingsCount_one": "1 anuncio activo",
+    "listingsCount_other": "{count} anuncios activos",
+    "emptyHeading": "Sin anuncios activos por ahora",
+    "emptyBody": "{name} no tiene anuncios activos en AHO en este momento.",
+    "browseAllCta": "Explorar anuncios mundiales",
+    "websiteCta": "Visitar sitio web"
+  },
   "cityLanding": {
     "headingTemplate": "Inmuebles en {city}, {country}",
     "subheading": "Explora anuncios inmobiliarios en {city} de agentes que usan AHO.",

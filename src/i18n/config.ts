@@ -97,4 +97,11 @@ export const PATHNAMES = {
     en: '/properties-in/[country]/[city]',
     es: '/inmuebles-en/[country]/[city]',
   },
+  // Agent / org profile pages — public, indexable. Each Agent-tier org
+  // (and later Agency-tier) gets a profile at `/agents/{slug}` that lists
+  // their active+published listings + headquarters + description.
+  '/agents/[slug]': {
+    en: '/agents/[slug]',
+    es: '/agentes/[slug]',
+  },
 } as const;

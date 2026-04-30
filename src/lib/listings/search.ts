@@ -306,6 +306,145 @@ export async function searchCityLanding(
   };
 }
 
+interface AgentProfileArgs {
+  orgSlug: string;
+  locale: Locale;
+  limit?: number;
+}
+
+interface AgentProfile {
+  name: string;
+  slug: string;
+  type: 'agent' | 'agency' | 'expert';
+  descriptionEn: string | null;
+  descriptionEs: string | null;
+  headquartersCountry: string | null;
+  headquartersCity: string | null;
+  website: string | null;
+  logoUrl: string | null;
+}
+
+interface AgentProfileResult {
+  org: AgentProfile | null;
+  listings: SearchListing[];
+  totalShown: number;
+  hasMore: boolean;
+}
+
+/**
+ * Org profile + their active+published listings, for the public
+ * `/{locale}/agents/{slug}` page.
+ *
+ * Returns `org: null` if no org matches the slug or the slug looks like
+ * a test fixture (`aho-test-org-*`). Caller should `notFound()` on null
+ * — we don't 404 here so the caller can render its own SEO metadata for
+ * the not-found state.
+ *
+ * Listings filter: same fixture-exclusion pattern as sitemap and the
+ * city-landing helper. Per CLAUDE.md hard rule #8 + "Local-dev quirks".
+ */
+export async function fetchAgentProfile(
+  args: AgentProfileArgs,
+): Promise<AgentProfileResult> {
+  const supabase = await createServerSupabaseClient();
+  const limit = args.limit ?? 30;
+
+  // Refuse to surface fixture orgs publicly. The sitemap helper inner-joins;
+  // here we just early-return because no real user should ever land on an
+  // /agents/aho-test-org-a URL — the slug is enough signal.
+  if (args.orgSlug.startsWith('aho-test-org-')) {
+    return { org: null, listings: [], totalShown: 0, hasMore: false };
+  }
+
+  const { data: orgRow, error: orgErr } = await supabase
+    .from('organizations')
+    .select(
+      'id, name, slug, type, description_en, description_es, headquarters_country, headquarters_city, website, logo_url',
+    )
+    .eq('slug', args.orgSlug)
+    .maybeSingle();
+
+  if (orgErr || !orgRow) {
+    return { org: null, listings: [], totalShown: 0, hasMore: false };
+  }
+
+  const org: AgentProfile = {
+    name: orgRow.name,
+    slug: orgRow.slug,
+    type: orgRow.type,
+    descriptionEn: orgRow.description_en,
+    descriptionEs: orgRow.description_es,
+    headquartersCountry: orgRow.headquarters_country,
+    headquartersCity: orgRow.headquarters_city,
+    website: orgRow.website,
+    logoUrl: orgRow.logo_url,
+  };
+
+  const { data: listingsRows, error: listingsErr } = await supabase
+    .from('properties')
+    .select(
+      'id, short_id, slug_en, slug_es, title_en, title_es, transaction_type, property_type, price_cents, currency, price_period, bedrooms, bathrooms, area_sqm, neighborhood, city, country_code, image_count, featured_until, published_at',
+    )
+    .eq('org_id', orgRow.id)
+    .eq('status', 'active')
+    .not('published_at', 'is', null)
+    .order('featured_until', { ascending: false, nullsFirst: false })
+    .order('published_at', { ascending: false, nullsFirst: false })
+    .range(0, limit);
+
+  if (listingsErr) {
+    console.error('[fetchAgentProfile] listings query failed', listingsErr);
+    return { org, listings: [], totalShown: 0, hasMore: false };
+  }
+
+  const rows = (listingsRows ?? []).filter(
+    (r) =>
+      !r.slug_en?.startsWith('aho-fixture-') && !r.slug_es?.startsWith('aho-fixture-'),
+  );
+  const hasMore = rows.length > limit;
+  const sliced = hasMore ? rows.slice(0, limit) : rows;
+
+  const ids = sliced.map((r) => r.id as string);
+  let imageMap = new Map<string, string>();
+  if (ids.length > 0) {
+    const { data: imgs } = await supabase
+      .from('property_images')
+      .select('property_id, cf_image_id')
+      .in('property_id', ids)
+      .eq('is_primary', true)
+      .eq('upload_status', 'confirmed');
+    imageMap = new Map(
+      (imgs ?? [])
+        .filter((i) => i.cf_image_id)
+        .map((i) => [i.property_id as string, i.cf_image_id as string]),
+    );
+  }
+
+  const listings: SearchListing[] = sliced.map((r) => ({
+    id: r.id,
+    shortId: r.short_id,
+    slugEn: r.slug_en,
+    slugEs: r.slug_es,
+    titleEn: r.title_en,
+    titleEs: r.title_es,
+    transactionType: r.transaction_type,
+    propertyType: r.property_type,
+    priceCents: Number(r.price_cents),
+    currency: r.currency,
+    pricePeriod: r.price_period,
+    bedrooms: r.bedrooms,
+    bathrooms: r.bathrooms != null ? Number(r.bathrooms) : null,
+    areaSqm: r.area_sqm != null ? Number(r.area_sqm) : null,
+    neighborhood: r.neighborhood,
+    city: r.city,
+    countryCode: r.country_code,
+    imageCount: r.image_count,
+    primaryImageId: imageMap.get(r.id) ?? null,
+  }));
+
+  return { org, listings, totalShown: listings.length, hasMore };
+}
+
 /**
  * Build a search-page URL with the given filter state, preserving locale
  * routing. Used by pagination links and "clear filter" CTAs.
