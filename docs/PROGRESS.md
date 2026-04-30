@@ -12,6 +12,24 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-29 — 404 + error boundaries on the design system (and three Next.js routing quirks worked through)
+- **What shipped (4 commits, deployed):**
+  - **`src/app/[locale]/not-found.tsx`** — Server Component, locale-aware. Resolves the active locale via `getLocale()` from next-intl/server (the layout already called `setRequestLocale` for this request). Brand-font heading at 42px, helper-color subtitle, primary-dark "Back to home" button + bordered "Browse listings" button. Fully on the design tokens.
+  - **`src/app/[locale]/error.tsx`** — Client Component (Next.js convention), receives `{ error, reset }` props. Logs to console (Sentry hook lands when DSN configured per spec §22). Surfaces `error.digest` as a "reference ID" the user can quote. Retry button calls `reset()`; home button bounces to `/${locale}`.
+  - **`src/app/not-found.tsx`** — root fallback for URLs that don't match any registered route (locale-agnostic). Renders its own `<html><body>` since it lives outside `[locale]`'s layout. English copy. Uses next/link for the "Back to home" / "Browse listings" buttons.
+  - **`src/app/[locale]/[...catchall]/page.tsx`** — catch-all that calls `notFound()`. Forces unmatched paths inside `[locale]` to render the locale-aware 404 instead of falling through to the root English one. Specific routes (e.g. property detail) take precedence per Next.js routing rules; catch-all only fires when nothing else matched.
+  - **i18n:** new `notFound.*` and `error.*` namespaces in `messages/{en,es}.json`.
+- **🐛 Three quirks caught + fixed during live verification:**
+  1. **Default Next.js 404 was rendering instead of the AHO one.** `[locale]/not-found.tsx` only fires for explicit `notFound()` calls, not for unmatched URLs. Without a root `not-found.tsx`, Next.js shows its default. → Added the root file.
+  2. **`@next/next/no-html-link-for-pages` ESLint rule failed the deploy build.** Local pages:build had run with looser config. The deploy's `next build` flagged `<a href="/en">` literal hrefs. → Switched to `<Link>` from `next/link`.
+  3. **Spanish 404 served English content.** The root not-found.tsx was catching `/es/...` unmatched paths before the locale-aware one could. → Added `[locale]/[...catchall]/page.tsx` to force `notFound()` for paths inside `[locale]`, which then triggers `[locale]/not-found.tsx` correctly.
+- **Verified live:** `/en/this-route-does-not-exist` → AHO 404 in English; `/es/esta-ruta-no-existe` → AHO 404 in Spanish (lang="es", "Página no encontrada", "Volver al inicio", "Explorar anuncios"); `/this-doesnt-exist-either` → AHO 404 (root fallback, English). All existing routes still resolve correctly.
+- **What changed since last session:** Same calendar day. This entry succeeds the SEO-infra entry below.
+- **Slice 1 status:** still `~88%` (UX polish doesn't move the gate; bounded by Resend / R2 / domain / soft-beta agents).
+- **Next session should start with:** OG image generation for property pages (the `opengraph-image.tsx` route convention — improves social-sharing previews when listings exist) OR loading.tsx skeletons for slow-network UX. Both are small autonomous wins. Or pivot when one of the PO action items unblocks.
+
+---
+
 ## 2026-04-29 — SEO infrastructure: sitemap.xml + robots.txt (and a fixture-leak bug caught on first probe)
 - **What shipped (3 commits, deployed):**
   - **`src/app/sitemap.ts`** — Edge-runtime, force-dynamic. Emits 8 marketing URLs (homepage / pricing / privacy / terms in both locales) plus one entry per active+published property (both locales, with hreflang `alternates.languages`). Sitemap-protocol cap at 50k URLs. Uses Next.js's `MetadataRoute.Sitemap` convention.
