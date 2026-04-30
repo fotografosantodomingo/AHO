@@ -12,6 +12,19 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-30 — Bbox-driven map re-fetch (Zillow-style live browse)
+- **What shipped (1 commit, deployed):**
+  - **`GET /api/properties/by-bbox`** at `src/app/api/properties/by-bbox/route.ts` — anon-readable. Takes `sw_lat`/`sw_lng`/`ne_lat`/`ne_lng` query params, returns up to 200 active+published listings whose denormalized lat/lng (from migration 0007's trigger) falls inside the axis-aligned box. Tighter response shape than `SearchListing` (just id, slugs, title, city, countryCode, lat, lng — what the map actually needs). Test-fixture exclusion via inner-join `aho-test-org-*` filter + defensive in-loop check. Edge cache: 60s `s-maxage` so users panning over the same area get cheap cache hits.
+  - **`<PropertyMap>` extended** — Leaflet's `moveend` event fires a debounced (400ms) GET to the bbox API. Race-condition guard: each fetch increments a sequence counter; out-of-order responses are dropped. "Updating" chip with pulsing action-color dot during in-flight requests. Initial fit-to-bounds runs once on first server-rendered listings, then suppressed (don't yank viewport mid-browse). Bbox results replace the seeded server-side markers the moment the user pans.
+- **Why simple BETWEEN instead of PostGIS `ST_Within`:** the lat/lng b-tree indexes handle axis-aligned bbox cheaply. PostGIS only matters for non-axis-aligned polygons or "within X km of point Y" queries — neither is the map-pan case.
+- **Anti-meridian:** detected (`sw_lng > ne_lng`) → returns `[]`. v1 punts on Pacific-spanning bounds; revisit when a non-Western-Hemisphere market opens.
+- **Verified live:** `GET /api/properties/by-bbox?sw_lat=-90&sw_lng=-180&ne_lat=90&ne_lng=180` → `{"listings":[]}` (no real listings yet); inverted bbox → `[]` (graceful); bad params → HTTP 400; `/en/search?view=map` → 200; pages:build green at 33 Edge Function Routes (was 32 — by-bbox is the addition).
+- **What changed since last session:** Same calendar day. This entry succeeds the loading-skeletons entry below.
+- **Slice 3 status:** the map view is now a "live" surface — no longer a static snapshot. Other slice-3 polish items deferred (marker clustering at high density, list-view sync to bbox, neighborhood layer overlays).
+- **Next session should start with:** the polish-phase setup (rotated 21st.dev key + install ui-ux-pro-max skill + MCP config, per `docs/DECISIONS.md`). Or pick: **list-view sync to bbox** (when user pans the map, also re-render the list with the same bbox — turns search into a true Zillow-style split view; meaningful refactor since /search is currently Server Component), OR **OG image generation** (small, value gated on real listings existing).
+
+---
+
 ## 2026-04-30 — loading.tsx skeletons (and a soft-404 regression caught + fixed)
 - **What shipped (2 commits, deployed):**
   - **`src/app/[locale]/search/loading.tsx`** — mirrors the search page layout (H1 + Save-search button row, filter card with 6 field placeholders, view toggle, result-count strap, 6-card listing grid). Layout-stable swap when real content arrives.
