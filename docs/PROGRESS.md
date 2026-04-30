@@ -12,6 +12,58 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-30 — Light theme overhaul + worldwide country browse hierarchy
+
+PO feedback: dark theme is working well; light theme has problems; the project is "for listing in many countries but now this doesn't exist." Two-thread fix in one commit (`35991e3`).
+
+### 1. Light theme — root cause and fix
+
+- **Root cause:** body bg = `surface` = `#ffffff` AND most cards also use `bg-surface` = `#ffffff`. Cards melted into the body in light mode; only an almost-invisible 0.4-alpha border separated them. Dark mode worked because body was `surface-dark` (#15181e) and cards `surface-deep` (#0d0e12) — natural depth.
+- **Fixes in `src/app/globals.css`:**
+  - Light-mode body bg → `--color-surface-muted` (#f1f2f3). White cards now lift visibly. Dark mode unchanged (still `surface-dark`).
+  - `--color-border` alpha 0.4 → 0.7 so card outlines actually read on muted body.
+- **Refactor:** new `src/components/ui/dot-grid.tsx` exporting `<DotGrid>` and `<HeroGlow>`. Replaced 6 inlined copies (homepage, pricing, city landing, agent profile, all 5 auth pages + auth/error). Light-mode dot opacity bumped 0.35 → 0.55 — the same pattern reads fainter on muted than on white.
+- **Section bands:** dropped explicit `bg-surface-muted` from hero bands — body matches in light mode (continuous flow defined by border + dot-grid + content), dark mode keeps `bg-surface-deep` for the traditional sunken-band look.
+
+### 2. Multi-country — worldwide browseable hierarchy
+
+The data layer already supported any country (ISO 2-letter codes, free-text input). What was missing was the discovery surface. Added the full top-of-funnel hierarchy.
+
+- **New routes:**
+  - `/[locale]/countries` (paths `/en/countries`, `/es/paises`) — directory listing every country with active+published listings, sorted by count. Localized via `Intl.DisplayNames`. Empty state stays honest per real-only-data rule.
+  - `/[locale]/properties-in/[country]` (paths `/en/properties-in/{cc}`, `/es/inmuebles-en/{cc}`) — country-level landing listing cities with active listing counts. Breadcrumb: Home / Countries / {country}.
+  - Existing `/[locale]/properties-in/[country]/[city]` is now reachable via the natural drill-down.
+- **`src/lib/listings/countries.ts`:** new helpers `getCountriesIndex(locale)` + `getCountryCities(cc)` with the same belt-and-suspenders fixture-exclusion pattern (org slug `aho-test-org-%` inner-join filter + defensive listing-slug `aho-fixture-%` check).
+- **Search filter extended.** `SearchFilters` interface gained `country` (uppercased ISO-3166-1 alpha-2). Strict regex `/^[A-Z]{2}$/`, malformed values dropped silently. Wired through:
+  - `parseFilters` (URL params)
+  - `searchListings` (Postgres query)
+  - `buildSearchUrl` (pagination URL builder)
+  - `/api/properties/by-bbox` (map-driven fetch)
+  - `<SearchResultsView>` (bbox refetch URL builder)
+  - `<SearchFilters>` (new Country input, max 2 chars, uppercased input style)
+- **Search filter grid:** `md:grid-cols-6` → `md:grid-cols-4` to fit the 7th field cleanly (q + city + country + transaction + beds + min + max). q no longer col-spans 2.
+- **Homepage:** "Browse by country" link added to the under-search row (between "Browse listings" and "List as an agent").
+- **Sitemap.xml:** emits `/countries` (both locales) + one entry per distinct country with active listings. SEO hierarchy is now `countries → properties-in/{cc} → properties-in/{cc}/{city}`.
+- **i18n:** new namespaces `countries`, `countryLanding` plus `search.countryLabel`, `search.countryPlaceholder`. EN + ES.
+
+### Verified
+
+typecheck, lint (only the pre-existing `_req` warning), 141/141 tests, `next build` (40 routes — up from 38; the 2 new country routes), `@cloudflare/next-on-pages` build all green.
+
+### What changed since last session
+
+Same calendar day. This entry succeeds the polish-phase batches 2+3 entry below. Two PO directives ("fix bright theme", "make sure for all major countries") both addressed.
+
+### Pending PO unblocks (still 3)
+
+Resend / R2 / soft-beta agents.
+
+### Next session should start with
+
+If Resend / R2 / soft-beta land, fire those. Otherwise, polish phase batch 5 — agent profile improvements (verified-tier badge, listings-per-month metric), or dashboard property-edit form polish, or finishing the Magic MCP wiring once Claude Code is relaunched with the env exported.
+
+---
+
 ## 2026-04-30 — Polish phase batches 2 + 3: token-drift cleanup, auth surfaces, listing gallery, search-filter polish
 
 Two more polish batches landed after batch 1, all hand-crafted (Magic MCP still requires a session restart to activate). Three commits.
