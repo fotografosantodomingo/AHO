@@ -12,6 +12,19 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-29 — Autonomous session continuation: per-component design migration (homepage + ListingCard + auth forms)
+- **What shipped (2 commits, both auto-deployed):**
+  - **Homepage hero migrated** at `src/app/[locale]/page.tsx` — section bg uses `bg-surface-muted` / `dark:bg-surface-deep`, H1 uses `font-brand` at 52px / 1.19 line-height (HashiCorp Section Heading scale), search input gets `rounded-lg` (5px) + `border-border-strong` + `shadow-whisper` + 3px focus ring in `--color-action`, submit button is `bg-surface-dark text-ink-inverse-muted` with the whisper shadow (HashiCorp's primary-dark button shape), helper-link row uses `text-helper`, featured-listings section title is now an uppercase wayfinding label per the spec (`font-brand` 13px / 600 / 0.13em tracking).
+  - **`<ListingCard>` migrated** at `src/components/listings/listing-card.tsx` — card surface goes `bg-surface dark:bg-surface-deep` with `rounded-card` (8px) + `border-border` + `shadow-whisper`. Hover bumps shadow up. Image-empty placeholder + transaction/location strap line both render in the uppercase wayfinding style. Title uses `font-brand` at 19px / 700 (HashiCorp Small Title); price suffix + bedroom/bath stats row use `text-helper`.
+  - **Signup + signin forms migrated** at `src/components/auth/sign-{up,in}-form.tsx` — picks up the user's signup visit. Inputs get `rounded-lg` + `border-border-strong` + `shadow-whisper` + 3px focus ring in `--color-action`. Submit buttons go to `bg-surface-dark text-ink-inverse-muted` with the whisper shadow, hover bumps to `bg-ink` (deeper black). Helper text + checkbox borders use design tokens.
+- **Verified:** typecheck clean, 128/128 tests passing, pages:build green, live URL probes return 200 on `/en`, `/en/signup`, `/en/signin`. Compiled CSS contains all referenced design-token utilities (verified: `bg-surface-muted`, `bg-surface-deep`, `font-brand`, `rounded-card`, `shadow-whisper`, `text-helper`, `bg-surface-dark`, `border-border-strong`, `rounded-lg`).
+- **What changed since last session:** Same calendar day. This entry succeeds the previous autonomous-session entry below.
+- **What's still on zinc-* utilities (next migration pass):** search filters · pricing form · forgot/reset/magic-link forms · property detail page · dashboard layout · listing-form (large) · contact-form · billing-portal-button · pricing-form · theme-toggle · locale-toggle · auth-menu. None blocking; visible chrome is now consistent.
+- **Slice 1 status:** `~88%` (no change — design polish doesn't move the % gate; that's bounded by Resend, R2, custom domain, soft-beta agents).
+- **Next session should start with:** finish the auth forms (forgot/reset/magic-link) since they share the same `inputClass` pattern as the migrated pair, OR migrate the search filters + property detail page (the second buyer-facing surface), OR pause design and tackle a non-design closing item if one of the PO action items has unblocked.
+
+---
+
 ## 2026-04-29 — Autonomous session: HashiCorp design tokens + Inter font + lead RLS tests + Stripe webhook replay (and a real production bug it caught)
 - **What shipped (4 commits, all auto-deployed):**
   - **HashiCorp design tokens via Tailwind v4 `@theme`** at `src/app/globals.css` — full color palette (`--color-surface*`, `--color-ink*`, `--color-helper`, `--color-border*`, `--color-action*`, `--color-warn*`, `--color-error`), radius scale (`--radius-xs/sm/md/lg/card`, max 8px — no pills), `--shadow-whisper` (the dual-layer 5%-opacity shadow per spec), and font tokens (`--font-brand`, `--font-system`). Tailwind generates utility classes from each (verified: `border-border`, `text-helper`, `font-brand`, `shadow-whisper`, `rounded-card` all appear in compiled CSS).
