@@ -47,17 +47,27 @@ const DEFAULT_ZOOM = 5;
 const LEAFLET_CSS_URL = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
 const LEAFLET_CSS_INTEGRITY =
   'sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H';
+const MARKERCLUSTER_CSS_URLS = [
+  'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css',
+  'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css',
+] as const;
 
-function ensureLeafletCss(): void {
+function ensureCss(href: string, integrity?: string): void {
   if (typeof document === 'undefined') return;
-  const existing = document.querySelector(`link[href="${LEAFLET_CSS_URL}"]`);
-  if (existing) return;
+  if (document.querySelector(`link[href="${href}"]`)) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = LEAFLET_CSS_URL;
-  link.integrity = LEAFLET_CSS_INTEGRITY;
-  link.crossOrigin = 'anonymous';
+  link.href = href;
+  if (integrity) {
+    link.integrity = integrity;
+    link.crossOrigin = 'anonymous';
+  }
   document.head.appendChild(link);
+}
+
+function ensureLeafletCss(): void {
+  ensureCss(LEAFLET_CSS_URL, LEAFLET_CSS_INTEGRITY);
+  for (const href of MARKERCLUSTER_CSS_URLS) ensureCss(href);
 }
 
 export function PropertyMap({
@@ -133,6 +143,10 @@ export function PropertyMap({
   }, []);
 
   // Render markers whenever they change AND the map is ready.
+  // Uses leaflet.markercluster: nearby pins group into a circle showing
+  // the count, expands when clicked (Zillow / Redfin pattern). Critical
+  // for high-density cities — without clustering, 50+ overlapping pins
+  // are unreadable.
   useEffect(() => {
     if (!ready) return;
     const map = mapRef.current;
@@ -143,8 +157,12 @@ export function PropertyMap({
       const Lmod = await import('leaflet');
       if (cancelled) return;
       const L = Lmod.default;
+      // The plugin attaches itself to the global L when imported. After
+      // the import resolves, L.markerClusterGroup is available.
+      await import('leaflet.markercluster');
+      if (cancelled) return;
 
-      // Clear existing markers (preserve TileLayer).
+      // Clear existing layers except the TileLayer.
       map.eachLayer((layer) => {
         if (!(layer instanceof L.TileLayer)) {
           map.removeLayer(layer);
@@ -152,6 +170,21 @@ export function PropertyMap({
       });
 
       if (pinned.length === 0) return;
+
+      // Cast through unknown — the plugin's typings live on the global
+      // Leaflet namespace which TS sometimes doesn't pick up cleanly
+      // when the import is dynamic.
+      const cluster = (
+        L as unknown as {
+          markerClusterGroup: (opts?: object) => L.LayerGroup & {
+            addLayer: (layer: L.Layer) => void;
+          };
+        }
+      ).markerClusterGroup({
+        showCoverageOnHover: false,
+        spiderfyOnMaxZoom: true,
+        maxClusterRadius: 60,
+      });
 
       const pathSegment = locale === 'es' ? 'propiedades' : 'properties';
       for (const l of pinned) {
@@ -164,8 +197,10 @@ export function PropertyMap({
           ? `<a href="${escapeHtml(href)}" style="font-weight:600;text-decoration:underline;color:inherit;">${escapeHtml(title)}</a><br/><span style="color:#656a76;font-size:12px;">${escapeHtml(l.city)}, ${escapeHtml(l.countryCode)}</span>`
           : `<strong>${escapeHtml(title)}</strong>`;
         const marker = L.marker([l.latitude, l.longitude]).bindPopup(popupHtml);
-        marker.addTo(map);
+        cluster.addLayer(marker);
       }
+
+      cluster.addTo(map);
     })();
 
     return () => {
