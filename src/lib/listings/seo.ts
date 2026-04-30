@@ -1,21 +1,12 @@
 import 'server-only';
 import type { PropertyDetail } from './queries';
 import type { Locale } from '@/i18n/config';
+import { formatPrice } from './format';
+// Re-export so existing call sites (formatPrice from '@/lib/listings/seo')
+// keep working. Client components should import from './format' directly.
+export { formatPrice };
 
 const SITE_ORIGIN = 'https://advertisehomes.online';
-
-/** Format an integer-cents price as a locale-aware currency string. */
-export function formatPrice(
-  amountCents: number,
-  currency: string,
-  locale: Locale,
-): string {
-  return new Intl.NumberFormat(locale === 'es' ? 'es-DO' : 'en-US', {
-    style: 'currency',
-    currency,
-    maximumFractionDigits: 0,
-  }).format(amountCents / 100);
-}
 
 /**
  * Resolve the canonical EN/ES URLs for a property. Returns `null` for either

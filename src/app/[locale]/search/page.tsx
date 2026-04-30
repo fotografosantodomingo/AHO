@@ -6,9 +6,8 @@ import {
   parseFilters,
   searchListings,
 } from '@/lib/listings/search';
-import { ListingCard } from '@/components/listings/listing-card';
 import { SearchFilters } from '@/components/listings/search-filters';
-import { MapView } from '@/components/listings/map-view';
+import { SearchResultsView } from '@/components/listings/search-results-view';
 import { SaveSearchButton } from '@/components/saved-searches/save-search-button';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
@@ -125,56 +124,22 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
         </a>
       </nav>
 
-      {result.listings.length === 0 ? (
-        <div className="rounded-card border border-dashed border-border-strong/60 p-10 text-center text-sm text-ink-muted dark:text-ink-inverse-muted">
-          <p>{t('noResults')}</p>
-          <p className="mt-2 text-xs text-helper">{t('noResultsHint')}</p>
-        </div>
-      ) : (
-        <>
-          <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
-            {t('resultsCount_other', { count: result.listings.length })}
-            {result.hasMore ? '+' : ''}
-          </p>
-          {view === 'map' ? (
-            <MapView listings={result.listings} locale={typedLocale} />
-          ) : (
-            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {result.listings.map((l) => (
-                <li key={l.id}>
-                  <ListingCard listing={l} locale={typedLocale} />
-                </li>
-              ))}
-            </ul>
-          )}
-        </>
-      )}
-
-      {(prevHref || nextHref) && (
-        <nav
-          aria-label="Pagination"
-          className="flex items-center justify-between border-t border-border pt-4"
-        >
-          {prevHref ? (
-            <a
-              href={prevHref}
-              className="inline-flex h-9 items-center rounded-lg border border-border-strong px-3 text-sm transition hover:bg-surface-muted dark:hover:bg-surface-dark"
-            >
-              {t('previousPage')}
-            </a>
-          ) : (
-            <span />
-          )}
-          {nextHref && (
-            <a
-              href={nextHref}
-              className="inline-flex h-9 items-center rounded-lg border border-border-strong px-3 text-sm transition hover:bg-surface-muted dark:hover:bg-surface-dark"
-            >
-              {t('nextPage')}
-            </a>
-          )}
-        </nav>
-      )}
+      <SearchResultsView
+        initialListings={result.listings}
+        initialHasMore={result.hasMore}
+        filters={filters}
+        locale={typedLocale}
+        view={view}
+        prevHref={prevHref}
+        nextHref={nextHref}
+        resultsCountTemplate={t('resultsCount_other', { count: result.listings.length })}
+        noResultsLabel={t('noResults')}
+        noResultsHintLabel={t('noResultsHint')}
+        prevPageLabel={t('previousPage')}
+        nextPageLabel={t('nextPage')}
+        resetBboxLabel={t('resetBbox')}
+        bboxActiveLabel={t('bboxActive')}
+      />
     </main>
   );
 }

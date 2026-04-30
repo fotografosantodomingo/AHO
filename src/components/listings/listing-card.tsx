@@ -1,5 +1,7 @@
-import { getTranslations } from 'next-intl/server';
-import { formatPrice } from '@/lib/listings/seo';
+'use client';
+
+import { useTranslations } from 'next-intl';
+import { formatPrice } from '@/lib/listings/format';
 import type { SearchListing } from '@/lib/listings/search';
 import type { Locale } from '@/i18n/config';
 
@@ -9,16 +11,24 @@ interface ListingCardProps {
 }
 
 /**
- * Anonymous-listing card. Server Component; pure presentation. Used on the
- * homepage's featured grid and the search/browse results.
+ * Anonymous-listing card. Pure presentation. Used on the homepage's
+ * featured grid, the search/browse results (incl. bbox-driven results),
+ * city landing pages, and agent profile pages.
+ *
+ * Client Component (`'use client'`) since the search page now lifts
+ * results state into a Client shell (<SearchResultsView>) so the list
+ * and map share state. Card-level rendering is identical either way —
+ * no useEffect, no event handlers — but the directive is required so
+ * the component can be invoked from a Client parent.
  *
  * The image variant URL is `https://imagedelivery.net/{accountHash}/{cfImageId}/card`
- * per HANDOFF §3.4 (`card` = 640w). Renders a placeholder when the listing
- * has no confirmed primary image (early days; no Cloudflare Images yet).
+ * per HANDOFF §3.4 (`card` = 640w). Renders a placeholder when the
+ * listing has no confirmed primary image (early days; no Cloudflare
+ * Images yet).
  */
-export async function ListingCard({ listing, locale }: ListingCardProps) {
-  const t = await getTranslations({ locale, namespace: 'property' });
-  const tCard = await getTranslations({ locale, namespace: 'card' });
+export function ListingCard({ listing, locale }: ListingCardProps) {
+  const t = useTranslations('property');
+  const tCard = useTranslations('card');
 
   const title =
     (locale === 'es' ? listing.titleEs : listing.titleEn) ??

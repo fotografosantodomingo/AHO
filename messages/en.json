@@ -73,7 +73,9 @@
     "previousPage": "Previous",
     "nextPage": "Next",
     "viewList": "List",
-    "viewMap": "Map"
+    "viewMap": "Map",
+    "bboxActive": "Showing listings in this map area.",
+    "resetBbox": "Reset to all results"
   },
   "card": {
     "viewListing": "View listing"

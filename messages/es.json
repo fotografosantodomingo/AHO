@@ -73,7 +73,9 @@
     "previousPage": "Anterior",
     "nextPage": "Siguiente",
     "viewList": "Lista",
-    "viewMap": "Mapa"
+    "viewMap": "Mapa",
+    "bboxActive": "Mostrando anuncios en esta área del mapa.",
+    "resetBbox": "Restablecer a todos los resultados"
   },
   "card": {
     "viewListing": "Ver anuncio"
