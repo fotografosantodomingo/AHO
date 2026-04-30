@@ -12,6 +12,21 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-30 — Admin dashboard expansion: tab nav + Orgs + Leads
+- **What shipped (1 commit, deployed):**
+  - **`src/app/[locale]/admin/layout.tsx`** — shared shell. Centralizes the auth gate (signed-in + `is_admin`; non-admins → `/dashboard`) and renders tab nav for Listings / Orgs / Leads. Sub-pages no longer repeat the auth gate.
+  - **`/admin/page.tsx` refactored** to be the Listings tab — same status-filtered table + archive action; auth gate + outer chrome moved to layout.
+  - **`/admin/orgs/page.tsx`** — lists every organization across the platform: name + slug + type + HQ (city, country) + member count + active+published listing count + listing cap + created date. Member/listing counts use `head: true` HEAD queries (count='exact') so we don't pull row data unnecessarily. RLS test-fixture orgs (`aho-test-org-*`) are surfaced with a "fixture" badge for dev visibility.
+  - **`/admin/leads/page.tsx`** — every lead across all orgs (uses the existing `leads_admin_all` RLS policy). Status filter (All / New / Contacted / Qualified / Won / Lost). Each row joins the property + org so it carries full listing context: source + timestamp + language + contact info + message + linked org/property.
+  - **`robots.txt` updated:** `/en/admin/` + `/es/admin/` (trailing slash) so all admin sub-paths are disallowed, not just `/admin` itself.
+- **Skipped this chunk:** `/admin/users` with promote/demote actions. The `is_admin` flag is trigger-protected against user-context updates (must use service-role; deserves a focused commit with careful UI for that sensitive operation).
+- **Verified live:** `/en/admin`, `/en/admin/orgs`, `/en/admin/leads` all 307-redirect anon users to signin (auth gate works); `robots.txt` disallows `/en/admin/` + `/es/admin/`. Pages:build green at 37 Edge Function Routes (was 35 — orgs + leads added).
+- **What changed since last session:** Same calendar day. This entry succeeds the custom-domain entry below.
+- **Slice 2 status:** admin surface now has real surface area beyond moderation. Three tabs cover the most-needed admin views (listings to moderate, orgs to spot-check, leads to oversee).
+- **Next session should start with:** the polish phase if the 21st.dev key has been rotated. Or `/admin/users` with promote/demote (small focused commit). Or HANDOFF.md spec alignment. Or wait for PO unblocks (Resend, R2, soft-beta agents).
+
+---
+
 ## 2026-04-30 — Custom domain `advertisehomes.online` live + URLs threaded through every system
 - **What shipped (1 empty-commit redeploy + 4 system updates, deployed):**
   - **Domain verified:** `https://advertisehomes.online` and `www.` both serve the site over Cloudflare's Google-Trust-Services TLS cert. Apex 307→`/en`, `/en` + `/es` 200, sitemap.xml 200, robots.txt 200.
