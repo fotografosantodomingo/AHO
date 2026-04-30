@@ -12,6 +12,20 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-29 — Buyer-journey design migration (search + property detail + contact form)
+- **What shipped (1 commit, deployed):**
+  - **Search page** (`src/app/[locale]/search/page.tsx`) — H1 to font-brand at 34px (HashiCorp Sub-heading scale), empty-state card uses rounded-card + border-border-strong/60 dashed, result-count strap + section labels use the uppercase wayfinding style, pagination buttons use rounded-lg + border-border-strong with hover bumps.
+  - **`<SearchFilters>`** (`src/components/listings/search-filters.tsx`) — form container is now a card (rounded-card + border-border + shadow-whisper + bg-surface/dark:bg-surface-deep), all field labels use the uppercase wayfinding style, inputs/selects share the same input class as auth forms (consistency!), Apply button is the primary-dark shape, Clear link is bordered secondary.
+  - **Property detail page** (`src/app/[locale]/properties/[slug]/page.tsx`) — translation-pending banner uses `--color-warn` / `--color-warn-bg` semantic tokens (replacing raw amber-*), title at 42px font-brand (Feature Heading scale), transaction strap + 2×4 stats grid use uppercase wayfinding labels, contact section card matches the rest (rounded-card + border-border + bg-surface/dark:bg-surface-deep + shadow-whisper), footer alternates use border-border + text-helper. WhatsApp button keeps emerald palette but gains shadow-whisper for depth-language consistency.
+  - **`<ContactForm>`** (`src/components/listings/contact-form.tsx`) — same input class migration as auth forms (rounded-lg, border-border-strong, shadow-whisper, 3px action-color focus ring), submit button is the primary-dark shape used everywhere else.
+- **Verified:** typecheck clean, 128/128 tests, pages:build green, live URL probes return 200 on `/en/search`, `/es/buscar`. Buyer flow now consistent end-to-end: home → search → property detail → contact, all using design tokens.
+- **What changed since last session:** Same calendar day. This entry succeeds the autosession-continuation entry below.
+- **Still on `zinc-*` (next migration pass):** forgot/reset/magic-link forms · pricing form · dashboard layout · listing-form · billing-portal-button · theme-toggle · locale-toggle · auth-menu. None on the highest-traffic buyer surfaces; all remaining migrations are agent-facing (dashboard) or smaller chrome (toggles, secondary auth flows).
+- **Slice 1 status:** still `~88%` (design polish doesn't move the gate; gated by Resend / R2 / domain / soft-beta agents).
+- **Next session should start with:** finish the auth surface (forgot/reset/magic-link share the same input class pattern as already-migrated sign-in/sign-up — 3 small forms), OR start the agent surface (pricing form + dashboard + listing form), OR tackle a non-design closing item once one of the PO action items unblocks.
+
+---
+
 ## 2026-04-29 — Autonomous session continuation: per-component design migration (homepage + ListingCard + auth forms)
 - **What shipped (2 commits, both auto-deployed):**
   - **Homepage hero migrated** at `src/app/[locale]/page.tsx` — section bg uses `bg-surface-muted` / `dark:bg-surface-deep`, H1 uses `font-brand` at 52px / 1.19 line-height (HashiCorp Section Heading scale), search input gets `rounded-lg` (5px) + `border-border-strong` + `shadow-whisper` + 3px focus ring in `--color-action`, submit button is `bg-surface-dark text-ink-inverse-muted` with the whisper shadow (HashiCorp's primary-dark button shape), helper-link row uses `text-helper`, featured-listings section title is now an uppercase wayfinding label per the spec (`font-brand` 13px / 600 / 0.13em tracking).
