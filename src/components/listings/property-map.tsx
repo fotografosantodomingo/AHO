@@ -5,6 +5,21 @@ import type { Map as LeafletMap } from 'leaflet';
 import type { SearchListing } from '@/lib/listings/search';
 import type { Locale } from '@/i18n/config';
 
+/** Tighter shape returned by /api/properties/by-bbox. The map only
+ *  needs a subset of SearchListing's fields. */
+interface MapMarker {
+  id: string;
+  shortId: string;
+  slugEn: string | null;
+  slugEs: string | null;
+  titleEn: string | null;
+  titleEs: string | null;
+  city: string;
+  countryCode: string;
+  latitude: number;
+  longitude: number;
+}
+
 /**
  * Leaflet-backed map view of search results.
  *
@@ -46,19 +61,51 @@ function ensureLeafletCss(): void {
   document.head.appendChild(link);
 }
 
+/** Convert a SearchListing into the tighter MapMarker shape, dropping
+ *  rows with missing coords. Used for the initial server-rendered set. */
+function listingsToMarkers(listings: SearchListing[]): MapMarker[] {
+  return listings.flatMap((l) =>
+    l.latitude != null && l.longitude != null
+      ? [
+          {
+            id: l.id,
+            shortId: l.shortId,
+            slugEn: l.slugEn,
+            slugEs: l.slugEs,
+            titleEn: l.titleEn,
+            titleEs: l.titleEs,
+            city: l.city,
+            countryCode: l.countryCode,
+            latitude: l.latitude,
+            longitude: l.longitude,
+          },
+        ]
+      : [],
+  );
+}
+
 export function PropertyMap({ listings, locale }: PropertyMapProps) {
   const mapEl = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<LeafletMap | null>(null);
   const [ready, setReady] = useState(false);
-
-  // Listings with valid coords. Listings without lat/lng are silently
-  // filtered from the map but still appear in the side list.
-  const pinned = useMemo(
-    () => listings.filter((l) => l.latitude != null && l.longitude != null),
-    [listings],
+  const [markers, setMarkers] = useState<MapMarker[]>(() =>
+    listingsToMarkers(listings),
   );
+  const [fetching, setFetching] = useState(false);
+  // Track the latest in-flight request so out-of-order responses don't
+  // overwrite fresher state. Each fetch increments this counter and only
+  // the highest counter at resolution time is allowed to setMarkers.
+  const requestSeq = useRef(0);
+  const fetchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Initialize Leaflet on mount.
+  // Reset markers if the parent's `listings` prop changes (e.g., user
+  // changed filters and the search page re-renders with new server-side
+  // results). Once the user pans the map, bbox-fetched markers take over.
+  useEffect(() => {
+    setMarkers(listingsToMarkers(listings));
+  }, [listings]);
+
+  // Initialize Leaflet on mount + wire moveend → debounced bbox fetch.
   useEffect(() => {
     let cancelled = false;
     let map: LeafletMap | null = null;
@@ -80,25 +127,71 @@ export function PropertyMap({ listings, locale }: PropertyMapProps) {
       }).addTo(map);
       mapRef.current = map;
       setReady(true);
+
+      // Bbox fetch on pan/zoom — debounced 400ms after the user stops moving.
+      const onMoveEnd = () => {
+        if (!mapRef.current) return;
+        if (fetchTimeout.current) clearTimeout(fetchTimeout.current);
+        fetchTimeout.current = setTimeout(() => {
+          void fetchBbox();
+        }, 400);
+      };
+      map.on('moveend', onMoveEnd);
     })();
 
     return () => {
       cancelled = true;
-      if (map) {
-        map.remove();
-      }
+      if (fetchTimeout.current) clearTimeout(fetchTimeout.current);
+      if (map) map.remove();
       mapRef.current = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Update markers whenever the listings change (and the map is ready).
+  /** Read the map's current bounds and fetch listings within. */
+  async function fetchBbox(): Promise<void> {
+    const map = mapRef.current;
+    if (!map) return;
+    const bounds = map.getBounds();
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
+    const params = new URLSearchParams({
+      sw_lat: String(sw.lat),
+      sw_lng: String(sw.lng),
+      ne_lat: String(ne.lat),
+      ne_lng: String(ne.lng),
+    });
+    const seq = ++requestSeq.current;
+    setFetching(true);
+    try {
+      const res = await fetch(`/api/properties/by-bbox?${params}`, {
+        headers: { accept: 'application/json' },
+      });
+      if (!res.ok) {
+        // Keep existing pins on error; just clear the loading chip.
+        return;
+      }
+      const json: { listings?: MapMarker[] } = await res.json();
+      // Drop response if a newer fetch has been issued.
+      if (seq !== requestSeq.current) return;
+      setMarkers(json.listings ?? []);
+    } catch {
+      // Network error — keep existing pins, drop chip.
+    } finally {
+      if (seq === requestSeq.current) setFetching(false);
+    }
+  }
+
+  // Render markers whenever they change AND the map is ready.
   useEffect(() => {
     if (!ready) return;
     const map = mapRef.current;
     if (!map) return;
+    let cancelled = false;
 
     void (async () => {
       const Lmod = await import('leaflet');
+      if (cancelled) return;
       const L = Lmod.default;
 
       // Clear existing markers (preserve TileLayer).
@@ -108,37 +201,53 @@ export function PropertyMap({ listings, locale }: PropertyMapProps) {
         }
       });
 
-      if (pinned.length === 0) return;
+      if (markers.length === 0) return;
 
-      const bounds = L.latLngBounds([]);
       const pathSegment = locale === 'es' ? 'propiedades' : 'properties';
-
-      for (const l of pinned) {
-        if (l.latitude == null || l.longitude == null) continue;
-        const slug = locale === 'es' ? l.slugEs ?? l.slugEn : l.slugEn ?? l.slugEs;
-        const href = slug ? `/${locale}/${pathSegment}/${slug}-${l.shortId}` : null;
+      for (const m of markers) {
+        const slug = locale === 'es' ? m.slugEs ?? m.slugEn : m.slugEn ?? m.slugEs;
+        const href = slug ? `/${locale}/${pathSegment}/${slug}-${m.shortId}` : null;
         const title =
-          (locale === 'es' ? l.titleEs : l.titleEn) ?? l.titleEn ?? l.titleEs ?? '—';
-
+          (locale === 'es' ? m.titleEs : m.titleEn) ?? m.titleEn ?? m.titleEs ?? '—';
         const popupHtml = href
-          ? `<a href="${escapeHtml(href)}" style="font-weight:600;text-decoration:underline;color:inherit;">${escapeHtml(title)}</a><br/><span style="color:#656a76;font-size:12px;">${escapeHtml(l.city)}, ${escapeHtml(l.countryCode)}</span>`
+          ? `<a href="${escapeHtml(href)}" style="font-weight:600;text-decoration:underline;color:inherit;">${escapeHtml(title)}</a><br/><span style="color:#656a76;font-size:12px;">${escapeHtml(m.city)}, ${escapeHtml(m.countryCode)}</span>`
           : `<strong>${escapeHtml(title)}</strong>`;
-
-        const marker = L.marker([l.latitude, l.longitude]).bindPopup(popupHtml);
+        const marker = L.marker([m.latitude, m.longitude]).bindPopup(popupHtml);
         marker.addTo(map);
-        bounds.extend([l.latitude, l.longitude]);
-      }
-
-      if (pinned.length === 1) {
-        const only = pinned[0];
-        if (only?.latitude != null && only.longitude != null) {
-          map.setView([only.latitude, only.longitude], 13);
-        }
-      } else {
-        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
       }
     })();
-  }, [ready, pinned, locale]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [ready, markers, locale]);
+
+  // Initial fit-to-bounds for the server-rendered markers — only the
+  // first time we have markers + the map is ready. After the user pans,
+  // we don't auto-fit anymore (would yank them around mid-browse).
+  const fittedRef = useRef(false);
+  useEffect(() => {
+    if (!ready || fittedRef.current) return;
+    const map = mapRef.current;
+    if (!map || markers.length === 0) return;
+    let cancelled = false;
+    void (async () => {
+      const Lmod = await import('leaflet');
+      if (cancelled) return;
+      const L = Lmod.default;
+      if (markers.length === 1) {
+        const only = markers[0];
+        if (only) map.setView([only.latitude, only.longitude], 13);
+      } else {
+        const bounds = L.latLngBounds(markers.map((m) => [m.latitude, m.longitude]));
+        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
+      }
+      fittedRef.current = true;
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [ready, markers]);
 
   return (
     <div className="relative">
@@ -148,9 +257,15 @@ export function PropertyMap({ listings, locale }: PropertyMapProps) {
         aria-label="Map of property listings"
         className="aspect-[4/3] w-full overflow-hidden rounded-card border border-border bg-surface-muted shadow-whisper sm:aspect-[16/9] dark:bg-surface-dark"
       />
-      {ready && pinned.length === 0 && listings.length > 0 && (
+      {ready && markers.length === 0 && listings.length > 0 && !fetching && (
         <p className="absolute left-3 top-3 rounded-lg bg-surface/90 px-3 py-1.5 text-xs text-helper backdrop-blur-sm dark:bg-surface-deep/90">
           No listings on this page have a saved location yet.
+        </p>
+      )}
+      {fetching && (
+        <p className="absolute right-3 top-3 inline-flex items-center gap-2 rounded-lg bg-surface/90 px-3 py-1.5 text-xs text-helper shadow-whisper backdrop-blur-sm dark:bg-surface-deep/90">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-action" />
+          Updating
         </p>
       )}
     </div>
