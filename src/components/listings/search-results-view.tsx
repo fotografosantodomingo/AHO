@@ -91,6 +91,7 @@ export function SearchResultsView({
     });
     if (filters.q) params.set('q', filters.q);
     if (filters.city) params.set('city', filters.city);
+    if (filters.country) params.set('country', filters.country);
     if (filters.transaction) params.set('transaction', filters.transaction);
     if (filters.minPrice != null) params.set('min_price', String(filters.minPrice));
     if (filters.maxPrice != null) params.set('max_price', String(filters.maxPrice));

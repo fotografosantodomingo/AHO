@@ -17,10 +17,10 @@
 
 @theme {
   /* — Surfaces — */
-  --color-surface: #ffffff;            /* primary light bg */
-  --color-surface-muted: #f1f2f3;      /* light secondary bg */
-  --color-surface-dark: #15181e;       /* dark hero / dark mode bg */
-  --color-surface-deep: #0d0e12;       /* deepest dark, form input bg on dark */
+  --color-surface: #ffffff;            /* primary card / input bg */
+  --color-surface-muted: #f1f2f3;      /* light body bg + section bands */
+  --color-surface-dark: #15181e;       /* dark hero / dark mode body */
+  --color-surface-deep: #0d0e12;       /* deepest dark, dark-mode card bg */
 
   /* — Text — */
   --color-ink: #000000;                /* primary text on light */
@@ -29,9 +29,11 @@
   --color-ink-inverse: #efeff1;        /* primary text on dark */
   --color-ink-inverse-muted: #d5d7db;  /* secondary text on dark */
 
-  /* — Borders — */
-  --color-border: rgb(178 182 189 / 0.4);   /* light borders */
-  --color-border-strong: rgb(97 104 117);   /* dark/strong borders */
+  /* — Borders —
+     0.7 alpha (was 0.4) so card outlines actually read in light mode
+     where the body is now surface-muted and cards are surface (#fff). */
+  --color-border: rgb(178 182 189 / 0.7);
+  --color-border-strong: rgb(97 104 117);
 
   /* — Action / links — */
   --color-action: #2264d6;             /* primary link on light */
@@ -44,11 +46,11 @@
   --color-error: #731e25;
 
   /* — Radii — */
-  --radius-xs: 2px;     /* small inline elements */
-  --radius-sm: 3px;     /* small inputs, checkboxes */
-  --radius-md: 4px;     /* secondary buttons */
-  --radius-lg: 5px;     /* primary buttons, badges, inputs */
-  --radius-card: 8px;   /* cards, containers, images */
+  --radius-xs: 2px;
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 5px;
+  --radius-card: 8px;
 
   /* — Shadows — */
   /* "Whisper" shadow: dual-layer at 5% opacity; visible only as depth signal. */
@@ -57,8 +59,6 @@
     rgb(97 104 117 / 0.05) 0px 2px 2px;
 
   /* — Typography — */
-  /* Brand: Inter (free, geometric, similar feel to HashiCorp Sans).
-     System: native UI stack for body / functional text. */
   --font-brand: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
   --font-system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
 }
@@ -68,10 +68,13 @@
   html.light { color-scheme: light; }
   html.dark  { color-scheme: dark;  }
 
-  /* Body uses surface tokens directly so dark/light flips propagate without
-     having to remember `bg-white dark:bg-surface-dark` on every page. */
+  /* Body in light mode is the *muted* surface (off-white #f1f2f3) so that
+     bg-surface (white) cards have visual lift. Without this, white cards
+     on a white body melt together; only the border separates them, and
+     the border is intentionally subtle. Dark mode pairs surface-dark
+     body + surface-deep cards for the same effect. */
   body {
-    background-color: var(--color-surface);
+    background-color: var(--color-surface-muted);
     color: var(--color-ink);
     font-family: var(--font-system);
     -webkit-font-smoothing: antialiased;

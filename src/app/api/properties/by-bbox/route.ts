@@ -53,6 +53,12 @@ const QuerySchema = z.object({
   // Filter params — all optional (null/empty when absent).
   q: z.string().trim().min(1).max(200).optional(),
   city: z.string().trim().min(1).max(120).optional(),
+  country: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .regex(/^[A-Z]{2}$/)
+    .optional(),
   transaction: z.enum(TRANSACTION_TYPES).optional(),
   min_price: z.coerce.number().int().nonnegative().optional(),
   max_price: z.coerce.number().int().nonnegative().optional(),
@@ -69,6 +75,7 @@ export async function GET(req: NextRequest) {
     ne_lng: sp.get('ne_lng'),
     q: sp.get('q') ?? undefined,
     city: sp.get('city') ?? undefined,
+    country: sp.get('country') ?? undefined,
     transaction: sp.get('transaction') ?? undefined,
     min_price: sp.get('min_price') ?? undefined,
     max_price: sp.get('max_price') ?? undefined,
@@ -108,6 +115,7 @@ export async function GET(req: NextRequest) {
   // Apply optional filter params identically to searchListings, so map +
   // list see the same rows for the same filter state.
   if (parsed.data.city) query = query.eq('city', parsed.data.city);
+  if (parsed.data.country) query = query.eq('country_code', parsed.data.country);
   if (parsed.data.transaction)
     query = query.eq('transaction_type', parsed.data.transaction);
   if (parsed.data.min_price != null)

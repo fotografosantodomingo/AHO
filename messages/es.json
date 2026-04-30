@@ -91,6 +91,8 @@
     "queryLabel": "Palabra clave",
     "queryPlaceholder": "Playa, garaje, piscina…",
     "cityLabel": "Ciudad",
+    "countryLabel": "País",
+    "countryPlaceholder": "ISO (DO, ES, …)",
     "transactionLabel": "Tipo",
     "transactionAny": "Venta o alquiler",
     "minPrice": "Precio mínimo",
@@ -166,6 +168,29 @@
     "emptyBody": "{name} no tiene anuncios activos en AHO en este momento.",
     "browseAllCta": "Explorar anuncios mundiales",
     "websiteCta": "Visitar sitio web"
+  },
+  "countries": {
+    "eyebrow": "Internacional",
+    "heading": "Explorar por país",
+    "subheading": "Anuncios inmobiliarios en todo el mundo. Elige un país para ver anuncios activos y las ciudades donde los agentes de AHO están publicando.",
+    "listingsCount_one": "anuncio",
+    "listingsCount_other": "anuncios",
+    "emptyHeading": "Aún no hay anuncios activos",
+    "emptyBody": "AHO está abierto a agentes en cualquier país. La directorio se llena a medida que los agentes empiezan a publicar.",
+    "emptyAgentCta": "Publicar como agente",
+    "browseAllCta": "Explorar anuncios"
+  },
+  "countryLanding": {
+    "headingTemplate": "Inmuebles en {country}",
+    "subheading": "Explora ciudades en {country} donde los agentes de AHO están publicando anuncios.",
+    "breadcrumbCountries": "Países",
+    "citiesCount_one": "1 ciudad con anuncios activos",
+    "citiesCount_other": "{count} ciudades con anuncios activos",
+    "emptyHeading": "Aún no hay anuncios en {country}",
+    "emptyBody": "AHO está abierto a agentes en {country}. Sé de los primeros en publicar aquí.",
+    "emptyAgentCta": "Publicar tus propiedades",
+    "browseCountriesCta": "Explorar otros países",
+    "viewAllInCountry": "Ver todos los anuncios en {country}"
   },
   "cityLanding": {
     "headingTemplate": "Inmuebles en {city}, {country}",

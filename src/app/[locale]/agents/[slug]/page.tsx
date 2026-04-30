@@ -5,6 +5,7 @@ import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { fetchAgentProfile } from '@/lib/listings/search';
 import { ListingCard } from '@/components/listings/listing-card';
+import { DotGrid, HeroGlow } from '@/components/ui/dot-grid';
 import { publicEnv } from '@/lib/env';
 
 export const runtime = 'edge';
@@ -181,27 +182,10 @@ export default async function AgentProfilePage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <main>
-        {/* Hero band — same dot-grid + radial-glow treatment as homepage,
-            pricing, and city landing. Logo / initials chip floats on the
-            seam with -mb-8 so listings start visually under the header. */}
-        <section className="relative overflow-hidden border-b border-border bg-surface-muted dark:bg-surface-deep">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 opacity-[0.35] dark:opacity-[0.18]"
-            style={{
-              backgroundImage:
-                'radial-gradient(rgb(97 104 117 / 0.35) 1px, transparent 1px)',
-              backgroundSize: '24px 24px',
-              maskImage:
-                'radial-gradient(ellipse 70% 50% at 50% 30%, #000 30%, transparent 75%)',
-              WebkitMaskImage:
-                'radial-gradient(ellipse 70% 50% at 50% 30%, #000 30%, transparent 75%)',
-            }}
-          />
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -right-24 -top-32 h-96 w-96 rounded-full bg-action/10 blur-3xl dark:bg-action-dark/15"
-          />
+        {/* Hero band — dot-grid + glow, logo or initials chip on the seam. */}
+        <section className="relative overflow-hidden border-b border-border dark:bg-surface-deep">
+          <DotGrid />
+          <HeroGlow />
           <div className="relative mx-auto max-w-6xl px-6 pb-16 pt-14 md:pb-20 md:pt-16">
             <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
               {orgTypeLabel}

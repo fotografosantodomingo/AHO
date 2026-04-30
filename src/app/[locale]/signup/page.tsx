@@ -4,6 +4,7 @@ import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { SignUpForm } from '@/components/auth/sign-up-form';
+import { DotGrid, HeroGlow } from '@/components/ui/dot-grid';
 
 export const runtime = 'edge';
 
@@ -42,23 +43,8 @@ export default async function SignUpPage({
 
   return (
     <main className="relative overflow-hidden">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-[0.35] dark:opacity-[0.18]"
-        style={{
-          backgroundImage:
-            'radial-gradient(rgb(97 104 117 / 0.35) 1px, transparent 1px)',
-          backgroundSize: '24px 24px',
-          maskImage:
-            'radial-gradient(ellipse 60% 50% at 50% 30%, #000 30%, transparent 75%)',
-          WebkitMaskImage:
-            'radial-gradient(ellipse 60% 50% at 50% 30%, #000 30%, transparent 75%)',
-        }}
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-action/10 blur-3xl dark:bg-action-dark/15"
-      />
+      <DotGrid ellipse="60% 50%" />
+      <HeroGlow />
 
       <div className="relative mx-auto max-w-sm px-6 py-16">
         <div className="rounded-card border border-border-strong/40 bg-surface p-7 shadow-whisper dark:bg-surface-deep">

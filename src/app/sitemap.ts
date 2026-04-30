@@ -142,6 +142,32 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         },
       },
     },
+    {
+      url: `${site}/en/countries`,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.6,
+      alternates: {
+        languages: {
+          en: `${site}/en/countries`,
+          es: `${site}/es/paises`,
+          'x-default': `${site}/en/countries`,
+        },
+      },
+    },
+    {
+      url: `${site}/es/paises`,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.6,
+      alternates: {
+        languages: {
+          en: `${site}/en/countries`,
+          es: `${site}/es/paises`,
+          'x-default': `${site}/en/countries`,
+        },
+      },
+    },
   ];
 
   // Property listings — only active+published. RLS public-read policy
@@ -212,16 +238,41 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  // City landing pages — derived from distinct (country, city) pairs
-  // present in the listing set. We slug the city with the same helper
-  // the city-landing route uses for resolution (`citySlug`).
+  // City + country landing pages — derived from distinct (country, city)
+  // pairs and distinct countries in the listing set. We slug the city
+  // with the same helper the city-landing route uses for resolution.
   const cityPairs = new Map<string, { country: string; city: string }>();
+  const countryCodes = new Set<string>();
   for (const row of cleanRows) {
-    if (!row.country_code || !row.city) continue;
+    if (!row.country_code) continue;
+    countryCodes.add(row.country_code.toLowerCase());
+    if (!row.city) continue;
     const key = `${row.country_code.toLowerCase()}/${citySlug(row.city)}`;
     if (!cityPairs.has(key)) {
       cityPairs.set(key, { country: row.country_code.toLowerCase(), city: citySlug(row.city) });
     }
+  }
+  // Country-level landing pages — one per distinct country with active listings.
+  const countryLandings: MetadataRoute.Sitemap = [];
+  for (const cc of countryCodes) {
+    const enUrl = `${site}/en/properties-in/${cc}`;
+    const esUrl = `${site}/es/inmuebles-en/${cc}`;
+    countryLandings.push(
+      {
+        url: enUrl,
+        lastModified: now,
+        changeFrequency: 'daily',
+        priority: 0.55,
+        alternates: { languages: { en: enUrl, es: esUrl, 'x-default': enUrl } },
+      },
+      {
+        url: esUrl,
+        lastModified: now,
+        changeFrequency: 'daily',
+        priority: 0.55,
+        alternates: { languages: { en: enUrl, es: esUrl, 'x-default': enUrl } },
+      },
+    );
   }
   const cityLandings: MetadataRoute.Sitemap = [];
   for (const { country, city } of cityPairs.values()) {
@@ -285,5 +336,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     );
   }
 
-  return [...marketing, ...listings, ...cityLandings, ...agents];
+  return [...marketing, ...listings, ...countryLandings, ...cityLandings, ...agents];
 }

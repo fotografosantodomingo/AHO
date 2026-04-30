@@ -8,6 +8,7 @@ import {
   type SearchListing,
 } from '@/lib/listings/search';
 import { ListingCard } from '@/components/listings/listing-card';
+import { DotGrid } from '@/components/ui/dot-grid';
 import { publicEnv } from '@/lib/env';
 
 export const runtime = 'edge';
@@ -154,23 +155,9 @@ export default async function CityLandingPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <main>
-        {/* Hero band — dot-grid + soft action-color glow, same treatment as
-            homepage and pricing. Breadcrumb sits above the H1 for easy
-            wayfinding back up the geography hierarchy. */}
-        <section className="relative overflow-hidden border-b border-border bg-surface-muted dark:bg-surface-deep">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 opacity-[0.35] dark:opacity-[0.18]"
-            style={{
-              backgroundImage:
-                'radial-gradient(rgb(97 104 117 / 0.35) 1px, transparent 1px)',
-              backgroundSize: '24px 24px',
-              maskImage:
-                'radial-gradient(ellipse 70% 50% at 50% 30%, #000 30%, transparent 75%)',
-              WebkitMaskImage:
-                'radial-gradient(ellipse 70% 50% at 50% 30%, #000 30%, transparent 75%)',
-            }}
-          />
+        {/* Hero band — dot-grid pattern, breadcrumb above H1. */}
+        <section className="relative overflow-hidden border-b border-border dark:bg-surface-deep">
+          <DotGrid />
           <div className="relative mx-auto max-w-6xl px-6 py-14 md:py-16">
             <nav
               aria-label="Breadcrumb"

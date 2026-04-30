@@ -97,6 +97,18 @@ export const PATHNAMES = {
     en: '/properties/[slug]',
     es: '/propiedades/[slug]',
   },
+  // Countries directory — public, indexable. Lists every country with
+  // active listings. Top of the geography hierarchy.
+  '/countries': {
+    en: '/countries',
+    es: '/paises',
+  },
+  // Country-level landing — public, indexable. Lists cities (with active
+  // listing counts) for a single country. Two-letter ISO code in URL.
+  '/properties-in/[country]': {
+    en: '/properties-in/[country]',
+    es: '/inmuebles-en/[country]',
+  },
   // City landing pages — indexable browse alternative to /search.
   // `[country]` is a lowercase ISO-3166-1 alpha-2 code (do, us, mx, etc.);
   // `[city]` is the slugified city name (santo-domingo, new-york, etc.).

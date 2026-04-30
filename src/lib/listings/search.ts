@@ -19,6 +19,8 @@ const TransactionSchema = z.enum(TRANSACTION_TYPES);
 export interface SearchFilters {
   q: string | null;
   city: string | null;
+  /** Uppercased ISO-3166-1 alpha-2 country code (US, MX, DO, ES, …). */
+  country: string | null;
   transaction: (typeof TRANSACTION_TYPES)[number] | null;
   minPrice: number | null;
   maxPrice: number | null;
@@ -46,10 +48,15 @@ export function parseFilters(searchParams: URLSearchParams | Record<string, stri
 
   const cityRaw = get('city')?.trim() ?? null;
   const qRaw = get('q')?.trim() ?? null;
+  const countryRaw = get('country')?.trim().toUpperCase() ?? null;
+  // Strict 2-letter ISO. Drop anything else silently rather than 500.
+  const country =
+    countryRaw && /^[A-Z]{2}$/.test(countryRaw) ? countryRaw : null;
 
   return {
     q: qRaw && qRaw.length > 0 && qRaw.length <= 200 ? qRaw : null,
     city: cityRaw && cityRaw.length > 0 && cityRaw.length <= 120 ? cityRaw : null,
+    country,
     transaction: transaction.success ? transaction.data : null,
     minPrice: num(get('min_price')),
     maxPrice: num(get('max_price')),
@@ -107,6 +114,7 @@ export async function searchListings(
     .not('published_at', 'is', null);
 
   if (filters.city) query = query.eq('city', filters.city);
+  if (filters.country) query = query.eq('country_code', filters.country);
   if (filters.transaction) query = query.eq('transaction_type', filters.transaction);
   if (filters.minPrice != null) query = query.gte('price_cents', filters.minPrice);
   if (filters.maxPrice != null) query = query.lte('price_cents', filters.maxPrice);
@@ -467,6 +475,7 @@ export function buildSearchUrl(
   const params = new URLSearchParams();
   if (filters.q) params.set('q', filters.q);
   if (filters.city) params.set('city', filters.city);
+  if (filters.country) params.set('country', filters.country);
   if (filters.transaction) params.set('transaction', filters.transaction);
   if (filters.minPrice != null) params.set('min_price', String(filters.minPrice));
   if (filters.maxPrice != null) params.set('max_price', String(filters.maxPrice));

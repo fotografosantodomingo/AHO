@@ -91,6 +91,8 @@
     "queryLabel": "Keyword",
     "queryPlaceholder": "Beach, garage, pool…",
     "cityLabel": "City",
+    "countryLabel": "Country",
+    "countryPlaceholder": "ISO (US, MX, …)",
     "transactionLabel": "Type",
     "transactionAny": "Sale or rent",
     "minPrice": "Min price",
@@ -166,6 +168,29 @@
     "emptyBody": "{name} doesn't have any active listings on AHO at the moment.",
     "browseAllCta": "Browse listings worldwide",
     "websiteCta": "Visit website"
+  },
+  "countries": {
+    "eyebrow": "Worldwide",
+    "heading": "Browse by country",
+    "subheading": "Real estate listings worldwide. Pick a country to see active listings and the cities where AHO agents are publishing.",
+    "listingsCount_one": "listing",
+    "listingsCount_other": "listings",
+    "emptyHeading": "No active listings yet",
+    "emptyBody": "AHO is open to agents in any country. The directory fills up as agents start publishing listings.",
+    "emptyAgentCta": "List as an agent",
+    "browseAllCta": "Browse listings"
+  },
+  "countryLanding": {
+    "headingTemplate": "Real estate in {country}",
+    "subheading": "Browse cities in {country} where AHO agents are publishing listings.",
+    "breadcrumbCountries": "Countries",
+    "citiesCount_one": "1 city with active listings",
+    "citiesCount_other": "{count} cities with active listings",
+    "emptyHeading": "No listings yet in {country}",
+    "emptyBody": "AHO is open to agents in {country}. Be among the first to list here.",
+    "emptyAgentCta": "List your properties",
+    "browseCountriesCta": "Browse other countries",
+    "viewAllInCountry": "View all listings in {country}"
   },
   "cityLanding": {
     "headingTemplate": "Real estate in {city}, {country}",

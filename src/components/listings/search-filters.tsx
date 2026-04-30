@@ -27,6 +27,7 @@ export async function SearchFilters({ locale, filters }: Props) {
   const activeCount = [
     filters.q,
     filters.city,
+    filters.country,
     filters.transaction,
     filters.minPrice,
     filters.maxPrice,
@@ -37,11 +38,11 @@ export async function SearchFilters({ locale, filters }: Props) {
     <form
       method="get"
       action={action}
-      className="grid gap-3 rounded-card border border-border bg-surface p-4 shadow-whisper dark:bg-surface-deep md:grid-cols-6"
+      className="grid gap-3 rounded-card border border-border bg-surface p-4 shadow-whisper dark:bg-surface-deep md:grid-cols-4"
       role="search"
       aria-label={t('filtersHeading')}
     >
-      <Field className="md:col-span-2">
+      <Field>
         <label htmlFor="search-q" className="block font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
           {t('queryLabel')}
         </label>
@@ -65,6 +66,26 @@ export async function SearchFilters({ locale, filters }: Props) {
           type="text"
           defaultValue={filters.city ?? ''}
           className={inputClass}
+        />
+      </Field>
+
+      <Field>
+        <label
+          htmlFor="search-country"
+          className="block font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper"
+        >
+          {t('countryLabel')}
+        </label>
+        <input
+          id="search-country"
+          name="country"
+          type="text"
+          inputMode="text"
+          maxLength={2}
+          autoCapitalize="characters"
+          placeholder={t('countryPlaceholder')}
+          defaultValue={filters.country ?? ''}
+          className={`${inputClass} uppercase`}
         />
       </Field>
 
@@ -140,7 +161,7 @@ export async function SearchFilters({ locale, filters }: Props) {
         />
       </Field>
 
-      <div className="md:col-span-6 flex flex-wrap items-center gap-3 border-t border-border pt-3">
+      <div className="md:col-span-4 flex flex-wrap items-center gap-3 border-t border-border pt-3">
         <button
           type="submit"
           className="inline-flex h-9 items-center rounded-lg bg-surface-dark px-4 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink dark:bg-surface dark:text-ink dark:hover:bg-surface-muted"

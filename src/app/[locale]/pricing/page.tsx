@@ -4,6 +4,7 @@ import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { PricingForm } from '@/components/billing/pricing-form';
 import { BillingPortalButton } from '@/components/billing/billing-portal-button';
+import { DotGrid } from '@/components/ui/dot-grid';
 
 export const runtime = 'edge';
 
@@ -80,22 +81,10 @@ export default async function PricingPage({
 
   return (
     <main>
-      {/* Hero band — same dot-grid + radial-glow treatment as homepage,
-          just shorter. Centers the page identity before the plan card. */}
-      <section className="relative overflow-hidden border-b border-border bg-surface-muted dark:bg-surface-deep">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-[0.35] dark:opacity-[0.18]"
-          style={{
-            backgroundImage:
-              'radial-gradient(rgb(97 104 117 / 0.35) 1px, transparent 1px)',
-            backgroundSize: '24px 24px',
-            maskImage:
-              'radial-gradient(ellipse 70% 50% at 50% 30%, #000 30%, transparent 75%)',
-            WebkitMaskImage:
-              'radial-gradient(ellipse 70% 50% at 50% 30%, #000 30%, transparent 75%)',
-          }}
-        />
+      {/* Hero band — same dot-grid treatment as homepage. Centers the
+          page identity before the plan card. */}
+      <section className="relative overflow-hidden border-b border-border dark:bg-surface-deep">
+        <DotGrid />
         <div className="relative mx-auto max-w-3xl px-6 py-16 text-center md:py-20">
           <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
             {t('eyebrow')}

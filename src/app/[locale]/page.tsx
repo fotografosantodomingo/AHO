@@ -4,6 +4,7 @@ import { searchListings } from '@/lib/listings/search';
 import { getHomepageStats } from '@/lib/listings/stats';
 import { ListingCard } from '@/components/listings/listing-card';
 import { HeroSearchForm } from '@/components/home/hero-search-form';
+import { DotGrid, HeroGlow } from '@/components/ui/dot-grid';
 import { publicEnv } from '@/lib/env';
 
 export const runtime = 'edge';
@@ -20,12 +21,23 @@ export default async function HomePage({
 
   const t = await getTranslations({ locale, namespace: 'home' });
   const tSite = await getTranslations({ locale, namespace: 'site' });
+  const tCountries = await getTranslations({ locale, namespace: 'countries' });
   const searchPath = `/${locale}/${locale === 'es' ? 'buscar' : 'search'}`;
   const pricingPath = `/${locale}/${locale === 'es' ? 'precios' : 'pricing'}`;
+  const countriesPath = `/${locale}/${locale === 'es' ? 'paises' : 'countries'}`;
 
   const [featured, stats] = await Promise.all([
     searchListings(
-      { q: null, city: null, transaction: null, minPrice: null, maxPrice: null, bedsMin: null, page: 1 },
+      {
+        q: null,
+        city: null,
+        country: null,
+        transaction: null,
+        minPrice: null,
+        maxPrice: null,
+        bedsMin: null,
+        page: 1,
+      },
       typedLocale,
     ),
     getHomepageStats(),
@@ -78,30 +90,14 @@ export default async function HomePage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
       />
 
-      {/* Hero. Layered:
-            - Base: surface-muted (light) / surface-deep (dark)
-            - Dot grid via radial-gradient on a pseudo-element (purely CSS)
-            - Soft action-color radial glow upper-right for warmth
-          The bands stay HashiCorp-coherent; the action-color tint is the
-          only chromatic accent. */}
-      <section className="relative overflow-hidden border-b border-border bg-surface-muted dark:bg-surface-deep">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-[0.35] dark:opacity-[0.18]"
-          style={{
-            backgroundImage:
-              'radial-gradient(rgb(97 104 117 / 0.35) 1px, transparent 1px)',
-            backgroundSize: '24px 24px',
-            maskImage:
-              'radial-gradient(ellipse 80% 60% at 50% 30%, #000 30%, transparent 75%)',
-            WebkitMaskImage:
-              'radial-gradient(ellipse 80% 60% at 50% 30%, #000 30%, transparent 75%)',
-          }}
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -right-24 -top-32 h-96 w-96 rounded-full bg-action/15 blur-3xl dark:bg-action-dark/20"
-        />
+      {/* Hero. Body in light mode is surface-muted, so this section has the
+          same fill as the body. Visual definition comes from the dot-grid
+          + glow + bottom border, not a contrasting background. In dark
+          mode the section bg goes one shade deeper than body for a
+          traditional band look. */}
+      <section className="relative overflow-hidden border-b border-border dark:bg-surface-deep">
+        <DotGrid ellipse="80% 60%" />
+        <HeroGlow />
 
         <div className="relative mx-auto max-w-5xl px-6 py-20 md:py-28">
           <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
@@ -132,6 +128,15 @@ export default async function HomePage({
               className="text-helper underline-offset-2 hover:text-action hover:underline dark:hover:text-action-dark"
             >
               {t('ctaForBuyers')}
+            </a>
+            <span className="text-border-strong/60" aria-hidden="true">
+              ·
+            </span>
+            <a
+              href={countriesPath}
+              className="text-helper underline-offset-2 hover:text-action hover:underline dark:hover:text-action-dark"
+            >
+              {tCountries('heading')}
             </a>
             <span className="text-border-strong/60" aria-hidden="true">
               ·
