@@ -70,39 +70,53 @@ export default async function DashboardListingsPage({
   return (
     <main className="space-y-6">
       <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">{t('listingsHeading')}</h1>
+        <h1 className="font-brand text-2xl font-semibold tracking-tight md:text-[26px] md:leading-[1.19]">
+          {t('listingsHeading')}
+        </h1>
         <a
           href={newListingPath}
-          className="inline-flex h-9 items-center rounded-md bg-zinc-900 px-3 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
+          className="inline-flex h-9 items-center rounded-lg bg-surface-dark px-3 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink"
         >
           {t('newListing')}
         </a>
       </header>
 
       {listings.length === 0 ? (
-        <div className="rounded-md border border-dashed border-zinc-300 p-10 text-center text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
+        <div className="rounded-card border border-dashed border-border-strong/60 p-10 text-center text-sm text-ink-muted dark:text-ink-inverse-muted">
           <p>{t('listingsEmpty')}</p>
           <a
             href={newListingPath}
-            className="mt-4 inline-flex h-9 items-center rounded-md bg-zinc-900 px-3 font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
+            className="mt-4 inline-flex h-9 items-center rounded-lg bg-surface-dark px-3 font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink"
           >
             {t('listingsEmptyCta')}
           </a>
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-zinc-200 text-sm dark:divide-zinc-800">
-            <thead className="text-left text-xs uppercase text-zinc-500">
+          <table className="min-w-full divide-y divide-border text-sm">
+            <thead className="text-left">
               <tr>
-                <th className="px-3 py-2">{t('table.title')}</th>
-                <th className="px-3 py-2">{t('table.status')}</th>
-                <th className="px-3 py-2">{t('table.city')}</th>
-                <th className="px-3 py-2 text-right">{t('table.price')}</th>
-                <th className="px-3 py-2 text-right">{t('table.images')}</th>
-                <th className="px-3 py-2">{t('table.updated')}</th>
+                <th className="px-3 py-2 font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+                  {t('table.title')}
+                </th>
+                <th className="px-3 py-2 font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+                  {t('table.status')}
+                </th>
+                <th className="px-3 py-2 font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+                  {t('table.city')}
+                </th>
+                <th className="px-3 py-2 text-right font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+                  {t('table.price')}
+                </th>
+                <th className="px-3 py-2 text-right font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+                  {t('table.images')}
+                </th>
+                <th className="px-3 py-2 font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+                  {t('table.updated')}
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100 dark:divide-zinc-900">
+            <tbody className="divide-y divide-border/60">
               {listings.map((row) => {
                 const title =
                   (typedLocale === 'es' ? row.title_es : row.title_en) ??
@@ -110,12 +124,15 @@ export default async function DashboardListingsPage({
                   row.title_es ??
                   '—';
                 return (
-                  <tr key={row.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-900">
+                  <tr
+                    key={row.id}
+                    className="transition hover:bg-surface-muted dark:hover:bg-surface-dark"
+                  >
                     <td className="px-3 py-2">
                       <a className="underline" href={editPathFor(row.id)}>
                         {title}
                       </a>
-                      <span className="ml-2 text-xs text-zinc-500">{row.short_id}</span>
+                      <span className="ml-2 text-xs text-helper">{row.short_id}</span>
                     </td>
                     <td className="px-3 py-2">
                       <StatusBadge status={row.status} label={tStatus(row.status)} />
@@ -125,7 +142,7 @@ export default async function DashboardListingsPage({
                       {formatPrice(Number(row.price_cents), row.currency, typedLocale)}
                     </td>
                     <td className="px-3 py-2 text-right tabular-nums">{row.image_count}</td>
-                    <td className="px-3 py-2 text-zinc-500">
+                    <td className="px-3 py-2 text-helper">
                       {dateFormatter.format(new Date(row.updated_at))}
                     </td>
                   </tr>
@@ -145,15 +162,15 @@ function StatusBadge({ status, label }: { status: string; label: string }) {
       case 'active':
         return 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-200';
       case 'draft':
-        return 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200';
+        return 'bg-surface-muted text-ink-muted dark:bg-surface-dark dark:text-ink-inverse-muted';
       case 'pending':
-        return 'bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200';
+        return 'bg-warn-bg text-warn dark:bg-warn-bg/30 dark:text-warn';
       case 'sold':
       case 'rented':
         return 'bg-blue-100 text-blue-900 dark:bg-blue-950/60 dark:text-blue-200';
       case 'archived':
       default:
-        return 'bg-zinc-100 text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400';
+        return 'bg-surface-muted text-helper dark:bg-surface-dark';
     }
   })();
   return (

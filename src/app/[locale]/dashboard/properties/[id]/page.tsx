@@ -50,8 +50,10 @@ export default async function EditListingPage({
     <main className="space-y-6">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-          <p className="mt-1 text-sm text-zinc-500">
+          <h1 className="font-brand text-2xl font-semibold tracking-tight md:text-[26px] md:leading-[1.19]">
+            {title}
+          </h1>
+          <p className="mt-1 text-sm text-helper">
             <code className="font-mono">{listing.short_id}</code> ·{' '}
             {tStatus(listing.status)}
           </p>
@@ -60,7 +62,7 @@ export default async function EditListingPage({
           {publicPath && (
             <a
               href={publicPath}
-              className="inline-flex h-9 items-center rounded-md border border-zinc-200 px-3 text-sm hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+              className="inline-flex h-9 items-center rounded-lg border border-border-strong px-3 text-sm transition hover:bg-surface-muted dark:hover:bg-surface-dark"
               target="_blank"
               rel="noreferrer"
             >
@@ -71,7 +73,7 @@ export default async function EditListingPage({
         </div>
       </header>
 
-      <dl className="grid grid-cols-2 gap-4 rounded-md border border-zinc-200 p-4 text-sm dark:border-zinc-800 sm:grid-cols-3">
+      <dl className="grid grid-cols-2 gap-4 rounded-card border border-border bg-surface p-4 text-sm shadow-whisper dark:bg-surface-deep sm:grid-cols-3">
         <Stat label={t('table.city')} value={listing.city} />
         <Stat
           label={t('table.price')}
@@ -80,7 +82,7 @@ export default async function EditListingPage({
         <Stat label={t('table.images')} value={String(listing.image_count)} />
       </dl>
 
-      <section className="rounded-md border border-dashed border-zinc-300 p-6 text-sm text-zinc-500 dark:border-zinc-700">
+      <section className="rounded-card border border-dashed border-border-strong/60 p-6 text-sm text-helper">
         Image upload UI lands once Cloudflare R2 is configured. The API
         endpoints exist (<code>POST /api/properties/{listing.id}/images</code>{' '}
         + confirm), and the data layer enforces the 30-image cap and
@@ -93,7 +95,9 @@ export default async function EditListingPage({
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs uppercase text-zinc-500">{label}</dt>
+      <dt className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+        {label}
+      </dt>
       <dd className="mt-1 font-medium">{value}</dd>
     </div>
   );

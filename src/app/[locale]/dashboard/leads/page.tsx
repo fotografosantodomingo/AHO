@@ -101,10 +101,10 @@ export default async function LeadsPage({
       <a
         key={key}
         href={href}
-        className={`inline-flex h-8 items-center rounded-md px-3 text-sm ${
+        className={`inline-flex h-8 items-center rounded-lg px-3 text-sm transition ${
           isActive
-            ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900'
-            : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900'
+            ? 'bg-surface-dark text-ink-inverse-muted shadow-whisper'
+            : 'text-helper hover:bg-surface-muted dark:hover:bg-surface-dark'
         }`}
       >
         {label}
@@ -115,7 +115,9 @@ export default async function LeadsPage({
   return (
     <main className="space-y-6">
       <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">{t('heading')}</h1>
+        <h1 className="font-brand text-2xl font-semibold tracking-tight md:text-[26px] md:leading-[1.19]">
+          {t('heading')}
+        </h1>
         <nav className="flex gap-1" aria-label="Filter">
           {filterTab('all', t('filterAll'))}
           {filterTab('new', t('filterNew'))}
@@ -125,9 +127,9 @@ export default async function LeadsPage({
       </header>
 
       {leads.length === 0 ? (
-        <div className="rounded-md border border-dashed border-zinc-300 p-10 text-center text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
+        <div className="rounded-card border border-dashed border-border-strong/60 p-10 text-center text-sm text-ink-muted dark:text-ink-inverse-muted">
           <p>{t('empty')}</p>
-          <p className="mt-2 text-xs text-zinc-500">{t('emptyHint')}</p>
+          <p className="mt-2 text-xs text-helper">{t('emptyHint')}</p>
         </div>
       ) : (
         <ul className="space-y-3">
@@ -161,11 +163,11 @@ export default async function LeadsPage({
             return (
               <li
                 key={lead.id}
-                className="rounded-md border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950"
+                className="rounded-card border border-border bg-surface p-4 shadow-whisper dark:bg-surface-deep"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="space-y-1 min-w-0 flex-1">
-                    <p className="text-xs uppercase tracking-wide text-zinc-500">
+                    <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
                       {tSource(lead.source)} · {dateFormatter.format(new Date(lead.created_at))}
                     </p>
                     <p className="text-sm">
@@ -173,15 +175,13 @@ export default async function LeadsPage({
                         {hasContact ? lead.contact_name ?? '—' : t('anonymous')}
                       </strong>
                       {(lead.contact_email || lead.contact_phone) && (
-                        <span className="ml-2 text-zinc-600 dark:text-zinc-400">
+                        <span className="ml-2 text-helper">
                           {[lead.contact_email, lead.contact_phone].filter(Boolean).join(' · ')}
                         </span>
                       )}
                     </p>
                     {lead.message && (
-                      <p className="mt-2 whitespace-pre-line text-sm text-zinc-700 dark:text-zinc-300">
-                        {lead.message}
-                      </p>
+                      <p className="mt-2 whitespace-pre-line text-sm">{lead.message}</p>
                     )}
                     {(propertyHref || editHref) && (
                       <p className="mt-2 text-xs">
@@ -198,7 +198,7 @@ export default async function LeadsPage({
                         {propertyHref && editHref && (
                           <>
                             {' · '}
-                            <a className="text-zinc-500 underline" href={editHref}>
+                            <a className="text-helper underline" href={editHref}>
                               edit
                             </a>
                           </>
@@ -232,7 +232,7 @@ function StatusBadge({ status, label }: { status: LeadStatus; label: string }) {
       case 'won':
         return 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-200';
       case 'lost':
-        return 'bg-zinc-100 text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400';
+        return 'bg-surface-muted text-helper dark:bg-surface-dark';
     }
   })();
   return (

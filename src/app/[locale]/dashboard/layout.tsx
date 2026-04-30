@@ -57,17 +57,17 @@ export default async function DashboardLayout({
 
   return (
     <div className="mx-auto grid max-w-6xl grid-cols-[14rem_1fr] gap-8 px-6 py-8">
-      <aside className="border-r border-zinc-200 pr-4 dark:border-zinc-800">
+      <aside className="border-r border-border pr-4">
         <nav className="space-y-1 text-sm">
           <a
             href={propertiesPath}
-            className="block rounded-md px-3 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+            className="block rounded-lg px-3 py-2 transition hover:bg-surface-muted dark:hover:bg-surface-dark"
           >
             {t('navListings')}
           </a>
           <a
             href={leadsPath}
-            className="block rounded-md px-3 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+            className="block rounded-lg px-3 py-2 transition hover:bg-surface-muted dark:hover:bg-surface-dark"
           >
             {t('navLeads')}
           </a>

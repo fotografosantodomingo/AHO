@@ -12,7 +12,7 @@ import {
 } from '@/lib/listings/actions';
 
 const inputClass =
-  'mt-1 block w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:ring-zinc-100';
+  'mt-1 block w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm shadow-whisper outline-hidden focus:ring-3 focus:ring-action dark:bg-surface-deep dark:focus:ring-action-dark';
 
 const labelClass = 'block text-sm font-medium';
 
@@ -116,7 +116,7 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
             {t('titleEs')}
           </label>
           <input id="title_es" type="text" {...register('title_es')} className={inputClass} />
-          <p className="mt-1 text-xs text-zinc-500">{t('atLeastOneLanguage')}</p>
+          <p className="mt-1 text-xs text-helper">{t('atLeastOneLanguage')}</p>
           {errors.title_en && (
             <p className="mt-1 text-sm text-red-600">{t('errors.titleRequired')}</p>
           )}
@@ -360,11 +360,11 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
         </div>
       )}
 
-      <div className="flex items-center gap-3 border-t border-zinc-200 pt-4 dark:border-zinc-800">
+      <div className="flex items-center gap-3 border-t border-border pt-4">
         <button
           type="submit"
           disabled={busy}
-          className="inline-flex h-10 items-center rounded-md bg-zinc-900 px-4 text-sm font-medium text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+          className="inline-flex h-10 items-center rounded-lg bg-surface-dark px-4 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink disabled:opacity-50"
         >
           {busy ? '…' : t('saved') /* "Saved." doubles as the in-progress label until we add a real "Saving..." key */}
         </button>
@@ -376,7 +376,9 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
 function Section({ heading, children }: { heading: string; children: React.ReactNode }) {
   return (
     <fieldset className="space-y-4">
-      <legend className="text-lg font-semibold">{heading}</legend>
+      <legend className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+        {heading}
+      </legend>
       {children}
     </fieldset>
   );

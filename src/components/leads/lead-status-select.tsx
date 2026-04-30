@@ -50,7 +50,7 @@ export function LeadStatusSelect({ leadId, initialStatus }: Props) {
         onChange={onChange}
         disabled={isPending}
         aria-label="Lead status"
-        className="h-8 rounded-md border border-zinc-200 bg-white px-2 text-xs disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-900"
+        className="h-8 rounded-lg border border-border-strong bg-surface px-2 text-xs shadow-whisper disabled:opacity-50 dark:bg-surface-deep"
       >
         {LEAD_STATUSES.map((s) => (
           <option key={s} value={s}>
