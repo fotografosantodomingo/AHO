@@ -4,7 +4,7 @@
 Subscription-based real estate platform (Zillow-style) with bilingual EN/ES, multi-currency display, and a marquee one-click social-distribution feature for paid tiers. Worldwide market scope (with launch-market caveats — see `docs/RISKS.md`). Domain: **advertisehomes.online**, brand short name **AHO**, internal slug `aho`. Repo: `git@github.com:fotografosantodomingo/AHO.git`. Cloudflare account ID: `5a389e6eea7a4e92999c5f1612eafbcc` (account IDs are not secrets; the API token in `.env.local` is). Supabase project ref: `lqujtquofsdsxtujvjtl` (URL: `https://lqujtquofsdsxtujvjtl.supabase.co`).
 
 ## Status
-v1 build, pre-development. Spec is under critique. No application code yet.
+Live at **https://aho-web.pages.dev** (Cloudflare Pages, auto-deploy on push to `main` via `.github/workflows/deploy.yml`). Slice 1 ~88% (gated on PO actions: Resend / R2 / custom domain / soft-beta agents). All five slice-2 surfaces shipped: city landing, agent profiles, admin moderation, saved searches, search/filter/map. Slice-3 polish in progress (bbox-driven map re-fetch, loading skeletons, design-system migration complete). 33 Edge Function Routes. 141/141 tests. See `docs/PROGRESS.md` for the per-session log.
 
 ## Tech stack (summary — full detail in `docs/HANDOFF.md` §3)
 - Frontend: Next.js 15 (App Router, RSC) on Cloudflare Pages
@@ -26,14 +26,27 @@ v1 build, pre-development. Spec is under critique. No application code yet.
   PROGRESS.md              — session-by-session log
   OPEN_QUESTIONS.md        — items needing product owner decision
   RISKS.md                 — live risk register
+  CRITIQUE.md              — slice-1 critique + slice 2/3 plan (CRITIQUE.md §F)
+  DESIGN_REFERENCE.md      — HashiCorp-inspired design tokens (canonical visual language)
+  CLOUDFLARE_RESOURCES.md  — infra to provision; some shipped, some pending
 /.claude/skills/           — project-scoped skills (per-task playbooks)
-  supabase-migration/SKILL.md
-  stripe-webhook/SKILL.md
-  social-platform-integration/SKILL.md
-  new-page/SKILL.md
-  rls-policy/SKILL.md
+  supabase-migration/, stripe-webhook/, social-platform-integration/, new-page/, rls-policy/
+/src/
+  app/[locale]/            — pages (homepage, search, property detail, pricing, dashboard, admin, agents/[slug], properties-in/[country]/[city], saved-searches, onboarding, auth surfaces, 404 + error boundaries)
+  app/api/                 — billing/checkout-session, billing/portal, leads, properties/[id]/images, properties/by-bbox, webhooks/stripe
+  app/sitemap.ts, robots.ts, not-found.tsx (root)
+  components/              — auth, billing, listings, leads, admin, saved-searches, theme/locale toggles
+  db/migrations/           — 10 hand-written SQL migrations (0001_init through 0010_saved_searches)
+  db/schema.ts             — Drizzle TS schema mirror (runtime types only)
+  lib/                     — supabase clients, billing handlers, listings/search, auth schemas, email templates, admin actions
+  middleware.ts            — next-intl + Supabase session refresh, with /sitemap.xml + /robots.txt + /api/* + /auth/callback exclusions
+  i18n/config.ts           — locales (en/es), default (en), localized PATHNAMES
+/messages/{en,es}.json     — bilingual i18n strings, structurally identical
+/scripts/                  — migrate.ts, setup-stripe-products.ts, seed-plans.ts, stripe-webhook-replay.ts
+/tests/{rls,unit}/         — RLS pairs (identity/billing/properties/leads/saved-searches) + unit (upload, billing-slug, founder-window, whatsapp, email-templates)
+/.github/workflows/        — ci.yml (typecheck + lint + unit), deploy.yml (build + wrangler pages deploy on push to main)
+wrangler.toml              — name=aho-web, compatibility_flags=["nodejs_compat"], pages_build_output_dir=".vercel/output/static"
 ```
-Application folders (`app/`, `lib/`, `supabase/migrations/`, `tests/`, `emails/`, etc.) will be added once the build slice is approved.
 
 ## Conventions
 - DB names: `snake_case`. Every table has `created_at`, `updated_at` `timestamptz` defaulting to `now()`.
@@ -43,12 +56,13 @@ Application folders (`app/`, `lib/`, `supabase/migrations/`, `tests/`, `emails/`
 - All public-facing copy must exist in both EN and ES. Do **not** fall back across languages — a listing missing one language does not appear in that language's site.
 - Currency formatting via `Intl.NumberFormat` with the active locale; never hand-roll.
 
-## Local-dev quirks (discovered 2026-04-29 — until cleaned up)
+## Local-dev quirks (until cleaned up)
 
-- **No direnv.** `.env.local` is not auto-loaded by Bash subprocesses. Prefix every command that needs env vars with `set -a && source .env.local && set +a && <cmd>`. Long-term fix in `OPEN_QUESTIONS.md`.
-- **pnpm via corepack.** Global `pnpm` symlink couldn't be created (permission denied on `/usr/local/bin`). Invoke pnpm as `corepack pnpm@9.12.3 ...` everywhere.
-- **Stripe is in LIVE mode.** Products and prices live in the PO's production Stripe account; no test mode set up. End-to-end testing of checkout flows in v1 week 3 will need real cards or a separate test account.
-- **RLS test fixtures share the production Supabase project.** Filter UI / admin queries by `stripe_price_id NOT LIKE 'price_test_%'` and `slug NOT LIKE 'aho-test-org-%'` until a dedicated test project lands. See `RISKS.md` R11.
+- **No direnv.** `.env.local` is not auto-loaded by Bash subprocesses. Prefix every command that needs env vars with `set -a && source .env.local && set +a && <cmd>`.
+- **pnpm via corepack.** Global `pnpm` symlink couldn't be created (permission denied on `/usr/local/bin`). Invoke pnpm as `corepack pnpm@9.12.3 ...` everywhere. A shim at `node_modules/.bin/pnpm` (`exec corepack pnpm@9.12.3 "$@"`) keeps `next-on-pages` build subprocesses happy.
+- **Stripe is in TEST mode.** Live products were archived 2026-04-29 after a process gap (see `DECISIONS.md` "Stripe live → test"); current `.env.local` keys are `sk_test_…`. `scripts/setup-stripe-products.ts` has a guardrail that refuses live keys. Live promotion requires an explicit DECISIONS.md entry per CLAUDE.md hard rule #9.
+- **RLS test fixtures share the production Supabase project.** Public-facing surfaces (sitemap, city landing, agent profiles, by-bbox API) ALL filter `aho-test-org-%` org slugs + `aho-fixture-%` listing slugs. See `RISKS.md` R11. Pattern recap: PostgREST inner-join `.not('organizations.slug', 'like', 'aho-test-org-%')` + a defensive in-loop slug check.
+- **No `pnpm dev`.** Per-machine memory `aho_no_local_runtime`: dev/preview/prod all happen on Cloudflare Pages via `git push` → GH Actions → `wrangler pages deploy`. ~2 min from push to live. Do NOT start `next dev`.
 
 ## Hard rules (must hold throughout the build)
 1. **Never commit secrets.** Use `.env.local` locally and Cloudflare/Supabase/Stripe-managed secrets in deployed envs.
@@ -69,4 +83,14 @@ Application folders (`app/`, `lib/`, `supabase/migrations/`, `tests/`, `emails/`
 5. `docs/RISKS.md` — what might bite us and what we're doing about it.
 
 ## Current focus
-Awaiting `HANDOFF_part2.md`. Once received, produce a written critique covering risks, technical correctness, sequencing, timeline, and a recommended first build slice. **Do not write application code until the critique is reviewed and a slice is approved.**
+Slice 2 surfaces all live; slice-3 polish in progress (live-bbox map shipped; loading skeletons shipped). The remaining slice-1 close-out items are all PO-action-blocked:
+
+| Pending PO action | Unlocks |
+|---|---|
+| Resend API key + DKIM/SPF/DMARC for `mail.advertisehomes.online` | Welcome / lead-notification / 3DS-challenge / reset-password emails actually send (currently no-op via the optional wrapper). Saved-search email-alert worker. |
+| R2 enablement (paid-tier opt-in) | Image upload UI on `/dashboard/properties/[id]`. |
+| Custom domain DNS (`advertisehomes.online` → Cloudflare Pages) | Production-grade URL. Sitemap + canonical URLs auto-pivot via `NEXT_PUBLIC_SITE_URL`. |
+| Soft-beta agent recruitment (3–5 in DR) | First real listings; everything downstream of "real-only data" rule starts to pay off. |
+| 21st.dev API key rotation (leaked in chat 2026-04-30) | UI/UX polish phase via `ui-ux-pro-max` skill (see `DECISIONS.md` "2026-04-30 — UI/UX polish phase"). |
+
+While those unblock, Claude continues on autonomous slice-3 polish + slice-2 deepening (list-view sync to bbox, OG image generation, fixture-Stripe-state harness for the 5 deferred webhook-replay cases, marker clustering at high density, neighborhood overlays).
