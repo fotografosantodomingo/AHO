@@ -12,6 +12,39 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-30 — Custom domain `advertisehomes.online` live + URLs threaded through every system
+- **What shipped (1 empty-commit redeploy + 4 system updates, deployed):**
+  - **Domain verified:** `https://advertisehomes.online` and `www.` both serve the site over Cloudflare's Google-Trust-Services TLS cert. Apex 307→`/en`, `/en` + `/es` 200, sitemap.xml 200, robots.txt 200.
+  - **`NEXT_PUBLIC_SITE_URL` updated in 3 places:**
+    - `.env.local` (local-side scripts)
+    - Pages binding via `wrangler pages secret put` (runtime reads)
+    - GitHub Actions repo secret via libsodium-encrypted PUT (build-time inject; previously-built Python helper from the `aho-claude-code` PAT path was reused)
+  - **Stripe test-mode webhook URL updated** via `POST /v1/webhook_endpoints/{id}` — was `https://aho-web.pages.dev/api/webhooks/stripe`, now `https://advertisehomes.online/api/webhooks/stripe`. Same endpoint id, same signing secret, all 8 events still wired.
+  - **Empty commit triggers redeploy** so the new `NEXT_PUBLIC_SITE_URL` is baked into the build, propagating the canonical URL into:
+    - `<link rel="canonical">` on every page
+    - hreflang alternates
+    - OG/Twitter meta tags + the `og:url` in OG image envelopes
+    - JSON-LD `url` fields (Organization, WebSite, RealEstateAgent, ItemList)
+    - sitemap.xml entries (homepage, pricing, property, city landing, agent profile URLs all flip from aho-web.pages.dev → advertisehomes.online)
+    - robots.txt `Sitemap:` + `Host:` lines
+- **Verified live on the new domain:**
+  - Sitemap: `<loc>https://advertisehomes.online/en</loc>`, `…/es`, `…/en/pricing`, `…/es/precios`, …
+  - robots.txt: `Host: https://advertisehomes.online` + `Sitemap: https://advertisehomes.online/sitemap.xml`
+  - Stripe webhook: 400 `missing_signature` on unsigned POST (signature path works)
+  - **`pnpm stripe:replay` 7/7 green** against `https://advertisehomes.online/api/webhooks/stripe`
+- **`https://aho-web.pages.dev`** still resolves (Cloudflare doesn't drop the `*.pages.dev` URL when you add a custom domain) but is no longer canonical.
+- **What changed since last session:** Same calendar day. This entry succeeds the sitemap-extension entry below.
+- **Slice 1 status:** moves from ~88% → **~92%** (custom domain unblocks the production-grade URL story; canonical URLs are now the real domain).
+- **Pending PO actions reduced from 5 to 4:**
+  - Rotate the 21st.dev API key → polish phase
+  - Resend API key + DKIM/SPF/DMARC → email-driven flows
+  - R2 enablement → image upload UI
+  - **Supabase URL Configuration update** (new): set Site URL to `https://advertisehomes.online`; add `https://advertisehomes.online/**` to Redirect URLs allowlist. Without this, signups + magic links + password resets from advertisehomes.online won't work.
+  - Soft-beta agent recruitment
+- **Next session should start with:** the polish phase if 21st.dev key has been rotated, or fixture-Stripe-state harness, or marker-cluster theme re-skin to match the design tokens.
+
+---
+
 ## 2026-04-30 — Sitemap extension: city landing + agent profile URLs derived from active listings
 - **What shipped (1 commit, deployed):**
   - **`src/app/sitemap.ts`** now includes two new derived URL types:
