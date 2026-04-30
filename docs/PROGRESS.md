@@ -12,6 +12,21 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-30 — City landing pages (slice-2 SEO infra; first slice-2 surface live)
+- **What shipped (1 commit, deployed):**
+  - **`/{locale}/properties-in/{country}/{city}`** at `src/app/[locale]/properties-in/[country]/[city]/page.tsx` — Server Component, Edge runtime, force-dynamic. Country slug is lowercased ISO-3166-1 alpha-2 (`do`, `us`, `mx`); city slug is hyphenated lowercase (`santo-domingo`, `new-york`, `cancun`). Resolution via case-insensitive ILIKE so `santo-domingo` matches DB rows for `Santo Domingo` / `santo domingo` / `SANTO DOMINGO`. Country names render via `Intl.DisplayNames` in the active locale.
+  - **PATHNAMES** updated for the localized URL pair: EN `/properties-in/{country}/{city}` ↔ ES `/inmuebles-en/{country}/{city}`.
+  - **`searchCityLanding(...)` helper** in `src/lib/listings/search.ts` — filters by `country_code` + city ILIKE, excludes RLS test fixtures (org slug NOT LIKE `aho-test-org-%` via inner join + defensive in-loop slug check — same belt-and-suspenders pattern as sitemap.ts), returns the canonical city name from the first matched row. Plus two utilities: `citySlug(city)` / `citySlugToQuery(slug)`.
+  - **i18n:** `cityLanding.*` namespace in EN + ES (heading template, subheading, count-pluralized result strings, empty state with agent-acquisition CTA, "view all" / "browse worldwide" links).
+  - **SEO surface per page:** title, description, canonical URL, hreflang en/es/x-default, OG/Twitter cards, JSON-LD `ItemList` (rich-result eligibility for the listings shown). `robots: index, follow`.
+  - **Empty state UX:** pages with no listings still 200 (don't 404 — the URL is a real surface, just empty for now). Empty state shows agent-acquisition CTA ("List your properties" → `/pricing`) + worldwide browse fallback.
+- **Verified live:** all four probe URLs return 200 (`/en/properties-in/do/santo-domingo`, `/es/inmuebles-en/do/santo-domingo`, `/en/properties-in/us/new-york`, `/en/properties-in/mx/cancun`); EN renders "Real estate in Santo Domingo, Dominican Republic"; ES renders "Inmuebles en Santo Domingo, República Dominicana"; hreflang alternates correctly cross-link the locales; existing routes (homepage, pricing, search, 404) still work.
+- **What changed since last session:** This is slice-2 work landing autonomously, not slice 1. Slice-2 features that still need building per CRITIQUE.md §F: agent profile pages, lead inbox UI (lead view exists in dashboard), saved searches + email alerts (waits for Resend), search/filter/map with PostGIS, admin dashboard.
+- **Slice 1 status:** still `~88%`. **Slice 2 status: ~5%** (city landing pages = the first surface to ship; lead inbox already built in slice 1 also counts toward slice 2 partial credit).
+- **Next session should start with:** OG image generation for property pages (small autonomous win) OR loading.tsx skeletons OR keep walking the slice-2 list (saved searches needs Resend; agent profile pages are the next standalone piece).
+
+---
+
 ## 2026-04-29 — 404 + error boundaries on the design system (and three Next.js routing quirks worked through)
 - **What shipped (4 commits, deployed):**
   - **`src/app/[locale]/not-found.tsx`** — Server Component, locale-aware. Resolves the active locale via `getLocale()` from next-intl/server (the layout already called `setRequestLocale` for this request). Brand-font heading at 42px, helper-color subtitle, primary-dark "Back to home" button + bordered "Browse listings" button. Fully on the design tokens.
