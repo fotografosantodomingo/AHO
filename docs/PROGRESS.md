@@ -12,6 +12,20 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-30 — CLAUDE.md doc sync (status + folder map + local-dev quirks + current focus)
+- **What shipped (1 commit):**
+  - **Status:** was "v1 build, pre-development. No application code yet." → now describes the live URL, slice progress, route count, test count, pointer to PROGRESS.md.
+  - **Folder map:** was a TODO list → now reflects the actual `src/{app,components,lib,db,…}` tree, including the new app/api routes (by-bbox, properties/[id]/images), 10 SQL migrations, scripts (stripe-webhook-replay), wrangler.toml, GH Actions workflows.
+  - **Local-dev quirks:** "Stripe is in LIVE mode" → "Stripe is in TEST mode" (live products were archived 2026-04-29 morning per DECISIONS.md). Added: pnpm shim at `node_modules/.bin/pnpm` for next-on-pages subprocesses; fixture-exclusion pattern recap (`aho-test-org-%` + `aho-fixture-%`); "no `pnpm dev`" per the no-local-runtime memory.
+  - **Current focus:** "Awaiting HANDOFF_part2.md" → table of pending PO actions (Resend, R2, custom domain, soft-beta agents, 21st.dev key rotation) + what each unlocks + what Claude continues on autonomously while those unblock.
+- **What did NOT change:** Hard rules 1-9 (those are timeless), Conventions, Tech stack section, Read-these-before-starting list. File now 96 lines (well under the 200-line cap CLAUDE.md sets for itself).
+- **Verified:** No build/test impact (CLAUDE.md is doc-only).
+- **What changed since last session:** Same calendar day. This entry succeeds the stripe-replay-extension entry below.
+- **Why this matters:** future Claude sessions load CLAUDE.md at session start. The pre-update version would have been actively misleading — claiming the spec is under critique while the app is deployed and 141 tests pass. New version grounds future sessions in current reality.
+- **Next session should start with:** OG image generation for property pages (small autonomous win), or the fixture-Stripe-state harness (would unlock the 5 deferred webhook-replay cases — meaningful test coverage). Or the polish phase if the 21st.dev key has been rotated.
+
+---
+
 ## 2026-04-30 — Stripe webhook replay extended (1 → 3 handlers covered)
 - **What shipped (1 commit, deployed):**
   - **`scripts/stripe-webhook-replay.ts`** extended from 5 to 7 cases. All passing against the live deployed webhook.
