@@ -12,6 +12,21 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-30 — Agent profile pages + future-polish-phase decision logged
+- **What shipped (1 commit, deployed):**
+  - **`/{locale}/agents/{slug}`** at `src/app/[locale]/agents/[slug]/page.tsx` — Server Component, Edge runtime, force-dynamic. Public profile per organization showing name, location (`Intl.DisplayNames`-localized country + headquarters city), description (locale-preferred → fallback), optional logo + website link, and the org's active+published listings. Empty state when an org has no live listings (still 200 — same pattern as city landing).
+  - **PATHNAMES**: EN `/agents/[slug]` ↔ ES `/agentes/[slug]`.
+  - **`fetchAgentProfile(...)` helper** in `lib/listings/search.ts` — looks up org by slug, fetches listings filtered by `org_id` + `status=active` + `published_at not null`, applies fixture-exclusion (`aho-test-org-*` slugs short-circuit to `org=null`; listing slugs starting `aho-fixture-` filtered out per the same belt-and-suspenders pattern as sitemap.ts and city landing).
+  - **i18n** — `agentProfile.*` namespace in EN + ES (heading template, location strap, plural listings count, empty state, browse-all + website CTAs).
+  - **SEO surface:** title = org name, description = org's locale-preferred description, canonical + hreflang en/es/x-default, OG `type=profile` + logo image, JSON-LD `RealEstateAgent` (for `agent`-type orgs) or `Organization` (for `agency`/`expert`), robots index+follow.
+- **DECISIONS.md entry:** logged the future polish-phase plan to use the [`ui-ux-pro-max-skill`](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) backed by 21st.dev's MCP server + component library after slice-2 functionally lands. Setup steps captured (rotate API key, install skill at `.claude/skills/ui-ux-pro-max/`, configure `.claude/mcp.json`, pair the rotated API key as MCP auth). Key was leaked in chat — flagged for rotation; never persisted to memory or committed.
+- **Verified live:** `/en/agents/aho-test-org-a` → 404 (fixture org refused to surface publicly); `/en/agents/nonexistent` → 404 (AHO-branded 404 page renders correctly); `/es/agentes/nonexistent` → same 404 behavior. Existing routes unaffected.
+- **What changed since last session:** Same calendar day (now 2026-04-30 since the city landing entry was 2026-04-30 too). This entry succeeds the city-landing entry below.
+- **Slice 2 status:** **~10%** — second public surface live (city landing was first, agent profiles second). Lead inbox already shipped in slice 1 also counts toward slice 2. Remaining slice-2 work: saved searches + email alerts (waits for Resend), search/filter/map with PostGIS, admin dashboard.
+- **Next session should start with:** the polish-phase setup (rotated 21st.dev key + install ui-ux-pro-max skill + MCP config) once PO is ready, OR keep walking the slice-2 list (admin dashboard scaffolding is the next standalone piece — saved searches needs Resend; map needs Mapbox or similar).
+
+---
+
 ## 2026-04-30 — City landing pages (slice-2 SEO infra; first slice-2 surface live)
 - **What shipped (1 commit, deployed):**
   - **`/{locale}/properties-in/{country}/{city}`** at `src/app/[locale]/properties-in/[country]/[city]/page.tsx` — Server Component, Edge runtime, force-dynamic. Country slug is lowercased ISO-3166-1 alpha-2 (`do`, `us`, `mx`); city slug is hyphenated lowercase (`santo-domingo`, `new-york`, `cancun`). Resolution via case-insensitive ILIKE so `santo-domingo` matches DB rows for `Santo Domingo` / `santo domingo` / `SANTO DOMINGO`. Country names render via `Intl.DisplayNames` in the active locale.
