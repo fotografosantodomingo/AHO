@@ -12,6 +12,34 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-30 — Polish phase begins: 5 surfaces upgraded + 21st.dev Magic MCP wired
+
+PO rotated the 21st.dev API key. Two commits in this entry.
+
+- **`cde5d85` — Polish phase wiring:**
+  - **`.mcp.json`** at project root registers the `21st-magic` MCP server (`npx -y @21st-dev/magic@latest`). API key supplied via `${TWENTY_FIRST_DEV_API_KEY}` env-var substitution; no literal secret in the committed file.
+  - **`docs/DECISIONS.md`** updated to correct an earlier conflation: `ui-ux-pro-max-skill` (nextlevelbuilder) and 21st.dev Magic are independent products. The API key is for Magic. The skill is optional.
+  - **`CLAUDE.md`** local-dev quirks: notes the env-var workflow for launching Claude Code with the key visible to the MCP runtime (`set -a && source .env.local && set +a && claude`).
+  - The MCP server is **not active in this session** — Claude Code reads `.mcp.json` at startup. PO needs to relaunch with the env exported and approve the project-scoped server on first prompt. Until then, hand-crafted polish (next commit).
+- **`e32b165` — Polish phase batch 1: 5 surfaces upgraded against existing HashiCorp tokens.** No Magic MCP usage in this batch — pure structural upgrades on top of the existing token system. Real-data only (every count / badge / image renders from actual DB rows or hides itself).
+  - **Homepage [`src/app/[locale]/page.tsx`](src/app/%5Blocale%5D/page.tsx):** eyebrow + gradient-accent H1, dot-grid + radial-glow hero, transaction-type pill toggle in search form (`<HeroSearchForm>` Client Component), real-count trust strip (`<dl>` with `Active listings` / `Cities covered` / `Verified agents` — hides entirely if all three are 0), three-step "How AHO works" explainer band.
+  - **Pricing [`/[locale]/pricing/page.tsx`](src/app/%5Blocale%5D/pricing/page.tsx):** dot-grid hero header matching homepage, plan card pulled up over the seam with `-mt-12`, big `$29` + `/ month` numerals, "Save ~17% with annual" pill on the seam line, "7-day free trial" badge in warn-color, 4-question FAQ band via native `<details>` (keyboard-accessible, JS-free, indexable).
+  - **Property card [`src/components/listings/listing-card.tsx`](src/components/listings/listing-card.tsx):** image hover scale (`group-hover:scale-[1.04]`), transaction-type chip on image top-left, multi-image count badge bottom-right (with inline SVG), spec row converted from raw text to small `bd / ba / m²` pills with tabular-nums.
+  - **City landing [`/[locale]/properties-in/[country]/[city]/page.tsx`](src/app/%5Blocale%5D/properties-in/%5Bcountry%5D/%5Bcity%5D/page.tsx):** dot-grid hero band, AHO/country/city breadcrumb, visual continuity with homepage/pricing.
+  - **Agent profile [`/[locale]/agents/[slug]/page.tsx`](src/app/%5Blocale%5D/agents/%5Bslug%5D/page.tsx):** dot-grid + soft action-color glow hero band, 2-letter initials chip when no logo (token-styled, brand-color), org-type eyebrow label localized EN/ES (`Real estate agent` / `Real estate agency` / `Verified expert`), `Visit website →` arrow CTA in action-color.
+  - **New files:** `src/lib/listings/stats.ts` (`getHomepageStats()` with belt-and-suspenders fixture exclusion), `src/components/home/hero-search-form.tsx` (Client transaction-type toggle).
+  - **i18n:** ~30 new keys added to both `messages/en.json` and `messages/es.json` — eyebrow labels, FAQ Q+A pairs, three-step explainer, transaction-tab labels, trust-strip column labels.
+- **Verified:** typecheck, lint (only the pre-existing `_req` warning), 141/141 tests, `next build` (38 routes — same count), `@cloudflare/next-on-pages` build all green. Bundle deltas: homepage 1.51→2.16 kB (+0.65), agent profile +0.18 kB, all others within ±0.1 kB.
+- **What changed since last session:** Same calendar day (2026-04-30). This entry succeeds the wrap-up batch entry below — which had declared the autonomous-work wall hit. PO unblocked it by rotating the 21st.dev key, which both moved one PO action off the list AND opened the polish phase.
+- **Polish phase status:** Batch 1 complete (5 highest-visibility surfaces). Magic MCP activates next session (PO relaunch + approval). Next batches once MCP is live: search/filter sidebar, listing detail page hero, signin/signup auth pages, dashboard listings table.
+- **Pending PO unblocks (3 of 4 remain):**
+  1. Resend API key + DKIM/SPF/DMARC → emails actually send.
+  2. R2 enablement → image upload UI.
+  3. Soft-beta agent recruitment → first real listings.
+- **Next session should start with:** PO relaunches Claude with `TWENTY_FIRST_DEV_API_KEY` exported in shell + approves the project-scoped MCP server. Polish-phase batch 2 then targets the search/filter sidebar (currently very plain) + listing detail page hero (currently functional but flat) using Magic MCP-generated primitives composed against existing tokens. Or wait for Resend / R2 / soft-beta unblocks.
+
+---
+
 ## 2026-04-30 — Wrap-up batch: /admin/users + mobile pass + doc sync + cluster theme
 
 The autonomous-work wall. Three commits closing the slice-2/slice-3 polish loop until PO unblocks (Resend, R2, 21st.dev key rotation, soft-beta agents) arrive.
