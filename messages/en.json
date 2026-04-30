@@ -168,6 +168,7 @@
   "dashboard": {
     "navListings": "My Listings",
     "navLeads": "Leads",
+    "navSavedSearches": "Saved searches",
     "navBilling": "Billing",
     "manageBilling": "Manage billing",
     "listingsHeading": "My Listings",
@@ -347,5 +348,31 @@
       "mustAcceptTerms": "You must accept the Terms and Privacy Policy.",
       "generic": "Something went wrong. Try again."
     }
+  },
+  "savedSearches": {
+    "heading": "Saved searches",
+    "empty": "You haven't saved any searches yet.",
+    "emptyHint": "On the search page, click \"Save this search\" to get email alerts when matching listings are published.",
+    "browseCta": "Browse listings",
+    "savedOn": "Saved {date}",
+    "filterCity": "City: {city}",
+    "filterTransaction": "Type: {type}",
+    "filterPriceRange": "Price: {min}–{max}",
+    "filterMinPrice": "Min price: {min}",
+    "filterMaxPrice": "Max price: {max}",
+    "filterBedsMin": "Bedrooms: {beds}+",
+    "filterKeyword": "Keyword: \"{q}\"",
+    "viewResults": "View results",
+    "deleteCta": "Delete",
+    "alertsOn": "Email alerts on",
+    "alertsOff": "Email alerts off",
+    "alertsToggleOn": "Turn alerts on",
+    "alertsToggleOff": "Turn alerts off",
+    "saveButtonIdle": "Save this search",
+    "saveButtonSaving": "Saving…",
+    "saveButtonSaved": "Saved ✓",
+    "saveButtonAuth": "Sign in to save",
+    "saveButtonError": "Save failed",
+    "alertsBlocked": "Email alerts will start when AHO finishes wiring its email transport."
   }
 }

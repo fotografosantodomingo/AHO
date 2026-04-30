@@ -168,6 +168,7 @@
   "dashboard": {
     "navListings": "Mis anuncios",
     "navLeads": "Contactos",
+    "navSavedSearches": "Búsquedas guardadas",
     "navBilling": "Facturación",
     "manageBilling": "Administrar facturación",
     "listingsHeading": "Mis anuncios",
@@ -347,5 +348,31 @@
       "mustAcceptTerms": "Debes aceptar los Términos y la Política de Privacidad.",
       "generic": "Algo salió mal. Inténtalo de nuevo."
     }
+  },
+  "savedSearches": {
+    "heading": "Búsquedas guardadas",
+    "empty": "Aún no has guardado ninguna búsqueda.",
+    "emptyHint": "En la página de búsqueda, haz clic en \"Guardar esta búsqueda\" para recibir alertas por correo cuando se publiquen anuncios que coincidan.",
+    "browseCta": "Explorar anuncios",
+    "savedOn": "Guardada {date}",
+    "filterCity": "Ciudad: {city}",
+    "filterTransaction": "Tipo: {type}",
+    "filterPriceRange": "Precio: {min}–{max}",
+    "filterMinPrice": "Precio mínimo: {min}",
+    "filterMaxPrice": "Precio máximo: {max}",
+    "filterBedsMin": "Habitaciones: {beds}+",
+    "filterKeyword": "Palabra clave: \"{q}\"",
+    "viewResults": "Ver resultados",
+    "deleteCta": "Eliminar",
+    "alertsOn": "Alertas por correo activadas",
+    "alertsOff": "Alertas por correo desactivadas",
+    "alertsToggleOn": "Activar alertas",
+    "alertsToggleOff": "Desactivar alertas",
+    "saveButtonIdle": "Guardar esta búsqueda",
+    "saveButtonSaving": "Guardando…",
+    "saveButtonSaved": "Guardada ✓",
+    "saveButtonAuth": "Inicia sesión para guardar",
+    "saveButtonError": "Error al guardar",
+    "alertsBlocked": "Las alertas por correo empezarán cuando AHO termine de configurar su transporte de email."
   }
 }

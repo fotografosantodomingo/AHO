@@ -78,6 +78,15 @@ export const PATHNAMES = {
     en: '/dashboard/leads',
     es: '/panel/contactos',
   },
+  // Saved searches — top-level (NOT inside /dashboard) because they're a
+  // buyer feature: anyone with an account can save filters, regardless of
+  // whether they have an Agent subscription. Putting this under
+  // /dashboard/* would trip the layout's org-membership redirect to
+  // /pricing for non-agent buyers.
+  '/saved-searches': {
+    en: '/saved-searches',
+    es: '/busquedas-guardadas',
+  },
   '/onboarding/welcome': {
     en: '/onboarding/welcome',
     es: '/inicio/bienvenida',

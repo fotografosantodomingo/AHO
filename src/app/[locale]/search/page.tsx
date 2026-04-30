@@ -8,6 +8,8 @@ import {
 } from '@/lib/listings/search';
 import { ListingCard } from '@/components/listings/listing-card';
 import { SearchFilters } from '@/components/listings/search-filters';
+import { SaveSearchButton } from '@/components/saved-searches/save-search-button';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 export const runtime = 'edge';
 
@@ -43,6 +45,14 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
   const t = await getTranslations({ locale, namespace: 'search' });
   const result = await searchListings(filters, typedLocale);
 
+  // Auth check for the Save Search button — we only want to expose the
+  // save action to signed-in users; anon callers see a "Sign in to save"
+  // link instead. Don't block the search page on auth — anon browse stays
+  // first-class.
+  const supabase = await createServerSupabaseClient();
+  const { data: userResult } = await supabase.auth.getUser();
+  const isAuthenticated = !!userResult.user;
+
   const prevHref =
     filters.page > 1
       ? buildSearchUrl(typedLocale, { ...filters, page: filters.page - 1 })
@@ -53,10 +63,21 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
 
   return (
     <main className="mx-auto max-w-6xl space-y-6 px-6 py-8">
-      <header>
+      <header className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-brand text-2xl font-semibold tracking-tight md:text-[34px] md:leading-[1.18]">
           {t('heading')}
         </h1>
+        <SaveSearchButton
+          filters={{
+            q: filters.q,
+            city: filters.city,
+            transaction: filters.transaction,
+            minPrice: filters.minPrice,
+            maxPrice: filters.maxPrice,
+            bedsMin: filters.bedsMin,
+          }}
+          isAuthenticated={isAuthenticated}
+        />
       </header>
 
       <SearchFilters locale={typedLocale} filters={filters} />

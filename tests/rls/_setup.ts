@@ -160,6 +160,9 @@ export interface FixtureContext {
   // Lead fixtures (created after 0009_leads.sql is applied).
   orgALeadId: string;
   orgBLeadId: string;
+  // Saved-search fixtures (created after 0010_saved_searches.sql is applied).
+  registeredASavedSearchId: string;
+  registeredBSavedSearchId: string;
 }
 
 let cachedContext: FixtureContext | null = null;
@@ -286,6 +289,23 @@ export async function ensureFixtures(): Promise<FixtureContext> {
     message: 'Fixture lead attributed to Org B.',
   });
 
+  // 8. Saved-search fixtures — one per registered fixture user. Inserted
+  //    via service role (admin client bypasses RLS) so we have known
+  //    rows to assert against; the production INSERT path goes through
+  //    user-context with the saved_searches_owner_insert policy.
+  const registeredAId = await profileIdByEmail(a, FIXTURE_USERS.registered_a.email);
+  const registeredBId = await profileIdByEmail(a, FIXTURE_USERS.registered_b.email);
+  const registeredASavedSearchId = await ensureSavedSearch(a, {
+    userId: registeredAId,
+    name: 'Fixture A — Santo Domingo apartments',
+    filters: { city: 'Santo Domingo', transaction: 'sale', bedsMin: 2 },
+  });
+  const registeredBSavedSearchId = await ensureSavedSearch(a, {
+    userId: registeredBId,
+    name: 'Fixture B — Punta Cana rentals',
+    filters: { city: 'Punta Cana', transaction: 'rent' },
+  });
+
   cachedContext = {
     orgAId: orgA,
     orgBId: orgB,
@@ -299,8 +319,42 @@ export async function ensureFixtures(): Promise<FixtureContext> {
     orgADraftListingImageId: draftImageId,
     orgALeadId,
     orgBLeadId,
+    registeredASavedSearchId,
+    registeredBSavedSearchId,
   };
   return cachedContext;
+}
+
+interface SavedSearchFixtureSpec {
+  userId: string;
+  name: string;
+  filters: Record<string, unknown>;
+}
+
+async function ensureSavedSearch(
+  a: SupabaseClient,
+  spec: SavedSearchFixtureSpec,
+): Promise<string> {
+  const existing = await a
+    .from('saved_searches')
+    .select('id')
+    .eq('user_id', spec.userId)
+    .eq('name', spec.name)
+    .maybeSingle();
+  if (existing.data) return existing.data.id as string;
+  const created = await a
+    .from('saved_searches')
+    .insert({
+      user_id: spec.userId,
+      name: spec.name,
+      filters: spec.filters,
+      locale: 'en',
+      notify_email: true,
+    })
+    .select('id')
+    .single();
+  if (created.error) throw created.error;
+  return created.data.id as string;
 }
 
 interface LeadFixtureSpec {
