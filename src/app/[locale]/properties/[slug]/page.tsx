@@ -144,33 +144,39 @@ export default async function PropertyDetailPage({
         {usingFallback && (
           <div
             role="status"
-            className="mb-6 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200"
+            className="mb-6 rounded-card border border-warn/30 bg-warn-bg/40 px-4 py-3 text-sm text-warn dark:border-warn/40"
           >
             {t('translationPending')}
           </div>
         )}
 
-        <header className="space-y-2">
-          <p className="text-sm uppercase tracking-wide text-zinc-500">
+        <header className="space-y-3">
+          <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
             {transactionLabel} · {property.city}, {property.countryCode}
           </p>
-          <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">{title}</h1>
-          <p className="text-2xl font-semibold">
+          <h1 className="font-brand text-3xl font-semibold tracking-tight md:text-[42px] md:leading-[1.19]">
+            {title}
+          </h1>
+          <p className="font-brand text-2xl font-bold">
             {price}
-            {periodLabel ? <span className="text-base font-normal text-zinc-500"> {periodLabel}</span> : null}
+            {periodLabel ? (
+              <span className="text-base font-normal text-helper"> {periodLabel}</span>
+            ) : null}
           </p>
         </header>
 
-        <dl className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <dl className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
           {property.bedrooms != null && (
             <div>
-              <dt className="text-xs uppercase text-zinc-500">{t('bedrooms_other', { count: property.bedrooms })}</dt>
+              <dt className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+                {t('bedrooms_other', { count: property.bedrooms })}
+              </dt>
               <dd className="text-lg font-medium">{property.bedrooms}</dd>
             </div>
           )}
           {property.bathrooms != null && (
             <div>
-              <dt className="text-xs uppercase text-zinc-500">
+              <dt className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
                 {t('bathrooms_other', { count: Math.ceil(property.bathrooms) })}
               </dt>
               <dd className="text-lg font-medium">{property.bathrooms}</dd>
@@ -178,20 +184,22 @@ export default async function PropertyDetailPage({
           )}
           {property.areaSqm != null && (
             <div>
-              <dt className="text-xs uppercase text-zinc-500">m²</dt>
+              <dt className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+                m²
+              </dt>
               <dd className="text-lg font-medium">{t('areaSqm', { value: property.areaSqm })}</dd>
             </div>
           )}
         </dl>
 
         {description && (
-          <section className="mt-8 prose prose-zinc max-w-none dark:prose-invert">
+          <section className="mt-10 max-w-none leading-relaxed">
             <p className="whitespace-pre-line">{description}</p>
           </section>
         )}
 
         {property.neighborhood && (
-          <section className="mt-8 text-sm text-zinc-600 dark:text-zinc-400">
+          <section className="mt-8 text-sm text-helper">
             {property.neighborhood}, {property.city}
             {property.displayAddress && property.addressLine && ` — ${property.addressLine}`}
           </section>
@@ -203,23 +211,21 @@ export default async function PropertyDetailPage({
             email/phone directly). */}
         <section
           aria-labelledby="contact-heading"
-          className="mt-12 grid gap-6 rounded-md border border-zinc-200 p-6 dark:border-zinc-800 md:grid-cols-2"
+          className="mt-12 grid gap-6 rounded-card border border-border bg-surface p-6 shadow-whisper dark:bg-surface-deep md:grid-cols-2"
         >
           <div>
-            <h2 id="contact-heading" className="text-xl font-semibold">
+            <h2 id="contact-heading" className="font-brand text-xl font-bold">
               {t('contactAgent')}
             </h2>
             {contact?.orgName && (
-              <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                {contact.orgName}
-              </p>
+              <p className="mt-1 text-sm text-helper">{contact.orgName}</p>
             )}
             {whatsappLink && (
               <a
                 href={whatsappLink}
                 rel="noopener noreferrer"
                 target="_blank"
-                className="mt-4 inline-flex h-10 items-center rounded-md border border-emerald-600 bg-emerald-50 px-4 text-sm font-medium text-emerald-900 hover:bg-emerald-100 dark:border-emerald-500 dark:bg-emerald-950/40 dark:text-emerald-100 dark:hover:bg-emerald-950/60"
+                className="mt-4 inline-flex h-10 items-center rounded-lg border border-emerald-600 bg-emerald-50 px-4 text-sm font-medium text-emerald-900 shadow-whisper transition hover:bg-emerald-100 dark:border-emerald-500 dark:bg-emerald-950/40 dark:text-emerald-100 dark:hover:bg-emerald-950/60"
               >
                 {t('chatOnWhatsapp')}
               </a>
@@ -231,7 +237,7 @@ export default async function PropertyDetailPage({
         {/* Footer alternates — useful for crawlers that may not parse hreflang
             from the head, plus a usability cue if the user lands on the
             "wrong" locale. */}
-        <footer className="mt-16 border-t border-zinc-200 pt-6 text-xs text-zinc-500 dark:border-zinc-800">
+        <footer className="mt-16 border-t border-border pt-6 text-xs text-helper">
           {urls.en && urls.es && (
             <p>
               <a className="underline" href={typedLocale === 'es' ? urls.en : urls.es}>

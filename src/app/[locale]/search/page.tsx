@@ -54,19 +54,21 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
   return (
     <main className="mx-auto max-w-6xl space-y-6 px-6 py-8">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight">{t('heading')}</h1>
+        <h1 className="font-brand text-2xl font-semibold tracking-tight md:text-[34px] md:leading-[1.18]">
+          {t('heading')}
+        </h1>
       </header>
 
       <SearchFilters locale={typedLocale} filters={filters} />
 
       {result.listings.length === 0 ? (
-        <div className="rounded-md border border-dashed border-zinc-300 p-10 text-center text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
+        <div className="rounded-card border border-dashed border-border-strong/60 p-10 text-center text-sm text-ink-muted dark:text-ink-inverse-muted">
           <p>{t('noResults')}</p>
-          <p className="mt-2 text-xs text-zinc-500">{t('noResultsHint')}</p>
+          <p className="mt-2 text-xs text-helper">{t('noResultsHint')}</p>
         </div>
       ) : (
         <>
-          <p className="text-sm text-zinc-500">
+          <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
             {t('resultsCount_other', { count: result.listings.length })}
             {result.hasMore ? '+' : ''}
           </p>
@@ -83,12 +85,12 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
       {(prevHref || nextHref) && (
         <nav
           aria-label="Pagination"
-          className="flex items-center justify-between border-t border-zinc-200 pt-4 dark:border-zinc-800"
+          className="flex items-center justify-between border-t border-border pt-4"
         >
           {prevHref ? (
             <a
               href={prevHref}
-              className="inline-flex h-9 items-center rounded-md border border-zinc-200 px-3 text-sm hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+              className="inline-flex h-9 items-center rounded-lg border border-border-strong px-3 text-sm transition hover:bg-surface-muted dark:hover:bg-surface-dark"
             >
               {t('previousPage')}
             </a>
@@ -98,7 +100,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
           {nextHref && (
             <a
               href={nextHref}
-              className="inline-flex h-9 items-center rounded-md border border-zinc-200 px-3 text-sm hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+              className="inline-flex h-9 items-center rounded-lg border border-border-strong px-3 text-sm transition hover:bg-surface-muted dark:hover:bg-surface-dark"
             >
               {t('nextPage')}
             </a>

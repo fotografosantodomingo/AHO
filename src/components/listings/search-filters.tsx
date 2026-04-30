@@ -25,12 +25,12 @@ export async function SearchFilters({ locale, filters }: Props) {
     <form
       method="get"
       action={action}
-      className="grid gap-3 rounded-md border border-zinc-200 p-4 dark:border-zinc-800 md:grid-cols-6"
+      className="grid gap-3 rounded-card border border-border bg-surface p-4 shadow-whisper dark:bg-surface-deep md:grid-cols-6"
       role="search"
       aria-label={t('filtersHeading')}
     >
       <Field className="md:col-span-2">
-        <label htmlFor="search-q" className="block text-xs uppercase tracking-wide text-zinc-500">
+        <label htmlFor="search-q" className="block font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
           {t('queryLabel')}
         </label>
         <input
@@ -44,7 +44,7 @@ export async function SearchFilters({ locale, filters }: Props) {
       </Field>
 
       <Field>
-        <label htmlFor="search-city" className="block text-xs uppercase tracking-wide text-zinc-500">
+        <label htmlFor="search-city" className="block font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
           {t('cityLabel')}
         </label>
         <input
@@ -57,7 +57,7 @@ export async function SearchFilters({ locale, filters }: Props) {
       </Field>
 
       <Field>
-        <label htmlFor="search-transaction" className="block text-xs uppercase tracking-wide text-zinc-500">
+        <label htmlFor="search-transaction" className="block font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
           {t('transactionLabel')}
         </label>
         <select
@@ -74,7 +74,7 @@ export async function SearchFilters({ locale, filters }: Props) {
       </Field>
 
       <Field>
-        <label htmlFor="search-beds" className="block text-xs uppercase tracking-wide text-zinc-500">
+        <label htmlFor="search-beds" className="block font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
           {t('bedroomsLabel')}
         </label>
         <select
@@ -95,7 +95,7 @@ export async function SearchFilters({ locale, filters }: Props) {
       <Field>
         <label
           htmlFor="search-min-price"
-          className="block text-xs uppercase tracking-wide text-zinc-500"
+          className="block font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper"
         >
           {t('minPrice')}
         </label>
@@ -113,7 +113,7 @@ export async function SearchFilters({ locale, filters }: Props) {
       <Field>
         <label
           htmlFor="search-max-price"
-          className="block text-xs uppercase tracking-wide text-zinc-500"
+          className="block font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper"
         >
           {t('maxPrice')}
         </label>
@@ -128,16 +128,16 @@ export async function SearchFilters({ locale, filters }: Props) {
         />
       </Field>
 
-      <div className="md:col-span-6 flex items-center gap-3 border-t border-zinc-200 pt-3 dark:border-zinc-800">
+      <div className="md:col-span-6 flex items-center gap-3 border-t border-border pt-3">
         <button
           type="submit"
-          className="inline-flex h-9 items-center rounded-md bg-zinc-900 px-4 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
+          className="inline-flex h-9 items-center rounded-lg bg-surface-dark px-4 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink"
         >
           {t('applyFilters')}
         </button>
         <a
           href={action}
-          className="inline-flex h-9 items-center rounded-md border border-zinc-200 px-4 text-sm hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+          className="inline-flex h-9 items-center rounded-lg border border-border-strong bg-surface px-4 text-sm transition hover:bg-surface-muted dark:bg-surface-deep dark:hover:bg-surface-dark"
         >
           {t('clearFilters')}
         </a>
@@ -147,7 +147,7 @@ export async function SearchFilters({ locale, filters }: Props) {
 }
 
 const inputClass =
-  'mt-1 block w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:ring-zinc-100';
+  'mt-1 block w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm shadow-whisper outline-hidden focus:ring-3 focus:ring-action dark:bg-surface-deep dark:focus:ring-action-dark';
 
 function Field({ children, className }: { children: React.ReactNode; className?: string }) {
   return <div className={className}>{children}</div>;

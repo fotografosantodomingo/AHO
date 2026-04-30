@@ -19,7 +19,7 @@ const FormSchema = z.object({
 type FormValues = z.infer<typeof FormSchema>;
 
 const inputClass =
-  'mt-1 block w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:ring-zinc-100';
+  'mt-1 block w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm shadow-whisper outline-hidden focus:ring-3 focus:ring-action dark:bg-surface-deep dark:focus:ring-action-dark';
 
 const ERROR_KEYS = ['nameRequired', 'emailInvalid', 'emailRequired', 'messageRequired'] as const;
 type KnownErrorKey = (typeof ERROR_KEYS)[number];
@@ -123,7 +123,7 @@ export function ContactForm({ propertyId }: ContactFormProps) {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="inline-flex h-10 items-center rounded-md bg-zinc-900 px-4 text-sm font-medium text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+        className="inline-flex h-10 items-center rounded-lg bg-surface-dark px-4 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink disabled:opacity-50"
       >
         {isSubmitting ? t('sending') : t('send')}
       </button>
