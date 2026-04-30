@@ -151,49 +151,105 @@ export default async function AgentProfilePage({
       : {}),
   };
 
+  // Initials fallback for the logo placeholder. Two-character max.
+  const initials = result.org.name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? '')
+    .join('');
+
+  // Org-type label for the eyebrow row. The schema-org @type is already
+  // narrower; this is just the user-facing tag.
+  const orgTypeLabel =
+    result.org.type === 'agency'
+      ? typedLocale === 'es'
+        ? 'Agencia inmobiliaria'
+        : 'Real estate agency'
+      : result.org.type === 'expert'
+      ? typedLocale === 'es'
+        ? 'Experto verificado'
+        : 'Verified expert'
+      : typedLocale === 'es'
+      ? 'Agente inmobiliario'
+      : 'Real estate agent';
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <main className="mx-auto max-w-6xl space-y-10 px-6 py-12">
-        <header className="space-y-4">
-          {result.org.logoUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={result.org.logoUrl}
-              alt={`${result.org.name} logo`}
-              className="h-16 w-16 rounded-card object-cover"
-            />
-          )}
-          <div className="space-y-2">
-            <h1 className="font-brand text-3xl font-semibold tracking-tight md:text-[42px] md:leading-[1.19]">
-              {result.org.name}
-            </h1>
+      <main>
+        {/* Hero band — same dot-grid + radial-glow treatment as homepage,
+            pricing, and city landing. Logo / initials chip floats on the
+            seam with -mb-8 so listings start visually under the header. */}
+        <section className="relative overflow-hidden border-b border-border bg-surface-muted dark:bg-surface-deep">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 opacity-[0.35] dark:opacity-[0.18]"
+            style={{
+              backgroundImage:
+                'radial-gradient(rgb(97 104 117 / 0.35) 1px, transparent 1px)',
+              backgroundSize: '24px 24px',
+              maskImage:
+                'radial-gradient(ellipse 70% 50% at 50% 30%, #000 30%, transparent 75%)',
+              WebkitMaskImage:
+                'radial-gradient(ellipse 70% 50% at 50% 30%, #000 30%, transparent 75%)',
+            }}
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-24 -top-32 h-96 w-96 rounded-full bg-action/10 blur-3xl dark:bg-action-dark/15"
+          />
+          <div className="relative mx-auto max-w-6xl px-6 pb-16 pt-14 md:pb-20 md:pt-16">
             <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
-              {subheading}
+              {orgTypeLabel}
             </p>
+            <div className="mt-4 flex flex-wrap items-center gap-5">
+              {result.org.logoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={result.org.logoUrl}
+                  alt={`${result.org.name} logo`}
+                  className="h-20 w-20 rounded-card border border-border bg-surface object-cover shadow-whisper dark:bg-surface-dark"
+                />
+              ) : (
+                <div
+                  aria-hidden="true"
+                  className="flex h-20 w-20 items-center justify-center rounded-card border border-border bg-surface font-brand text-2xl font-semibold tracking-tight text-action shadow-whisper dark:bg-surface-dark dark:text-action-dark"
+                >
+                  {initials || '·'}
+                </div>
+              )}
+              <div className="min-w-0">
+                <h1 className="font-brand text-3xl font-semibold tracking-tight md:text-[42px] md:leading-[1.12]">
+                  {result.org.name}
+                </h1>
+                <p className="mt-1.5 text-sm text-helper">{subheading}</p>
+              </div>
+            </div>
+            {description && (
+              <p className="mt-6 max-w-3xl text-base text-ink-muted dark:text-ink-inverse-muted">
+                {description}
+              </p>
+            )}
+            {result.org.website && (
+              <p className="mt-5">
+                <a
+                  href={result.org.website}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  className="inline-flex items-center gap-1 text-sm text-action underline-offset-2 hover:underline dark:text-action-dark"
+                >
+                  {t('websiteCta')} →
+                </a>
+              </p>
+            )}
           </div>
-          {description && (
-            <p className="max-w-3xl text-ink-muted dark:text-ink-inverse-muted">
-              {description}
-            </p>
-          )}
-          {result.org.website && (
-            <p>
-              <a
-                href={result.org.website}
-                target="_blank"
-                rel="noopener noreferrer nofollow"
-                className="text-sm underline underline-offset-2"
-              >
-                {t('websiteCta')}
-              </a>
-            </p>
-          )}
-        </header>
+        </section>
 
+        <div className="mx-auto max-w-6xl space-y-10 px-6 py-12">
         <section aria-labelledby="listings-heading" className="space-y-4">
           <div className="flex items-baseline justify-between">
             <h2
@@ -235,6 +291,7 @@ export default async function AgentProfilePage({
             </ul>
           )}
         </section>
+        </div>
       </main>
     </>
   );

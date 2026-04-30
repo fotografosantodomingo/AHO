@@ -145,25 +145,57 @@ export default async function CityLandingPage({
   const browseAllHref = `/${locale}/${typedLocale === 'es' ? 'buscar' : 'search'}`;
   const pricingHref = `/${locale}/${typedLocale === 'es' ? 'precios' : 'pricing'}`;
 
+  const homePath = `/${locale}`;
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <main className="mx-auto max-w-6xl space-y-8 px-6 py-12">
-        <header className="space-y-3">
-          <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
-            {canonicalCountry}
-          </p>
-          <h1 className="font-brand text-3xl font-semibold tracking-tight md:text-[42px] md:leading-[1.19]">
-            {t('headingTemplate', { city: canonicalCity, country: canonicalCountry })}
-          </h1>
-          <p className="max-w-2xl text-ink-muted dark:text-ink-inverse-muted">
-            {t('subheading', { city: canonicalCity })}
-          </p>
-        </header>
+      <main>
+        {/* Hero band — dot-grid + soft action-color glow, same treatment as
+            homepage and pricing. Breadcrumb sits above the H1 for easy
+            wayfinding back up the geography hierarchy. */}
+        <section className="relative overflow-hidden border-b border-border bg-surface-muted dark:bg-surface-deep">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 opacity-[0.35] dark:opacity-[0.18]"
+            style={{
+              backgroundImage:
+                'radial-gradient(rgb(97 104 117 / 0.35) 1px, transparent 1px)',
+              backgroundSize: '24px 24px',
+              maskImage:
+                'radial-gradient(ellipse 70% 50% at 50% 30%, #000 30%, transparent 75%)',
+              WebkitMaskImage:
+                'radial-gradient(ellipse 70% 50% at 50% 30%, #000 30%, transparent 75%)',
+            }}
+          />
+          <div className="relative mx-auto max-w-6xl px-6 py-14 md:py-16">
+            <nav
+              aria-label="Breadcrumb"
+              className="mb-4 flex items-center gap-1.5 text-xs text-helper"
+            >
+              <Link href={homePath} className="hover:text-action dark:hover:text-action-dark">
+                AHO
+              </Link>
+              <span aria-hidden="true">/</span>
+              <span>{canonicalCountry}</span>
+              <span aria-hidden="true">/</span>
+              <span className="font-medium text-ink dark:text-ink-inverse">
+                {canonicalCity}
+              </span>
+            </nav>
+            <h1 className="font-brand text-3xl font-semibold tracking-tight md:text-[44px] md:leading-[1.12]">
+              {t('headingTemplate', { city: canonicalCity, country: canonicalCountry })}
+            </h1>
+            <p className="mt-4 max-w-2xl text-base text-ink-muted dark:text-ink-inverse-muted">
+              {t('subheading', { city: canonicalCity })}
+            </p>
+          </div>
+        </section>
 
+        <div className="mx-auto max-w-6xl space-y-8 px-6 py-12">
         {result.listings.length === 0 ? (
           <section className="rounded-card border border-dashed border-border-strong/60 p-12 text-center">
             <h2 className="font-brand text-xl font-bold">
@@ -214,6 +246,7 @@ export default async function CityLandingPage({
             )}
           </>
         )}
+        </div>
       </main>
     </>
   );
