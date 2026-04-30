@@ -132,12 +132,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Property listings — only active+published. RLS public-read policy
   // already filters to those, but we double-check in the where clause to
   // be defensive (no surprises if policies change).
+  //
+  // Test-fixture exclusion: per CLAUDE.md "Local-dev quirks", RLS test
+  // fixtures live in the production Supabase project until a dedicated
+  // test project exists. They have org slugs prefixed `aho-test-org-`
+  // and listing slugs prefixed `aho-fixture-`. We must NOT surface them
+  // to crawlers (CLAUDE.md hard rule #8: no fake data in user-facing
+  // contexts; sitemap.xml is user-facing — Google's the user). Filter at
+  // both layers as belt-and-suspenders.
   const supabase = await createServerSupabaseClient();
   const { data: rows, error } = await supabase
     .from('properties')
-    .select('short_id, slug_en, slug_es, updated_at, published_at, status')
+    .select(
+      'short_id, slug_en, slug_es, updated_at, published_at, status, organizations!inner(slug)',
+    )
     .eq('status', 'active')
     .not('published_at', 'is', null)
+    .not('organizations.slug', 'like', 'aho-test-org-%')
     .limit(50_000); // sitemap protocol cap is 50k URLs per file
 
   if (error || !rows) {
@@ -146,6 +157,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const listings: MetadataRoute.Sitemap = [];
   for (const row of rows) {
+    // Belt-and-suspenders: even if the org-slug filter misbehaves under
+    // some future PostgREST version, drop anything that *looks* like a
+    // fixture by listing slug.
+    if (
+      row.slug_en?.startsWith('aho-fixture-') ||
+      row.slug_es?.startsWith('aho-fixture-')
+    ) {
+      continue;
+    }
     const enUrl = row.slug_en
       ? `${site}/en/properties/${row.slug_en}-${row.short_id}`
       : null;
