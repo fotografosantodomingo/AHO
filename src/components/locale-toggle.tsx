@@ -37,7 +37,7 @@ export function LocaleToggle() {
         value={locale}
         onChange={(e) => switchTo(e.target.value as Locale)}
         disabled={isPending}
-        className="h-9 rounded-md border border-zinc-200 bg-transparent px-2 text-sm dark:border-zinc-800"
+        className="h-9 rounded-lg border border-border-strong bg-transparent px-2 text-sm"
       >
         {LOCALES.map((l) => (
           <option key={l} value={l}>

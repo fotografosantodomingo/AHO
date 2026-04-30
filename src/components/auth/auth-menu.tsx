@@ -28,7 +28,7 @@ export async function AuthMenu({ locale }: { locale: Locale }) {
           {t('signInCta')}
         </a>
         <a
-          className="inline-flex h-9 items-center rounded-md bg-zinc-900 px-3 font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
+          className="inline-flex h-9 items-center rounded-lg bg-surface-dark px-3 font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink"
           href={`/${locale}/${locale === 'es' ? 'registrarse' : 'signup'}`}
         >
           {t('signUpCta')}
@@ -40,7 +40,7 @@ export async function AuthMenu({ locale }: { locale: Locale }) {
   return (
     <div className="flex items-center gap-3 text-sm">
       <span
-        className="max-w-[16ch] truncate text-zinc-600 dark:text-zinc-400"
+        className="max-w-[16ch] truncate text-helper"
         title={user.email ?? ''}
       >
         {user.email}

@@ -49,10 +49,7 @@ export function PricingForm() {
   return (
     <form onSubmit={onSubmit} className="space-y-6">
       <div>
-        <label
-          htmlFor="org-name"
-          className="block text-sm font-medium text-zinc-900 dark:text-zinc-100"
-        >
+        <label htmlFor="org-name" className="block text-sm font-medium">
           {t('orgNameLabel')}
         </label>
         <input
@@ -64,18 +61,16 @@ export function PricingForm() {
           maxLength={120}
           value={orgName}
           onChange={(e) => setOrgName(e.target.value)}
-          className="mt-1 block w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:ring-zinc-100"
+          className="mt-1 block w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm shadow-whisper outline-hidden focus:ring-3 focus:ring-action dark:bg-surface-deep dark:focus:ring-action-dark"
         />
-        <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-          {t('orgNameHelp')}
-        </p>
+        <p className="mt-1 text-xs text-helper">{t('orgNameHelp')}</p>
       </div>
 
       <fieldset className="space-y-2">
-        <legend className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+        <legend className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
           {t('agentPlanName')}
         </legend>
-        <label className="flex cursor-pointer items-start gap-3 rounded-md border border-zinc-200 bg-white p-3 has-[input:checked]:border-zinc-900 dark:border-zinc-800 dark:bg-zinc-950 dark:has-[input:checked]:border-zinc-100">
+        <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-border bg-surface p-3 shadow-whisper has-[input:checked]:border-ink dark:bg-surface-deep dark:has-[input:checked]:border-ink-inverse">
           <input
             type="radio"
             name="plan"
@@ -86,15 +81,13 @@ export function PricingForm() {
           />
           <span className="flex-1">
             <span className="block text-sm font-medium">{t('monthly')}</span>
-            <span className="block text-sm text-zinc-600 dark:text-zinc-400">
+            <span className="block text-sm text-ink-muted dark:text-ink-inverse-muted">
               {t('monthlyPrice')}
             </span>
-            <span className="mt-1 block text-xs text-zinc-500 dark:text-zinc-400">
-              {t('trialNote')}
-            </span>
+            <span className="mt-1 block text-xs text-helper">{t('trialNote')}</span>
           </span>
         </label>
-        <label className="flex cursor-pointer items-start gap-3 rounded-md border border-zinc-200 bg-white p-3 has-[input:checked]:border-zinc-900 dark:border-zinc-800 dark:bg-zinc-950 dark:has-[input:checked]:border-zinc-100">
+        <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-border bg-surface p-3 shadow-whisper has-[input:checked]:border-ink dark:bg-surface-deep dark:has-[input:checked]:border-ink-inverse">
           <input
             type="radio"
             name="plan"
@@ -105,12 +98,10 @@ export function PricingForm() {
           />
           <span className="flex-1">
             <span className="block text-sm font-medium">{t('annual')}</span>
-            <span className="block text-sm text-zinc-600 dark:text-zinc-400">
+            <span className="block text-sm text-ink-muted dark:text-ink-inverse-muted">
               {t('annualPrice')}
             </span>
-            <span className="mt-1 block text-xs text-zinc-500 dark:text-zinc-400">
-              {t('annualSavings')}
-            </span>
+            <span className="mt-1 block text-xs text-helper">{t('annualSavings')}</span>
           </span>
         </label>
       </fieldset>
@@ -118,7 +109,7 @@ export function PricingForm() {
       <button
         type="submit"
         disabled={loading || orgName.trim().length < 2}
-        className="inline-flex w-full items-center justify-center rounded-md bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white transition disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+        className="inline-flex w-full items-center justify-center rounded-lg bg-surface-dark px-5 py-2.5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink disabled:opacity-50"
       >
         {loading ? t('redirecting') : submitLabel}
       </button>

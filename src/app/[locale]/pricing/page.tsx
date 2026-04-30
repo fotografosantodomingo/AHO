@@ -79,18 +79,18 @@ export default async function PricingPage({
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
       <header className="text-center">
-        <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
+        <h1 className="font-brand text-3xl font-semibold tracking-tight md:text-[42px] md:leading-[1.19]">
           {t('heading')}
         </h1>
-        <p className="mt-3 text-zinc-600 dark:text-zinc-400">{t('subheading')}</p>
+        <p className="mt-3 text-ink-muted dark:text-ink-inverse-muted">{t('subheading')}</p>
       </header>
 
-      <section className="mt-10 rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
+      <section className="mt-10 rounded-card border border-border bg-surface p-6 shadow-whisper dark:bg-surface-deep">
         <div className="flex items-baseline justify-between gap-4">
-          <h2 className="text-xl font-semibold">{t('agentPlanName')}</h2>
+          <h2 className="font-brand text-xl font-bold">{t('agentPlanName')}</h2>
           <div className="text-right">
             <div className="text-sm">{t('monthlyPrice')}</div>
-            <div className="text-xs text-zinc-500 dark:text-zinc-400">
+            <div className="text-xs text-helper">
               {t('annualPrice')} · {t('annualSavings')}
             </div>
           </div>
@@ -98,8 +98,8 @@ export default async function PricingPage({
 
         <ul className="mt-5 space-y-2 text-sm">
           {features.map((key) => (
-            <li key={key} className="flex gap-2 text-zinc-700 dark:text-zinc-300">
-              <span aria-hidden="true" className="text-zinc-400">
+            <li key={key} className="flex gap-2">
+              <span aria-hidden="true" className="text-helper">
                 ✓
               </span>
               <span>{t(`features.${key}`)}</span>
@@ -107,28 +107,26 @@ export default async function PricingPage({
           ))}
         </ul>
 
-        <div className="mt-8 border-t border-zinc-200 pt-6 dark:border-zinc-800">
+        <div className="mt-8 border-t border-border pt-6">
           {!user ? (
             <a
               href={`${signInPath}?next=${encodeURIComponent(pricingPath)}`}
-              className="inline-flex w-full items-center justify-center rounded-md bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
+              className="inline-flex w-full items-center justify-center rounded-lg bg-surface-dark px-5 py-2.5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink"
             >
               {t('needsSignIn')}
             </a>
           ) : hasMembership ? (
             <div className="space-y-3 text-sm">
-              <p className="text-zinc-700 dark:text-zinc-300">
-                {t('alreadySubscribed')}
-              </p>
+              <p>{t('alreadySubscribed')}</p>
               <div className="flex flex-col gap-2 sm:flex-row">
                 <a
                   href={dashboardPath}
-                  className="inline-flex flex-1 items-center justify-center rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium dark:border-zinc-700"
+                  className="inline-flex flex-1 items-center justify-center rounded-lg border border-border-strong px-4 py-2 text-sm font-medium transition hover:bg-surface-muted dark:hover:bg-surface-dark"
                 >
                   {t('openDashboard')}
                 </a>
                 <div className="flex-1">
-                  <BillingPortalButton className="block w-full rounded-md bg-zinc-900 px-4 py-2 text-center text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900" />
+                  <BillingPortalButton className="block w-full rounded-lg bg-surface-dark px-4 py-2 text-center text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink" />
                 </div>
               </div>
             </div>

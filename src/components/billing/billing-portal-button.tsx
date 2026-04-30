@@ -35,7 +35,7 @@ export function BillingPortalButton({ className }: { className?: string }) {
         disabled={loading}
         className={
           className ??
-          'block w-full rounded-md px-3 py-2 text-left text-sm hover:bg-zinc-100 disabled:opacity-50 dark:hover:bg-zinc-900'
+          'block w-full rounded-lg px-3 py-2 text-left text-sm transition hover:bg-surface-muted disabled:opacity-50 dark:hover:bg-surface-dark'
         }
       >
         {loading ? '…' : t('navBilling')}

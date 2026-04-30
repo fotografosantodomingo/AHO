@@ -22,13 +22,13 @@ export function ThemeToggle() {
     return (
       <div
         aria-hidden="true"
-        className="inline-flex h-9 w-[8.5rem] items-center rounded-md border border-zinc-200 dark:border-zinc-800"
+        className="inline-flex h-9 w-[8.5rem] items-center rounded-lg border border-border-strong"
       />
     );
   }
 
   return (
-    <fieldset className="inline-flex items-center rounded-md border border-zinc-200 dark:border-zinc-800">
+    <fieldset className="inline-flex items-center rounded-lg border border-border-strong">
       <legend className="sr-only">{t('label')}</legend>
       <button
         type="button"
@@ -37,7 +37,7 @@ export function ThemeToggle() {
         title={t('light')}
         onClick={() => setTheme('light')}
         className={`inline-flex h-9 w-9 items-center justify-center text-sm ${
-          theme === 'light' ? 'bg-zinc-100 dark:bg-zinc-800' : ''
+          theme === 'light' ? 'bg-surface-muted dark:bg-surface-dark' : ''
         }`}
       >
         <Sun aria-hidden="true" className="h-4 w-4" />
@@ -49,7 +49,7 @@ export function ThemeToggle() {
         title={t('system')}
         onClick={() => setTheme('system')}
         className={`inline-flex h-9 w-9 items-center justify-center text-sm ${
-          theme === 'system' ? 'bg-zinc-100 dark:bg-zinc-800' : ''
+          theme === 'system' ? 'bg-surface-muted dark:bg-surface-dark' : ''
         }`}
       >
         <Monitor aria-hidden="true" className="h-4 w-4" />
@@ -61,7 +61,7 @@ export function ThemeToggle() {
         title={t('dark')}
         onClick={() => setTheme('dark')}
         className={`inline-flex h-9 w-9 items-center justify-center text-sm ${
-          theme === 'dark' ? 'bg-zinc-100 dark:bg-zinc-800' : ''
+          theme === 'dark' ? 'bg-surface-muted dark:bg-surface-dark' : ''
         }`}
       >
         <Moon aria-hidden="true" className="h-4 w-4" />

@@ -9,7 +9,7 @@ import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { ResetPasswordSchema, type ResetPasswordInput } from '@/lib/auth/schemas';
 
 const inputClass =
-  'mt-1 block w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:ring-zinc-100';
+  'mt-1 block w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm shadow-whisper outline-hidden focus:ring-3 focus:ring-action dark:bg-surface-deep dark:focus:ring-action-dark';
 
 const ERROR_KEYS = ['min8', 'needsUppercase', 'needsNumber'] as const;
 type KnownErrorKey = (typeof ERROR_KEYS)[number];
@@ -65,16 +65,18 @@ export function ResetPasswordForm() {
   }
 
   if (hasSession === null) {
-    return <div className="text-sm text-zinc-500">…</div>;
+    return <div className="text-sm text-helper">…</div>;
   }
 
   if (!hasSession) {
     const forgotPath = `/${locale}/${locale === 'es' ? 'recuperar-contrasena' : 'forgot-password'}`;
     return (
       <div role="status" className="space-y-3">
-        <p className="text-sm text-zinc-700 dark:text-zinc-300">{tReset('noSession')}</p>
+        <p className="text-sm text-ink-muted dark:text-ink-inverse-muted">
+          {tReset('noSession')}
+        </p>
         <a
-          className="inline-flex h-9 items-center rounded-md border border-zinc-200 px-3 text-sm hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+          className="inline-flex h-9 items-center rounded-lg border border-border-strong px-3 text-sm transition hover:bg-surface-muted dark:hover:bg-surface-dark"
           href={forgotPath}
         >
           {tReset('requestNewLink')}
@@ -113,7 +115,7 @@ export function ResetPasswordForm() {
           {...register('password')}
           className={inputClass}
         />
-        <p id="password-help" className="mt-1 text-xs text-zinc-500">
+        <p id="password-help" className="mt-1 text-xs text-helper">
           {t('passwordHelp')}
         </p>
         {passwordErr && (
@@ -128,7 +130,7 @@ export function ResetPasswordForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+        className="w-full rounded-lg bg-surface-dark px-4 py-2.5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink disabled:opacity-50"
       >
         {isSubmitting ? tReset('submitting') : tReset('submit')}
       </button>
