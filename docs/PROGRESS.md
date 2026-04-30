@@ -12,6 +12,21 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-30 — Admin moderation surface (slice-2 #3 of 5 surfaces)
+- **What shipped (1 commit, deployed):**
+  - **`/{locale}/admin`** at `src/app/[locale]/admin/page.tsx` — Server Component, Edge runtime, force-dynamic. Internal moderation page; same path in both locales (admin = us, not localized). Auth gate redirects unauth users to signin and non-admins to the agent dashboard. `robots: noindex, nofollow`.
+  - Status filter tabs (All / Active / Draft / Pending / Archived); listings table across all orgs with Title + short_id, Org (linked to `/agents/{slug}`), status badge, City + country, Price, Image count, Updated date, Archive button.
+  - **Server actions** at `src/lib/admin/actions.ts` — `archiveListing(id)` sets `status='archived'`; `unarchiveListing(id)` reverts to `draft`. Both call `requireAdmin()` (session + `is_admin` profile lookup); RLS `properties_admin_update` is the second-layer defense per CLAUDE.md hard rule #4.
+  - **`<ArchiveButton>`** Client Component with `useTransition` pending state, `confirm()` dialog on archive, distinct visual states for archived (Unarchive pill) vs. active (warning-toned Archive button).
+  - **`robots.ts` updated** to disallow `/en/admin` and `/es/admin` explicitly. Sitemap doesn't list it (only marketing + active properties go there).
+  - **Fixture-exclusion intentionally NOT applied** here — admins SHOULD see fixture rows during dev. Public surfaces (sitemap, city landing, agent profiles) all filter fixtures correctly.
+- **Verified live:** `/en/admin` (anonymous) → HTTP 307 (redirected to signin); robots.txt now lists `/en/admin` + `/es/admin` under Disallow. The full table will populate the moment a real admin user is provisioned.
+- **What changed since last session:** Same calendar day. This entry succeeds the agent-profile entry below.
+- **Slice 2 status:** **~15%** — three of five surfaces live (city landing, agent profile, admin). Lead inbox already shipped in slice 1. Remaining: saved searches + email alerts (waits for Resend), search/filter/map with PostGIS (bigger feature; needs a map provider).
+- **Next session should start with:** the polish-phase setup once 21st.dev key is rotated and pasted into `.env.local`, OR start the search-map work (PostGIS-backed filtered map view), OR scaffold saved-searches infra (DB schema + dashboard list view; the email-alert worker waits for Resend).
+
+---
+
 ## 2026-04-30 — Agent profile pages + future-polish-phase decision logged
 - **What shipped (1 commit, deployed):**
   - **`/{locale}/agents/{slug}`** at `src/app/[locale]/agents/[slug]/page.tsx` — Server Component, Edge runtime, force-dynamic. Public profile per organization showing name, location (`Intl.DisplayNames`-localized country + headquarters city), description (locale-preferred → fallback), optional logo + website link, and the org's active+published listings. Empty state when an org has no live listings (still 200 — same pattern as city landing).
