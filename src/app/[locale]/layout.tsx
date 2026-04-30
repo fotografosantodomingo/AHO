@@ -109,7 +109,12 @@ export default async function LocaleLayout({
                 <div className="flex items-center gap-3">
                   <AuthMenu locale={locale as Locale} />
                   <LocaleToggle />
-                  <ThemeToggle />
+                  {/* Theme toggle is a 3-button group (~136px wide) — hide
+                      on narrow viewports where the header gets cramped.
+                      Theme is a "set once" preference so this is safe. */}
+                  <span className="hidden sm:inline-flex">
+                    <ThemeToggle />
+                  </span>
                 </div>
               </div>
             </header>

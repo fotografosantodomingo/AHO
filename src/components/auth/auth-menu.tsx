@@ -55,12 +55,16 @@ export async function AuthMenu({ locale }: { locale: Locale }) {
 
   return (
     <div className="flex items-center gap-3 text-sm">
+      {/* Secondary links hidden below `sm:` — header gets cramped on narrow
+          viewports. Both surfaces are still reachable from the dashboard
+          sidebar (when hasOrg) or the AuthMenu's "Saved searches" link
+          on `sm+`. Mobile gets the essential: just Sign out. */}
       {hasOrg && (
-        <a className="hover:underline" href={dashboardHref}>
+        <a className="hidden hover:underline sm:inline" href={dashboardHref}>
           {tDashboard('navListings')}
         </a>
       )}
-      <a className="hover:underline" href={savedSearchesHref}>
+      <a className="hidden hover:underline sm:inline" href={savedSearchesHref}>
         {tDashboard('navSavedSearches')}
       </a>
       <span

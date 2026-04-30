@@ -59,24 +59,31 @@ export default async function DashboardLayout({
   }`;
 
   return (
-    <div className="mx-auto grid max-w-6xl grid-cols-[14rem_1fr] gap-8 px-6 py-8">
-      <aside className="border-r border-border pr-4">
-        <nav className="space-y-1 text-sm">
+    <div className="mx-auto grid max-w-6xl gap-6 px-6 py-8 md:grid-cols-[14rem_1fr] md:gap-8">
+      {/* Sidebar nav. On mobile (< md): horizontal scrollable row with no
+          right border (the divider would float at an awkward height when
+          the layout is stacked). On md+: fixed 14rem left column with a
+          right border separating from content. */}
+      <aside className="border-b border-border pb-3 md:border-b-0 md:border-r md:pb-0 md:pr-4">
+        <nav
+          className="flex gap-1 overflow-x-auto text-sm md:flex-col md:space-y-1 md:overflow-x-visible"
+          aria-label="Dashboard sections"
+        >
           <a
             href={propertiesPath}
-            className="block rounded-lg px-3 py-2 transition hover:bg-surface-muted dark:hover:bg-surface-dark"
+            className="shrink-0 rounded-lg px-3 py-2 transition hover:bg-surface-muted dark:hover:bg-surface-dark md:block"
           >
             {t('navListings')}
           </a>
           <a
             href={leadsPath}
-            className="block rounded-lg px-3 py-2 transition hover:bg-surface-muted dark:hover:bg-surface-dark"
+            className="shrink-0 rounded-lg px-3 py-2 transition hover:bg-surface-muted dark:hover:bg-surface-dark md:block"
           >
             {t('navLeads')}
           </a>
           <a
             href={savedSearchesPath}
-            className="block rounded-lg px-3 py-2 transition hover:bg-surface-muted dark:hover:bg-surface-dark"
+            className="shrink-0 rounded-lg px-3 py-2 transition hover:bg-surface-muted dark:hover:bg-surface-dark md:block"
           >
             {t('navSavedSearches')}
           </a>
