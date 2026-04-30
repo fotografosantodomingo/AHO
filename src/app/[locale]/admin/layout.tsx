@@ -64,6 +64,7 @@ export default async function AdminLayout({
     { href: `/${locale}/admin`, label: 'Listings' },
     { href: `/${locale}/admin/orgs`, label: 'Orgs' },
     { href: `/${locale}/admin/leads`, label: 'Leads' },
+    { href: `/${locale}/admin/users`, label: 'Users' },
   ];
 
   return (

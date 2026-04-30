@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 /**
  * Admin moderation actions for the `/admin` surface.
@@ -85,5 +86,59 @@ export async function unarchiveListing(propertyId: string): Promise<{
   }
 
   revalidatePath('/[locale]/admin', 'page');
+  return { ok: true };
+}
+
+/**
+ * Promote a user to admin / demote an existing admin.
+ *
+ * `is_admin` is trigger-protected against user-context updates (see
+ * migration 0002 — the `protect_admin_role` trigger refuses to change
+ * `is_admin` / `admin_role` from a non-service-role session). So these
+ * actions go through the SERVICE-ROLE client.
+ *
+ * Self-protection: an admin can't demote themselves. Without this,
+ * the only platform admin could lock the entire org out of admin
+ * powers in a single click — recoverable only by a manual SQL update
+ * to the production database. The "you can't demote yourself" rule
+ * is the cheapest possible guardrail.
+ *
+ * Promote requires a current admin (by virtue of requireAdmin()).
+ * There's no way to bootstrap the FIRST admin from this surface;
+ * that's a manual SQL update on first deploy (per HANDOFF.md §5).
+ */
+export async function setUserAdmin(
+  userId: string,
+  makeAdmin: boolean,
+): Promise<{ ok: boolean; error?: string }> {
+  const auth = await requireAdmin();
+  if (!auth.ok) return { ok: false, error: auth.reason };
+
+  const userSupabase = await createServerSupabaseClient();
+  const { data: userResult } = await userSupabase.auth.getUser();
+  if (!userResult.user) return { ok: false, error: 'unauthenticated' };
+
+  // Self-protection: prevent the calling admin from demoting themselves.
+  if (!makeAdmin && userResult.user.id === userId) {
+    return { ok: false, error: 'cannot_demote_self' };
+  }
+
+  // The `protect_admin_role` trigger in migration 0002 only permits
+  // is_admin/admin_role changes from the service role. The admin
+  // client bypasses RLS + the trigger.
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      is_admin: makeAdmin,
+      admin_role: makeAdmin ? 'admin' : null,
+    })
+    .eq('id', userId);
+  if (error) {
+    console.error('[setUserAdmin]', error);
+    return { ok: false, error: error.message };
+  }
+
+  revalidatePath('/[locale]/admin/users', 'page');
   return { ok: true };
 }
