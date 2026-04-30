@@ -12,6 +12,19 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-30 — Saved-searches discoverability + dashboard empty-state polish
+- **What shipped (1 commit, deployed):**
+  - **AuthMenu (header, signed-in state)** now shows `[My Listings if hasOrg] · Saved searches · email · Sign out`. Org-membership check re-uses the existing `organization_members` lookup pattern from the dashboard layout. Anon state unchanged (Sign in · Sign up).
+  - **Dashboard sidebar** adds a `Saved searches` entry under Leads (above Billing portal). All three nav items now reachable with one click from any dashboard subpage.
+  - **Dashboard empty state** for the no-listings agent — was a small dashed box with "You haven't published any listings yet" + a basic button. Replaced with a proper card: `rounded-card` + `border-border` + `bg-surface`/`dark:bg-surface-deep` + `shadow-whisper`, brand-font 26px headline, helper-color subtitle that tells the agent what happens when they post ("AHO will publish it across the public site, the city landing page, and your agent profile"), primary-dark CTA. Reads like a real first-listing moment.
+  - New i18n key `dashboard.emptyHelp` in EN + ES.
+- **Verified live:** anon homepage doesn't expose the saved-searches link (the string appears in the page source via next-intl's hydration payload — that's expected — but no actual `<a href="/saved-searches">` is rendered). Dashboard properties remains auth-gated (307 → signin for anon).
+- **What changed since last session:** Same calendar day. This entry succeeds the map-view entry below.
+- **Slice 2 status:** Still all five surfaces shipped. Discoverability gap (no nav link to saved-searches) closed.
+- **Next session should start with:** the polish-phase setup once the 21st.dev key is rotated and pasted into `.env.local`. Or pick another autonomous chunk: bbox-driven map re-fetch (slice-3 polish — makes the map feel "live"), OG image generation for property pages (better social sharing), or `loading.tsx` skeleton system (perceived perf during slow Server Component renders).
+
+---
+
 ## 2026-04-30 — Map view on /search (slice-2 #5 of 5 — slice 2 surfaces functionally complete)
 - **What shipped (3 commits, deployed):**
   - **`<PropertyMap>`** at `src/components/listings/property-map.tsx` — Client Component. Vanilla Leaflet via `useRef` + `useEffect` (NOT `react-leaflet` — peer-dep mismatch with React 19 + Next.js 15). Renders all current search results as map markers with bound click → property-detail popup. Auto-fits bounds for 2+ pins; centers + zooms in for single pins; defaults to Santo Domingo for no-pin (no listings yet). OpenStreetMap tiles (free for v1 traffic; attribution rendered automatically).
