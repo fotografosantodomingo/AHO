@@ -54,6 +54,9 @@ export default async function DashboardLayout({
   const t = await getTranslations({ locale, namespace: 'dashboard' });
   const propertiesPath = `/${locale}/${locale === 'es' ? 'panel/propiedades' : 'dashboard/properties'}`;
   const leadsPath = `/${locale}/${locale === 'es' ? 'panel/contactos' : 'dashboard/leads'}`;
+  const savedSearchesPath = `/${locale}/${
+    locale === 'es' ? 'busquedas-guardadas' : 'saved-searches'
+  }`;
 
   return (
     <div className="mx-auto grid max-w-6xl grid-cols-[14rem_1fr] gap-8 px-6 py-8">
@@ -70,6 +73,12 @@ export default async function DashboardLayout({
             className="block rounded-lg px-3 py-2 transition hover:bg-surface-muted dark:hover:bg-surface-dark"
           >
             {t('navLeads')}
+          </a>
+          <a
+            href={savedSearchesPath}
+            className="block rounded-lg px-3 py-2 transition hover:bg-surface-muted dark:hover:bg-surface-dark"
+          >
+            {t('navSavedSearches')}
           </a>
           <BillingPortalButton />
         </nav>

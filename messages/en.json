@@ -176,6 +176,7 @@
     "listingsHeading": "My Listings",
     "newListing": "New listing",
     "listingsEmpty": "You haven't published any listings yet.",
+    "emptyHelp": "Add your first property — title, photos, price, location — and AHO will publish it across the public site, the city landing page, and your agent profile.",
     "listingsEmptyCta": "Create your first listing",
     "createListingHeading": "Create a listing",
     "editListingHeading": "Edit listing",

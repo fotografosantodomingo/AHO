@@ -82,11 +82,19 @@ export default async function DashboardListingsPage({
       </header>
 
       {listings.length === 0 ? (
-        <div className="rounded-card border border-dashed border-border-strong/60 p-10 text-center text-sm text-ink-muted dark:text-ink-inverse-muted">
-          <p>{t('listingsEmpty')}</p>
+        <div className="rounded-card border border-border bg-surface p-12 text-center shadow-whisper dark:bg-surface-deep">
+          <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+            {t('listingsHeading')}
+          </p>
+          <h2 className="mt-3 font-brand text-2xl font-semibold tracking-tight md:text-[26px] md:leading-[1.19]">
+            {t('listingsEmpty')}
+          </h2>
+          <p className="mx-auto mt-3 max-w-md text-sm text-ink-muted dark:text-ink-inverse-muted">
+            {t('emptyHelp')}
+          </p>
           <a
             href={newListingPath}
-            className="mt-4 inline-flex h-9 items-center rounded-lg bg-surface-dark px-3 font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink"
+            className="mt-6 inline-flex h-10 items-center justify-center rounded-lg bg-surface-dark px-5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink"
           >
             {t('listingsEmptyCta')}
           </a>

@@ -14,6 +14,7 @@ import type { Locale } from '@/i18n/config';
  */
 export async function AuthMenu({ locale }: { locale: Locale }) {
   const t = await getTranslations({ locale, namespace: 'auth' });
+  const tDashboard = await getTranslations({ locale, namespace: 'dashboard' });
   const supabase = await createServerSupabaseClient();
   const { data } = await supabase.auth.getUser();
   const user = data.user;
@@ -37,10 +38,33 @@ export async function AuthMenu({ locale }: { locale: Locale }) {
     );
   }
 
+  // Org membership check — when an agent has an org, surface the Dashboard
+  // link in the header; otherwise show only the buyer-side links. RLS
+  // returns just the user's own memberships so this is cheap.
+  const { data: memberships } = await supabase
+    .from('organization_members')
+    .select('org_id')
+    .eq('user_id', user.id)
+    .limit(1);
+  const hasOrg = !!memberships && memberships.length > 0;
+
+  const dashboardHref = `/${locale}/${locale === 'es' ? 'panel' : 'dashboard'}`;
+  const savedSearchesHref = `/${locale}/${
+    locale === 'es' ? 'busquedas-guardadas' : 'saved-searches'
+  }`;
+
   return (
     <div className="flex items-center gap-3 text-sm">
+      {hasOrg && (
+        <a className="hover:underline" href={dashboardHref}>
+          {tDashboard('navListings')}
+        </a>
+      )}
+      <a className="hover:underline" href={savedSearchesHref}>
+        {tDashboard('navSavedSearches')}
+      </a>
       <span
-        className="max-w-[16ch] truncate text-helper"
+        className="hidden max-w-[16ch] truncate text-helper sm:inline"
         title={user.email ?? ''}
       >
         {user.email}
