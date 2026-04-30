@@ -12,6 +12,22 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-30 — Open Graph image generation (homepage + per-property)
+- **What shipped (1 commit, deployed):**
+  - **`src/app/[locale]/opengraph-image.tsx`** — locale-aware homepage OG card. Dark `#15181e` background (HashiCorp dark hero), AHO wordmark + locale chip top, 88px headline ("Real estate, real listings — anywhere" / "Inmuebles reales, anuncios reales — donde sea") + tagline center, domain bottom. 1200×630 PNG generated via Next.js's `ImageResponse` (Satori-backed via `@vercel/og`).
+  - **`src/app/[locale]/properties/[slug]/opengraph-image.tsx`** — per-property card. Looks up the listing via `fetchPropertyByShortId`. Top: AHO wordmark + uppercase wayfinding strap (`{transaction} · {city}, {country}`). Center: title (64px / 700, truncated at 87 chars) + price (56px / 600). **Falls back to a generic AHO card** if the slug doesn't resolve (stale link, archived listing) so shares never break.
+  - **System sans-serif** used deliberately — custom-font fetches on Edge runtime have been finicky on Cloudflare Pages with `@vercel/og`'s Satori. The system stack ships immediately and looks fine for OG cards.
+- **Verified live:** all three endpoints return real PNG content:
+  - `/en/opengraph-image` → 200, `image/png`, 45 KB
+  - `/es/opengraph-image` → 200, `image/png`, 51 KB
+  - `/en/properties/foo-bar/opengraph-image` (no real listings) → 200, `image/png`, 12 KB (generic fallback)
+- **Pages:build:** 33 → 35 Edge Function Routes (two OG endpoints added).
+- **What changed since last session:** Same calendar day. This entry succeeds the list-bbox-sync entry below.
+- **Slice 3 status:** OG infra is now in place. Real social-share previews start showing the moment property listings exist OR an agent shares the homepage URL.
+- **Next session should start with:** fixture-Stripe-state harness (would unlock 5 deferred webhook-replay cases — meaningful test coverage). Or marker clustering at the map for high density. Or the polish phase if the 21st.dev key has been rotated.
+
+---
+
 ## 2026-04-30 — List-view sync to map bbox (Zillow-style split view)
 - **What shipped (1 commit, deployed):**
   - **`<SearchResultsView>` Client Component** at `src/components/listings/search-results-view.tsx` — owns `bboxActive` flag + `listings` state. Initial value: server-rendered `initialListings`. When the map calls back with new bounds, it fetches `/api/properties/by-bbox` (with current filters + bounds) and replaces `listings`. The view toggle (list | map) is purely presentational; both children render off the same `listings` array. Switching views is instant; the rendered set stays consistent.
