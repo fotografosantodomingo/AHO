@@ -12,23 +12,23 @@ One entry per significant choice. Newest on top. Format:
 
 ---
 
-## 2026-04-30 — UI/UX polish phase will use the `ui-ux-pro-max` skill via 21st.dev MCP
-**Decision:** During the post-slice-2 polish phase, AHO will use the [`ui-ux-pro-max-skill`](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) from `nextlevelbuilder` (Claude Code skill) backed by the [21st.dev](https://21st.dev) MCP server + component library to upgrade the visual polish on every public surface. The skill provides curated, production-grade UI patterns; 21st.dev hosts the component asset library and the MCP search interface.
-**Why:** PO directive on 2026-04-30. The current design system (HashiCorp tokens + Inter, per `2026-04-29 — Visual design language`) gives us a coherent foundational palette but is intentionally minimal. 21st.dev's library has battle-tested components for hero sections, marquees, testimonial walls, pricing comparison tables, animated transitions, etc. that would take many sessions to handcraft. Using the skill once the slice-2 surface is functionally complete buys a "stunning" visual upgrade with low marginal effort.
-**Setup required (not yet done):**
-1. Rotate the API key the PO accidentally pasted in chat on 2026-04-30 (current key revoked; new key needed). Stored as `TWENTY_FIRST_DEV_API_KEY` in `.env.local` — **never** committed (CLAUDE.md hard rule #1).
-2. Install the `ui-ux-pro-max` skill at the project level (`.claude/skills/ui-ux-pro-max/`) so any future session can invoke it.
-3. Configure the 21st.dev MCP server in `.claude/mcp.json` so the skill can reach the asset library.
-4. Pair the rotated API key as the MCP server's auth credential.
+## 2026-04-30 — UI/UX polish phase: 21st.dev "Magic" MCP wired; nextlevelbuilder skill optional
+**Decision:** Polish phase uses the [21st.dev "Magic" MCP server](https://21st.dev) for component generation, configured in `.mcp.json` at project root with the API key supplied via `${TWENTY_FIRST_DEV_API_KEY}` env-var substitution (key in `.env.local`; not committed per CLAUDE.md hard rule #1). The earlier framing — that the [`ui-ux-pro-max-skill`](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) from `nextlevelbuilder` was "backed by" 21st.dev — was inaccurate; they're independent products. The Magic MCP is what consumes the API key. The nextlevelbuilder skill is a self-contained design-intelligence engine that can be layered in later if useful but is not required to begin polish work.
+**Why:** PO directive on 2026-04-30 + key paste 2026-04-30. The current design system (HashiCorp tokens + Inter, per `2026-04-29 — Visual design language`) is intentionally minimal. 21st.dev Magic generates production-grade components (hero sections, marquees, testimonial walls, pricing tables, animated transitions) on demand. Each surface gets polished as a separate commit, composing Magic-generated primitives against existing design tokens so the palette stays coherent.
+**Setup state (now):**
+1. ✅ API key rotated and stored as `TWENTY_FIRST_DEV_API_KEY` in `.env.local`.
+2. ✅ `.mcp.json` at project root with `21st-magic` server config (`npx -y @21st-dev/magic@latest`), API key via env-var substitution.
+3. ⏳ Verify MCP server reachable — needs Claude Code session restart with `TWENTY_FIRST_DEV_API_KEY` exported in the parent shell (no direnv on this machine; source `.env.local` before launching Claude).
+4. (Optional) Install the `ui-ux-pro-max` skill via `/plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill` then `/plugin install ui-ux-pro-max@ui-ux-pro-max-skill`. Self-contained; doesn't consume the 21st.dev key.
 **Alternatives considered:**
-- Hand-craft every component on top of the current tokens. Rejected for ROI — the design system underpins everything but doesn't ship "wow" moments by itself; building those from scratch would consume weeks. Better to layer 21st.dev's primitives on top of our tokens.
-- Use a different component library (shadcn/ui, Material, etc.). Rejected — we're already past the "pick a base library" decision (Tailwind v4 + design tokens), and shadcn-style components don't carry the same level of "stunning marketing surfaces" curation that 21st.dev does.
-- Defer entirely. Rejected — the PO is right that visual polish drives signup conversion and agent perception. Shipping a functional-but-plain product to soft-beta agents will get muted reactions; a polished product will earn referrals.
-**Reconsider if:** (a) 21st.dev's terms or pricing change in a way that makes us pay more than the polish phase's value, (b) a particular surface needs a custom component the library doesn't have, (c) the rotated API key gets re-exposed (rotate again; this is operational, not a decision-level concern).
+- Hand-craft every component on top of the current tokens. Rejected for ROI — the design system underpins everything but doesn't ship "wow" moments by itself; building those from scratch would consume weeks.
+- Use a different component library (shadcn/ui, Material, etc.). Rejected — we're already past the "pick a base library" decision (Tailwind v4 + design tokens), and shadcn-style components don't carry the same level of "stunning marketing surfaces" curation.
+- Defer entirely. Rejected — visual polish drives signup conversion and agent perception. Shipping a functional-but-plain product to soft-beta agents will get muted reactions.
+**Reconsider if:** (a) 21st.dev's terms or pricing change in a way that makes us pay more than the polish phase's value, (b) a particular surface needs a custom component Magic can't produce well, (c) the API key gets re-exposed (rotate again).
 **Build implications:**
-- Polish phase scheduled AFTER slice 2 functionally lands (city landing pages already shipped; agent profiles + saved searches + admin dashboard remain). Rationale: don't polish a surface that's still being designed structurally.
-- The skill, once installed, gets invoked per-component. Each polish PR touches one surface and uses 21st.dev primitives composed against our existing design tokens (so the palette stays consistent — we don't import 21st.dev's color system).
-- A future session needs to do the install + MCP wiring; this entry is the marker that the path is decided.
+- Polish phase scheduled AFTER slice 2 functionally lands (admin dashboard now complete). Don't polish a surface that's still being designed structurally.
+- Each polish PR touches one surface and composes Magic-generated primitives against existing design tokens. We don't import 21st.dev's color system; the palette stays HashiCorp.
+- Magic MCP runs `npx -y @21st-dev/magic@latest` on server start — third-party npm executable. PO has explicitly authorized this in this entry; supply-chain risk is accepted as part of the polish-phase scope.
 
 ---
 
