@@ -12,6 +12,22 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-30 — Stripe webhook replay extended (1 → 3 handlers covered)
+- **What shipped (1 commit, deployed):**
+  - **`scripts/stripe-webhook-replay.ts`** extended from 5 to 7 cases. All passing against the live deployed webhook.
+  - **Now covered:** `customer.updated`, `customer.subscription.deleted`, `charge.refunded` — the three event-type dispatches whose handlers gracefully no-op on missing DB rows.
+  - **Cross-cutting cases retained:** no signature → 400, bad signature → 400, unhandled event → 200+ignored, replay same event id → 200+deduped.
+  - **Test infra:** added a `makeEvent({type, object})` helper that builds a Stripe-shaped event envelope with a fresh ID per call, plus `freshId(prefix)` for collision-free synthetic IDs and an `isOk` matcher shorthand. New event-type cases will be one-line additions going forward.
+- **What's NOT covered + why** (logged in the script header for the next session):
+  - `checkout.session.completed` — handler creates org/member/subscription DB rows. Synthetic events risk leaving test rows in production Supabase.
+  - `customer.subscription.updated` / `invoice.paid` / `invoice.payment_failed` / `invoice.payment_action_required` — all four use the "fresh fetch" pattern (per `docs/DECISIONS.md`): the handler re-queries Stripe for canonical state. Synthetic IDs aren't recognized by Stripe so the API call throws and the route returns 500. Replay coverage for these requires a fixture-Stripe-state harness, which is the next stripe-testing infra step.
+- **Audit caught a misconception:** initial extension fired all 6 graceful-no-op handlers and 3 failed with 500. Investigation showed the `invoice.*` handlers do `stripe.invoices.retrieve(...)` early — synthetic IDs throw at that line, not at the DB lookup. Updated the file header + skipped them honestly.
+- **Verified live:** `pnpm stripe:replay` against `https://aho-web.pages.dev/api/webhooks/stripe` → **7 passed, 0 failed**.
+- **What changed since last session:** Same calendar day. This entry succeeds the bbox-map entry below.
+- **Next session should start with:** the polish-phase setup once 21st.dev key is rotated. Or pick one of: list-view sync to bbox (Zillow-style split view), OG image generation, fixture-Stripe-state harness (would unlock the 5 deferred replay cases), or doc sync between HANDOFF.md / CLAUDE.md and current implementation (5 sessions of slice-2 work hasn't been reflected yet).
+
+---
+
 ## 2026-04-30 — Bbox-driven map re-fetch (Zillow-style live browse)
 - **What shipped (1 commit, deployed):**
   - **`GET /api/properties/by-bbox`** at `src/app/api/properties/by-bbox/route.ts` — anon-readable. Takes `sw_lat`/`sw_lng`/`ne_lat`/`ne_lng` query params, returns up to 200 active+published listings whose denormalized lat/lng (from migration 0007's trigger) falls inside the axis-aligned box. Tighter response shape than `SearchListing` (just id, slugs, title, city, countryCode, lat, lng — what the map actually needs). Test-fixture exclusion via inner-join `aho-test-org-*` filter + defensive in-loop check. Edge cache: 60s `s-maxage` so users panning over the same area get cheap cache hits.
