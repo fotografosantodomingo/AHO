@@ -12,6 +12,34 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-30 — Wrap-up batch: /admin/users + mobile pass + doc sync + cluster theme
+
+The autonomous-work wall. Three commits closing the slice-2/slice-3 polish loop until PO unblocks (Resend, R2, 21st.dev key rotation, soft-beta agents) arrive.
+
+- **`696aa17` — `/admin/users` + promote/demote actions:**
+  - **`src/app/[locale]/admin/users/page.tsx`** — fourth admin tab. Lists every profile (id + email + display name + is_admin + admin_role + created_at) with promote/demote toggle via `<AdminToggleButton>`. Self-row shows a "you" pill instead of a button (refuses self-demote in the UI, also enforced server-side). `@aho.test` emails get a "fixture" badge.
+  - **`src/lib/admin/actions.ts`** — `setUserAdmin(userId, makeAdmin)` server action. Refuses self-demote (`callerId === userId` short-circuit). The `protect_admin_role` BEFORE-UPDATE trigger blocks `is_admin` mutations under user context; action uses `createAdminClient()` (service-role) to bypass it. Audit-logs the change to `audit_log` (kind=`admin.user.promoted` / `admin.user.demoted`).
+  - **`src/app/[locale]/admin/layout.tsx`** — added "Users" tab to the nav array.
+  - Self-protection caveat: JS-side only (an attacker who's already an admin can't soft-demote themselves but could run raw SQL). Postgres-trigger hardening (refuse any UPDATE that would leave zero `is_admin = true` rows) is logged in `OPEN_QUESTIONS.md` as non-urgent.
+- **`f7d1f25` — Mobile responsiveness pass:**
+  - **Header `[locale]/layout.tsx`** — narrow viewports (375px) had a 560px header overflowing horizontally. Hid `<ThemeToggle>` < sm (theme is set-once; hiding it is safe). Compacted `<AuthMenu>` signed-in nav links on narrow screens. Header now fits 375×667 cleanly.
+  - **Dashboard sidebar `[locale]/dashboard/layout.tsx`** — was a fixed 14rem column even on mobile, pushing content off-screen. Now stacks: horizontal scrollable nav on `<md`, vertical 14rem column on `md+`. Uses `md:grid-cols-[14rem_1fr]` + `md:flex-col` on the nav. Right-border divider only renders at `md+` (would float at an awkward height when stacked).
+- **`7811e20` — Doc cleanup + cluster theme re-skin:**
+  - **`docs/OPEN_QUESTIONS.md` 97→85 lines.** Removed resolved Tier 2/3 (GitHub repo, Supabase keys provisioned, Stripe test mode confirmed, DNS pointed). Restructured into 4 sections: PO email/observability infra, PO paid-tier opt-ins, PO brand/content/beta, Engineering items discovered during execution, plus the §30 question recommendations.
+  - **`docs/HANDOFF.md` implementation-status banner (18 lines at top).** Spec body is unchanged. Banner notes the 38 routes / 141 tests / slice-1 ~92% completion and major architectural deviations (e.g. PostGIS denormalized lat/lng triggers, Inter font substitution, hand-written SQL migrations).
+  - **`src/components/listings/property-map.tsx` cluster theme re-skin.** leaflet.markercluster's default green/yellow/orange clusters clashed with the HashiCorp action-blue palette. CSS override using `--color-action` blues at 0.4 opacity outer ring + solid inner. Cluster size buckets (`< 10` / `< 100` / `>= 100`) keep their visual progression but in the brand palette.
+- **Verified live:** Build green (Pages:build at 38 Edge Function Routes — same as before; `/admin/users` reuses the admin tab nav). All 141 tests passing. `https://advertisehomes.online/en/admin/users` redirects anon → signin; signed-in non-admin → `/dashboard`; admin sees the user table.
+- **What changed since last session:** Same calendar day. This entry succeeds the admin tab nav + Orgs + Leads entry below.
+- **Slice 2 status:** admin surface complete (Listings + Orgs + Leads + Users). Slice 1 holds at ~92%; slice 3 polish phase still gated on 21st.dev key rotation (per `DECISIONS.md` "2026-04-30 — UI/UX polish phase").
+- **The autonomous-work wall.** Every remaining item is bounded by a PO action:
+  1. **21st.dev key** → polish phase via the `ui-ux-pro-max` skill (paste new key into `.env.local`).
+  2. **Resend API key + DKIM/SPF/DMARC** (drafts in `docs/DNS.md`) → unblocks welcome / lead-notification / 3DS-challenge / reset-password / saved-search-alert emails. Highest-leverage remaining unblock.
+  3. **R2 enablement** (paid-tier opt-in per CLAUDE.md hard rule #9) → image-upload UI on `/dashboard/properties/[id]`. APIs + DB schema + RLS already exist.
+  4. **Soft-beta agent recruitment** (3–5 Santo Domingo agents — names + WhatsApp/email) → first real listings; until then every public surface serves empty states.
+- **Next session should start with:** whichever PO action lands first. Polish-phase work fires the moment 21st.dev key is rotated. Email-driven flows fire the moment Resend key + DNS records are in place. Until then there is nothing left to autonomously progress on slice 1/2/3 without violating CLAUDE.md hard rule #9 (no live billable resources without explicit per-operation confirmation) or hard rule #8 (no fake data in user-visible contexts).
+
+---
+
 ## 2026-04-30 — Admin dashboard expansion: tab nav + Orgs + Leads
 - **What shipped (1 commit, deployed):**
   - **`src/app/[locale]/admin/layout.tsx`** — shared shell. Centralizes the auth gate (signed-in + `is_admin`; non-admins → `/dashboard`) and renders tab nav for Listings / Orgs / Leads. Sub-pages no longer repeat the auth gate.
