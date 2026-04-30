@@ -68,6 +68,35 @@ function ensureCss(href: string, integrity?: string): void {
 function ensureLeafletCss(): void {
   ensureCss(LEAFLET_CSS_URL, LEAFLET_CSS_INTEGRITY);
   for (const href of MARKERCLUSTER_CSS_URLS) ensureCss(href);
+  ensureClusterThemeOverride();
+}
+
+/**
+ * Re-skin the leaflet.markercluster default theme to match AHO's design
+ * tokens. The default is a green / yellow / red gradient by count which
+ * looks alarming and doesn't match the HashiCorp single-accent palette.
+ *
+ * Override colors to monochromatic action-blue (`--color-action`,
+ * `--color-action-dark`, `--color-action-active` from globals.css) with
+ * a subtle outer ring at 0.4 opacity. Same three count thresholds the
+ * plugin uses by default (small <10, medium <100, large 100+).
+ */
+function ensureClusterThemeOverride(): void {
+  if (typeof document === 'undefined') return;
+  const id = 'aho-cluster-theme';
+  if (document.getElementById(id)) return;
+  const style = document.createElement('style');
+  style.id = id;
+  style.textContent = `
+.marker-cluster-small { background-color: rgb(34 100 214 / 0.4); }
+.marker-cluster-small div { background-color: rgb(34 100 214); color: #efeff1; }
+.marker-cluster-medium { background-color: rgb(16 96 255 / 0.4); }
+.marker-cluster-medium div { background-color: rgb(16 96 255); color: #efeff1; }
+.marker-cluster-large { background-color: rgb(43 137 255 / 0.4); }
+.marker-cluster-large div { background-color: rgb(43 137 255); color: #efeff1; }
+.marker-cluster div { font-family: var(--font-system, system-ui), sans-serif; font-weight: 600; }
+`;
+  document.head.appendChild(style);
 }
 
 export function PropertyMap({

@@ -9,6 +9,34 @@
 
 ---
 
+## Implementation status (live as of 2026-04-30)
+
+This spec was written before any code shipped. Implementation is now ahead of the spec in places; see `docs/PROGRESS.md` for the per-session log and `docs/DECISIONS.md` for architectural deviations.
+
+**Live at:** https://advertisehomes.online (Cloudflare Pages, auto-deploy on push to `main`)
+
+| Slice | Spec ref | Status |
+|---|---|---|
+| Slice 1 (Free + Registered + Agent — `CRITIQUE.md` §F) | §1.7, §4–§11 | **~94%**. Code feature-complete; bounded by Resend / R2 / soft-beta agents. |
+| Slice 2 (lead inbox UI, agent profiles, admin dashboard, search/filter/map, saved searches) | §F | **5/5 surfaces shipped**. Email-alert worker for saved searches waits on Resend. |
+| Slice 3 polish (city landing pages, OG cards, JSON-LD, bbox map, marker clusters, design tokens) | §16 | substantial polish landed; on-going |
+| v1.1 (Premium, Agency, LinkedIn) | §1.7 | not started — gated on slice-1 paying users |
+| v2 (Expert, AI, mobile app) | §1.7 | not started |
+
+**Major architectural deviations from this spec** (each logged in `DECISIONS.md`):
+
+- Cloudflare adapter: `@cloudflare/next-on-pages` (despite npm-deprecation; chose for spec adherence to "Cloudflare Pages")
+- Visual design: HashiCorp tokens (DESIGN_REFERENCE.md), Inter substituted for HashiCorp Sans
+- Migration tooling: hand-written SQL + Drizzle TS schema as types-only mirror
+- Stripe currently in test mode (live products archived 2026-04-29 after a process gap — promotion requires explicit DECISIONS.md entry per CLAUDE.md hard rule #9)
+- Founder-rate pricing: application-gated atomic counter (not Stripe-gated)
+- 38 Edge Function Routes deployed; 141/141 tests passing; Stripe webhook replay 7/7 against live URL
+- Custom domain advertisehomes.online live; sitemap covers homepage / pricing / properties / city landings / agent profiles
+
+**Read `CLAUDE.md` first for the running state**, then come back here for the canonical spec.
+
+---
+
 ## 0. How to Read This Document
 
 This is the source of truth for the v1 build. It is opinionated on purpose — every decision here was made to remove ambiguity for the dev. If you (the developer) disagree with something, raise it in writing before you change it; some choices have non-obvious downstream consequences.
