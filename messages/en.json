@@ -118,6 +118,17 @@
     "notFound": "Listing not found",
     "notFoundBody": "The listing you’re looking for is no longer available or has been removed."
   },
+  "cityLanding": {
+    "headingTemplate": "Real estate in {city}, {country}",
+    "subheading": "Browse real estate listings in {city} from agents using AHO.",
+    "resultsCount_one": "1 listing in {city}",
+    "resultsCount_other": "{count} listings in {city}",
+    "emptyHeading": "No listings yet in {city}",
+    "emptyBody": "AHO is open for agents in {city}. Be among the first to list here.",
+    "emptyAgentCta": "List your properties",
+    "viewAllCta": "View all listings",
+    "browseAllCta": "Browse listings worldwide"
+  },
   "notFound": {
     "heading": "Page not found",
     "body": "The page you're looking for doesn't exist or has moved.",

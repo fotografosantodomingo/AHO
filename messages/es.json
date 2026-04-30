@@ -118,6 +118,17 @@
     "notFound": "Anuncio no encontrado",
     "notFoundBody": "El anuncio que buscas ya no está disponible o ha sido eliminado."
   },
+  "cityLanding": {
+    "headingTemplate": "Inmuebles en {city}, {country}",
+    "subheading": "Explora anuncios inmobiliarios en {city} de agentes que usan AHO.",
+    "resultsCount_one": "1 anuncio en {city}",
+    "resultsCount_other": "{count} anuncios en {city}",
+    "emptyHeading": "Aún no hay anuncios en {city}",
+    "emptyBody": "AHO está abierto para agentes en {city}. Sé de los primeros en publicar aquí.",
+    "emptyAgentCta": "Publica tus propiedades",
+    "viewAllCta": "Ver todos los anuncios",
+    "browseAllCta": "Explorar anuncios mundiales"
+  },
   "notFound": {
     "heading": "Página no encontrada",
     "body": "La página que buscas no existe o ha sido movida.",

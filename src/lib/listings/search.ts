@@ -172,6 +172,141 @@ export async function searchListings(
 }
 
 /**
+ * Convert a city URL slug back to a human-readable city query string.
+ * "santo-domingo" → "santo domingo". The DB query uses ILIKE so case +
+ * spelling variants ("Santo Domingo", "santo domingo", "SANTO DOMINGO")
+ * all match.
+ */
+export function citySlugToQuery(slug: string): string {
+  return slug.replace(/-+/g, ' ').trim();
+}
+
+/**
+ * Convert a city name to a URL slug. Inverse of citySlugToQuery, used
+ * when building city-landing-page URLs from listing data.
+ *
+ * Lowercase, ASCII-only, hyphenated. Not unaccent-aware (Postgres unaccent
+ * extension isn't enabled yet); São Paulo would slug to "so-paulo" which
+ * is wrong. When we onboard a non-ASCII market, install unaccent and
+ * revisit.
+ */
+export function citySlug(city: string): string {
+  return city
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '') // strip diacritics
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+interface CityLandingArgs {
+  countryCode: string; // uppercased 2-letter ISO
+  citySlug: string;    // hyphenated lowercase
+  locale: Locale;
+  limit?: number;
+}
+
+interface CityLandingResult {
+  listings: SearchListing[];
+  totalShown: number;
+  hasMore: boolean;
+  resolvedCity: string | null; // canonical city name from the DB (or null if no listings)
+}
+
+/**
+ * Listings for the city landing page at `/{locale}/properties-in/{country}/{city}`.
+ *
+ * Differences from `searchListings`:
+ *   - No pagination — landing pages show a top-N grid with "see more" CTA.
+ *   - Filters by `country_code` (uppercased) AND `city` ILIKE the slug.
+ *   - Excludes RLS test fixtures (org slug LIKE `aho-test-org-%` or
+ *     listing slug LIKE `aho-fixture-%`) per CLAUDE.md hard rule #8 and
+ *     "Local-dev quirks". Same belt-and-suspenders pattern as sitemap.ts.
+ *   - Returns the canonical city name from the first matched row so the
+ *     page can render `${city}, ${country}` in proper case ("Santo Domingo"
+ *     even when the URL slug is `santo-domingo`).
+ */
+export async function searchCityLanding(
+  args: CityLandingArgs,
+): Promise<CityLandingResult> {
+  const supabase = await createServerSupabaseClient();
+  const cityQuery = citySlugToQuery(args.citySlug);
+  const limit = args.limit ?? 30;
+
+  const { data, error } = await supabase
+    .from('properties')
+    .select(
+      'id, short_id, slug_en, slug_es, title_en, title_es, transaction_type, property_type, price_cents, currency, price_period, bedrooms, bathrooms, area_sqm, neighborhood, city, country_code, image_count, featured_until, published_at, organizations!inner(slug)',
+    )
+    .eq('status', 'active')
+    .not('published_at', 'is', null)
+    .eq('country_code', args.countryCode.toUpperCase())
+    .ilike('city', cityQuery)
+    .not('organizations.slug', 'like', 'aho-test-org-%')
+    .order('featured_until', { ascending: false, nullsFirst: false })
+    .order('published_at', { ascending: false, nullsFirst: false })
+    .range(0, limit); // limit + 1 to detect hasMore
+
+  if (error) {
+    console.error('[searchCityLanding]', error);
+    return { listings: [], totalShown: 0, hasMore: false, resolvedCity: null };
+  }
+
+  const rows = (data ?? []).filter(
+    (r) =>
+      !r.slug_en?.startsWith('aho-fixture-') && !r.slug_es?.startsWith('aho-fixture-'),
+  );
+  const hasMore = rows.length > limit;
+  const sliced = hasMore ? rows.slice(0, limit) : rows;
+
+  // Second pass: fetch primary images for the visible listings.
+  const ids = sliced.map((r) => r.id as string);
+  let imageMap = new Map<string, string>();
+  if (ids.length > 0) {
+    const { data: imgs } = await supabase
+      .from('property_images')
+      .select('property_id, cf_image_id')
+      .in('property_id', ids)
+      .eq('is_primary', true)
+      .eq('upload_status', 'confirmed');
+    imageMap = new Map(
+      (imgs ?? [])
+        .filter((i) => i.cf_image_id)
+        .map((i) => [i.property_id as string, i.cf_image_id as string]),
+    );
+  }
+
+  const listings: SearchListing[] = sliced.map((r) => ({
+    id: r.id,
+    shortId: r.short_id,
+    slugEn: r.slug_en,
+    slugEs: r.slug_es,
+    titleEn: r.title_en,
+    titleEs: r.title_es,
+    transactionType: r.transaction_type,
+    propertyType: r.property_type,
+    priceCents: Number(r.price_cents),
+    currency: r.currency,
+    pricePeriod: r.price_period,
+    bedrooms: r.bedrooms,
+    bathrooms: r.bathrooms != null ? Number(r.bathrooms) : null,
+    areaSqm: r.area_sqm != null ? Number(r.area_sqm) : null,
+    neighborhood: r.neighborhood,
+    city: r.city,
+    countryCode: r.country_code,
+    imageCount: r.image_count,
+    primaryImageId: imageMap.get(r.id) ?? null,
+  }));
+
+  return {
+    listings,
+    totalShown: listings.length,
+    hasMore,
+    resolvedCity: listings[0]?.city ?? null,
+  };
+}
+
+/**
  * Build a search-page URL with the given filter state, preserving locale
  * routing. Used by pagination links and "clear filter" CTAs.
  */

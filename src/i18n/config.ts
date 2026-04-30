@@ -88,4 +88,13 @@ export const PATHNAMES = {
     en: '/properties/[slug]',
     es: '/propiedades/[slug]',
   },
+  // City landing pages — indexable browse alternative to /search.
+  // `[country]` is a lowercase ISO-3166-1 alpha-2 code (do, us, mx, etc.);
+  // `[city]` is the slugified city name (santo-domingo, new-york, etc.).
+  // Spec §16.7: city landing pages serve as the SEO-indexable browse path
+  // since /search itself is noindex (faceted URLs cause infinite crawl).
+  '/properties-in/[country]/[city]': {
+    en: '/properties-in/[country]/[city]',
+    es: '/inmuebles-en/[country]/[city]',
+  },
 } as const;
