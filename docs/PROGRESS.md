@@ -12,6 +12,20 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-04-30 — Marker clustering on the map (Zillow / Redfin pattern)
+- **What shipped (1 commit, deployed):**
+  - **`leaflet.markercluster ^1.5.3`** added as runtime dep + `@types/leaflet.markercluster` as devDep.
+  - **`<PropertyMap>` updated** — markers no longer added to the map directly; they go INTO a `markerClusterGroup` layer that's then added to the map. Nearby pins group into a circle showing the count; clicking a cluster zooms in until the group spreads. At max zoom, `spiderfyOnMaxZoom` fans overlapping pins into a "spider" so each is clickable. `maxClusterRadius=60` (default 80; tighter clusters feel more responsive at typical zoom levels). `showCoverageOnHover=false` — the polygon overlay was visually noisy.
+  - **CSS:** two markercluster stylesheets (`MarkerCluster.css` for layout + `MarkerCluster.Default.css` for the default cluster-circle theme) injected via the same `<link>` CDN pattern as Leaflet's main CSS. Generalized the CSS-injection helper into `ensureCss(href, integrity?)` so adding more stylesheets is one line each.
+  - **SSR-safety preserved:** `import('leaflet.markercluster')` happens inside the same `useEffect` that dynamic-imports `leaflet`. The plugin attaches to the global `L` on import; we read `L.markerClusterGroup` after the import resolves. Type cast through `unknown` since TS doesn't always pick up plugin-augmented globals when `L` is imported dynamically.
+- **Trade-off accepted:** cluster pins use the plugin's default green/yellow/red theme. Re-skinning to HashiCorp design tokens is a future polish item; default is fine for v1.
+- **Verified live:** `/en/search?view=map`, `/es/buscar?view=map`, `/en`, `/en/search`, `/api/properties/by-bbox` all 200; pages:build green at 35 Edge Function Routes (unchanged — clustering is a marker-rendering detail, not a new route).
+- **What changed since last session:** Same calendar day. This entry succeeds the OG-image entry below.
+- **Slice 3 status:** map polish loop is closed. Bbox-driven re-fetch + list+map sync + clustering = full Zillow-style browse experience. The moment a city has 50+ listings, the cluster UX shines.
+- **Next session should start with:** **fixture-Stripe-state harness** (creates real test-mode customer/sub on the user's Stripe test account, lets the 5 deferred webhook-replay cases run end-to-end with retrievable IDs). Or HANDOFF.md alignment / spec drift cleanup. Or wait for PO-action items to unblock (Resend, R2, custom domain, soft-beta agents, 21st.dev key).
+
+---
+
 ## 2026-04-30 — Open Graph image generation (homepage + per-property)
 - **What shipped (1 commit, deployed):**
   - **`src/app/[locale]/opengraph-image.tsx`** — locale-aware homepage OG card. Dark `#15181e` background (HashiCorp dark hero), AHO wordmark + locale chip top, 88px headline ("Real estate, real listings — anywhere" / "Inmuebles reales, anuncios reales — donde sea") + tagline center, domain bottom. 1200×630 PNG generated via Next.js's `ImageResponse` (Satori-backed via `@vercel/og`).
