@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { publicEnv } from '@/lib/env';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { citySlug } from '@/lib/listings/search';
 
 // next-on-pages requires explicit runtime declaration. Sitemap reads from
 // Supabase per-request, so it can't be statically generated at build time.
@@ -14,16 +15,30 @@ export const dynamic = 'force-dynamic';
  * What's listed:
  *   - Marketing chrome: homepage, pricing, privacy, terms (both locales)
  *   - Every active+published property (both locales, with hreflang alternates)
+ *   - City landing pages — derived from distinct (country, city) pairs in
+ *     the active+published listing set. Per HANDOFF.md §16.7, these are
+ *     the canonical SEO-indexable browse paths (since /search itself is
+ *     noindex). One entry per (country, city, locale) with hreflang.
+ *   - Agent profile pages — one per organization that has at least one
+ *     active+published listing. Surfaces `RealEstateAgent` / `Organization`
+ *     JSON-LD-bearing pages to crawlers for branded searches.
  *
  * What's NOT listed (intentional):
  *   - /search and /buscar — faceted URLs cause infinite crawl per spec §16.7
  *   - /dashboard, /panel, /api, /auth — non-public surfaces (also disallowed
  *     by robots.txt)
  *   - /onboarding/welcome, /inicio/bienvenida — auth-gated, also noindex'd
+ *   - /admin — internal moderation surface (also disallowed by robots.txt)
  *
- * Hreflang alternates: each property + each marketing page is emitted in
- * EN and ES with Next.js's `alternates` block so Google understands the
- * locale pairing.
+ * Hreflang alternates: each entry is emitted in EN and ES with Next.js's
+ * `alternates` block so Google understands the locale pairing.
+ *
+ * Test-fixture exclusion is consistent across all three list types
+ * (properties / cities / agents) — they all derive from the
+ * properties/organizations tables filtered by `aho-test-org-*` org slug
+ * + `aho-fixture-*` listing slug. The `aho-test-org-a/b` orgs themselves
+ * never appear as agent-profile URLs because they have no active+published
+ * listings (the inner-join filter eliminates them).
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
@@ -144,7 +159,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { data: rows, error } = await supabase
     .from('properties')
     .select(
-      'short_id, slug_en, slug_es, updated_at, published_at, status, organizations!inner(slug)',
+      'short_id, slug_en, slug_es, updated_at, published_at, status, country_code, city, organizations!inner(slug, name, updated_at)',
     )
     .eq('status', 'active')
     .not('published_at', 'is', null)
@@ -155,17 +170,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return marketing;
   }
 
+  // Filter out fixture listings (defensive double-layer per the
+  // org-slug filter above).
+  const cleanRows = rows.filter(
+    (r) =>
+      !r.slug_en?.startsWith('aho-fixture-') &&
+      !r.slug_es?.startsWith('aho-fixture-'),
+  );
+
   const listings: MetadataRoute.Sitemap = [];
-  for (const row of rows) {
-    // Belt-and-suspenders: even if the org-slug filter misbehaves under
-    // some future PostgREST version, drop anything that *looks* like a
-    // fixture by listing slug.
-    if (
-      row.slug_en?.startsWith('aho-fixture-') ||
-      row.slug_es?.startsWith('aho-fixture-')
-    ) {
-      continue;
-    }
+  for (const row of cleanRows) {
     const enUrl = row.slug_en
       ? `${site}/en/properties/${row.slug_en}-${row.short_id}`
       : null;
@@ -198,5 +212,78 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  return [...marketing, ...listings];
+  // City landing pages — derived from distinct (country, city) pairs
+  // present in the listing set. We slug the city with the same helper
+  // the city-landing route uses for resolution (`citySlug`).
+  const cityPairs = new Map<string, { country: string; city: string }>();
+  for (const row of cleanRows) {
+    if (!row.country_code || !row.city) continue;
+    const key = `${row.country_code.toLowerCase()}/${citySlug(row.city)}`;
+    if (!cityPairs.has(key)) {
+      cityPairs.set(key, { country: row.country_code.toLowerCase(), city: citySlug(row.city) });
+    }
+  }
+  const cityLandings: MetadataRoute.Sitemap = [];
+  for (const { country, city } of cityPairs.values()) {
+    const enUrl = `${site}/en/properties-in/${country}/${city}`;
+    const esUrl = `${site}/es/inmuebles-en/${country}/${city}`;
+    cityLandings.push(
+      {
+        url: enUrl,
+        lastModified: now,
+        changeFrequency: 'daily',
+        priority: 0.6,
+        alternates: { languages: { en: enUrl, es: esUrl, 'x-default': enUrl } },
+      },
+      {
+        url: esUrl,
+        lastModified: now,
+        changeFrequency: 'daily',
+        priority: 0.6,
+        alternates: { languages: { en: enUrl, es: esUrl, 'x-default': enUrl } },
+      },
+    );
+  }
+
+  // Agent profile pages — distinct organizations from the listing set.
+  // The inner-join filter on the main query already excluded
+  // `aho-test-org-*` orgs, so anything that survived is real.
+  const agentPairs = new Map<string, { slug: string; updatedAt: string | null }>();
+  for (const row of cleanRows) {
+    const org = Array.isArray(row.organizations)
+      ? row.organizations[0]
+      : row.organizations;
+    if (!org || typeof org !== 'object' || !('slug' in org)) continue;
+    const slug = (org as { slug: string }).slug;
+    if (!slug || agentPairs.has(slug)) continue;
+    agentPairs.set(slug, {
+      slug,
+      updatedAt:
+        ((org as { updated_at?: string | null }).updated_at as string | null) ?? null,
+    });
+  }
+  const agents: MetadataRoute.Sitemap = [];
+  for (const { slug, updatedAt } of agentPairs.values()) {
+    const enUrl = `${site}/en/agents/${slug}`;
+    const esUrl = `${site}/es/agentes/${slug}`;
+    const lastMod = updatedAt ? new Date(updatedAt) : now;
+    agents.push(
+      {
+        url: enUrl,
+        lastModified: lastMod,
+        changeFrequency: 'weekly',
+        priority: 0.5,
+        alternates: { languages: { en: enUrl, es: esUrl, 'x-default': enUrl } },
+      },
+      {
+        url: esUrl,
+        lastModified: lastMod,
+        changeFrequency: 'weekly',
+        priority: 0.5,
+        alternates: { languages: { en: enUrl, es: esUrl, 'x-default': enUrl } },
+      },
+    );
+  }
+
+  return [...marketing, ...listings, ...cityLandings, ...agents];
 }
