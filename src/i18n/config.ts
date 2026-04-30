@@ -104,4 +104,7 @@ export const PATHNAMES = {
     en: '/agents/[slug]',
     es: '/agentes/[slug]',
   },
+  // Admin moderation surface — same path in both locales (internal tool;
+  // platform admins are us, not localized). robots noindex enforced inline.
+  '/admin': '/admin',
 } as const;
