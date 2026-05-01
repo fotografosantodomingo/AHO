@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { sanitizeNext } from '@/lib/auth/redirect';
 import { SignInForm } from '@/components/auth/sign-in-form';
 import { DotGrid, HeroGlow } from '@/components/ui/dot-grid';
 
@@ -39,7 +40,7 @@ export default async function SignInPage({ params, searchParams }: PageProps) {
   const supabase = await createServerSupabaseClient();
   const { data } = await supabase.auth.getUser();
   if (data.user) {
-    redirect(next ?? `/${locale}`);
+    redirect(sanitizeNext(next, locale));
   }
 
   const t = await getTranslations({ locale, namespace: 'auth' });

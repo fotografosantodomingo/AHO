@@ -12,6 +12,30 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — Security: open-redirect fix on /signin + /magic-link (sanitizeNext helper)
+
+Bug analysis sweep found an open-redirect vulnerability on the auth-bounce paths. `src/app/[locale]/signin/page.tsx:42` and `src/app/[locale]/magic-link/page.tsx:40` both did `redirect(next ?? `/${locale}`)` with no sanitization on the `?next=` query parameter. An attacker could craft a link like `https://aho.example.com/signin?next=https://evil.example.com` and bounce already-signed-in victims off-site immediately on page load, using the legitimate AHO domain to add credibility to the phishing chain.
+
+**Fix:** new `src/lib/auth/redirect.ts` exports `sanitizeNext(next, locale)` — only accepts paths starting with `/` and NOT starting with `//` (which is a protocol-relative URL — browsers resolve `//evil.com/foo` against the current scheme, taking the user off-site). Anything else falls back to `/${locale}`. Both auth pages now route through this helper.
+
+**Notably already safe:** `MagicLinkForm` (the client component) already had this exact check inline at `src/components/auth/magic-link-form.tsx:41`. The vulnerability was only the page-level "you're already signed in, bounce you" branch — which is when the bug was most exploitable (no user interaction required after the click).
+
+**Tests:** 8 new unit tests in `tests/unit/auth-redirect.test.ts` covering relative paths, absolute http/https blocked, protocol-relative `//evil` blocked, `javascript:` / `data:` URIs blocked, paths without leading `/` blocked, locale-aware fallback, query strings and fragments preserved on safe paths.
+
+**Other findings from the bug-analysis sweep:**
+  - **Uncertain:** TOCTOU pattern in `src/app/api/properties/[id]/images/[imageId]/confirm/route.ts:59-62` — `if (image.upload_status === 'confirmed') return early` is followed by an UPDATE; in rare concurrent confirms the same metadata could be written twice. Impact is minimal (idempotent write of the same value); fix would be a single UPDATE with `WHERE upload_status != 'confirmed'` and rowcount-check. Logged but not patched in this batch — too low-impact to gate on.
+  - **No i18n key drift** between en.json and es.json
+  - **No edge-runtime / Node-import gotchas**
+  - **All `req.json()` callsites zod-validated** before reaching the DB
+  - **All `createAdminClient()` callsites justified** (anonymous leads, analytics events, webhook processing, GDPR deletion)
+  - **No N+1 queries on list pages**
+  - **Stripe webhook idempotency sound** (events deduped via `stripe_events_processed` before handlers run)
+  - **No timestamp / unix-seconds vs JS-ms confusion**
+
+**Verification:** typecheck clean · 132/132 unit tests (was 124, +8 new) · lint only pre-existing `_req` warnings.
+
+---
+
 ## 2026-05-01 — Resend → Brevo final cleanup + smart partitioned sitemap with image:image children
 
 PO confirmation that Brevo is the only email provider (the bilingual Resend → Brevo swap happened weeks ago in `src/lib/email/brevo.ts`). Today's pass found and removed every leftover that still named Resend.

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { sanitizeNext } from '@/lib/auth/redirect';
 import { MagicLinkForm } from '@/components/auth/magic-link-form';
 import { DotGrid } from '@/components/ui/dot-grid';
 
@@ -37,7 +38,7 @@ export default async function MagicLinkPage({ params, searchParams }: PageProps)
   const supabase = await createServerSupabaseClient();
   const { data } = await supabase.auth.getUser();
   if (data.user) {
-    redirect(next ?? `/${locale}`);
+    redirect(sanitizeNext(next, locale));
   }
 
   const t = await getTranslations({ locale, namespace: 'auth.magic' });
