@@ -354,9 +354,47 @@ interface AgentProfile {
   logoUrl: string | null;
 }
 
+/**
+ * Public agent identity — fields from `profiles` we surface on the
+ * agent profile page. Phone numbers are NOT exposed here (they only
+ * surface via the SECURITY DEFINER `get_listing_contact` RPC, which
+ * only returns them for active+published listings).
+ */
+export interface PublicAgentProfile {
+  fullName: string | null;
+  avatarUrl: string | null;
+  bio: string | null;
+  specialties: string[];
+  languagesSpoken: string[];
+  websiteUrl: string | null;
+  facebookUrl: string | null;
+  instagramUrl: string | null;
+  linkedinUrl: string | null;
+  /** Cached stats — recomputed by trigger on every status flip. */
+  statsTotalSales: number;
+  statsSales12mo: number;
+  statsPriceMinCents: number | null;
+  statsPriceMaxCents: number | null;
+  statsAvgPriceCents: number | null;
+}
+
+export interface SoldListing extends SearchListing {
+  soldDate: string | null;
+  soldPriceCents: number | null;
+  representedSide: 'buyer' | 'seller' | 'both' | null;
+}
+
 interface AgentProfileResult {
   org: AgentProfile | null;
+  /** The org's first owner — the human behind the brokerage. v1 is
+   *  one-agent-per-org, so this is "the agent" for now. v1.1 multi-
+   *  agent orgs will need a different surface. */
+  agent: PublicAgentProfile | null;
+  /** Active+published listings. */
   listings: SearchListing[];
+  /** Listings with status = sold or rented (for the Sold table + Recent
+   *  Sales carousel). Sorted by sold_date desc. */
+  soldListings: SoldListing[];
   totalShown: number;
   hasMore: boolean;
 }
@@ -383,7 +421,14 @@ export async function fetchAgentProfile(
   // here we just early-return because no real user should ever land on an
   // /agents/aho-test-org-a URL — the slug is enough signal.
   if (args.orgSlug.startsWith('aho-test-org-')) {
-    return { org: null, listings: [], totalShown: 0, hasMore: false };
+    return {
+      org: null,
+      agent: null,
+      listings: [],
+      soldListings: [],
+      totalShown: 0,
+      hasMore: false,
+    };
   }
 
   const { data: orgRow, error: orgErr } = await supabase
@@ -395,7 +440,14 @@ export async function fetchAgentProfile(
     .maybeSingle();
 
   if (orgErr || !orgRow) {
-    return { org: null, listings: [], totalShown: 0, hasMore: false };
+    return {
+      org: null,
+      agent: null,
+      listings: [],
+      soldListings: [],
+      totalShown: 0,
+      hasMore: false,
+    };
   }
 
   const org: AgentProfile = {
@@ -410,6 +462,58 @@ export async function fetchAgentProfile(
     logoUrl: orgRow.logo_url,
   };
 
+  // Resolve the org's owner (the "agent" for v1 — single-owner-per-org).
+  // We need their profile fields for bio/specialties/socials/stats and
+  // their id to scope the listings query (using created_by). v1.1
+  // multi-agent will switch this to all members.
+  const { data: ownerRow } = await supabase
+    .from('organization_members')
+    .select('user_id, profiles!inner(full_name, avatar_url, bio, specialties, languages_spoken, website_url, facebook_url, instagram_url, linkedin_url, stats_total_sales, stats_sales_12mo, stats_price_min_cents, stats_price_max_cents, stats_avg_price_cents)')
+    .eq('org_id', orgRow.id)
+    .eq('role', 'owner')
+    .limit(1)
+    .maybeSingle();
+
+  type OwnerProfile = {
+    full_name: string | null;
+    avatar_url: string | null;
+    bio: string | null;
+    specialties: string[] | null;
+    languages_spoken: string[] | null;
+    website_url: string | null;
+    facebook_url: string | null;
+    instagram_url: string | null;
+    linkedin_url: string | null;
+    stats_total_sales: number;
+    stats_sales_12mo: number;
+    stats_price_min_cents: number | null;
+    stats_price_max_cents: number | null;
+    stats_avg_price_cents: number | null;
+  };
+  const ownerProfileRaw = ownerRow?.profiles as OwnerProfile | OwnerProfile[] | null | undefined;
+  const ownerProfile = Array.isArray(ownerProfileRaw) ? ownerProfileRaw[0] ?? null : ownerProfileRaw ?? null;
+  const agent: PublicAgentProfile | null = ownerProfile
+    ? {
+        fullName: ownerProfile.full_name,
+        avatarUrl: ownerProfile.avatar_url,
+        bio: ownerProfile.bio,
+        specialties: ownerProfile.specialties ?? [],
+        languagesSpoken: ownerProfile.languages_spoken ?? [],
+        websiteUrl: ownerProfile.website_url,
+        facebookUrl: ownerProfile.facebook_url,
+        instagramUrl: ownerProfile.instagram_url,
+        linkedinUrl: ownerProfile.linkedin_url,
+        statsTotalSales: ownerProfile.stats_total_sales ?? 0,
+        statsSales12mo: ownerProfile.stats_sales_12mo ?? 0,
+        statsPriceMinCents: ownerProfile.stats_price_min_cents,
+        statsPriceMaxCents: ownerProfile.stats_price_max_cents,
+        statsAvgPriceCents: ownerProfile.stats_avg_price_cents,
+      }
+    : null;
+
+  // Active listings + sold listings — fetched separately so the page
+  // renders two distinct sections (For Sale / Sold) without filtering
+  // a single result set client-side.
   const { data: listingsRows, error: listingsErr } = await supabase
     .from('properties')
     .select(
@@ -424,8 +528,20 @@ export async function fetchAgentProfile(
 
   if (listingsErr) {
     console.error('[fetchAgentProfile] listings query failed', listingsErr);
-    return { org, listings: [], totalShown: 0, hasMore: false };
+    return { org, agent, listings: [], soldListings: [], totalShown: 0, hasMore: false };
   }
+
+  // Sold listings — separate query so the for-sale set keeps its own
+  // featured_until / published_at ordering.
+  const { data: soldRows } = await supabase
+    .from('properties')
+    .select(
+      'id, short_id, slug_en, slug_es, title_en, title_es, transaction_type, property_type, price_cents, currency, price_period, bedrooms, bathrooms, area_sqm, neighborhood, city, country_code, image_count, latitude, longitude, sold_date, sold_price_cents, represented_side',
+    )
+    .eq('org_id', orgRow.id)
+    .in('status', ['sold', 'rented'])
+    .order('sold_date', { ascending: false, nullsFirst: false })
+    .limit(50);
 
   const rows = (listingsRows ?? []).filter(
     (r) =>
@@ -462,7 +578,45 @@ export async function fetchAgentProfile(
     longitude: r.longitude != null ? Number(r.longitude) : null,
   }));
 
-  return { org, listings, totalShown: listings.length, hasMore };
+  // Sold listings — same shape + sold-side fields. Separate image map
+  // (different ids than the for-sale set).
+  const soldFiltered = (soldRows ?? []).filter(
+    (r) =>
+      !r.slug_en?.startsWith('aho-fixture-') && !r.slug_es?.startsWith('aho-fixture-'),
+  );
+  const soldImageMap = await fetchPrimaryImageMap(
+    supabase,
+    soldFiltered.map((r) => r.id as string),
+  );
+  const soldListings: SoldListing[] = soldFiltered.map((r) => ({
+    id: r.id,
+    shortId: r.short_id,
+    slugEn: r.slug_en,
+    slugEs: r.slug_es,
+    titleEn: r.title_en,
+    titleEs: r.title_es,
+    transactionType: r.transaction_type,
+    propertyType: r.property_type,
+    priceCents: Number(r.price_cents),
+    currency: r.currency,
+    pricePeriod: r.price_period,
+    bedrooms: r.bedrooms,
+    bathrooms: r.bathrooms != null ? Number(r.bathrooms) : null,
+    areaSqm: r.area_sqm != null ? Number(r.area_sqm) : null,
+    neighborhood: r.neighborhood,
+    city: r.city,
+    countryCode: r.country_code,
+    imageCount: r.image_count,
+    primaryImageId: soldImageMap.get(r.id)?.cfImageId ?? null,
+    primaryR2Key: soldImageMap.get(r.id)?.r2Key ?? null,
+    latitude: r.latitude != null ? Number(r.latitude) : null,
+    longitude: r.longitude != null ? Number(r.longitude) : null,
+    soldDate: r.sold_date as string | null,
+    soldPriceCents: r.sold_price_cents != null ? Number(r.sold_price_cents) : null,
+    representedSide: (r.represented_side as 'buyer' | 'seller' | 'both' | null) ?? null,
+  }));
+
+  return { org, agent, listings, soldListings, totalShown: listings.length, hasMore };
 }
 
 /**

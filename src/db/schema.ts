@@ -63,6 +63,15 @@ export const profiles = pgTable('profiles', {
   linkedinUrl: text('linkedin_url'),
   specialties: text('specialties').array().notNull().default(sql`'{}'::text[]`),
   languagesSpoken: text('languages_spoken').array().notNull().default(sql`'{}'::text[]`),
+  // Stats cache (migration 0013). Recomputed by trigger when any
+  // sold-state changes; safe to read directly without re-running the
+  // aggregate. AVG ignores nulls — confidential closings excluded.
+  statsTotalSales: integer('stats_total_sales').notNull().default(0),
+  statsSales12mo: integer('stats_sales_12mo').notNull().default(0),
+  statsPriceMinCents: bigint('stats_price_min_cents', { mode: 'number' }),
+  statsPriceMaxCents: bigint('stats_price_max_cents', { mode: 'number' }),
+  statsAvgPriceCents: bigint('stats_avg_price_cents', { mode: 'number' }),
+  statsRecomputedAt: timestamp('stats_recomputed_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
@@ -349,8 +358,24 @@ export const properties = pgTable('properties', {
   postalCode: text('postal_code'),
   displayAddress: boolean('display_address').notNull().default(true),
 
-  // Geo
-  location: geographyPoint('location').notNull(),
+  // Geo — nullable as of migration 0011 (listings without exact lat/lng
+  // are legitimate; they just don't show on the map).
+  location: geographyPoint('location'),
+
+  // Sold-side fields (migration 0013). Required only when status flips
+  // to 'sold' or 'rented' — the require_sold_date_on_close trigger
+  // backfills sold_date if omitted; price stays optional (confidential
+  // closings).
+  soldDate: timestamp('sold_date', { withTimezone: true }),
+  soldPriceCents: bigint('sold_price_cents', { mode: 'number' }),
+  representedSide: text('represented_side'), // 'buyer' | 'seller' | 'both'
+  closingNotes: text('closing_notes'),
+
+  // v1.1 multi-agent forward-compat (migration 0013). When NULL, the
+  // listing's primary agent for stats purposes is `created_by`. v1.1
+  // multi-agent orgs set this explicitly. DO NOT remove without
+  // updating the recompute_agent_stats trigger.
+  primaryAgentId: uuid('primary_agent_id').references(() => profiles.id),
 
   // Features
   amenities: text('amenities')
@@ -412,6 +437,9 @@ export type NewPropertyImage = typeof propertyImages.$inferInsert;
 
 // Status / type unions — keep in sync with the SQL CHECK constraints in 0004.
 
+// Status enum — keep in sync with the CHECK constraint in
+// 0004_properties.sql (extended in 0013_sold_stats_status.sql with
+// 'coming_soon').
 export const PROPERTY_STATUSES = [
   'draft',
   'active',
@@ -419,6 +447,7 @@ export const PROPERTY_STATUSES = [
   'sold',
   'rented',
   'archived',
+  'coming_soon',
 ] as const;
 export type PropertyStatus = (typeof PROPERTY_STATUSES)[number];
 
@@ -488,3 +517,27 @@ export const savedSearches = pgTable('saved_searches', {
 
 export type SavedSearch = typeof savedSearches.$inferSelect;
 export type NewSavedSearch = typeof savedSearches.$inferInsert;
+
+// ----------------------------------------------------------------
+// audit_log (migration 0013) — append-only ledger of significant
+// state-changing actions. Admin reads everything; users read their
+// own rows (by actor_id). No UPDATE/DELETE policies — append-only.
+// Inserts are gated by RLS to actor_id = auth.uid(); service-role
+// bypasses as always.
+// ----------------------------------------------------------------
+
+export const auditLog = pgTable('audit_log', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  // e.g. 'listing.marked_sold', 'listing.archived', 'admin.user.promoted'
+  kind: text('kind').notNull(),
+  actorId: uuid('actor_id').references(() => profiles.id),
+  // Loose-typed FK — we record what was acted on, not which table it lived in
+  targetId: uuid('target_id'),
+  // Free-form snapshot of action specifics (prior status, sold price, etc.)
+  payload: jsonb('payload').notNull().default(sql`'{}'::jsonb`),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type AuditLogRow = typeof auditLog.$inferSelect;
+export type NewAuditLogRow = typeof auditLog.$inferInsert;
+

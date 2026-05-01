@@ -234,6 +234,69 @@ export default async function AgentProfilePage({
         </section>
 
         <div className="mx-auto max-w-6xl space-y-10 px-6 py-12">
+
+        {/* Stat tiles. Em-dash for missing values (locked decision per
+            the dev review — clearer than 0 for "we don't have data yet").
+            Whole row hidden if every metric is null/zero — empty agents
+            don't need a row of em-dashes screaming "no data". */}
+        {result.agent && (result.agent.statsTotalSales > 0 || result.agent.statsSales12mo > 0) && (
+          <section aria-label={t('statsLabel')} className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <StatTile
+              label={t('statSales12mo')}
+              value={result.agent.statsSales12mo > 0 ? String(result.agent.statsSales12mo) : '—'}
+            />
+            <StatTile
+              label={t('statTotalSales')}
+              value={result.agent.statsTotalSales > 0 ? String(result.agent.statsTotalSales) : '—'}
+            />
+            <StatTile
+              label={t('statPriceRange')}
+              value={
+                result.agent.statsPriceMinCents != null && result.agent.statsPriceMaxCents != null
+                  ? `${formatStatPrice(result.agent.statsPriceMinCents, typedLocale)}–${formatStatPrice(result.agent.statsPriceMaxCents, typedLocale)}`
+                  : '—'
+              }
+            />
+            <StatTile
+              label={t('statAvgPrice')}
+              value={
+                result.agent.statsAvgPriceCents != null
+                  ? formatStatPrice(result.agent.statsAvgPriceCents, typedLocale)
+                  : '—'
+              }
+            />
+          </section>
+        )}
+
+        {/* Recent Sales carousel. Hidden entirely if zero sold listings
+            (no empty-state copy — empty rail looks broken). Horizontal
+            scroll on mobile; grid on md+. */}
+        {result.soldListings.length > 0 && (
+          <section aria-labelledby="recent-sales-heading" className="space-y-3">
+            <h2
+              id="recent-sales-heading"
+              className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper"
+            >
+              {t('recentSalesHeading')}
+            </h2>
+            <ul className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2 md:grid md:grid-cols-3 md:overflow-x-visible lg:grid-cols-4">
+              {result.soldListings.slice(0, 8).map((l) => (
+                <li key={l.id} className="w-64 shrink-0 md:w-auto">
+                  <ListingCard listing={l} locale={typedLocale} />
+                  <p className="mt-1 px-1 text-[11px] uppercase tracking-wider text-helper">
+                    {l.transactionType === 'rent' || l.transactionType === 'short_term'
+                      ? t('soldRented')
+                      : t('soldSold')}
+                    {l.soldDate && (
+                      <> · {new Intl.DateTimeFormat(typedLocale === 'es' ? 'es-DO' : 'en-US', { month: 'short', year: 'numeric' }).format(new Date(l.soldDate))}</>
+                    )}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
         <section aria-labelledby="listings-heading" className="space-y-4">
           <div className="flex items-baseline justify-between">
             <h2
@@ -275,8 +338,109 @@ export default async function AgentProfilePage({
             </ul>
           )}
         </section>
+
+        {/* Sold listings table — only renders when the agent has at
+            least one closing. Tabular layout (not card grid) because
+            the closing-side + closing-date matter for the sold record
+            and a card hides them. */}
+        {result.soldListings.length > 0 && (
+          <section aria-labelledby="sold-heading" className="space-y-3">
+            <h2
+              id="sold-heading"
+              className="font-brand text-xl font-bold tracking-tight"
+            >
+              {t('soldHeading')}
+            </h2>
+            <div className="overflow-x-auto rounded-card border border-border bg-surface shadow-whisper dark:bg-surface-deep">
+              <table className="min-w-full divide-y divide-border text-sm">
+                <thead className="text-left">
+                  <tr>
+                    <th className="px-3 py-2 font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+                      {t('soldColAddress')}
+                    </th>
+                    <th className="px-3 py-2 font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+                      {t('soldColDate')}
+                    </th>
+                    <th className="px-3 py-2 text-right font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+                      {t('soldColPrice')}
+                    </th>
+                    <th className="px-3 py-2 font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+                      {t('soldColSide')}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/60">
+                  {result.soldListings.map((l) => {
+                    const slug = (typedLocale === 'es' ? l.slugEs : l.slugEn) ?? l.slugEn ?? l.slugEs;
+                    const titleStr =
+                      (typedLocale === 'es' ? l.titleEs : l.titleEn) ?? l.titleEn ?? l.titleEs ?? '—';
+                    const path = slug
+                      ? `/${typedLocale}/${typedLocale === 'es' ? 'propiedades' : 'properties'}/${slug}-${l.shortId}`
+                      : null;
+                    return (
+                      <tr key={l.id}>
+                        <td className="px-3 py-2">
+                          {path ? (
+                            <Link className="hover:underline" href={path}>
+                              {titleStr}
+                            </Link>
+                          ) : (
+                            titleStr
+                          )}
+                          <div className="text-xs text-helper">
+                            {l.city}, {l.countryCode}
+                          </div>
+                        </td>
+                        <td className="px-3 py-2 text-helper">
+                          {l.soldDate
+                            ? new Intl.DateTimeFormat(typedLocale === 'es' ? 'es-DO' : 'en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                              }).format(new Date(l.soldDate))
+                            : '—'}
+                        </td>
+                        <td className="px-3 py-2 text-right tabular-nums">
+                          {l.soldPriceCents != null
+                            ? formatStatPrice(l.soldPriceCents, typedLocale, l.currency)
+                            : '—'}
+                        </td>
+                        <td className="px-3 py-2">
+                          {l.representedSide === 'buyer'
+                            ? t('sideBuyer')
+                            : l.representedSide === 'seller'
+                            ? t('sideSeller')
+                            : l.representedSide === 'both'
+                            ? t('sideBoth')
+                            : '—'}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
         </div>
       </main>
     </>
   );
+}
+
+function StatTile({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-card border border-border bg-surface p-4 shadow-whisper dark:bg-surface-deep">
+      <p className="text-[11px] uppercase tracking-wider text-helper">{label}</p>
+      <p className="mt-1 font-brand text-2xl font-semibold tabular-nums">{value}</p>
+    </div>
+  );
+}
+
+function formatStatPrice(cents: number, locale: 'en' | 'es', currency = 'USD'): string {
+  return new Intl.NumberFormat(locale === 'es' ? 'es-DO' : 'en-US', {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: 0,
+  }).format(cents / 100);
 }

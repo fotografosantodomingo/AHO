@@ -158,6 +158,32 @@
     "notFound": "Anuncio no encontrado",
     "notFoundBody": "El anuncio que buscas ya no está disponible o ha sido eliminado."
   },
+  "markSold": {
+    "buttonSale": "Marcar como vendido",
+    "buttonRent": "Marcar como alquilado",
+    "headingSale": "Marcar este anuncio como vendido",
+    "headingRent": "Marcar este anuncio como alquilado",
+    "subheading": "El precio de cierre es opcional — déjalo vacío para cierres confidenciales.",
+    "date": "Fecha de cierre",
+    "price": "Precio de cierre",
+    "pricePlaceholder": "Unidades enteras (ej. 350000)",
+    "priceHelp": "Opcional. Déjalo vacío para cierres confidenciales — el anuncio igualmente pasa a tu historial de ventas.",
+    "side": "Lado representado",
+    "sideBuyer": "Comprador",
+    "sideSeller": "Vendedor",
+    "sideBoth": "Ambos",
+    "notes": "Notas de cierre",
+    "notesPlaceholder": "Notas internas — nunca se muestran públicamente.",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "errorInvalidPrice": "Introduce un número positivo, o déjalo vacío.",
+    "errorForbidden": "No tienes permiso para marcar este anuncio como vendido.",
+    "errorUnauthenticated": "Tu sesión expiró. Inicia sesión de nuevo."
+  },
+  "archiveListing": {
+    "archive": "Archivar",
+    "restore": "Restaurar"
+  },
   "agentProfile": {
     "headingTemplate": "{name}",
     "subheadingTemplate": "Agente inmobiliario · {location}",
@@ -168,7 +194,23 @@
     "emptyHeading": "Sin anuncios activos por ahora",
     "emptyBody": "{name} no tiene anuncios activos en AHO en este momento.",
     "browseAllCta": "Explorar anuncios mundiales",
-    "websiteCta": "Visitar sitio web"
+    "websiteCta": "Visitar sitio web",
+    "statsLabel": "Métricas de ventas",
+    "statSales12mo": "Ventas últimos 12 meses",
+    "statTotalSales": "Ventas totales",
+    "statPriceRange": "Rango de precios (3 años)",
+    "statAvgPrice": "Precio promedio (3 años)",
+    "recentSalesHeading": "Ventas recientes",
+    "soldHeading": "Inmuebles vendidos",
+    "soldColAddress": "Inmueble",
+    "soldColDate": "Fecha de cierre",
+    "soldColPrice": "Precio de cierre",
+    "soldColSide": "Representado",
+    "soldSold": "Vendido",
+    "soldRented": "Alquilado",
+    "sideBuyer": "Comprador",
+    "sideSeller": "Vendedor",
+    "sideBoth": "Ambos"
   },
   "countries": {
     "eyebrow": "Internacional",

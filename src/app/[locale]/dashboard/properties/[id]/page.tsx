@@ -5,6 +5,8 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { formatPrice } from '@/lib/listings/seo';
 import { PublishButton } from '@/components/listings/publish-button';
 import { ImageUploader } from '@/components/listings/image-uploader';
+import { MarkAsSoldButton } from '@/components/listings/mark-as-sold-button';
+import { ArchiveListingButton } from '@/components/listings/archive-listing-button';
 
 export const runtime = 'edge';
 
@@ -24,7 +26,7 @@ export default async function EditListingPage({
   const { data: listing, error } = await supabase
     .from('properties')
     .select(
-      'id, short_id, status, title_en, title_es, slug_en, slug_es, city, country_code, price_cents, currency, image_count, published_at, updated_at',
+      'id, short_id, status, title_en, title_es, slug_en, slug_es, city, country_code, price_cents, currency, image_count, published_at, updated_at, transaction_type, sold_date, sold_price_cents',
     )
     .eq('id', id)
     .maybeSingle();
@@ -71,6 +73,19 @@ export default async function EditListingPage({
             </a>
           )}
           {listing.status === 'draft' && <PublishButton id={listing.id} />}
+          {listing.status === 'active' && (
+            <MarkAsSoldButton
+              id={listing.id}
+              currency={listing.currency}
+              intent={listing.transaction_type === 'rent' || listing.transaction_type === 'short_term' ? 'rented' : 'sold'}
+            />
+          )}
+          {listing.status !== 'sold' && listing.status !== 'rented' && (
+            <ArchiveListingButton
+              id={listing.id}
+              isArchived={listing.status === 'archived'}
+            />
+          )}
         </div>
       </header>
 
