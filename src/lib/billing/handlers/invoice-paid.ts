@@ -2,6 +2,9 @@ import 'server-only';
 import type Stripe from 'stripe';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getStripeClient } from '../stripe';
+import { sendEmail } from '@/lib/email/brevo';
+import { renderAdminPaymentReceivedEmail } from '@/lib/email/templates/admin-payment-received';
+import { formatPrice } from '@/lib/listings/format';
 import {
   findSubscriptionRowId,
   updateSubscriptionFromStripe,
@@ -53,17 +56,81 @@ export async function handleInvoicePaid(event: Stripe.Event): Promise<void> {
   const supabase = createAdminClient();
   const paymentIntentId = paymentIntentIdFromInvoice(invoice);
 
-  await supabase.from('payments').upsert(
-    {
-      subscription_id: subRowId,
-      stripe_payment_intent_id: paymentIntentId,
-      stripe_invoice_id: invoice.id,
-      amount_cents: invoice.amount_paid,
-      currency: invoice.currency.toUpperCase(),
-      status: 'succeeded',
-    },
-    { onConflict: 'stripe_payment_intent_id', ignoreDuplicates: true },
-  );
+  const upsertResult = await supabase
+    .from('payments')
+    .upsert(
+      {
+        subscription_id: subRowId,
+        stripe_payment_intent_id: paymentIntentId,
+        stripe_invoice_id: invoice.id,
+        amount_cents: invoice.amount_paid,
+        currency: invoice.currency.toUpperCase(),
+        status: 'succeeded',
+      },
+      { onConflict: 'stripe_payment_intent_id', ignoreDuplicates: true },
+    )
+    .select('id');
+
+  // Admin notification — fire only on fresh inserts. With
+  // `ignoreDuplicates: true`, a duplicate returns an empty rows array
+  // from .select(). The dedup table at the route layer also covers
+  // redelivered Stripe events, but defense-in-depth: this avoids a
+  // double-notification if the route's dedup ever misses.
+  const wasFreshInsert = (upsertResult.data?.length ?? 0) > 0;
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (adminEmail && wasFreshInsert) {
+    try {
+      // Resolve org name + plan id from our subscription row.
+      let orgName: string | null = null;
+      let planId: string | null = null;
+      if (subRowId) {
+        const { data: subRow } = await supabase
+          .from('subscriptions')
+          .select(
+            'plan_id, organizations!subscriptions_org_id_fkey(name)',
+          )
+          .eq('id', subRowId)
+          .maybeSingle();
+        if (subRow) {
+          planId = (subRow.plan_id as string | null) ?? null;
+          const orgJoin = subRow.organizations as
+            | { name?: string | null }
+            | { name?: string | null }[]
+            | null;
+          const org = Array.isArray(orgJoin) ? orgJoin[0] : orgJoin;
+          orgName = org?.name ?? null;
+        }
+      }
+
+      const customerEmail =
+        (invoice.customer_email as string | null) ??
+        ((invoice.customer as { email?: string | null } | null)?.email ?? '—');
+      const amountLabel = formatPrice(
+        invoice.amount_paid ?? 0,
+        invoice.currency.toUpperCase(),
+        'en',
+      );
+      const dashboardUrl = `https://dashboard.stripe.com/invoices/${invoice.id}`;
+      const email = renderAdminPaymentReceivedEmail({
+        amountLabel,
+        invoiceId: invoice.id,
+        customerEmail,
+        orgName,
+        planId,
+        dashboardUrl,
+      });
+      const sendResult = await sendEmail({
+        to: adminEmail,
+        subject: email.subject,
+        html: email.html,
+      });
+      if (!sendResult.sent) {
+        console.warn('[invoice.paid] admin notification not sent', sendResult.error);
+      }
+    } catch (e) {
+      console.error('[invoice.paid] admin notification threw', e);
+    }
+  }
 }
 
 function invoiceSubscriptionId(invoice: Stripe.Invoice): string | null {

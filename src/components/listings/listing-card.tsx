@@ -10,6 +10,11 @@ import type { Locale } from '@/i18n/config';
 interface ListingCardProps {
   listing: SearchListing;
   locale: Locale;
+  /** Optional approx-converted price label ("≈ €240,000") rendered
+   *  below the source price. Passed in from server components that
+   *  precomputed conversion via `precomputeApproxLabels()` — this
+   *  Client Component can't read cookies / fetch rates itself. */
+  approxPriceLabel?: string | null;
 }
 
 /**
@@ -28,7 +33,7 @@ interface ListingCardProps {
  * the listing has no confirmed primary image (early days; no Cloudflare
  * Images yet).
  */
-export function ListingCard({ listing, locale }: ListingCardProps) {
+export function ListingCard({ listing, locale, approxPriceLabel }: ListingCardProps) {
   const t = useTranslations('property');
   const tCard = useTranslations('card');
 
@@ -122,12 +127,17 @@ export function ListingCard({ listing, locale }: ListingCardProps) {
         <h3 className="font-brand line-clamp-2 text-[19px] font-bold leading-[1.21] tracking-tight">
           {title}
         </h3>
-        <p className="text-lg font-semibold">
-          {priceLabel}
-          {periodLabel && (
-            <span className="ml-1 text-sm font-normal text-helper">{periodLabel}</span>
+        <div>
+          <p className="text-lg font-semibold">
+            {priceLabel}
+            {periodLabel && (
+              <span className="ml-1 text-sm font-normal text-helper">{periodLabel}</span>
+            )}
+          </p>
+          {approxPriceLabel && (
+            <p className="text-xs text-helper tabular-nums">≈ {approxPriceLabel}</p>
           )}
-        </p>
+        </div>
         {specs.length > 0 && (
           <ul className="flex gap-1.5 pt-1">
             {specs.map((spec) => (

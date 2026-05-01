@@ -7,13 +7,14 @@ import {
   fetchPropertyByShortId,
   parseSlugParam,
 } from '@/lib/listings/queries';
-import { buildSeoMeta, buildListingJsonLd, formatPrice, listingUrls } from '@/lib/listings/seo';
+import { buildSeoMeta, buildListingJsonLd, listingUrls } from '@/lib/listings/seo';
 import { buildWhatsAppLink } from '@/lib/leads/whatsapp';
 import { ContactForm } from '@/components/listings/contact-form';
 import { PropertyGallery } from '@/components/listings/property-gallery';
 import { PriceHistory } from '@/components/listings/price-history';
 import { FactsAndFeatures } from '@/components/listings/facts-and-features';
 import { SimilarHomes } from '@/components/listings/similar-homes';
+import { PriceTile } from '@/components/listings/price-tile';
 import { getCountryName } from '@/lib/i18n/countries';
 import { fetchPriceHistory } from '@/lib/listings/price-history';
 import { findSimilarListings } from '@/lib/listings/similar';
@@ -119,7 +120,6 @@ export default async function PropertyDetailPage({
   const title = titleForLocale ?? fallbackTitle;
   const description = descriptionForLocale ?? fallbackDescription;
 
-  const price = formatPrice(property.priceCents, property.currency, typedLocale);
   const transactionLabel = t(`transactionType.${property.transactionType}`);
   const periodLabel = property.pricePeriod ? t(`pricePeriod.${property.pricePeriod}`) : '';
 
@@ -266,12 +266,15 @@ export default async function PropertyDetailPage({
             <span className="inline-flex items-center rounded-md border border-border bg-surface px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-ink shadow-whisper dark:bg-surface-deep dark:text-ink-inverse">
               {transactionLabel}
             </span>
-            <p className="mt-2 font-brand text-3xl font-bold tabular-nums tracking-tight md:text-[34px]">
-              {price}
-              {periodLabel ? (
-                <span className="ml-1 text-base font-normal text-helper">{periodLabel}</span>
-              ) : null}
-            </p>
+            <div className="mt-2">
+              <PriceTile
+                priceCents={property.priceCents}
+                currency={property.currency}
+                locale={typedLocale}
+                periodLabel={periodLabel}
+                size="lg"
+              />
+            </div>
           </div>
         </header>
 

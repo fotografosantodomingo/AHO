@@ -5,6 +5,7 @@ import { LOCALES, type Locale } from '@/i18n/config';
 import { getCountryCities } from '@/lib/listings/countries';
 import { getCountryName } from '@/lib/i18n/countries';
 import { DotGrid } from '@/components/ui/dot-grid';
+import { LocationSubBar } from '@/components/location-sub-bar';
 import { publicEnv } from '@/lib/env';
 
 export const runtime = 'edge';
@@ -91,6 +92,11 @@ export default async function CountryLandingPage({
 
   return (
     <main>
+      <LocationSubBar
+        locale={typedLocale}
+        countryCode={cc}
+        countryDisplay={display}
+      />
       <section className="relative overflow-hidden border-b border-border dark:bg-surface-deep">
         <DotGrid />
         <div className="relative mx-auto max-w-6xl px-6 py-14 md:py-16">

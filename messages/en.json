@@ -10,7 +10,22 @@
     "signIn": "Sign in",
     "signUp": "Sign up",
     "dashboard": "Dashboard",
-    "account": "Account"
+    "account": "Account",
+    "buy": "Buy",
+    "rent": "Rent",
+    "sell": "Sell",
+    "findAgent": "Find an agent",
+    "help": "Help"
+  },
+  "currencyPicker": {
+    "label": "Display currency"
+  },
+  "priceTile": {
+    "approximateInLabel": "Approximately {value} in your selected currency"
+  },
+  "locationSubBar": {
+    "label": "Browse by location",
+    "allCountries": "All countries"
   },
   "pricing": {
     "eyebrow": "Pricing",
@@ -741,6 +756,7 @@
     "error": {
       "heading": "Authentication problem",
       "body": "We couldn't complete the sign-in. The link may have expired or been used.",
+      "bodyPkceMismatch": "It looks like you opened this link in a different browser or device than the one you started signing in on. Open the link in the same browser where you typed your email — that browser holds the verification cookie.",
       "tryAgainCta": "Back to sign in",
       "details": "Details: {reason}"
     },

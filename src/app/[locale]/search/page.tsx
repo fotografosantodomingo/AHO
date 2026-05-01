@@ -10,6 +10,7 @@ import { SearchFilters } from '@/components/listings/search-filters';
 import { SearchResultsView } from '@/components/listings/search-results-view';
 import { SaveSearchButton } from '@/components/saved-searches/save-search-button';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { precomputeApproxLabels } from '@/lib/currency/server';
 
 export const runtime = 'edge';
 
@@ -44,6 +45,20 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
   const filters = parseFilters(sp);
   const t = await getTranslations({ locale, namespace: 'search' });
   const result = await searchListings(filters, typedLocale);
+
+  // Approx-converted price labels for each visible listing. One rate
+  // fetch per page render. Bbox-driven updates degrade to source-only
+  // (the by-bbox endpoint doesn't return labels in v1).
+  const approxLabelMap = await precomputeApproxLabels(
+    result.listings.map((l) => ({
+      id: l.id,
+      priceCents: l.priceCents,
+      currency: l.currency,
+    })),
+    typedLocale,
+  );
+  const initialApproxLabels: Record<string, string> = {};
+  for (const [k, v] of approxLabelMap.entries()) initialApproxLabels[k] = v;
 
   // View toggle: ?view=map switches the results grid for a Leaflet map.
   // Default is the list view. Querystring source of truth so map view is
@@ -139,6 +154,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
         nextPageLabel={t('nextPage')}
         resetBboxLabel={t('resetBbox')}
         bboxActiveLabel={t('bboxActive')}
+        initialApproxLabels={initialApproxLabels}
       />
     </main>
   );

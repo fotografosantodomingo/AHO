@@ -171,6 +171,20 @@ export async function fetchPropertyByShortId(
   }
   if (!data) return null;
 
+  // Test-fixture exclusion. RLS test fixtures share the production
+  // Supabase project (RISKS R11). We filter at every public read surface
+  // — sitemap, city landing, agent profile, by-bbox API. The detail page
+  // was missing this filter, leaving direct-URL access to fixture rows
+  // (e.g., /properties/aho-fixture-active-listing-santo-domingo-fixaa1).
+  // Same belt-and-suspenders pattern as elsewhere: match the slug prefix
+  // OR the org slug. We don't have the org slug joined here, so the
+  // listing-slug check is the lever.
+  const slugEn = data.slug_en as string | null;
+  const slugEs = data.slug_es as string | null;
+  if (slugEn?.startsWith('aho-fixture-') || slugEs?.startsWith('aho-fixture-')) {
+    return null;
+  }
+
   // Camel-case the response (Supabase JS returns snake_case from PostgREST).
   return {
     id: data.id,

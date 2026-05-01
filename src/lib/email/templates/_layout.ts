@@ -3,10 +3,18 @@
  * external CSS — works across Gmail / Outlook / Apple Mail. No web fonts;
  * fall back to system fonts.
  *
- * Designed for short transactional emails (lead notification, welcome).
- * For multi-template flows down the road, consider migrating to React Email
- * components — but keep this wrapper as the fallback for environments where
- * RSC/JSX is overkill.
+ * Designed for short transactional emails (lead notification, welcome,
+ * review verification, admin notifications). For multi-template flows
+ * down the road, consider migrating to React Email components — but keep
+ * this wrapper as the fallback for environments where RSC/JSX is overkill.
+ *
+ * Branded footer (per the email-overhaul checklist 2026-05-01):
+ *   - Brand mark linked to the homepage
+ *   - Business support email + physical address (legal floor for many
+ *     jurisdictions; CAN-SPAM in the US requires it explicitly)
+ *   - Social links (FB / IG) — both labelled, the buyer can click through
+ *   - "You received this because…" disclosure for the per-template
+ *     footer override path
  */
 
 interface LayoutArgs {
@@ -14,6 +22,12 @@ interface LayoutArgs {
   bodyHtml: string;
   footer?: string;
 }
+
+const SITE_URL = 'https://advertisehomes.online';
+const SUPPORT_EMAIL = 'info@advertisehomes.online';
+const FACEBOOK_URL = 'https://facebook.com/advertisehomesonline';
+const INSTAGRAM_URL = 'https://instagram.com/advertisehomesonline';
+const BUSINESS_ADDRESS = 'AHO · Advertise Homes Online · Santo Domingo, Dominican Republic';
 
 const STYLES = {
   body: 'background:#f4f4f5;margin:0;padding:24px 0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#18181b;',
@@ -31,9 +45,25 @@ export function emailLayout({ preheader, bodyHtml, footer }: LayoutArgs): string
         preheader,
       )}</div>`
     : '';
-  const footerHtml =
+
+  const reasonLine =
     footer ??
-    '<p style="margin:0;">AHO · advertisehomes.online · You are receiving this because of activity on your AHO account.</p>';
+    'You are receiving this because of activity on your AHO account.';
+
+  const footerHtml = `
+    <p style="margin:0 0 8px;font-size:12px;color:#71717a;">${reasonLine}</p>
+    <p style="margin:0 0 8px;font-size:12px;color:#71717a;">
+      Need help?
+      <a href="mailto:${SUPPORT_EMAIL}" style="color:#52525b;text-decoration:underline;">${SUPPORT_EMAIL}</a>
+    </p>
+    <p style="margin:0 0 8px;font-size:12px;color:#71717a;">
+      <a href="${FACEBOOK_URL}" style="color:#52525b;text-decoration:underline;">Facebook</a>
+      &nbsp;·&nbsp;
+      <a href="${INSTAGRAM_URL}" style="color:#52525b;text-decoration:underline;">Instagram</a>
+      &nbsp;·&nbsp;
+      <a href="${SITE_URL}" style="color:#52525b;text-decoration:underline;">advertisehomes.online</a>
+    </p>
+    <p style="margin:0;font-size:11px;color:#a1a1aa;">${BUSINESS_ADDRESS}</p>`;
 
   return `<!doctype html>
 <html lang="en">
@@ -50,7 +80,7 @@ export function emailLayout({ preheader, bodyHtml, footer }: LayoutArgs): string
           <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="${STYLES.card}">
             <tr>
               <td style="${STYLES.inner}">
-                <a href="https://advertisehomes.online" style="${STYLES.brand}">AHO</a>
+                <a href="${SITE_URL}" style="${STYLES.brand}">AHO</a>
                 <div style="margin-top:24px;">${bodyHtml}</div>
               </td>
             </tr>

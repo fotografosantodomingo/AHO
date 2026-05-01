@@ -5,6 +5,7 @@ import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { fetchAgentProfile } from '@/lib/listings/search';
 import { fetchPublishedReviewsForAgent } from '@/lib/reviews/queries';
+import { precomputeApproxLabels } from '@/lib/currency/server';
 import { ListingCard } from '@/components/listings/listing-card';
 import { DotGrid, HeroGlow } from '@/components/ui/dot-grid';
 import { ReviewsSection } from '@/components/reviews/reviews-section';
@@ -105,6 +106,24 @@ export default async function AgentProfilePage({
   const reviewsData = result.agent
     ? await fetchPublishedReviewsForAgent({ agentId: result.agent.userId, limit: 20 })
     : { reviews: [], aggregate: { count: 0, avg: 0 } };
+
+  // Precompute approx-converted price labels across BOTH active listings
+  // and the recent-sales carousel. Single rate fetch.
+  const approxLabels = await precomputeApproxLabels(
+    [
+      ...result.listings.map((l) => ({
+        id: l.id,
+        priceCents: l.priceCents,
+        currency: l.currency,
+      })),
+      ...result.soldListings.map((l) => ({
+        id: l.id,
+        priceCents: l.priceCents,
+        currency: l.currency,
+      })),
+    ],
+    typedLocale,
+  );
 
   const description =
     (typedLocale === 'es' ? result.org.descriptionEs : result.org.descriptionEn) ??
@@ -307,7 +326,11 @@ export default async function AgentProfilePage({
             <ul className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2 md:grid md:grid-cols-3 md:overflow-x-visible lg:grid-cols-4">
               {result.soldListings.slice(0, 8).map((l) => (
                 <li key={l.id} className="w-64 shrink-0 md:w-auto">
-                  <ListingCard listing={l} locale={typedLocale} />
+                  <ListingCard
+                    listing={l}
+                    locale={typedLocale}
+                    approxPriceLabel={approxLabels.get(l.id) ?? null}
+                  />
                   <p className="mt-1 px-1 text-[11px] uppercase tracking-wider text-helper">
                     {l.transactionType === 'rent' || l.transactionType === 'short_term'
                       ? t('soldRented')
@@ -357,7 +380,11 @@ export default async function AgentProfilePage({
             <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {result.listings.map((l) => (
                 <li key={l.id}>
-                  <ListingCard listing={l} locale={typedLocale} />
+                  <ListingCard
+                    listing={l}
+                    locale={typedLocale}
+                    approxPriceLabel={approxLabels.get(l.id) ?? null}
+                  />
                 </li>
               ))}
             </ul>

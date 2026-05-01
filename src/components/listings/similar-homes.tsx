@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/i18n/config';
 import type { SearchListing } from '@/lib/listings/search';
+import { precomputeApproxLabels } from '@/lib/currency/server';
 import { ListingCard } from './listing-card';
 
 interface Props {
@@ -19,6 +20,14 @@ interface Props {
 export async function SimilarHomes({ listings, locale }: Props) {
   if (listings.length === 0) return null;
   const t = await getTranslations({ locale, namespace: 'property' });
+  const approxLabels = await precomputeApproxLabels(
+    listings.map((l) => ({
+      id: l.id,
+      priceCents: l.priceCents,
+      currency: l.currency,
+    })),
+    locale,
+  );
 
   return (
     <section
@@ -42,7 +51,11 @@ export async function SimilarHomes({ listings, locale }: Props) {
             key={listing.id}
             className="w-72 shrink-0 snap-start md:w-auto md:shrink"
           >
-            <ListingCard listing={listing} locale={locale} />
+            <ListingCard
+              listing={listing}
+              locale={locale}
+              approxPriceLabel={approxLabels.get(listing.id) ?? null}
+            />
           </li>
         ))}
       </ul>

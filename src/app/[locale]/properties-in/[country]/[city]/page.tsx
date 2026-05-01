@@ -8,6 +8,8 @@ import {
   type SearchListing,
 } from '@/lib/listings/search';
 import { ListingCard } from '@/components/listings/listing-card';
+import { precomputeApproxLabels } from '@/lib/currency/server';
+import { LocationSubBar } from '@/components/location-sub-bar';
 import { DotGrid } from '@/components/ui/dot-grid';
 import { publicEnv } from '@/lib/env';
 import { getCountryName } from '@/lib/i18n/countries';
@@ -116,6 +118,16 @@ export default async function CityLandingPage({
   const canonicalCity = result.resolvedCity ?? cityDisplay;
   const canonicalCountry = countryDisplay;
 
+  // Precompute approx-converted price labels for the visible listings.
+  const approxLabels = await precomputeApproxLabels(
+    result.listings.map((l) => ({
+      id: l.id,
+      priceCents: l.priceCents,
+      currency: l.currency,
+    })),
+    typedLocale,
+  );
+
   // JSON-LD ItemList for the listings on this page. Helps Google surface
   // city pages with a rich-result list of properties.
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
@@ -143,6 +155,12 @@ export default async function CityLandingPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <main>
+        <LocationSubBar
+          locale={typedLocale}
+          countryCode={country}
+          countryDisplay={canonicalCountry}
+          city={canonicalCity}
+        />
         {/* Hero band — dot-grid pattern, breadcrumb above H1. */}
         <section className="relative overflow-hidden border-b border-border dark:bg-surface-deep">
           <DotGrid />
@@ -205,7 +223,11 @@ export default async function CityLandingPage({
             <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {result.listings.map((l) => (
                 <li key={l.id}>
-                  <ListingCard listing={l} locale={typedLocale} />
+                  <ListingCard
+                    listing={l}
+                    locale={typedLocale}
+                    approxPriceLabel={approxLabels.get(l.id) ?? null}
+                  />
                 </li>
               ))}
             </ul>

@@ -2,12 +2,17 @@
 
 import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
-import { Globe } from 'lucide-react';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { usePathname, getPathname } from '@/i18n/routing';
 
+const PROPERTY_PATH_SEGMENTS = new Set(['properties', 'propiedades']);
+const PROPERTY_PATH_FOR_LOCALE: Record<Locale, string> = {
+  en: 'properties',
+  es: 'propiedades',
+};
+
 /**
- * Locale switcher.
+ * Locale switcher (no globe icon — clean dropdown only).
  *
  * Hard navigation (window.location.assign) instead of `router.replace`.
  * Reason: next-intl's typed router does a soft client-side nav that
@@ -20,8 +25,17 @@ import { usePathname, getPathname } from '@/i18n/routing';
  * issue a fresh request → middleware refreshes the session → the new
  * page sees them signed in.
  *
- * Path translations (e.g. /dashboard ↔ /panel) are handled by
- * `getPathname({ href, locale })` from next-intl/routing.
+ * Property pages (`/properties/[slug]-[shortId]`) are special: the slug
+ * portion is locale-specific (`slug_en` vs `slug_es`). When switching
+ * locales, we preserve the immutable shortId and let the destination
+ * page redirect to its canonical slug for the target locale. Single-
+ * language listings (the other-locale slug is null) skip the redirect
+ * and render the source content under "Translation pending" UX.
+ *
+ * Path translations for everything else (e.g. /dashboard ↔ /panel) are
+ * handled by `getPathname({ href, locale })` from next-intl/routing.
+ * Final safety net: any unrecoverable resolution falls back to the
+ * locale home rather than throwing.
  */
 export function LocaleToggle() {
   const t = useTranslations('locale');
@@ -32,9 +46,28 @@ export function LocaleToggle() {
   function switchTo(next: Locale) {
     if (next === locale) return;
     setIsPending(true);
-    // Resolve the localized URL, then hard-nav. getPathname returns the
-    // /es/... or /en/... path with any path-translation applied.
-    let target: string;
+
+    // Property-page special case: preserve the {slug-shortId} tail and
+    // swap the path segment. Destination page resolves canonical for
+    // the target locale.
+    const propertyMatch = pathname.match(/^\/(properties|propiedades)\/(.+)$/);
+    const segment = propertyMatch?.[1];
+    const slugAndShortId = propertyMatch?.[2];
+    if (
+      segment &&
+      slugAndShortId &&
+      PROPERTY_PATH_SEGMENTS.has(segment) &&
+      /^.+-[0-9a-zA-Z]{6}$/.test(slugAndShortId)
+    ) {
+      window.location.assign(
+        `/${next}/${PROPERTY_PATH_FOR_LOCALE[next]}/${slugAndShortId}`,
+      );
+      return;
+    }
+
+    // Default path: try typed lookup; fall back to prefix-swap; final
+    // fallback to locale home.
+    let target: string | undefined;
     try {
       target = getPathname({
         // @ts-expect-error — typed routes for dynamic [slug] aren't always inferred
@@ -42,17 +75,20 @@ export function LocaleToggle() {
         locale: next,
       });
     } catch {
-      // Fallback: just swap the locale prefix if the typed lookup fails
-      // (unknown route, e.g. an admin sub-page that isn't in PATHNAMES).
-      target = `/${next}${pathname}`;
+      target = undefined;
+    }
+    if (!target || typeof target !== 'string') {
+      target = `/${next}${pathname.startsWith('/') ? pathname : `/${pathname}`}`;
+    }
+    if (!target.startsWith(`/${next}`)) {
+      target = `/${next}`;
     }
     window.location.assign(target);
   }
 
   return (
-    <label className="inline-flex items-center gap-2 text-sm">
+    <label className="inline-flex items-center text-sm">
       <span className="sr-only">{t('label')}</span>
-      <Globe aria-hidden="true" className="h-4 w-4" />
       <select
         value={locale}
         onChange={(e) => switchTo(e.target.value as Locale)}

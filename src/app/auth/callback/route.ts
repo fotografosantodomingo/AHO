@@ -47,8 +47,22 @@ export async function GET(request: NextRequest) {
     );
 
   if (code) {
+    // PKCE flow: the browser that started signin stored a `code_verifier`
+    // in a Supabase cookie; the exchange MUST happen in the same browser.
+    // The most common failure: user clicked the magic-link / OAuth redirect
+    // on a different device than the one they started signin on. Surface
+    // that with a specific error code so /auth/error can explain.
+    //
+    // Our createServerSupabaseClient awaits `cookies()` before this call
+    // (per the @supabase/ssr Next.js 14+ recipe), so the verifier IS read
+    // when present. The error is genuinely "wrong browser" when it fires.
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (error) return errorRedirect(error.message);
+    if (error) {
+      const reason = /pkce|code[\s_-]?verifier/i.test(error.message)
+        ? 'pkce_browser_mismatch'
+        : error.message;
+      return errorRedirect(reason);
+    }
   } else if (tokenHash && type) {
     const { error } = await supabase.auth.verifyOtp({
       token_hash: tokenHash,

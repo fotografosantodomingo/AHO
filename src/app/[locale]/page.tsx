@@ -2,6 +2,7 @@ import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { searchListings } from '@/lib/listings/search';
 import { getHomepageStats } from '@/lib/listings/stats';
+import { precomputeApproxLabels } from '@/lib/currency/server';
 import { ListingCard } from '@/components/listings/listing-card';
 import { HeroSearchForm } from '@/components/home/hero-search-form';
 import { DotGrid, HeroGlow } from '@/components/ui/dot-grid';
@@ -42,6 +43,17 @@ export default async function HomePage({
   ]);
 
   const hasTrust = stats.activeListings > 0 || stats.cities > 0 || stats.verifiedAgents > 0;
+
+  // Precompute approx-converted prices for the featured listings (single
+  // rate fetch; absent map means no-conversion needed or unavailable).
+  const approxLabels = await precomputeApproxLabels(
+    featured.listings.slice(0, 6).map((l) => ({
+      id: l.id,
+      priceCents: l.priceCents,
+      currency: l.currency,
+    })),
+    typedLocale,
+  );
 
   // Structured data for the homepage. Two graphs:
   //   1. Organization (publisher info — Knowledge Panel eligibility for
@@ -170,7 +182,11 @@ export default async function HomePage({
           <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {featured.listings.slice(0, 6).map((l) => (
               <li key={l.id}>
-                <ListingCard listing={l} locale={typedLocale} />
+                <ListingCard
+                  listing={l}
+                  locale={typedLocale}
+                  approxPriceLabel={approxLabels.get(l.id) ?? null}
+                />
               </li>
             ))}
           </ul>

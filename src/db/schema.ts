@@ -642,3 +642,20 @@ export type ReviewReportReason = (typeof REVIEW_REPORT_REASONS)[number];
 export const REVIEW_REPORT_STATUSES = ['open', 'reviewed', 'dismissed'] as const;
 export type ReviewReportStatus = (typeof REVIEW_REPORT_STATUSES)[number];
 
+// ----------------------------------------------------------------
+// currency_rate_snapshot (migration 0017) — single-base snapshot of
+// FX rates for the worldwide price-tile converter. base_currency is
+// the PK; rates jsonb maps quote → rate-relative-to-base. v1 stores
+// only the USD base (OXR free-tier limitation).
+// ----------------------------------------------------------------
+
+export const currencyRateSnapshot = pgTable('currency_rate_snapshot', {
+  baseCurrency: char('base_currency', { length: 3 }).primaryKey(),
+  rates: jsonb('rates').notNull(),
+  source: text('source').notNull().default('openexchangerates'),
+  fetchedAt: timestamp('fetched_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type CurrencyRateSnapshot = typeof currencyRateSnapshot.$inferSelect;
+

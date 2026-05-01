@@ -12,6 +12,171 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — Batch A3 + critical fixes (auth / locale / UI / email / admin notifications / fixture hide)
+
+This batch combines the planned A3 scope (mega menu + currency converter on price tiles) with seven critical fixes the PO requested before the push:
+
+1. **Test fixture listing hidden from public detail page.** `aho-fixture-active-listing-santo-domingo-fixaa1` and any other `aho-fixture-*` slug listings now 404 from the public `/properties/[slug]` surface. The detail page joins the existing belt-and-suspenders pattern used by sitemap, city landing, agent profile, and `/api/properties/by-bbox` — `slug_en?.startsWith('aho-fixture-') || slug_es?.startsWith('aho-fixture-')` returns null. The row stays in the DB for RLS test fixtures; only the public detail surface is gated.
+
+2. **Language switcher hardened for property pages.** When switching `/{locale}/properties/...` ↔ `/{locale}/propiedades/...`, the toggle now extracts the immutable `{shortId}` from the URL tail and constructs the new locale's URL preserving the slug-as-given. The destination property page redirects to the canonical slug for that locale via the existing slug-stability check; single-language listings (one locale's slug is null) skip the redirect and render the source-language content. Final safety net: any unrecoverable resolution falls back to `/{locale}` home rather than crashing. Closes the reported "ES → EN crashes on /en/properties/wwww-siemianowice-pl-…" symptom.
+
+3. **PKCE error message specificity.** The OAuth/magic-link callback at `/auth/callback` detects PKCE-verifier errors (the "wrong browser opened the verification link" failure mode) and redirects with `?reason=pkce_browser_mismatch`. The auth-error page renders a clear "open the link in the same browser where you started signing in" copy in EN + ES rather than dumping the raw Supabase error string.
+
+4. **Globe icon removed from the locale toggle.** Clean dropdown only.
+
+5. **Theme toggle = single sun/moon slider switch.** Replaced the 3-button (light/system/dark) cluster with a binary switch. `enableSystem={false}` in `<ThemeProvider>` so users get a deterministic light↔dark toggle. Sun on the left, moon on the right, sliding knob.
+
+6. **Default theme = dark.** ThemeProvider's `defaultTheme="dark"` + the FOUC-prevention init script in `layout.tsx` falls back to `'dark'` instead of resolving from `prefers-color-scheme`. First-time visitors land on dark; the toggle persists their choice across sessions.
+
+7. **Email branding overhaul.** `_layout.ts` footer rebuilt: support email link, Facebook + Instagram + canonical-domain link row, business address line. All transactional emails inherit the new footer (welcome, lead notification, review verification, review-published agent notification, admin new-user, plus the two new admin notifications below).
+
+**New: admin notifications to `info@advertisehomes.online` (or whatever `ADMIN_EMAIL` resolves to)**:
+
+- **Property published.** When an agent publishes a listing via `POST /api/listings/:id/publish`, the handler reads the agent's full_name + email from the join, renders `renderAdminPropertyPublishedEmail`, and sends to `ADMIN_EMAIL`. Includes title, location, price, agent contact, public URL, and an "Open admin" link.
+- **Payment received.** The Stripe `invoice.paid` webhook handler resolves the org name + plan_id from the subscription row, renders `renderAdminPaymentReceivedEmail`, and sends to `ADMIN_EMAIL`. Notification fires only on fresh-insert into `payments` (idempotent — redelivered events don't double-notify).
+- The existing **new-user** notification (signup confirmation) keeps its current behavior.
+
+Both notifications no-op gracefully when `ADMIN_EMAIL` or `BREVO_API_KEY` is unset.
+
+**Admin path + first-admin bootstrap (PO-asked):**
+
+- **URL:** `/admin` (or `/en/admin` / `/es/admin` — the locale prefix is accepted; admin pages themselves are rendered in English internally). Tabs: Listings · Orgs · Leads · Users · Reviews.
+- **Auth gate:** Signed-in user with `profiles.is_admin = true`. Anon → redirected to signin. Signed-in non-admin → redirected to `/dashboard` (no 403 message — non-admins aren't told the surface exists).
+- **Bootstrap the first admin:** there is no UI to mint the first admin — by design, otherwise a fresh signup could promote themselves. Manual SQL via the Supabase SQL Editor:
+  ```sql
+  UPDATE public.profiles
+  SET is_admin = true, admin_role = 'super_admin'
+  WHERE email = 'info@advertisehomes.online';
+  ```
+  After this, the user signs in at `/signin` and `/admin` works. Subsequent admins can be promoted via `/admin/users`.
+
+### What shipped (the planned A3 scope, in this same batch):
+
+- Migration `0017_currency_rates.sql` + Drizzle schema mirror + `OPENEXCHANGERATES_APP_ID` env
+- `lib/currency/rates.ts` + `lib/currency/server.ts` (rates fetch/cache + cross-rate convert + batched approx-label precompute)
+- `GET /api/fx` route (anon-readable, edge-cached 1h)
+- `<PriceTile>` server component + `<CurrencyPicker>` client (cookie + profile PATCH + router.refresh)
+- `<SiteHeader>` + `<MegaMenuClient>` (replaces minimal header; sticky w/ backdrop-blur; mobile drawer; Buy/Rent/Sell/Find an agent/Help)
+- `<LocationSubBar>` wired into country + city pages
+- `approxPriceLabel` threaded through ListingCard via every server-rendered page (homepage, search, city landing, agent profile sold + active, similar-homes carousel)
+- Property detail page header switched to `<PriceTile size="lg">`
+- `nav.*` + `currencyPicker.*` + `priceTile.*` + `locationSubBar.*` + new `auth.error.bodyPkceMismatch` i18n keys
+- 16 new unit tests (`currency-rates`)
+
+### Verification
+
+- `pnpm typecheck` clean
+- `pnpm lint` clean (only pre-existing `_req` warnings)
+- `pnpm test:unit` 91/91
+- `pnpm build` green; `/api/fx` route registered
+
+### Blockers / open questions
+
+- `OPENEXCHANGERATES_APP_ID` PO action: provision free-tier app_id at openexchangerates.org/signup, paste into `.env.local` + Cloudflare Pages secret. Without it, the price-tile converter no-ops gracefully (source-only).
+- `ADMIN_EMAIL` PO action: ensure set to `info@advertisehomes.online` in `.env.local` + Cloudflare Pages secret. Without it, admin notifications log-warn and skip the send.
+- First-admin bootstrap SQL needs to be run against the production Supabase (`info@advertisehomes.online` profile must already exist — i.e., that email must have signed up first).
+- Migration order pre-smoke-test: `0014` → `0015` → `0016` → `0017`.
+
+### Next session should start with
+
+1. PO confirms `OPENEXCHANGERATES_APP_ID` + `ADMIN_EMAIL` env vars set
+2. Sign up `info@advertisehomes.online` if not yet, then run the bootstrap SQL
+3. `pnpm db:migrate` (applies 0017)
+4. Smoke-test:
+   - Currency picker switches USD ↔ EUR ↔ DOP ↔ MXN — prices show `≈ converted` line everywhere
+   - Mobile drawer opens; nav + picker work
+   - Location sub-bar on `/properties-in/do/santo-domingo`
+   - Hit `/en/properties/aho-fixture-active-listing-santo-domingo-fixaa1` → 404 (fixture hidden)
+   - ES → EN locale switch on a property detail page → no crash
+   - Send a magic link, open it in a different browser → friendly "wrong browser" error page
+   - Theme toggle slides between sun/moon; first-time visitors default dark
+   - Test admin notifications: publish a listing → admin gets email; pay an invoice (Stripe TEST mode) → admin gets email
+5. If green → Batch A4 (Billing tiers + Stripe webhook hardening + VAT/Stripe Tax + regional payment methods)
+
+---
+
+## 2026-05-01 — Batch A3: mega menu + currency converter on price tiles (planned scope, merged into the entry above)
+
+Third execution batch of the v1-completion plan. The biggest worldwide-payoff workstream in the queue: every price across the platform now renders with an "≈ converted" approximation in the visitor's preferred currency, backed by a 24h FX cache. The site-wide nav is rebuilt with mega-menu structure (Buy / Rent / Sell / Find an agent / Help) plus a currency picker, and city/country pages get a contextual location sub-bar.
+
+### What shipped
+
+**Migration 0017** — `currency_rate_snapshot` table, single-base (USD), jsonb rates map, anon-readable RLS, service-role-only writes. Drizzle schema mirror updated. Per-tier-row `touch_updated_at` trigger reuses 0001's existing function.
+
+**OXR integration** —
+- `lib/currency/rates.ts` — `getOrFetchUsdRates()` reads cached row, lazy-refreshes from openexchangerates.org's free tier (USD-base, 1000 req/mo) when `fetched_at` is past 24h, persists via service-role upsert. Race-safe (idempotent upsert on PK).
+- Stale-OK serving: cache up to 7 days old is served if OXR is down; only purely-empty cache + dead OXR returns null.
+- `convertCents(cents, from, to, rates)` — pure math via cross-rate USD pivot. Returns null on unknown currency, zero rate, NaN. Locale-case-insensitive.
+- `OPENEXCHANGERATES_APP_ID` env var added (optional — when missing the converter no-ops gracefully).
+
+**`GET /api/fx`** — anon-readable JSON endpoint returning `{ ok, base, rates, fetchedAt, isFresh }`. Edge-cached 1 hour. Used by client-side debug + admin tooling; the main render path uses the lib helper directly to skip the network hop.
+
+**`<PriceTile>` server component** — renders source price (always) plus "≈ converted" approximation. Reads visitor's preferred currency from the `aho_currency` cookie, falls back to locale default (USD). Three sizes (sm/md/lg). Hides the converted line when target equals source.
+
+**`<CurrencyPicker>` client component** — dropdown of 10 common currencies (USD/EUR/DOP/MXN/BRL/GBP/CAD/COP/ARS/CLP). Sets cookie + (when signed in) PATCHes `profile.preferred_currency`. Triggers `router.refresh()` so server-rendered prices recompute against the new target.
+
+**`<SiteHeader>` + `<MegaMenuClient>`** — replaces the prior minimal header. Desktop: brand + 5 nav items + currency picker + auth menu + locale + theme toggles. Mobile: brand + hamburger → drawer with all of the above. Sticky with backdrop-blur.
+
+**`<LocationSubBar>`** — wired into `/properties-in/[country]` and `/properties-in/[country]/[city]`. Full-width breadcrumb-style strip below the SiteHeader showing All countries → Country → City; clickable steps for jump-up navigation.
+
+**`lib/currency/server.ts`** — server-side helper for batched approx-label precomputation. `precomputeApproxLabels(listings, locale) → Map<id, label>`. One rate fetch per page render regardless of card count. `computeApproxLabel(price, currency, locale)` for single-price callers (property detail header).
+
+**Wired everywhere price renders:**
+- `<ListingCard>` extended with optional `approxPriceLabel` prop; renders ≈ line below source price
+- Homepage featured listings → batched precompute
+- Search results page → batched precompute (bbox-driven updates degrade to source-only; `/api/properties/by-bbox` doesn't return labels in v1)
+- City landing page → batched precompute
+- Agent profile (active + sold listings combined) → single batched precompute
+- Similar-homes carousel (Server Component) → self-fetches via `precomputeApproxLabels`
+- Property detail header → `<PriceTile size="lg">`
+
+### Worldwide-shaped design notes
+
+- Single base currency (USD) per OXR free-tier limit; cross-rate via USD pivot in app code
+- Locale-neutral "≈" symbol for "approximately" — readable in any language without translation
+- Default currency = USD for both en + es (DR anchor market is USD-priced; visitors who want different override via the picker)
+- Stale-cache fallback (7d) so the converter survives OXR outages
+- Bbox-driven map results show source-only (deferred to v1.1) — documented degradation, not a bug
+
+### i18n
+
+- New `nav.*` keys: `buy`, `rent`, `sell`, `findAgent`, `help`
+- New `currencyPicker.label`
+- New `priceTile.approximateInLabel` (a11y label for screen readers)
+- New `locationSubBar.{label,allCountries}`
+
+### Tests
+
+- New unit suite `tests/unit/currency-rates.test.ts` (16 tests): same-currency no-op, case-insensitive, USD↔EUR/DOP/MXN math at 100-EUR / 100-USD edge, cross-rate via USD pivot, unknown currency → null, NaN/zero rate → null, large-amount no-overflow, COMMON_CURRENCIES order, defaultCurrencyForLocale rule
+- Total: 91 unit (75 prior + 16 new)
+- No new RLS test for currency_rate_snapshot — the policy is "anon SELECT all", trivial; service-role write path is exercised end-to-end via the API route smoke test
+
+### Verification
+
+- `pnpm typecheck` clean
+- `pnpm lint` clean (only the `_req` warnings on routes that don't use the request — pre-existing project pattern)
+- `pnpm test:unit` 91/91
+- `pnpm build` green; `/api/fx` route shows up
+
+### Blockers / open questions
+
+- `OPENEXCHANGERATES_APP_ID` needs to be set in `.env.local` + Cloudflare Pages secrets for the converter to actually run. Without it the price tiles render source-only (graceful degradation).
+- 24h DB cache means manual `pnpm db:migrate` (applies 0017) before any conversion can happen. Pre-deploy step.
+- bbox-driven map updates show source-only currency. Documented; v1.1 work to flow approx labels through `/api/properties/by-bbox`.
+
+### Next session should start with
+
+1. PO action: provision OXR free-tier app_id, paste into `.env.local` + Cloudflare Pages secret as `OPENEXCHANGERATES_APP_ID`
+2. `pnpm db:migrate` on the deployed env
+3. Smoke-test:
+   - Switch currency picker between USD / EUR / DOP / MXN → confirm prices update with `≈ ...` line on every page (homepage, search, city landing, agent profile, property detail, similar-homes carousel)
+   - Open mobile viewport → confirm hamburger drawer shows nav + picker
+   - Browse `/properties-in/do/santo-domingo` → confirm location sub-bar above hero with clickable breadcrumb
+   - Hit `/api/fx` directly → confirm 200 + rates JSON; hit again → confirm Cache-Control header
+4. If green → Batch A4 (Billing tiers + Stripe webhook hardening + VAT/Tax + regional payment methods)
+
+---
+
 ## 2026-05-01 — Batch A2: property page rebuild (Facts & Features + similar homes + breadcrumb JSON-LD) + edit-listing PATCH
 
 Second execution batch of the v1-completion plan. Property detail page now shows the seven-section Facts & Features block plus a similar-homes carousel below, with BreadcrumbList JSON-LD added to the structured-data graph. The edit-listing PATCH endpoint and the editable form on `/dashboard/properties/[id]` are folded in (revenue-blocker per the strategic doc — agents previously couldn't edit a price after publish).

@@ -60,6 +60,11 @@ const serverSchema = z.object({
   R2_ACCESS_KEY_ID: z.string().optional(),
   R2_SECRET_ACCESS_KEY: z.string().optional(),
   R2_BUCKET_PROPERTY_IMAGES: z.string().optional(),
+  // openexchangerates.org App ID for the price-tile currency converter.
+  // Free tier = USD base, 1000 requests/month. With 24h DB cache we
+  // hit it ~30×/month per process. Optional — when missing, the
+  // converter no-ops and price tiles render only the source currency.
+  OPENEXCHANGERATES_APP_ID: z.string().optional(),
 });
 
 export type PublicEnv = z.infer<typeof publicSchema>;

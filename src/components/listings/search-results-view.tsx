@@ -44,6 +44,10 @@ interface SearchResultsViewProps {
   nextPageLabel: string;
   resetBboxLabel: string;
   bboxActiveLabel: string;
+  /** Initial approx-converted price labels keyed by listing id, computed
+   *  server-side. Bbox-driven updates degrade to source-only — the bbox
+   *  endpoint doesn't return approx labels (deferred to v1.1). */
+  initialApproxLabels?: Record<string, string>;
 }
 
 export function SearchResultsView({
@@ -61,6 +65,7 @@ export function SearchResultsView({
   nextPageLabel,
   resetBboxLabel,
   bboxActiveLabel,
+  initialApproxLabels,
 }: SearchResultsViewProps) {
   // Track whether bbox-driven mode is active. While inactive, listings =
   // initialListings (server-rendered for SSR + SEO). While active, listings
@@ -156,7 +161,13 @@ export function SearchResultsView({
             <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {listings.map((l) => (
                 <li key={l.id}>
-                  <ListingCard listing={l} locale={locale} />
+                  <ListingCard
+                    listing={l}
+                    locale={locale}
+                    approxPriceLabel={
+                      bboxActive ? null : initialApproxLabels?.[l.id] ?? null
+                    }
+                  />
                 </li>
               ))}
             </ul>

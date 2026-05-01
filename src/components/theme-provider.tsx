@@ -12,11 +12,16 @@ import type { ComponentProps } from 'react';
  * on the `<html>` element synchronously on first render before paint.
  */
 export function ThemeProvider({ children, ...props }: ComponentProps<typeof NextThemesProvider>) {
+  // Default to dark per the brand direction (HashiCorp-inspired tokens read
+  // best in dark mode for real-estate browsing). `enableSystem={false}` so
+  // the toggle is a binary light↔dark switch — see ThemeToggle for the UX.
+  // Users who set the cookie via the toggle persist it across visits;
+  // first-time visitors see dark.
   return (
     <NextThemesProvider
       attribute="class"
-      defaultTheme="system"
-      enableSystem
+      defaultTheme="dark"
+      enableSystem={false}
       disableTransitionOnChange
       {...props}
     >

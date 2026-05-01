@@ -5,9 +5,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { ThemeProvider } from '@/components/theme-provider';
-import { ThemeToggle } from '@/components/theme-toggle';
-import { LocaleToggle } from '@/components/locale-toggle';
-import { AuthMenu } from '@/components/auth/auth-menu';
+import { SiteHeader } from '@/components/site-header';
 import '../globals.css';
 
 // Brand font — substituted for HashiCorp Sans (proprietary; we don't have
@@ -63,14 +61,13 @@ export async function generateMetadata({
 // Inline blocking script that sets the theme class on <html> before first
 // paint. next-themes does this on hydration but a few ms of FOUC can leak
 // without the inline script. Standard pattern; do not remove.
+// Default = dark per ThemeProvider config. The init script must match;
+// otherwise first-paint flashes light then resolves to dark (FOUC).
 const themeInitScript = `
 (function() {
   try {
     var stored = localStorage.getItem('theme');
-    var theme = stored || 'system';
-    var resolved = theme === 'system'
-      ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-      : theme;
+    var resolved = (stored === 'light' || stored === 'dark') ? stored : 'dark';
     document.documentElement.classList.remove('light','dark');
     document.documentElement.classList.add(resolved);
     document.documentElement.style.colorScheme = resolved;
@@ -101,23 +98,7 @@ export default async function LocaleLayout({
       <body className="min-h-screen antialiased">
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>
-            <header className="border-b border-border">
-              <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-                <a href={`/${locale}`} className="font-brand text-lg font-bold tracking-tight">
-                  AHO
-                </a>
-                <div className="flex items-center gap-3">
-                  <AuthMenu locale={locale as Locale} />
-                  <LocaleToggle />
-                  {/* Theme toggle is a 3-button group (~136px wide) — hide
-                      on narrow viewports where the header gets cramped.
-                      Theme is a "set once" preference so this is safe. */}
-                  <span className="hidden sm:inline-flex">
-                    <ThemeToggle />
-                  </span>
-                </div>
-              </div>
-            </header>
+            <SiteHeader locale={locale as Locale} />
             <div>{children}</div>
             <footer className="mt-24 border-t border-border">
               <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-6 text-xs text-helper">

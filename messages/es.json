@@ -10,7 +10,22 @@
     "signIn": "Iniciar sesión",
     "signUp": "Registrarse",
     "dashboard": "Panel",
-    "account": "Cuenta"
+    "account": "Cuenta",
+    "buy": "Comprar",
+    "rent": "Alquilar",
+    "sell": "Vender",
+    "findAgent": "Buscar agente",
+    "help": "Ayuda"
+  },
+  "currencyPicker": {
+    "label": "Moneda de visualización"
+  },
+  "priceTile": {
+    "approximateInLabel": "Aproximadamente {value} en tu moneda seleccionada"
+  },
+  "locationSubBar": {
+    "label": "Explorar por ubicación",
+    "allCountries": "Todos los países"
   },
   "pricing": {
     "eyebrow": "Precios",
@@ -741,6 +756,7 @@
     "error": {
       "heading": "Problema de autenticación",
       "body": "No pudimos completar el inicio de sesión. El enlace puede haber expirado o ya haber sido usado.",
+      "bodyPkceMismatch": "Parece que abriste este enlace en un navegador o dispositivo distinto al que iniciaste sesión. Abre el enlace en el mismo navegador donde escribiste tu correo — ese navegador guarda la cookie de verificación.",
       "tryAgainCta": "Volver a iniciar sesión",
       "details": "Detalles: {reason}"
     },

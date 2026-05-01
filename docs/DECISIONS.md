@@ -12,6 +12,39 @@ One entry per significant choice. Newest on top. Format:
 
 ---
 
+## 2026-05-01 — Currency converter: openexchangerates.org free tier, USD-base snapshot, 24h DB cache + 7d stale-OK (Batch A3)
+**Decision:** Worldwide price-tile conversion uses openexchangerates.org's free tier ($0/mo, USD base only, 1000 req/mo). The latest snapshot is cached in `currency_rate_snapshot` (single-row, base='USD', jsonb of all rates) for 24h. After 24h the next read triggers a lazy refresh via the service-role admin client; concurrent refreshes are race-safe via idempotent upsert. Cross-rates (e.g., EUR → DOP) are computed in app code via the USD pivot. If OXR is unreachable AND the cache is empty, the converter returns null and the tile renders source-only — never throws. Stale cache up to 7 days old is served when OXR is down (worse to break the page than show approximate-but-close stale data).
+**Why:**
+- Free-tier OXR's 1000 req/month with 24h cache = ~30 calls/month per process. Headroom is enormous.
+- Single base (USD) keeps the schema simple (one row per snapshot, not N×N pairs). Cross-rate math in app code is one line.
+- Lazy refresh (no scheduled cron) is simpler in the Cloudflare Pages runtime and self-healing under traffic — first hit after 24h pays the refresh cost.
+- Stale-OK fallback is the lower-risk failure mode: an approximation that's a few % off is better UX than a missing converted line.
+**Alternatives considered:**
+- Paid OXR plan ($12+/mo, EUR/GBP/etc as base) — rejected; not worth the cost at v1 volume; cross-rate math via USD pivot is fine.
+- ECB free feed — rejected; EU-centric coverage, less reliable for LATAM currencies (DOP, MXN, ARS).
+- Scheduled Cloudflare Worker cron — rejected for v1; lazy refresh is simpler and the freshness penalty is bounded by the 24h TTL.
+- Per-(base,quote) row schema — rejected; storage overhead with no read-pattern benefit at v1 scale.
+- Charge separate "convert me" button → rejected; conversion should be passive, not opt-in.
+**Reconsider if:** (a) traffic exceeds 1000 OXR-call/month threshold (paid tier or alternate provider — fixer.io / freecurrencyapi.com), (b) we add bbox-driven map results that need labels (extend `/api/properties/by-bbox` to return labels, OR move conversion to client-side via /api/fx fetch), (c) regulatory pressure to display fully-localized currency (e.g., EU countries that mandate showing prices in EUR alongside any quoted currency).
+
+---
+
+## 2026-05-01 — Mega-menu nav: 5-item top bar + mobile drawer; currency picker is global (Batch A3)
+**Decision:** Site-wide top nav rebuilt as `[AHO] Buy · Rent · Sell · Find an agent · Help [CurrencyPicker] [Auth] [Locale] [Theme]`. Mobile (<md) collapses to brand + hamburger → full-height drawer with the same nav + currency picker + locale + theme. Sticky with backdrop-blur. The currency picker is a global control (not per-page) — selecting a currency cookies the choice and triggers `router.refresh()` so server-rendered prices recompute.
+**Why:**
+- The strategic doc identified the mega menu as a Phase B priority (acquisition + retention). Shipping it in A3 alongside the currency converter unifies the "worldwide-shaped UX" workstream.
+- "Find an agent" points to `/countries` for v1; once Batch A7 ships the agents directory, this swaps to `/agents`.
+- "Help" placeholder until A10 ships the help center.
+- Currency picker is global (not per-page) because real estate browsing crosses many pages; making it a header element means one click and it persists.
+- Cookie + profile-PATCH both: the cookie covers anon visitors and signed-in visitors on first session; the profile column makes the choice follow them across devices once they sign in.
+**Alternatives considered:**
+- Mega-menu with hover dropdowns (Zillow-style: "Buy → For sale / New homes / Recently sold / By city" etc) — rejected for v1; adds significant interaction surface and content we don't have yet (no "recently sold" feed, no "new homes" filter).
+- Per-page currency display setting — rejected; too much friction.
+- Currency-by-country-detection (geolocate visitor → infer currency) — rejected; surprises users + IP-geo in CDN-edge contexts is unreliable.
+**Reconsider if:** (a) GA4/PostHog data shows users frequently use the currency picker mid-session — keep, (b) data shows most users never touch it — collapse to a smaller affordance (e.g., a single icon menu), (c) we need per-locale nav labels in markets where the literal translation reads oddly (e.g., "Sell" might be "Vender" in ES which is fine, but a future Portuguese locale might need "Anunciar" rather than "Vender" depending on regional convention — handle with i18n keys, no architectural change needed).
+
+---
+
 ## 2026-05-01 — Worldwide field labels: locale-neutral, no country aliases (Batch A2)
 **Decision:** Every Facts & Features label and enum value uses a locale-neutral phrase. No country-specific aliases — "HOA" stays "Community fee" globally, "strata" never appears, "council tax" stays "Annual property tax", measurements stay m² (no sqft branching). One i18n key per locale, reused across all markets.
 **Why:**

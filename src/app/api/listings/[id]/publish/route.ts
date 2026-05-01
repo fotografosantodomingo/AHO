@@ -2,6 +2,10 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { sendEmail } from '@/lib/email/brevo';
+import { renderAdminPropertyPublishedEmail } from '@/lib/email/templates/admin-property-published';
+import { formatPrice } from '@/lib/listings/format';
+import { publicEnv } from '@/lib/env';
 
 export const runtime = 'edge';
 
@@ -79,6 +83,65 @@ export async function POST(
       { ok: false, errorCode: updateErr.message ?? 'db_error' },
       { status: 500 },
     );
+  }
+
+  // Admin notification — fire-and-await (cheap; Brevo is a single fetch).
+  // Failure logs but does not unwind the publish.
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (adminEmail) {
+    try {
+      const { data: row } = await supabase
+        .from('properties')
+        .select(
+          `
+            short_id, slug_en, slug_es, title_en, title_es,
+            city, country_code, price_cents, currency,
+            profiles!properties_created_by_fkey(full_name, email)
+          `,
+        )
+        .eq('id', id)
+        .maybeSingle();
+      if (row) {
+        const pub = publicEnv();
+        const slug = (row.slug_en as string | null) ?? (row.slug_es as string | null);
+        const publicUrl = slug
+          ? `${pub.NEXT_PUBLIC_SITE_URL}/en/properties/${slug}-${row.short_id}`
+          : pub.NEXT_PUBLIC_SITE_URL;
+        const title =
+          (row.title_en as string | null) ??
+          (row.title_es as string | null) ??
+          '(no title)';
+        const agentJoin = row.profiles as
+          | { full_name?: string | null; email?: string | null }
+          | { full_name?: string | null; email?: string | null }[]
+          | null;
+        const agent = Array.isArray(agentJoin) ? agentJoin[0] : agentJoin;
+        const email = renderAdminPropertyPublishedEmail({
+          title,
+          city: row.city as string,
+          countryCode: row.country_code as string,
+          priceLabel: formatPrice(
+            Number(row.price_cents),
+            row.currency as string,
+            'en',
+          ),
+          agentName: agent?.full_name ?? '—',
+          agentEmail: agent?.email ?? '—',
+          publicUrl,
+          adminListingsUrl: `${pub.NEXT_PUBLIC_SITE_URL}/en/admin`,
+        });
+        const sendResult = await sendEmail({
+          to: adminEmail,
+          subject: email.subject,
+          html: email.html,
+        });
+        if (!sendResult.sent) {
+          console.warn('[publish] admin notification not sent', sendResult.error);
+        }
+      }
+    } catch (e) {
+      console.error('[publish] admin notification threw', e);
+    }
   }
 
   revalidatePath('/[locale]/dashboard/properties', 'page');

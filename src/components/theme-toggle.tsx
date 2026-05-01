@@ -3,17 +3,22 @@
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Moon, Sun, Monitor } from 'lucide-react';
+import { Moon, Sun } from 'lucide-react';
 
 /**
- * Three-state theme toggle: light / dark / system.
+ * Two-state theme toggle: light ↔ dark, rendered as a single switch
+ * (sun on the left, moon on the right). The "system" option is no
+ * longer surfaced — too many users land on light by accident when
+ * their OS is light-mode and the brand intends a dark default. They
+ * can still set system via OS preferences if desired; we just don't
+ * give a third UI state that confuses the binary semantic.
  *
- * Renders a placeholder skeleton on the server to avoid hydration mismatches
- * (the actual current theme is only known on the client).
+ * Renders a placeholder skeleton on the server to avoid hydration
+ * mismatches (current resolved theme is only known on the client).
  */
 export function ThemeToggle() {
   const t = useTranslations('theme');
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
@@ -22,50 +27,46 @@ export function ThemeToggle() {
     return (
       <div
         aria-hidden="true"
-        className="inline-flex h-9 w-[8.5rem] items-center rounded-lg border border-border-strong"
+        className="inline-flex h-9 w-[3.5rem] items-center rounded-full border border-border-strong"
       />
     );
   }
 
+  const isDark = resolvedTheme === 'dark';
+  const next = isDark ? 'light' : 'dark';
+
   return (
-    <fieldset className="inline-flex items-center rounded-lg border border-border-strong">
-      <legend className="sr-only">{t('label')}</legend>
-      <button
-        type="button"
-        aria-pressed={theme === 'light'}
-        aria-label={t('light')}
-        title={t('light')}
-        onClick={() => setTheme('light')}
-        className={`inline-flex h-9 w-9 items-center justify-center text-sm ${
-          theme === 'light' ? 'bg-action/15 text-action dark:bg-action-dark/20 dark:text-action-dark' : ''
+    <button
+      type="button"
+      role="switch"
+      aria-checked={isDark}
+      aria-label={t('label')}
+      title={isDark ? t('light') : t('dark')}
+      onClick={() => setTheme(next)}
+      className="relative inline-flex h-9 w-14 items-center rounded-full border border-border-strong bg-surface px-1 transition dark:bg-surface-deep"
+    >
+      {/* Track icons */}
+      <Sun
+        aria-hidden="true"
+        className="absolute left-2 h-3.5 w-3.5 text-amber-500 opacity-90"
+      />
+      <Moon
+        aria-hidden="true"
+        className="absolute right-2 h-3.5 w-3.5 text-helper opacity-80"
+      />
+      {/* Knob */}
+      <span
+        aria-hidden="true"
+        className={`pointer-events-none relative z-10 inline-flex h-7 w-7 items-center justify-center rounded-full bg-surface-dark text-ink-inverse-muted shadow-whisper transition-transform duration-200 dark:bg-surface dark:text-ink ${
+          isDark ? 'translate-x-5' : 'translate-x-0'
         }`}
       >
-        <Sun aria-hidden="true" className="h-4 w-4" />
-      </button>
-      <button
-        type="button"
-        aria-pressed={theme === 'system'}
-        aria-label={t('system')}
-        title={t('system')}
-        onClick={() => setTheme('system')}
-        className={`inline-flex h-9 w-9 items-center justify-center text-sm ${
-          theme === 'system' ? 'bg-action/15 text-action dark:bg-action-dark/20 dark:text-action-dark' : ''
-        }`}
-      >
-        <Monitor aria-hidden="true" className="h-4 w-4" />
-      </button>
-      <button
-        type="button"
-        aria-pressed={theme === 'dark'}
-        aria-label={t('dark')}
-        title={t('dark')}
-        onClick={() => setTheme('dark')}
-        className={`inline-flex h-9 w-9 items-center justify-center text-sm ${
-          theme === 'dark' ? 'bg-action/15 text-action dark:bg-action-dark/20 dark:text-action-dark' : ''
-        }`}
-      >
-        <Moon aria-hidden="true" className="h-4 w-4" />
-      </button>
-    </fieldset>
+        {isDark ? (
+          <Moon aria-hidden="true" className="h-3.5 w-3.5" />
+        ) : (
+          <Sun aria-hidden="true" className="h-3.5 w-3.5" />
+        )}
+      </span>
+    </button>
   );
 }

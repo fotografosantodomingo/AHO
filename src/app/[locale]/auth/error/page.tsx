@@ -47,7 +47,9 @@ export default async function AuthErrorPage({
           <h1 className="mt-2 font-brand text-2xl font-semibold tracking-tight md:text-3xl">
             {t('heading')}
           </h1>
-          <p className="mt-3 text-sm text-helper">{t('body')}</p>
+          <p className="mt-3 text-sm text-helper">
+            {reason === 'pkce_browser_mismatch' ? t('bodyPkceMismatch') : t('body')}
+          </p>
 
           {reason && (
             <details className="mt-4 rounded-card border border-border p-3 text-xs">
