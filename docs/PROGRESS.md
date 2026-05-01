@@ -12,6 +12,55 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — DP-3: architectural light-mode fix (token auto-pivot via .dark scope) + visible hamburger
+
+After multiple rounds of surgical patches, the light-mode visibility issues kept resurfacing. This batch is the structural correction I should have shipped weeks ago — the ultimatum from the PO: ship working light mode OR drop the toggle.
+
+**Root cause.** The `@theme` token system was **value-named**, not **role-named**:
+  - `--color-surface = #ffffff` — always white, in BOTH modes
+  - `--color-surface-dark = #0f1f17` — always dark, in BOTH modes
+  - `--color-ink = #1a1612` — always warm-black, in BOTH modes
+
+Tailwind generates one utility class per token, with that single value. So `bg-surface` was always white, `text-ink` was always warm-black, regardless of mode. To get dark-mode rendering, every component had to write a bilingual `bg-surface dark:bg-surface-deep text-ink dark:text-ink-inverse` chain. Anywhere a base token slipped through without its `dark:` partner, light-mode-only or dark-mode-only rendering broke.
+
+**Fix.** Tokens redefined under `html.dark` scope so VALUES flip per mode while utility names stay the same. After this:
+  - `bg-surface` = white in light, **lifted dark forest in dark** ✓ auto-pivots
+  - `text-ink` = warm-black in light, **cream in dark** ✓ auto-pivots
+  - `text-action` = forest in light, **brighter forest in dark** ✓ auto-pivots
+  - `border-border` = warm tan low-alpha in light, **cream low-alpha in dark** ✓ auto-pivots
+  - `shadow-whisper` = warm sepia in light, **black on dark** in dark ✓ auto-pivots
+
+**Token classification.**
+  - **Auto-pivot** (different value per mode): surface, surface-muted, surface-deep, surface-warm, ink, ink-muted, helper, action, action-active, border, border-strong, shadow-whisper, shadow-lift.
+  - **Always-dark** (same value both modes — for intentional always-dark surfaces): surface-dark, surface-band. Footer "espresso bookend" depends on these staying dark in light mode too.
+  - **Always-cream** (same value both modes — text on always-dark surfaces): ink-inverse, ink-inverse-muted.
+  - **Always-same** (mode-independent): accent, accent-tint, warn, warn-bg, error, all radii, font tokens.
+
+**Backwards compatibility.** The 65 files using bilingual `bg-surface dark:bg-surface-deep` patterns continue to work. The `dark:` variant overrides the auto-pivoted base in dark mode — slightly redundant but identical visual. New components only need the role token (no `dark:` prefix).
+
+**`html.dark body` override removed.** No longer needed since `--color-surface-muted` and `--color-ink` flip via the .dark scope. Single body declaration covers both modes.
+
+**Mobile menu fix (PO reported "menu disappeared").** The hamburger button was `bg-surface` (white) sitting on the header which is also `bg-surface/95` (white-ish). Border was `border-border-strong` (warm tan) but on a busy mobile rendering that read as "blended into header". Fix: hamburger is now a **forest-green pill** (`bg-action text-white shadow-lift`) so it always pops against any header bg. Plus the drawer drops its bilingual class chain in favor of `bg-surface text-ink` which auto-pivot.
+
+**Verification.**
+  - typecheck clean, lint clean (pre-existing 2 warnings only)
+  - unit 91/91
+  - CSS-only batch — no DB changes
+  - Live deploy smoke after push
+
+**What you'll see when this hits live.**
+  - Light mode: cream body, white cards with subtle warm-tan borders, forest-green CTAs, sepia shadows giving depth — should finally read clean and consistent.
+  - Dark mode: warm dark forest body, lifted dark cards, brighter forest CTAs, dark-on-dark shadows.
+  - Mobile hamburger: forest-green pill always visible. Drawer auto-pivots cleanly.
+  - Switching themes in the live preview: all surfaces flip together; no orphaned light/dark patches.
+
+**The decision branch.**
+  After this deploy, smoke-test light mode end-to-end: home, search, property detail, dashboard, pricing, footer, both via direct browse + theme-toggle. If anything is still visibly broken, **the next move is to drop the theme toggle and force dark-only**, because the architectural fix is already in. There's no "more patches" path remaining; if this isn't enough, the toggle goes.
+
+**Next session should start with**: PO smokes light mode end-to-end. If clean → resume sub-batch B (analytics dashboard widgets). If still broken → drop theme toggle (force dark default).
+
+---
+
 ## 2026-05-01 — feat/property-analytics sub-batch A: events table + server-side fan-out
 
 Phase 3 of the post-DP-2 6-branch roadmap. Lays the data foundation for agent dashboard performance widgets, promoted-listings ROI, and "X people viewed this" surfaces. UI dashboard widgets land in **sub-batch B** (next session).

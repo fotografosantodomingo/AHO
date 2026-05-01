@@ -74,13 +74,18 @@ export function MegaMenuClient({
 
   return (
     <>
+      {/* Hamburger button. Bumped to a forest-green pill so it ALWAYS
+          reads against the white header (light mode) and the dark
+          forest header (dark mode) — neither contrast is ambiguous.
+          The previous neutral-bg hamburger blended into the header bg
+          on light mode (both white) and looked invisible to the PO. */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? 'Close menu' : 'Open menu'}
         aria-expanded={open}
         aria-controls="mobile-drawer"
-        className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border-strong bg-surface text-ink shadow-whisper transition-all hover:border-action active:scale-95 md:hidden dark:bg-surface-deep dark:text-ink-inverse dark:hover:border-action-dark"
+        className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-action text-white shadow-lift transition-all hover:bg-action-active active:scale-95 md:hidden"
       >
         {open ? (
           <X aria-hidden="true" className="h-5 w-5" strokeWidth={2.25} />
@@ -99,23 +104,17 @@ export function MegaMenuClient({
       />
 
       {/* Drawer — always mounted; transforms via translate-x.
-          PO reported the drawer reading as transparent on mobile in
-          dark mode. Root cause was a previous fix that added an inline
-          `style={{ backgroundColor: 'var(--color-surface)' }}` backstop
-          — but inline styles win over `dark:` Tailwind class variants,
-          and `--color-surface` resolves to white in both modes (no
-          `.dark` scope override at @theme level). So the inline white
-          stomped the `dark:bg-[#0a1812]` class.
-          Fix: drop the inline style entirely. Tailwind's `bg-white`
-          (light) + `dark:bg-[#0a1812]` (dark) are unambiguous and
-          render solid in both modes. */}
+          DP-3: tokens auto-pivot now (`bg-surface` = white in light,
+          lifted dark forest in dark; `text-ink` = warm-black in light,
+          cream in dark). No more bilingual class chains or inline-style
+          backstops. */}
       <div
         id="mobile-drawer"
         role="dialog"
         aria-modal="true"
         aria-hidden={!open}
         aria-label="Site navigation"
-        className={`fixed top-0 right-0 bottom-0 z-50 flex w-[88%] max-w-sm flex-col gap-5 overflow-y-auto border-l-2 border-border-strong bg-white p-6 text-ink shadow-2xl transition-transform duration-[320ms] ease-[cubic-bezier(0.4,0,0.2,1)] md:hidden dark:bg-[#0a1812] dark:text-ink-inverse ${
+        className={`fixed top-0 right-0 bottom-0 z-50 flex w-[88%] max-w-sm flex-col gap-5 overflow-y-auto border-l-2 border-border-strong bg-surface p-6 text-ink shadow-2xl transition-transform duration-[320ms] ease-[cubic-bezier(0.4,0,0.2,1)] md:hidden ${
           open ? 'translate-x-0' : 'pointer-events-none translate-x-full'
         }`}
       >

@@ -1,121 +1,145 @@
 @import 'tailwindcss';
 
-/* DP-2: Starbucks-INSPIRED design tokens (per docs/DECISIONS.md
-   "2026-05-01 — Visual direction pivot"). Warm cream canvas + forest-green
-   primary + pill CTAs + 12px card radius + tight letter-spacing.
+/* DP-3: ARCHITECTURAL FIX for the recurring light-mode visibility
+   pain. Token VALUES now flip per mode under a `.dark` scope override,
+   so a utility like `bg-surface` resolves to white in light and a
+   lifted dark forest in dark — without requiring every component to
+   write `bg-surface dark:bg-surface-deep`. The bilingual `dark:`
+   prefix patterns we already have stay correct (slightly redundant
+   but harmless); future code only needs the role token.
 
-   Trade-dress disclaimer: tokens are deliberately distinct from Starbucks's
-   published values (forest #1d5a3c vs Starbucks #006241; cream #f4ede1 vs
-   Starbucks #f2f0eb). Same mood, distinct identity. Don't drift these
-   toward the Starbucks values without a DECISIONS entry approving it.
+   Token classification (matters for understanding why some don't pivot):
 
-   Tailwind v4 picks up @theme custom properties as utility classes:
-     --color-surface         → bg-surface, text-surface, border-surface, …
-     --color-surface-dark    → bg-surface-dark, …
-     --radius-card           → rounded-card
-     --shadow-whisper        → shadow-whisper
+   AUTO-PIVOT tokens (different value per mode, same name):
+     surface, surface-muted, surface-deep, surface-warm, ink, ink-muted,
+     helper, action, action-active, border, border-strong, shadow-whisper.
 
-   Token names PRESERVED from the prior HashiCorp pass so no template
-   change is needed across the codebase — values are what changed.
-   E.g. `text-action` is still the primary-link/CTA color — now forest
-   green instead of HashiCorp blue. */
+   ALWAYS-DARK tokens (same value in both modes — used for intentional
+   always-dark surfaces like the footer "espresso bookend"):
+     surface-dark, surface-band.
+
+   ALWAYS-CREAM tokens (same value in both modes — used for text ON the
+   always-dark surfaces above):
+     ink-inverse, ink-inverse-muted.
+
+   ALWAYS-SAME tokens (mode-independent: brand accent, state colors,
+   radii, fonts, typography):
+     accent, accent-tint, warn, warn-bg, error, all radii, font tokens.
+
+   Trade-dress note: distinct values from Starbucks's published palette
+   per docs/DECISIONS.md "Visual direction pivot" — same warm-premium
+   mood, distinct identity.
+*/
 
 @theme {
-  /* — Surfaces —
-     Warm-neutral canvas instead of the prior cool-gray. The body uses
-     surface-muted (cream); cards lift to surface (white). Dark mode
-     pairs surface-dark (warm near-black green) body + surface-deep
-     (deepest) cards. surface-band is the explicit dark-green feature
-     band color used inside light-mode pages. */
-  --color-surface: #ffffff;            /* primary card / input bg */
-  --color-surface-muted: #f4ede1;      /* warm cream — primary body bg in light mode */
-  --color-surface-warm: #ebe1ce;       /* deeper cream — section separators / zone bands */
-  --color-surface-band: #16382a;       /* deep forest near-black — light-mode feature bands */
-  --color-surface-dark: #0f1f17;       /* warm dark — dark-mode body bg */
-  --color-surface-deep: #0a1812;       /* deepest dark — dark-mode card bg */
+  /* ======================================================
+     LIGHT-MODE DEFAULTS (overridden under html.dark below)
+     ====================================================== */
 
-  /* — Text —
-     Warm off-blacks (not pure #000) to match the cream canvas temperature.
-     Contrast targets (WCAG AA = 4.5:1 body, 3:1 large UI):
-       ink (#1a1612)         on surface (#fff)         → 17.8:1   ✓
-       ink-muted (#3a342c)   on surface (#fff)         → 11.0:1   ✓
-       helper (#5e574d)      on surface-muted (#f4ede1)→  5.8:1   ✓
-       action (#1d5a3c)      on surface (#fff)         →  7.8:1   ✓
-       ink-inverse (#f4ede1) on surface-deep (#0a1812) → 17.6:1   ✓
-       action-dark (#3a8b5d) on surface-dark (#0f1f17) →  5.4:1   ✓ */
-  --color-ink: #1a1612;                /* primary text on light — warm near-black */
-  --color-ink-muted: #3a342c;          /* secondary text on light — warm */
-  --color-helper: #5e574d;             /* tertiary text + form helpers — warm gray */
-  --color-ink-inverse: #f4ede1;        /* primary text on dark — cream */
-  --color-ink-inverse-muted: #cabd9f;  /* secondary text on dark — muted cream */
+  /* SURFACE ROLES */
+  --color-surface: #ffffff;            /* card / lifted surface (above body) */
+  --color-surface-muted: #f4ede1;      /* warm cream — body canvas (light) */
+  --color-surface-warm: #ebe1ce;       /* deeper cream — section separators */
+  --color-surface-deep: #ffffff;       /* deepest-contrast card; same as surface in light */
+  --color-surface-dark: #0f1f17;       /* always-dark — used by footer + dark-mode body */
+  --color-surface-band: #16382a;       /* always-dark — feature band (color-block rhythm) */
 
-  /* — Borders —
-     Warm tan-tinted instead of cool slate. Border at 0.55 alpha lets
-     cards pick up the canvas underneath. border-strong stays solid for
-     toggle/input outlines that need an unambiguous edge. */
+  /* TEXT */
+  --color-ink: #1a1612;                /* primary text (warm near-black on cream) */
+  --color-ink-muted: #3a342c;          /* secondary text */
+  --color-helper: #5e574d;             /* tertiary text (form helpers, captions) */
+  --color-ink-inverse: #f4ede1;        /* always-cream — text on always-dark surfaces */
+  --color-ink-inverse-muted: #cabd9f;  /* always-cream — secondary on dark */
+
+  /* BORDERS */
   --color-border: rgb(180 165 138 / 0.55);
   --color-border-strong: rgb(112 95 70);
 
-  /* — Action / brand greens (was HashiCorp blue) —
-     Forest green family. action is the primary CTA + link color on light
-     surfaces; action-dark is the brighter shade for dark-mode against
-     surface-dark; action-active is hover/pressed. Distinct hue from
-     Starbucks's #006241 — closer to a forest pine than retail-storefront. */
-  --color-action: #1d5a3c;             /* primary link / CTA on light */
-  --color-action-dark: #3a8b5d;        /* primary link / CTA on dark mode */
-  --color-action-active: #236a47;      /* hover/active fill on light */
+  /* BRAND / ACTION */
+  --color-action: #1d5a3c;             /* forest — primary CTA / link */
+  --color-action-dark: #3a8b5d;        /* legacy alias for dark mode action; with auto-pivot
+                                          this equals `action` value in dark — kept as a
+                                          named token because many existing components use
+                                          `dark:text-action-dark` patterns. */
+  --color-action-active: #236a47;      /* hover / pressed */
 
-  /* — Premium accent (used sparingly — verified-pro badges, founder rate, etc.) —
-     Aged-brass; deliberately not Starbucks's gold #cba258. */
-  --color-accent: #b8893a;
-  --color-accent-tint: #f4ecd9;        /* pale wash for accent-tinted surfaces */
+  /* PREMIUM ACCENT (sparingly used) */
+  --color-accent: #b8893a;             /* aged brass */
+  --color-accent-tint: #f4ecd9;        /* pale wash */
 
-  /* — State — */
+  /* STATE */
   --color-warn: #bb5a00;
   --color-warn-bg: #fbeabf;
-  --color-error: #9f2424;              /* warmer red than the prior #731e25 */
+  --color-error: #9f2424;
 
-  /* — Radii —
-     Card bumped 8px → 12px for a softer warm-card feel. Pill comes from
-     Tailwind's `rounded-full`; no separate token needed. xs/sm/md/lg
-     stay close to the prior values for inputs/checkboxes/badges. */
+  /* RADII */
   --radius-xs: 2px;
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 8px;
   --radius-card: 12px;
 
-  /* — Shadows —
-     "Whisper" shadow re-tinted warm: dual-layer at 6% opacity, sepia
-     instead of cool slate so the depth signal sits in the same
-     temperature as the cream canvas. */
+  /* SHADOWS */
   --shadow-whisper:
     rgb(82 60 40 / 0.06) 0px 1px 1px,
     rgb(82 60 40 / 0.06) 0px 2px 2px;
-
-  /* Lift shadow — slightly heavier; for cards-on-band or floating CTAs. */
   --shadow-lift:
     rgb(82 60 40 / 0.08) 0px 2px 4px,
     rgb(82 60 40 / 0.08) 0px 4px 8px;
 
-  /* — Typography —
-     Inter throughout (substituting the proprietary SoDoSans the inspiration
-     uses). Letter-spacing of -0.01em sits in @layer base below — that's
-     a global rule, not a token. */
+  /* TYPOGRAPHY */
   --font-brand: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
   --font-system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
 }
 
+/* ============================================================
+   DARK-MODE OVERRIDES — values flip; utility names unchanged.
+   The cascade does the work. Adding a new auto-pivoting token:
+   declare it in @theme above (light value), then override here.
+   ============================================================ */
+
+html.dark {
+  /* Surfaces flip — `bg-surface` becomes a lifted card on dark body. */
+  --color-surface: #142a1f;            /* lifted card on dark body */
+  --color-surface-muted: #0f1f17;      /* warm dark — body canvas (dark) */
+  --color-surface-warm: #122621;       /* slightly deeper dark — separators */
+  --color-surface-deep: #0a1812;       /* deepest contrast — used for max-lift cards */
+  /* surface-dark + surface-band UNCHANGED — those are always-dark by design */
+
+  /* Text flips. */
+  --color-ink: #f4ede1;                /* cream text on dark surfaces */
+  --color-ink-muted: #cabd9f;
+  --color-helper: #bdb09a;             /* lighter warm-gray for visibility on dark */
+  /* ink-inverse + ink-inverse-muted UNCHANGED — always-cream */
+
+  /* Borders shift to a low-alpha cream so they're visible against dark. */
+  --color-border: rgb(244 237 225 / 0.10);
+  --color-border-strong: rgb(244 237 225 / 0.28);
+
+  /* Brand greens — slightly brighter in dark for contrast against forest body. */
+  --color-action: #3a8b5d;
+  --color-action-dark: #3a8b5d;        /* equals action; legacy alias */
+  --color-action-active: #4ca070;
+
+  /* Shadows shift to warm-on-dark; the prior 6% sepia is invisible
+     on a dark surface, so push to a ring-lift instead. */
+  --shadow-whisper:
+    rgb(0 0 0 / 0.20) 0px 1px 1px,
+    rgb(0 0 0 / 0.20) 0px 2px 2px;
+  --shadow-lift:
+    rgb(0 0 0 / 0.30) 0px 2px 4px,
+    rgb(0 0 0 / 0.30) 0px 4px 8px;
+}
+
 @layer base {
-  /* color-scheme keeps native form controls + scrollbars in sync with theme. */
+  /* color-scheme keeps native form controls + scrollbars in sync. */
   html.light { color-scheme: light; }
   html.dark  { color-scheme: dark;  }
 
-  /* Body in light mode is the warm cream surface (#f4ede1) so that
-     bg-surface (white) cards lift visibly. Dark mode pairs surface-dark
-     body (warm dark green) + surface-deep cards for the same effect.
-     Tight tracking (-0.01em) sits at body level so it cascades — Inter
-     reads compressed-but-confident, the way SoDoSans does in the source. */
+  /* Body uses auto-pivoting tokens — single declaration, both modes
+     covered. The prior `html.dark body { ... }` override is no longer
+     needed since `--color-surface-muted` and `--color-ink` flip per
+     mode via the `.dark` scope above. */
   body {
     background-color: var(--color-surface-muted);
     color: var(--color-ink);
@@ -124,15 +148,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  html.dark body {
-    background-color: var(--color-surface-dark);
-    color: var(--color-ink-inverse);
-  }
 
-  /* Headings get the brand font + slightly tighter tracking + a calm
-     1.2 line-height. The inspiration uses 24/36 for H1/H2 with weight
-     carrying hierarchy; we keep our existing per-page sizing but the
-     family/tracking/leading match. */
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-brand);
     line-height: 1.19;
@@ -142,35 +158,20 @@
 }
 
 @layer components {
-  /* Reusable component patterns. Every page-scoped surface should reach
-     for these instead of re-rolling utility chains. Override individual
-     properties as needed. */
-
   /* — Cards — */
   .card-base {
     @apply rounded-card border border-border bg-surface shadow-whisper;
   }
-  .dark .card-base {
-    background-color: var(--color-surface-deep);
-  }
+  /* No dark variant needed — bg-surface auto-pivots. */
 
-  /* Inside hero/feature bands where the body bg is surface-muted (cream)
-     OR surface-band (forest). The card-on-band pattern uses surface-warm
-     (deeper cream) on light, surface-dark on dark, for an extra contrast
-     step against banded surroundings. */
+  /* Inside hero/feature bands. Uses surface-warm (deeper cream) on
+     light, surface-deep (darkest) on dark, for an extra contrast step
+     against banded surroundings. */
   .card-on-band {
     @apply rounded-card border border-border bg-surface-warm shadow-whisper;
   }
-  .dark .card-on-band {
-    background-color: var(--color-surface-dark);
-  }
 
-  /* — Buttons —
-     Primary is now a PILL (rounded-full) filled with forest green and
-     white text — the inspired-by signature move. h-10 (40px) keeps the
-     touch target healthy; primary buttons grow to h-11 (44px) on
-     mobile-first surfaces via per-component sizing. Secondary stays
-     a rounded-lg outlined button for less destructive actions. */
+  /* — Buttons — */
   .btn-primary {
     @apply inline-flex h-10 items-center justify-center rounded-full bg-action px-6 text-sm font-medium text-white shadow-whisper transition;
     letter-spacing: -0.01em;
@@ -181,17 +182,7 @@
   .btn-primary:active {
     transform: scale(0.97);
   }
-  .dark .btn-primary {
-    background-color: var(--color-action-dark);
-    color: var(--color-surface-deep);
-  }
-  .dark .btn-primary:hover {
-    background-color: var(--color-action);
-    color: #ffffff;
-  }
 
-  /* Inverse pill — for dark/banded surfaces where the canvas is forest
-     and the CTA needs to invert to a cream pill with forest text. */
   .btn-primary-inverse {
     @apply inline-flex h-10 items-center justify-center rounded-full bg-surface px-6 text-sm font-medium text-action shadow-whisper transition;
     letter-spacing: -0.01em;
@@ -210,12 +201,8 @@
   .btn-secondary:hover {
     background-color: rgb(0 0 0 / 0.04);
   }
-  .dark .btn-secondary {
-    background-color: var(--color-surface-deep);
-    color: var(--color-ink-inverse);
-  }
   .dark .btn-secondary:hover {
-    background-color: rgb(255 255 255 / 0.04);
+    background-color: rgb(255 255 255 / 0.05);
   }
 
   .btn-ghost {
@@ -223,9 +210,6 @@
   }
   .btn-ghost:hover {
     color: var(--color-action);
-  }
-  .dark .btn-ghost:hover {
-    color: var(--color-action-dark);
   }
 
   /* — Section rhythm — */
@@ -239,9 +223,8 @@
     @apply mx-auto max-w-5xl px-6 py-8 md:py-10;
   }
 
-  /* Feature band — dark forest with cream text. Used for the "color-block
-     page rhythm" inspired-by move (cream hero → white content → forest
-     band → cream utility → forest footer). */
+  /* Always-dark feature band — for the "color-block page rhythm"
+     (cream hero → white content → forest band → cream → footer). */
   .section-band {
     background-color: var(--color-surface-band);
     color: var(--color-ink-inverse);
@@ -250,30 +233,21 @@
     color: var(--color-ink-inverse-muted);
   }
 
-  /* Eyebrow label — uppercase track + size kept; color now warm helper. */
   .eyebrow {
     @apply font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper;
   }
 
-  /* Stat tile (agent profile, homepage trust strip). */
   .stat-tile {
     @apply flex flex-col gap-1 rounded-card border border-border bg-surface p-4 shadow-whisper;
   }
-  .dark .stat-tile {
-    background-color: var(--color-surface-deep);
-  }
 
-  /* Premium accent badge (Verified RE Agent / founder rate / Plus tier
-     signal). Gold-light fill, brass text. Reserved — use sparingly. */
   .badge-accent {
     @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider;
     background-color: var(--color-accent-tint);
     color: var(--color-accent);
   }
 
-  /* — Footer (DP-2c) —
-     Footer sits on bg-surface-dark (always dark forest band) with cream
-     text. Links go cream → white on hover with a quick underline. */
+  /* — Footer (DP-2c) — */
   .footer-link {
     color: var(--color-ink-inverse-muted);
     text-decoration: none;
@@ -285,9 +259,6 @@
     text-underline-offset: 2px;
   }
 
-  /* Footer accordion chevron — pseudo-element swap so closed shows '+'
-     and open shows '−'. No JS, no rotation animation; native <details>
-     drives the state. */
   .footer-accordion summary {
     list-style: none;
   }
