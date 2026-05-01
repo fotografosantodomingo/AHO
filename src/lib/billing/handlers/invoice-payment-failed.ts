@@ -4,6 +4,8 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getStripeClient } from '../stripe';
 import {
   findSubscriptionRowId,
+  invoiceSubscriptionId,
+  paymentIntentIdFromInvoice,
   updateSubscriptionFromStripe,
 } from './_helpers';
 
@@ -66,21 +68,3 @@ export async function handleInvoicePaymentFailed(event: Stripe.Event): Promise<v
   );
 }
 
-function invoiceSubscriptionId(invoice: Stripe.Invoice): string | null {
-  const inv = invoice as unknown as { subscription?: string | { id: string } | null };
-  if (typeof inv.subscription === 'string') return inv.subscription;
-  if (inv.subscription && typeof inv.subscription === 'object') return inv.subscription.id;
-  const firstLine = invoice.lines?.data?.[0] as
-    | { parent?: { subscription_item_details?: { subscription?: string } } }
-    | undefined;
-  return firstLine?.parent?.subscription_item_details?.subscription ?? null;
-}
-
-function paymentIntentIdFromInvoice(invoice: Stripe.Invoice): string | null {
-  const inv = invoice as unknown as { payment_intent?: string | { id: string } | null };
-  if (typeof inv.payment_intent === 'string') return inv.payment_intent;
-  if (inv.payment_intent && typeof inv.payment_intent === 'object') {
-    return inv.payment_intent.id;
-  }
-  return null;
-}

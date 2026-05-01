@@ -19,7 +19,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
  * fall back to subscription-level (older) so the code works across
  * SDK / API combinations.
  */
-function periodFromSubscription(sub: Stripe.Subscription): {
+export function periodFromSubscription(sub: Stripe.Subscription): {
   start: number;
   end: number;
 } {
@@ -118,4 +118,48 @@ export async function findSubscriptionRowId(
     .eq('stripe_subscription_id', stripeSubscriptionId)
     .maybeSingle();
   return data?.id ?? null;
+}
+
+/**
+ * Extract a Stripe.Subscription ID from a Stripe.Invoice across API
+ * versions. Older versions put `subscription` directly on the invoice;
+ * newer versions moved it under `lines.data[0].parent.subscription_item_details`.
+ *
+ * Returns null for one-off invoices (no associated subscription).
+ *
+ * Pure function — exported separately for unit test coverage of the
+ * cross-version parse logic. Both `invoice.paid` and `invoice.payment_failed`
+ * handlers consume this; keeping it in one place ensures they always agree.
+ */
+export function invoiceSubscriptionId(invoice: Stripe.Invoice): string | null {
+  // Older API: subscription is a top-level field on the invoice.
+  const inv = invoice as unknown as { subscription?: string | { id: string } | null };
+  if (typeof inv.subscription === 'string') return inv.subscription;
+  if (inv.subscription && typeof inv.subscription === 'object') return inv.subscription.id;
+
+  // Newer API: subscription is on the line item's parent.
+  const firstLine = invoice.lines?.data?.[0] as
+    | { parent?: { subscription_item_details?: { subscription?: string } } }
+    | undefined;
+  return firstLine?.parent?.subscription_item_details?.subscription ?? null;
+}
+
+/**
+ * Extract the PaymentIntent ID from a Stripe.Invoice. Different SDK versions
+ * model this as either a string ID or an expanded object.
+ *
+ * Returns null when the invoice has no PaymentIntent (e.g. zero-amount
+ * invoice or unfinalized state).
+ */
+export function paymentIntentIdFromInvoice(
+  invoice: Stripe.Invoice,
+): string | null {
+  const inv = invoice as unknown as {
+    payment_intent?: string | { id: string } | null;
+  };
+  if (typeof inv.payment_intent === 'string') return inv.payment_intent;
+  if (inv.payment_intent && typeof inv.payment_intent === 'object') {
+    return inv.payment_intent.id;
+  }
+  return null;
 }

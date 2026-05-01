@@ -7,6 +7,8 @@ import { renderAdminPaymentReceivedEmail } from '@/lib/email/templates/admin-pay
 import { formatPrice } from '@/lib/listings/format';
 import {
   findSubscriptionRowId,
+  invoiceSubscriptionId,
+  paymentIntentIdFromInvoice,
   updateSubscriptionFromStripe,
 } from './_helpers';
 
@@ -133,25 +135,3 @@ export async function handleInvoicePaid(event: Stripe.Event): Promise<void> {
   }
 }
 
-function invoiceSubscriptionId(invoice: Stripe.Invoice): string | null {
-  // Stripe API has moved subscription linkage between Invoice-level and
-  // line-item-level across versions. Try both.
-  const inv = invoice as unknown as { subscription?: string | { id: string } | null };
-  if (typeof inv.subscription === 'string') return inv.subscription;
-  if (inv.subscription && typeof inv.subscription === 'object') return inv.subscription.id;
-
-  // Newer API: subscription is on the line item's parent.
-  const firstLine = invoice.lines?.data?.[0] as
-    | { parent?: { subscription_item_details?: { subscription?: string } } }
-    | undefined;
-  return firstLine?.parent?.subscription_item_details?.subscription ?? null;
-}
-
-function paymentIntentIdFromInvoice(invoice: Stripe.Invoice): string | null {
-  const inv = invoice as unknown as { payment_intent?: string | { id: string } | null };
-  if (typeof inv.payment_intent === 'string') return inv.payment_intent;
-  if (inv.payment_intent && typeof inv.payment_intent === 'object') {
-    return inv.payment_intent.id;
-  }
-  return null;
-}

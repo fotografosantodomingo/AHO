@@ -12,6 +12,35 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — Pre-live confidence: extracted + unit-tested cross-version Stripe parsers
+
+A surgical pre-live-readiness piece. The webhook handlers had three pure functions for parsing across Stripe API versions (`periodFromSubscription`, `invoiceSubscriptionId`, `paymentIntentIdFromInvoice`) — two of them duplicated between `invoice-paid.ts` and `invoice-payment-failed.ts`. All three are exactly the kind of code that fails silently in production: a wrong return value gives "no rows updated" with no error, and the deferred webhook-replay cases couldn't catch them without live Stripe state.
+
+  - **`_helpers.ts`:** exported `periodFromSubscription` (was private); added `invoiceSubscriptionId` + `paymentIntentIdFromInvoice` as new exports. Single source of truth for the cross-version parsing now lives in one file.
+  - **`invoice-paid.ts` + `invoice-payment-failed.ts`:** removed local copies of `invoiceSubscriptionId` + `paymentIntentIdFromInvoice`; both now import from `_helpers`.
+  - **`tests/unit/billing-stripe-parse.test.ts`:** 14 new unit tests covering:
+    - `periodFromSubscription` — item-level (newer API) / subscription-level (older API) / both-set precedence / missing-fields error
+    - `invoiceSubscriptionId` — top-level string / top-level object / line-item parent.subscription_item_details (newer API) / one-off invoices / explicit-null / both-set precedence (locked to older shape for consistency)
+    - `paymentIntentIdFromInvoice` — string ID / expanded object / missing entirely / explicit null
+
+**Why this trade-off** (vs. the originally-planned full live-state harness): a true Stripe-state harness needs real test-mode subscriptions + matching prod-Supabase fixture rows + cleanup scaffolding — significant lift with prod-Supabase write risk. The fragile cross-version parsing is what would actually break under a Stripe API version drift; covering it as pure-function unit tests gives us regression protection in CI without touching live state. The handler-integration paths (route → signature → dedup → dispatch) are already covered by the live `pnpm stripe:replay` script's 6 passing cases.
+
+**Verification:** typecheck clean · 124/124 unit tests (was 110; +14 new) · lint only pre-existing `_req` warnings.
+
+**Branch note:** This commit is on `backup` (not `main`) per PO directive 2026-05-01 — push to backup until further notice.
+
+**Truly remaining items, all PO-action gated:**
+  - Phase 4-7 social-distribution (Meta + LinkedIn app review)
+  - Neighborhood overlays (PO decision on polygon-data source)
+  - Soft-beta agent recruitment (PO outreach for first real listings)
+  - Custom domain DNS www→apex (manual via PO Cloudflare dashboard)
+  - Resend DKIM/SPF/DMARC (PO action)
+  - Live-mode Stripe promotion (requires DECISIONS.md entry per CLAUDE.md hard rule #9)
+
+The autonomous-progress backlog from CLAUDE.md "Current focus" is now genuinely complete.
+
+---
+
 ## 2026-05-01 — Phase 3 extension: buyer-side share button on public property detail
 
 Extends the agent-only Manual Share module from earlier today onto the public property detail page so any visitor can share a listing they like. Logical completion of Phase 3 — same captions, same copy buttons, same WhatsApp deep-link, but with a different UTM campaign tag so dashboard/analytics distinguishes "agent self-promotes" from "buyer shares the listing they liked".
