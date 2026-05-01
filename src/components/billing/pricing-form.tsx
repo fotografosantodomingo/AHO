@@ -109,7 +109,7 @@ export function PricingForm() {
       <button
         type="submit"
         disabled={loading || orgName.trim().length < 2}
-        className="inline-flex w-full items-center justify-center rounded-lg bg-surface-dark px-5 py-2.5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink disabled:opacity-50"
+        className="btn-primary w-full disabled:opacity-50"
       >
         {loading ? t('redirecting') : submitLabel}
       </button>

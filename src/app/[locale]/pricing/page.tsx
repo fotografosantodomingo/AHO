@@ -155,7 +155,7 @@ export default async function PricingPage({
             {!user ? (
               <a
                 href={`${signInPath}?next=${encodeURIComponent(pricingPath)}`}
-                className="inline-flex w-full items-center justify-center rounded-lg bg-surface-dark px-5 py-2.5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink dark:bg-surface dark:text-ink dark:hover:bg-surface-muted"
+                className="btn-primary w-full"
               >
                 {t('needsSignIn')}
               </a>
@@ -170,7 +170,7 @@ export default async function PricingPage({
                     {t('openDashboard')}
                   </a>
                   <div className="flex-1">
-                    <BillingPortalButton className="block w-full rounded-lg bg-surface-dark px-4 py-2 text-center text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink dark:bg-surface dark:text-ink dark:hover:bg-surface-muted" />
+                    <BillingPortalButton className="btn-primary w-full" />
                   </div>
                 </div>
               </div>

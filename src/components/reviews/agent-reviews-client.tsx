@@ -162,7 +162,7 @@ function ReviewCard({
               type="button"
               onClick={() => save(reply.trim())}
               disabled={!canSave || submitting}
-              className="inline-flex h-8 items-center rounded-lg bg-surface-dark px-3 text-xs font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-60 dark:bg-surface dark:text-ink dark:hover:bg-surface-muted"
+              className="btn-primary h-8 px-3 text-xs disabled:cursor-not-allowed disabled:opacity-60"
             >
               {savedReply ? labels.replyUpdate : labels.replySubmit}
             </button>

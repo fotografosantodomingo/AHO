@@ -123,7 +123,7 @@ export function ContactForm({ propertyId }: ContactFormProps) {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="inline-flex h-10 items-center rounded-lg bg-surface-dark px-4 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink disabled:opacity-50"
+        className="btn-primary px-4 disabled:opacity-50"
       >
         {isSubmitting ? t('sending') : t('send')}
       </button>

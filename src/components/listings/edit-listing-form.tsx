@@ -573,7 +573,7 @@ export function EditListingForm({ initial }: Props) {
         <button
           type="submit"
           disabled={pending}
-          className="inline-flex h-10 items-center justify-center rounded-lg bg-surface-dark px-5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-60 dark:bg-surface dark:text-ink dark:hover:bg-surface-muted"
+          className="btn-primary disabled:cursor-not-allowed disabled:opacity-60"
         >
           {pending ? t('saving') : t('save')}
         </button>

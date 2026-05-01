@@ -113,7 +113,7 @@ export default async function AdminUsersPage({
         href={href}
         className={`inline-flex h-8 items-center rounded-lg px-3 text-sm transition ${
           isActive
-            ? 'bg-surface-dark text-ink-inverse-muted shadow-whisper'
+            ? 'bg-action text-white shadow-whisper dark:bg-action-dark dark:text-surface-deep'
             : 'text-helper hover:bg-black/5 dark:hover:bg-white/5'
         }`}
       >

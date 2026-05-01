@@ -140,7 +140,27 @@
   "footer": {
     "privacy": "Privacy",
     "terms": "Terms",
-    "rights": "All rights reserved."
+    "rights": "All rights reserved.",
+    "sectionAbout": "About AHO",
+    "sectionForBuyers": "For buyers",
+    "sectionForAgents": "For agents",
+    "sectionStayInTouch": "Stay in touch",
+    "aboutBody": "AHO is a real-estate marketplace for real listings, real buyers, and real agents — worldwide.",
+    "quickContact": "Have a question? Email us.",
+    "linkBrowseListings": "Browse listings",
+    "linkBrowseByCountry": "Browse by country",
+    "linkSavedSearches": "Saved searches",
+    "linkPricing": "Pricing",
+    "linkSignUp": "Create an agent account",
+    "linkSignIn": "Sign in",
+    "newsletter": {
+      "body": "New listings, market notes, and product updates — about once a month.",
+      "label": "Email address",
+      "placeholder": "you@example.com",
+      "submit": "Subscribe",
+      "thanks": "Thanks — we'll keep you posted.",
+      "error": "Couldn't subscribe right now. Please try again."
+    }
   },
   "theme": {
     "label": "Theme",

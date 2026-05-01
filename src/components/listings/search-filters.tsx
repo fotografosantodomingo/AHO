@@ -164,7 +164,7 @@ export async function SearchFilters({ locale, filters }: Props) {
       <div className="md:col-span-4 flex flex-wrap items-center gap-3 border-t border-border pt-3">
         <button
           type="submit"
-          className="inline-flex h-9 items-center rounded-lg bg-surface-dark px-4 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink dark:bg-surface dark:text-ink dark:hover:bg-surface-muted"
+          className="btn-primary h-9 px-4"
         >
           {t('applyFilters')}
         </button>

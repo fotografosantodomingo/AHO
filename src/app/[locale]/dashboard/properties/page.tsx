@@ -149,7 +149,7 @@ export default async function DashboardListingsPage({
           className={`inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium shadow-whisper transition ${
             planAtCapDisabled
               ? 'cursor-not-allowed bg-border-strong/20 text-helper'
-              : 'bg-surface-dark text-ink-inverse-muted hover:bg-ink dark:bg-surface dark:text-ink dark:hover:bg-surface-muted'
+              : 'bg-action text-white hover:bg-action-active dark:bg-action-dark dark:text-surface-deep'
           }`}
         >
           {t('newListing')}
@@ -207,10 +207,7 @@ export default async function DashboardListingsPage({
           <p className="mx-auto mt-3 max-w-md text-sm text-ink-muted dark:text-ink-inverse-muted">
             {t('emptyHelp')}
           </p>
-          <a
-            href={newListingPath}
-            className="mt-6 inline-flex h-10 items-center justify-center rounded-lg bg-surface-dark px-5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink"
-          >
+          <a href={newListingPath} className="btn-primary mt-6">
             {t('listingsEmptyCta')}
           </a>
         </div>

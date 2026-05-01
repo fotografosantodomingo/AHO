@@ -873,7 +873,7 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
           type="button"
           onClick={() => submitAndPublish()}
           disabled={busy}
-          className="inline-flex h-10 items-center rounded-lg bg-surface-dark px-5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink disabled:opacity-50 dark:bg-surface dark:text-ink dark:hover:bg-surface-muted"
+          className="btn-primary disabled:opacity-50"
         >
           {phase === 'publishing'
             ? '…'

@@ -214,7 +214,7 @@ export function SignUpForm() {
       <button
         type="submit"
         disabled={submitDisabled}
-        className="w-full rounded-lg bg-surface-dark px-4 py-2.5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink disabled:opacity-50"
+        className="btn-primary w-full disabled:opacity-50"
       >
         {isSubmitting ? t('signingUp') : t('signUpCta')}
       </button>

@@ -52,7 +52,7 @@ export default function LocalizedError({
         <button
           type="button"
           onClick={reset}
-          className="inline-flex h-10 items-center justify-center rounded-lg bg-surface-dark px-5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink"
+          className="btn-primary"
         >
           {t('retryCta')}
         </button>

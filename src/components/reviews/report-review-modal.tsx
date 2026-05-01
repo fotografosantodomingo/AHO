@@ -124,7 +124,7 @@ export function ReportReviewModal({ reviewId, onClose }: Props) {
               <button
                 type="submit"
                 disabled={!reason || submitting}
-                className="inline-flex h-9 items-center rounded-lg bg-surface-dark px-4 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-60 dark:bg-surface dark:text-ink dark:hover:bg-surface-muted"
+                className="btn-primary h-9 px-4 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {t('reportSubmit')}
               </button>

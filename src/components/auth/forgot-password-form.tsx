@@ -86,7 +86,7 @@ export function ForgotPasswordForm() {
       <button
         type="submit"
         disabled={isSubmitting || (turnstileRequired && !captchaToken)}
-        className="w-full rounded-lg bg-surface-dark px-4 py-2.5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink disabled:opacity-50"
+        className="btn-primary w-full disabled:opacity-50"
       >
         {isSubmitting ? tForgot('submitting') : tForgot('submit')}
       </button>

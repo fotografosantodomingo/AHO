@@ -6,6 +6,7 @@ import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server
 import { LOCALES, type Locale } from '@/i18n/config';
 import { ThemeProvider } from '@/components/theme-provider';
 import { SiteHeader } from '@/components/site-header';
+import { SiteFooter } from '@/components/footer/site-footer';
 import '../globals.css';
 
 // Brand font — substituted for HashiCorp Sans (proprietary; we don't have
@@ -88,7 +89,6 @@ export default async function LocaleLayout({
   }
   setRequestLocale(locale);
   const messages = await getMessages();
-  const t = await getTranslations({ locale, namespace: 'footer' });
 
   return (
     <html lang={locale} className={inter.variable} suppressHydrationWarning>
@@ -100,22 +100,7 @@ export default async function LocaleLayout({
           <ThemeProvider>
             <SiteHeader locale={locale as Locale} />
             <div>{children}</div>
-            <footer className="mt-24 border-t border-border">
-              <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-6 text-xs text-helper">
-                <p>© 2026 AHO. {t('rights')}</p>
-                <nav className="flex gap-4">
-                  <a className="hover:underline" href={`/${locale}/privacy`}>
-                    {t('privacy')}
-                  </a>
-                  <a
-                    className="hover:underline"
-                    href={`/${locale}/${locale === 'es' ? 'terminos' : 'terms'}`}
-                  >
-                    {t('terms')}
-                  </a>
-                </nav>
-              </div>
-            </footer>
+            <SiteFooter locale={locale as Locale} />
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>

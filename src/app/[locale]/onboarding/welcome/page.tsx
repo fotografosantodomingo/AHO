@@ -113,7 +113,7 @@ export default async function OnboardingWelcomePage({
           </p>
           <a
             href={dashboardPath}
-            className="mt-6 inline-flex items-center justify-center rounded-lg bg-surface-dark px-5 py-2.5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink dark:bg-surface dark:text-ink dark:hover:bg-surface-muted"
+            className="btn-primary mt-6"
           >
             {t('openDashboard')}
           </a>

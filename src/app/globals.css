@@ -270,4 +270,34 @@
     background-color: var(--color-accent-tint);
     color: var(--color-accent);
   }
+
+  /* — Footer (DP-2c) —
+     Footer sits on bg-surface-dark (always dark forest band) with cream
+     text. Links go cream → white on hover with a quick underline. */
+  .footer-link {
+    color: var(--color-ink-inverse-muted);
+    text-decoration: none;
+    transition: color 150ms;
+  }
+  .footer-link:hover {
+    color: var(--color-ink-inverse);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* Footer accordion chevron — pseudo-element swap so closed shows '+'
+     and open shows '−'. No JS, no rotation animation; native <details>
+     drives the state. */
+  .footer-accordion summary {
+    list-style: none;
+  }
+  .footer-accordion summary::-webkit-details-marker {
+    display: none;
+  }
+  .footer-accordion-chevron::before {
+    content: '+';
+  }
+  .footer-accordion[open] .footer-accordion-chevron::before {
+    content: '−';
+  }
 }

@@ -131,7 +131,7 @@ export function AdminReviewsClient({ reviews, locale, labels }: Props) {
                   type="button"
                   onClick={() => moderate(r.id, 'unhide')}
                   disabled={isPending}
-                  className="inline-flex h-8 items-center rounded-lg bg-surface-dark px-3 text-xs font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink disabled:opacity-60 dark:bg-surface dark:text-ink dark:hover:bg-surface-muted"
+                  className="btn-primary h-8 px-3 text-xs disabled:opacity-60"
                 >
                   {labels.unhide}
                 </button>

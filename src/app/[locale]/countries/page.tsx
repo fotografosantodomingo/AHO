@@ -97,7 +97,7 @@ export default async function CountriesPage({
             <div className="mt-6 flex flex-col items-center justify-center gap-2 sm:flex-row">
               <Link
                 href={pricingHref}
-                className="inline-flex h-10 items-center justify-center rounded-lg bg-surface-dark px-5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink dark:bg-surface dark:text-ink dark:hover:bg-surface-muted"
+                className="btn-primary"
               >
                 {t('emptyAgentCta')}
               </Link>

@@ -32,7 +32,7 @@ export default function GlobalNotFound() {
           <div className="mt-8 flex flex-col gap-2 sm:flex-row">
             <Link
               href="/en"
-              className="inline-flex h-10 items-center justify-center rounded-lg bg-surface-dark px-5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink"
+              className="btn-primary"
             >
               Back to home
             </Link>

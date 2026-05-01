@@ -140,7 +140,27 @@
   "footer": {
     "privacy": "Privacidad",
     "terms": "Términos",
-    "rights": "Todos los derechos reservados."
+    "rights": "Todos los derechos reservados.",
+    "sectionAbout": "Sobre AHO",
+    "sectionForBuyers": "Para compradores",
+    "sectionForAgents": "Para agentes",
+    "sectionStayInTouch": "Mantente al día",
+    "aboutBody": "AHO es un marketplace inmobiliario de anuncios reales, compradores reales y agentes reales — en todo el mundo.",
+    "quickContact": "¿Una pregunta? Escríbenos.",
+    "linkBrowseListings": "Explorar anuncios",
+    "linkBrowseByCountry": "Explorar por país",
+    "linkSavedSearches": "Búsquedas guardadas",
+    "linkPricing": "Precios",
+    "linkSignUp": "Crear cuenta de agente",
+    "linkSignIn": "Iniciar sesión",
+    "newsletter": {
+      "body": "Anuncios nuevos, notas de mercado y novedades del producto — aproximadamente una vez al mes.",
+      "label": "Correo electrónico",
+      "placeholder": "tu@ejemplo.com",
+      "submit": "Suscribirme",
+      "thanks": "Gracias — te mantendremos al día.",
+      "error": "No se pudo suscribir en este momento. Inténtalo de nuevo."
+    }
   },
   "theme": {
     "label": "Tema",

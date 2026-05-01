@@ -34,7 +34,7 @@ export default async function LocalizedNotFound() {
       <div className="mt-8 flex flex-col gap-2 sm:flex-row">
         <a
           href={homeHref}
-          className="inline-flex h-10 items-center justify-center rounded-lg bg-surface-dark px-5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink"
+          className="btn-primary"
         >
           {t('homeCta')}
         </a>

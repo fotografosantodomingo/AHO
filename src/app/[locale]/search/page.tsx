@@ -121,7 +121,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
           href={listViewHref}
           className={`inline-flex h-8 items-center rounded-lg px-3 text-sm transition ${
             view === 'list'
-              ? 'bg-surface-dark text-ink-inverse-muted shadow-whisper'
+              ? 'bg-action text-white shadow-whisper dark:bg-action-dark dark:text-surface-deep'
               : 'border border-border-strong text-helper hover:bg-black/5 dark:hover:bg-white/5'
           }`}
         >
@@ -131,7 +131,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
           href={mapViewHref}
           className={`inline-flex h-8 items-center rounded-lg px-3 text-sm transition ${
             view === 'map'
-              ? 'bg-surface-dark text-ink-inverse-muted shadow-whisper'
+              ? 'bg-action text-white shadow-whisper dark:bg-action-dark dark:text-surface-deep'
               : 'border border-border-strong text-helper hover:bg-black/5 dark:hover:bg-white/5'
           }`}
         >

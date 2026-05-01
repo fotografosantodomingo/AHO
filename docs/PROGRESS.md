@@ -12,6 +12,96 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — Batch DP-2c (footer redesign + dark-knob CTA sweep)
+
+Closes the public-surface portion of the DP-2 visual pivot. Two stacked deliverables: the new bilingual footer and the wholesale migration of the legacy "dark knob" CTA pattern across the codebase.
+
+### 1. Footer redesign
+
+Replaces the 1-row marketing strip with a full-width inspired-by-Starbucks "espresso bookend" footer:
+
+  - **Always-dark forest band** (`bg-surface-dark` = `#0f1f17`) with cream text in both light and dark modes. The "color-block page rhythm" that the design spec calls for: cream hero → white content → forest footer.
+  - **Desktop (≥md): 4-column grid** — *About AHO* / *For buyers* / *For agents* / *Stay in touch*.
+  - **Mobile (<md): native `<details>` accordions** — pure HTML, no JS toggle. First section opens by default; the rest expand on tap. The chevron uses a CSS `::before` pseudo-element that swaps `+` → `−` based on `[open]` state.
+  - **Active components:**
+    - **`<NewsletterForm>`** (Client) — email input + Subscribe pill. POSTs to a new `/api/newsletter` route (Edge runtime). The route uses Brevo's Contacts API to add the email to a configured list; gracefully no-ops with a console warning when `BREVO_API_KEY` or `BREVO_NEWSLETTER_LIST_ID` isn't set, returning `{ ok: true, stored: false }` so the UI still renders honest success copy ("Thanks — we'll keep you posted"). Dedup on already-subscribed handled (Brevo's `duplicate_parameter` → 200 ok).
+    - **Quick contact** = `mailto:` link to `info@advertisehomes.online`. A dedicated `/contact` page is a future-batch item; the link works today.
+    - **Language mirror** — second `<LocaleToggle>` placement at the bottom strip. The toggle gained a `variant?: 'header' | 'footer'` prop so it can render with cream-on-forest chrome (transparent bg, cream border, cream chevron) when placed in the footer band.
+  - **Bottom strip:** © year + AHO + privacy/terms/email links + locale mirror.
+  - **Social links** — Facebook / Instagram / LinkedIn rendered as text links with a `·` separator, matching the email-template footer pattern. Hardcoded URLs to `facebook.com/advertisehomesonline` etc. for now (single source of truth lives in the email templates; will refactor to a shared `site-config.ts` if a third consumer emerges).
+  - **i18n** — extended `footer.*` namespace in en+es: section headings, body copy, link labels, newsletter form (label/placeholder/submit/thanks/error). All localized.
+
+The `LocaleToggle`'s native `<select>` chrome is variant-aware (cream surface in header, transparent in footer), with the chevron SVG color swapped via inline data-URL based on variant. Native widget preserved for accessibility.
+
+### 2. Dark-knob CTA sweep (28 occurrences across 22 files)
+
+The legacy pattern from the HashiCorp era — `bg-surface-dark text-ink-inverse-muted shadow-whisper transition hover:bg-ink dark:bg-surface dark:text-ink dark:hover:bg-surface-muted` — was a "dark block" CTA that worked when the canvas was cool slate but read as a muddy forest block on the new cream canvas. PO audit on DP-2b live deploy flagged this as the remaining systemic visual bug.
+
+Migrated to the DP-2a `.btn-primary` (forest-green pill) class with size overrides where layout demanded:
+
+  **Pages (10 files):**
+  - `pricing/page.tsx` — sign-in CTA + Customer Portal pill (2x)
+  - `not-found.tsx` (root) + `[locale]/not-found.tsx` + `[locale]/error.tsx` — back-to-home CTAs
+  - `[locale]/auth/error/page.tsx` — recovery CTA
+  - `[locale]/countries/page.tsx` — empty-state agent acquisition CTA
+  - `[locale]/saved-searches/page.tsx` — empty-state browse CTA
+  - `[locale]/onboarding/welcome/page.tsx` — open-dashboard CTA after Stripe Checkout
+  - `[locale]/dashboard/properties/page.tsx` — empty-state new-listing CTA
+
+  **Auth forms (5 files):**
+  - `sign-in-form.tsx`, `sign-up-form.tsx`, `magic-link-form.tsx`, `forgot-password-form.tsx`, `reset-password-form.tsx` — all submit buttons → full-width pill (`.btn-primary w-full`).
+
+  **Dashboard / agent surfaces (7 files):**
+  - `publish-button.tsx` — h-9 forest pill
+  - `edit-listing-form.tsx`, `listing-form.tsx` — submit buttons
+  - `search-filters.tsx` — Apply Filters
+  - `contact-form.tsx` — Send button
+  - `profile-form.tsx` — Save changes
+  - `pricing-form.tsx` — Subscribe button (full-width)
+
+  **Reviews (4 files):**
+  - `write-review-form.tsx` — Submit
+  - `agent-reviews-client.tsx` — agent reply Submit
+  - `report-review-modal.tsx` — Report Submit
+  - `admin-reviews-client.tsx` — Unhide
+
+  **Active-tab pills (6 files, 7 occurrences) — different replacement target:**
+  Active-tab patterns (`active ? 'bg-surface-dark text-ink-inverse-muted shadow-whisper' : '...'`) became `'bg-action text-white shadow-whisper dark:bg-action-dark dark:text-surface-deep'` — a forest pill in light, brighter forest in dark, white text in both. Files: `admin/page.tsx`, `admin/leads/page.tsx`, `admin/users/page.tsx`, `search/page.tsx` (list+map toggle, 2x), `dashboard/leads/page.tsx`, `dashboard/properties/page.tsx` (new-listing pill in non-disabled state).
+
+  **Intentionally NOT migrated** (kept as-is — different pattern, not a CTA):
+  - `facts-and-features.tsx` (2x) and `listing-card.tsx` (1x) chip patterns: `bg-surface-muted ... border ... dark:bg-surface-dark`. These are info chips, not CTAs; the cream-on-cream chip with border reads correctly in light mode, and the `dark:bg-surface-dark` resolves to warm dark forest in dark mode — coherent with both modes' palette.
+  - Avatar fallback placeholders on agent profile + property detail pages: `bg-surface dark:bg-surface-dark` with brand initials. Reads as cream square with forest-green initials in light mode (correct); warm-dark-forest square with brighter-forest initials in dark mode (correct).
+
+### What's intentionally NOT in DP-2c
+
+  - **Real /contact page** — quick-contact is a `mailto:` link in this batch. Future-batch task.
+  - **Newsletter list creation in Brevo** — PO action: create the list in the Brevo dashboard, copy the numeric ID, set `BREVO_NEWSLETTER_LIST_ID=<id>` in `.env.local` + Cloudflare Pages secret. Until then, submissions log-warn and return ok-but-not-stored.
+  - **Email template redesign** — DP-2d.
+
+### Verify run
+
+  - typecheck clean, lint clean (only pre-existing 2 warnings)
+  - unit 91/91
+  - UI/CSS-only — no DB / RLS changes
+  - Live deploy smoke after push
+
+### What you'll see when this hits live
+
+  - **Footer**: full forest band with cream text, 4 columns on desktop (About / For buyers / For agents / Stay in touch + newsletter), accordion sections on mobile, language mirror at the bottom, working email signup form (no-op until Brevo list configured).
+  - **Pricing page**: sign-in CTA + Customer Portal pill are now forest pills (was: dark blocks).
+  - **404 / error / auth-error pages**: back-to-home buttons become forest pills.
+  - **All auth forms** (signin/signup/forgot/reset/magic-link): submit buttons become full-width forest pills.
+  - **Search page**: List/Map toggle pills are now forest-green when active (was: warm dark green, indistinguishable from a CTA).
+  - **Admin tabs** (Listings / Orgs / Leads / Users): active tab is forest pill (was: warm dark block).
+  - **Dashboard tabs** (Leads, Properties new-listing): same forest-pill treatment.
+  - **Forms throughout** (publish, edit listing, contact, profile, write-review, etc.): submit buttons now uniform forest pills.
+
+### Next session should start with
+
+`feat/favorites` — the first of the 6-branch post-DP-2 roadmap. Schema (`property_favorites` table + RLS), heart button on listing cards + property detail page, `/dashboard/saved-properties` list view, anonymous-click → signup redirect. Then DP-2d emails after favorites smokes.
+
+---
+
 ## 2026-05-01 — Batch DP-2b.1 (light-mode surgical fixes)
 
 PO did a careful audit of the live DP-2b deploy and identified four specific components that were dragging light mode down: still using the legacy "dark knob" CTA pattern (bg-surface-dark default + dark:bg-surface override), and a dot-grid tuned for cool-slate that read as a "dirty newspaper" effect on warm cream. Verdict: globals.css tokens are fine; the DP-2a token cascade is doing its job; the bug is per-component utilities that haven't migrated yet.

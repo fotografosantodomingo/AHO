@@ -64,7 +64,7 @@ export default async function AuthErrorPage({
 
           <a
             href={signInPath}
-            className="mt-6 inline-flex h-10 items-center rounded-lg bg-surface-dark px-5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink dark:bg-surface dark:text-ink dark:hover:bg-surface-muted"
+            className="btn-primary mt-6"
           >
             {t('tryAgainCta')}
           </a>

@@ -37,7 +37,13 @@ const PROPERTY_PATH_FOR_LOCALE: Record<Locale, string> = {
  * Final safety net: any unrecoverable resolution falls back to the
  * locale home rather than throwing.
  */
-export function LocaleToggle() {
+interface Props {
+  /** 'header' (default) — cream surface, warm-tan border, forest chevron.
+   *  'footer' — transparent on the forest band, cream border + chevron. */
+  variant?: 'header' | 'footer';
+}
+
+export function LocaleToggle({ variant = 'header' }: Props = {}) {
   const t = useTranslations('locale');
   const locale = useLocale();
   const pathname = usePathname();
@@ -86,6 +92,21 @@ export function LocaleToggle() {
     window.location.assign(target);
   }
 
+  // Variant styling. Header uses cream surface + warm-tan border + forest
+  // chevron. Footer uses transparent on the forest band + cream border +
+  // cream chevron — same widget, different chrome for the surface it sits on.
+  const headerClass =
+    'h-11 cursor-pointer appearance-none rounded-full border border-border-strong bg-surface bg-[image:var(--chevron-down)] bg-[position:right_0.625rem_center] bg-[size:0.85em] bg-no-repeat py-0 pr-8 pl-4 text-sm font-medium tracking-tight transition-colors hover:border-action focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-action/50 disabled:opacity-60 dark:bg-surface-deep dark:hover:border-action-dark dark:focus-visible:ring-action-dark/50';
+  const footerClass =
+    'h-9 cursor-pointer appearance-none rounded-full border border-white/20 bg-transparent bg-[image:var(--chevron-down)] bg-[position:right_0.5rem_center] bg-[size:0.7em] bg-no-repeat py-0 pr-7 pl-3 text-xs font-medium tracking-tight text-ink-inverse transition-colors hover:border-action-dark focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-action-dark/40 disabled:opacity-60';
+
+  // Forest chevron for header (reads on cream); cream chevron for footer
+  // (reads on dark forest).
+  const headerChevron =
+    "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none' stroke='%231d5a3c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='1,1 6,6 11,1'/></svg>\")";
+  const footerChevron =
+    "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none' stroke='%23f4ede1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='1,1 6,6 11,1'/></svg>\")";
+
   return (
     <label className="inline-flex items-center text-sm">
       <span className="sr-only">{t('label')}</span>
@@ -93,17 +114,21 @@ export function LocaleToggle() {
         value={locale}
         onChange={(e) => switchTo(e.target.value as Locale)}
         disabled={isPending}
-        className="h-11 cursor-pointer appearance-none rounded-full border border-border-strong bg-surface bg-[image:var(--chevron-down)] bg-[position:right_0.625rem_center] bg-[size:0.85em] bg-no-repeat py-0 pr-8 pl-4 text-sm font-medium tracking-tight transition-colors hover:border-action focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-action/50 disabled:opacity-60 dark:bg-surface-deep dark:hover:border-action-dark dark:focus-visible:ring-action-dark/50"
+        className={variant === 'footer' ? footerClass : headerClass}
         style={{
-          // Inline SVG chevron — solid forest green so it reads against
-          // both cream and dark forest backgrounds. Inline keeps the
-          // asset out of the public/ tree (no extra HTTP request).
           ['--chevron-down' as string]:
-            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none' stroke='%231d5a3c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='1,1 6,6 11,1'/></svg>\")",
+            variant === 'footer' ? footerChevron : headerChevron,
         }}
       >
         {LOCALES.map((l) => (
-          <option key={l} value={l}>
+          <option
+            key={l}
+            value={l}
+            // Native option list inherits the OS color scheme — explicitly
+            // sourcing from --color-surface / --color-ink so the dropdown
+            // is readable on both modes regardless of where the toggle lives.
+            style={{ color: 'var(--color-ink)', backgroundColor: 'var(--color-surface)' }}
+          >
             {t(l)}
           </option>
         ))}
