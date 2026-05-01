@@ -129,7 +129,7 @@ export async function fetchPropertyByShortId(
         property_images (
           id, r2_key, cf_image_id,
           alt_text_en, alt_text_es,
-          width, height, position, is_primary
+          width, height, position, is_primary, upload_status
         )
       `,
     )
@@ -173,6 +173,9 @@ export async function fetchPropertyByShortId(
     createdAt: data.created_at,
     updatedAt: data.updated_at,
     images: (data.property_images ?? [])
+      // Only show confirmed images on the public detail page. Pending /
+      // uploading rows are intermediate states and shouldn't render.
+      .filter((img) => img.upload_status === 'confirmed')
       .map((img) => ({
         id: img.id,
         r2Key: img.r2_key,

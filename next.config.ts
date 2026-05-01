@@ -26,7 +26,11 @@ const csp = [
   // bot challenge widget script.
   "script-src 'self' 'unsafe-inline' https://js.stripe.com https://challenges.cloudflare.com",
   "style-src 'self' 'unsafe-inline' https://unpkg.com",
-  "img-src 'self' data: blob: https://imagedelivery.net https://*.tile.openstreetmap.org",
+  // Cloudflare R2 public dev URL (pub-<hash>.r2.dev) — fallback image
+  // host while Cloudflare Images is not yet configured. Once a custom
+  // domain like images.advertisehomes.online is set up, the wildcard
+  // r2.dev entry can come out.
+  "img-src 'self' data: blob: https://imagedelivery.net https://*.tile.openstreetmap.org https://*.r2.dev",
   "font-src 'self' data:",
   // api.pwnedpasswords.com — HIBP k-anonymity check on signup; never sees
   // the password (only first 5 chars of SHA-1 hash). Turnstile callbacks

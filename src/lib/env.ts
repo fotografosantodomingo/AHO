@@ -25,6 +25,11 @@ const publicSchema = z.object({
   // Pair with the SECRET key configured in Supabase Project Settings →
   // Auth → Captcha (so Supabase can verify tokens server-side).
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().optional(),
+  // Cloudflare R2 public dev URL (or custom domain) for serving the
+  // bucket's contents read-only to browsers. Used by listing-card +
+  // property-gallery as a fallback when no Cloudflare Images variant
+  // ID exists. Format: https://pub-<hash>.r2.dev (no trailing slash).
+  NEXT_PUBLIC_R2_PUBLIC_URL: z.string().url().optional(),
 });
 
 const serverSchema = z.object({
@@ -73,6 +78,7 @@ export function publicEnv(): PublicEnv {
     NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+    NEXT_PUBLIC_R2_PUBLIC_URL: process.env.NEXT_PUBLIC_R2_PUBLIC_URL,
   });
   if (!parsed.success) {
     throw new Error(

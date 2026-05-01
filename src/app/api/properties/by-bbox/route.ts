@@ -151,19 +151,20 @@ export async function GET(req: NextRequest) {
       !r.slug_es?.startsWith('aho-fixture-'),
   );
   const ids = rows.map((r) => r.id as string);
-  let imageMap = new Map<string, string>();
+  const imageMap = new Map<string, { cfImageId: string | null; r2Key: string | null }>();
   if (ids.length > 0) {
     const { data: imgs } = await supabase
       .from('property_images')
-      .select('property_id, cf_image_id')
+      .select('property_id, cf_image_id, r2_key')
       .in('property_id', ids)
       .eq('is_primary', true)
       .eq('upload_status', 'confirmed');
-    imageMap = new Map(
-      (imgs ?? [])
-        .filter((i) => i.cf_image_id)
-        .map((i) => [i.property_id as string, i.cf_image_id as string]),
-    );
+    for (const i of imgs ?? []) {
+      imageMap.set(i.property_id as string, {
+        cfImageId: (i.cf_image_id as string | null) ?? null,
+        r2Key: (i.r2_key as string | null) ?? null,
+      });
+    }
   }
 
   const listings = rows.map((r) => ({
@@ -185,7 +186,8 @@ export async function GET(req: NextRequest) {
     city: r.city,
     countryCode: r.country_code,
     imageCount: r.image_count,
-    primaryImageId: imageMap.get(r.id) ?? null,
+    primaryImageId: imageMap.get(r.id)?.cfImageId ?? null,
+    primaryR2Key: imageMap.get(r.id)?.r2Key ?? null,
     latitude: r.latitude != null ? Number(r.latitude) : null,
     longitude: r.longitude != null ? Number(r.longitude) : null,
   }));

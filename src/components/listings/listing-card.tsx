@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { formatPrice } from '@/lib/listings/format';
+import { buildImageUrl } from '@/lib/listings/image-url';
 import type { SearchListing } from '@/lib/listings/search';
 import type { Locale } from '@/i18n/config';
 
@@ -43,11 +44,11 @@ export function ListingCard({ listing, locale }: ListingCardProps) {
   const pathSegment = locale === 'es' ? 'propiedades' : 'properties';
   const href = `/${locale}/${pathSegment}/${finalSlug}-${listing.shortId}`;
 
-  const hash = process.env.NEXT_PUBLIC_CF_IMAGES_HASH;
-  const imageUrl =
-    listing.primaryImageId && hash
-      ? `https://imagedelivery.net/${hash}/${listing.primaryImageId}/card`
-      : null;
+  const imageUrl = buildImageUrl({
+    cfImageId: listing.primaryImageId,
+    r2Key: listing.primaryR2Key,
+    variant: 'card',
+  });
 
   const priceLabel = formatPrice(listing.priceCents, listing.currency, locale);
   const periodLabel = listing.pricePeriod ? t(`pricePeriod.${listing.pricePeriod as 'monthly'}`) : '';

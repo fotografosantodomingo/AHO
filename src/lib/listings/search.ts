@@ -1,8 +1,41 @@
 import 'server-only';
 import { z } from 'zod';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { TRANSACTION_TYPES } from '@/db/schema';
 import type { Locale } from '@/i18n/config';
+
+interface PrimaryImage {
+  cfImageId: string | null;
+  r2Key: string | null;
+}
+
+/**
+ * Fetch the primary image (cf_image_id + r2_key) for a batch of property
+ * IDs. Returns a Map keyed by property_id; missing entries are properties
+ * without a confirmed primary image. Used by all three search-result
+ * helpers (search / city landing / agent profile).
+ */
+async function fetchPrimaryImageMap(
+  supabase: SupabaseClient,
+  propertyIds: string[],
+): Promise<Map<string, PrimaryImage>> {
+  if (propertyIds.length === 0) return new Map();
+  const { data: imgs } = await supabase
+    .from('property_images')
+    .select('property_id, cf_image_id, r2_key')
+    .in('property_id', propertyIds)
+    .eq('is_primary', true)
+    .eq('upload_status', 'confirmed');
+  const map = new Map<string, PrimaryImage>();
+  for (const i of imgs ?? []) {
+    map.set(i.property_id as string, {
+      cfImageId: (i.cf_image_id as string | null) ?? null,
+      r2Key: (i.r2_key as string | null) ?? null,
+    });
+  }
+  return map;
+}
 
 /**
  * Search filter parsing + querying for the public browse page.
@@ -86,6 +119,10 @@ export interface SearchListing {
   imageCount: number;
   /** Primary image's CF Image ID, if a confirmed primary exists. */
   primaryImageId: string | null;
+  /** Primary image's R2 object key, fallback for rendering when CF
+   *  Images isn't configured yet. Listing-card prefers cf_image_id when
+   *  both are present. */
+  primaryR2Key: string | null;
   /** Denormalized lat/lng (from migration 0007 trigger). Used by the
    *  map view; null if location wasn't set or the trigger hasn't run. */
   latitude: number | null;
@@ -140,22 +177,10 @@ export async function searchListings(
   const hasMore = rows.length > PAGE_SIZE;
   const sliced = hasMore ? rows.slice(0, PAGE_SIZE) : rows;
 
-  // Second pass: fetch primary images for the visible listings.
+  // Second pass: fetch primary images (both cf_image_id and r2_key) for
+  // the visible listings.
   const ids = sliced.map((r) => r.id);
-  let imageMap = new Map<string, string>();
-  if (ids.length > 0) {
-    const { data: imgs } = await supabase
-      .from('property_images')
-      .select('property_id, cf_image_id')
-      .in('property_id', ids)
-      .eq('is_primary', true)
-      .eq('upload_status', 'confirmed');
-    imageMap = new Map(
-      (imgs ?? [])
-        .filter((i) => i.cf_image_id)
-        .map((i) => [i.property_id as string, i.cf_image_id as string]),
-    );
-  }
+  const imageMap = await fetchPrimaryImageMap(supabase, ids);
 
   return {
     listings: sliced.map((r) => ({
@@ -177,7 +202,8 @@ export async function searchListings(
       city: r.city,
       countryCode: r.country_code,
       imageCount: r.image_count,
-      primaryImageId: imageMap.get(r.id) ?? null,
+      primaryImageId: imageMap.get(r.id)?.cfImageId ?? null,
+    primaryR2Key: imageMap.get(r.id)?.r2Key ?? null,
       latitude: r.latitude != null ? Number(r.latitude) : null,
       longitude: r.longitude != null ? Number(r.longitude) : null,
     })),
@@ -273,22 +299,9 @@ export async function searchCityLanding(
   const hasMore = rows.length > limit;
   const sliced = hasMore ? rows.slice(0, limit) : rows;
 
-  // Second pass: fetch primary images for the visible listings.
+  // Second pass: fetch primary images (cf_image_id + r2_key) for the visible listings.
   const ids = sliced.map((r) => r.id as string);
-  let imageMap = new Map<string, string>();
-  if (ids.length > 0) {
-    const { data: imgs } = await supabase
-      .from('property_images')
-      .select('property_id, cf_image_id')
-      .in('property_id', ids)
-      .eq('is_primary', true)
-      .eq('upload_status', 'confirmed');
-    imageMap = new Map(
-      (imgs ?? [])
-        .filter((i) => i.cf_image_id)
-        .map((i) => [i.property_id as string, i.cf_image_id as string]),
-    );
-  }
+  const imageMap = await fetchPrimaryImageMap(supabase, ids);
 
   const listings: SearchListing[] = sliced.map((r) => ({
     id: r.id,
@@ -309,7 +322,8 @@ export async function searchCityLanding(
     city: r.city,
     countryCode: r.country_code,
     imageCount: r.image_count,
-    primaryImageId: imageMap.get(r.id) ?? null,
+    primaryImageId: imageMap.get(r.id)?.cfImageId ?? null,
+    primaryR2Key: imageMap.get(r.id)?.r2Key ?? null,
     latitude: r.latitude != null ? Number(r.latitude) : null,
     longitude: r.longitude != null ? Number(r.longitude) : null,
   }));
@@ -421,20 +435,7 @@ export async function fetchAgentProfile(
   const sliced = hasMore ? rows.slice(0, limit) : rows;
 
   const ids = sliced.map((r) => r.id as string);
-  let imageMap = new Map<string, string>();
-  if (ids.length > 0) {
-    const { data: imgs } = await supabase
-      .from('property_images')
-      .select('property_id, cf_image_id')
-      .in('property_id', ids)
-      .eq('is_primary', true)
-      .eq('upload_status', 'confirmed');
-    imageMap = new Map(
-      (imgs ?? [])
-        .filter((i) => i.cf_image_id)
-        .map((i) => [i.property_id as string, i.cf_image_id as string]),
-    );
-  }
+  const imageMap = await fetchPrimaryImageMap(supabase, ids);
 
   const listings: SearchListing[] = sliced.map((r) => ({
     id: r.id,
@@ -455,7 +456,8 @@ export async function fetchAgentProfile(
     city: r.city,
     countryCode: r.country_code,
     imageCount: r.image_count,
-    primaryImageId: imageMap.get(r.id) ?? null,
+    primaryImageId: imageMap.get(r.id)?.cfImageId ?? null,
+    primaryR2Key: imageMap.get(r.id)?.r2Key ?? null,
     latitude: r.latitude != null ? Number(r.latitude) : null,
     longitude: r.longitude != null ? Number(r.longitude) : null,
   }));
