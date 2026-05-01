@@ -21,10 +21,8 @@ export default async function HomePage({
 
   const t = await getTranslations({ locale, namespace: 'home' });
   const tSite = await getTranslations({ locale, namespace: 'site' });
-  const tCountries = await getTranslations({ locale, namespace: 'countries' });
   const searchPath = `/${locale}/${locale === 'es' ? 'buscar' : 'search'}`;
   const pricingPath = `/${locale}/${locale === 'es' ? 'precios' : 'pricing'}`;
-  const countriesPath = `/${locale}/${locale === 'es' ? 'paises' : 'countries'}`;
 
   const [featured, stats] = await Promise.all([
     searchListings(
@@ -114,40 +112,18 @@ export default async function HomePage({
           </p>
 
           <HeroSearchForm
+            locale={typedLocale}
             searchPath={searchPath}
-            placeholder={t('searchPlaceholder')}
+            agentPath={pricingPath}
             submitLabel={t('searchSubmit')}
-            tabAnyLabel={t('tabAny')}
             tabBuyLabel={t('tabBuy')}
             tabRentLabel={t('tabRent')}
+            agentLinkLabel={t('ctaForAgents')}
+            countryPlaceholder={t('selectCountry')}
+            cityPlaceholder={t('selectCity')}
+            cityDisabledPlaceholder={t('selectCityDisabled')}
+            cityLoadingPlaceholder={t('loadingCities')}
           />
-
-          <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-            <a
-              href={searchPath}
-              className="text-helper underline-offset-2 hover:text-action hover:underline dark:hover:text-action-dark"
-            >
-              {t('ctaForBuyers')}
-            </a>
-            <span className="text-border-strong/60" aria-hidden="true">
-              ·
-            </span>
-            <a
-              href={countriesPath}
-              className="text-helper underline-offset-2 hover:text-action hover:underline dark:hover:text-action-dark"
-            >
-              {tCountries('heading')}
-            </a>
-            <span className="text-border-strong/60" aria-hidden="true">
-              ·
-            </span>
-            <a
-              href={pricingPath}
-              className="text-helper underline-offset-2 hover:text-action hover:underline dark:hover:text-action-dark"
-            >
-              {t('ctaForAgents')}
-            </a>
-          </div>
 
           {/* Trust strip — only renders when at least one count > 0.
               Until the soft-beta agents land, this is hidden. Honest emptiness. */}

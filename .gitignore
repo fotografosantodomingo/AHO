@@ -35,6 +35,9 @@ Thumbs.db
 .idea/
 *.swp
 
+# Stray downloads (e.g., macOS profiles dropped into the repo by accident)
+*.mobileconfig
+
 # Claude Code local settings (per-machine)
 .claude/settings.local.json
 

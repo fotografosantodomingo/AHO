@@ -3,6 +3,7 @@ import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { formatPrice } from '@/lib/listings/format';
 import { ArchiveButton } from '@/components/admin/archive-button';
+import { getCountryName } from '@/lib/i18n/countries';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -193,7 +194,7 @@ export default async function AdminListingsPage({
                       <StatusBadge status={row.status} />
                     </td>
                     <td className="px-3 py-2">
-                      {row.city}, {row.country_code}
+                      {row.city}, {getCountryName(row.country_code, typedLocale)}
                     </td>
                     <td className="px-3 py-2 text-right tabular-nums">
                       {formatPrice(Number(row.price_cents), row.currency, typedLocale)}

@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { formatPrice } from '@/lib/listings/format';
 import { buildImageUrl } from '@/lib/listings/image-url';
+import { getCountryName } from '@/lib/i18n/countries';
 import type { SearchListing } from '@/lib/listings/search';
 import type { Locale } from '@/i18n/config';
 
@@ -116,7 +117,7 @@ export function ListingCard({ listing, locale }: ListingCardProps) {
       <div className="space-y-2 p-4">
         <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
           {listing.city}
-          {listing.countryCode && `, ${listing.countryCode}`}
+          {listing.countryCode && `, ${getCountryName(listing.countryCode, locale)}`}
         </p>
         <h3 className="font-brand line-clamp-2 text-[19px] font-bold leading-[1.21] tracking-tight">
           {title}

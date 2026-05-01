@@ -491,3 +491,86 @@ describe('RLS · property_images · INSERT', () => {
     expect(error).not.toBeNull();
   });
 });
+
+// ============================================================
+// audit_log — public-read policy from migration 0014
+// ============================================================
+
+describe('RLS · audit_log · public-read of listing events (0014)', () => {
+  // Insert audit_log rows via service role for both an active+published
+  // listing and a draft. Only the active one should be visible to anon
+  // and to unrelated authenticated users.
+  let activeAuditId: string;
+  let draftAuditId: string;
+  let actorId: string;
+
+  beforeAll(async () => {
+    actorId = await fixtureUserId('agent_a_owner');
+    const a = admin();
+
+    const ins1 = await a
+      .from('audit_log')
+      .insert({
+        kind: 'listing.marked_sold',
+        actor_id: actorId,
+        target_id: ctx.orgAActiveListingId,
+        payload: { sold_price_cents: 12345600, sold_date: new Date().toISOString() },
+      })
+      .select('id')
+      .single();
+    if (ins1.error || !ins1.data) {
+      throw new Error(`audit_log seed (active) failed: ${ins1.error?.message}`);
+    }
+    activeAuditId = ins1.data.id;
+
+    const ins2 = await a
+      .from('audit_log')
+      .insert({
+        kind: 'listing.price_changed',
+        actor_id: actorId,
+        target_id: ctx.orgADraftListingId,
+        payload: { from_cents: 20000000, to_cents: 18000000 },
+      })
+      .select('id')
+      .single();
+    if (ins2.error || !ins2.data) {
+      throw new Error(`audit_log seed (draft) failed: ${ins2.error?.message}`);
+    }
+    draftAuditId = ins2.data.id;
+  });
+
+  afterAll(async () => {
+    await admin().from('audit_log').delete().in('id', [activeAuditId, draftAuditId]);
+  });
+
+  it('anonymous client reads audit_log row for an active+published listing', async () => {
+    const c = await clientFor('anon');
+    const { data, error } = await c
+      .from('audit_log')
+      .select('id, kind')
+      .eq('id', activeAuditId)
+      .maybeSingle();
+    expect(error).toBeNull();
+    expect(data?.id).toBe(activeAuditId);
+  });
+
+  it('anonymous client cannot read audit_log row for a draft listing', async () => {
+    const c = await clientFor('anon');
+    const { data, error } = await c
+      .from('audit_log')
+      .select('id')
+      .eq('id', draftAuditId);
+    expect(error).toBeNull();
+    expect(data?.length ?? 0).toBe(0);
+  });
+
+  it('an unrelated authenticated user can read the active listing event but not the draft one', async () => {
+    const c = await clientFor('agent_b_owner');
+    const visible = await c
+      .from('audit_log')
+      .select('id')
+      .in('id', [activeAuditId, draftAuditId]);
+    expect(visible.error).toBeNull();
+    expect(visible.data?.map((r) => r.id).sort()).toEqual([activeAuditId]);
+  });
+});

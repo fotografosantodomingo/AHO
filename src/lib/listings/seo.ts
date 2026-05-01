@@ -2,6 +2,7 @@ import 'server-only';
 import type { PropertyDetail } from './queries';
 import type { Locale } from '@/i18n/config';
 import { formatPrice } from './format';
+import { getCountryName } from '@/lib/i18n/countries';
 // Re-export so existing call sites (formatPrice from '@/lib/listings/seo')
 // keep working. Client components should import from './format' directly.
 export { formatPrice };
@@ -50,7 +51,7 @@ export function buildSeoMeta({ property: p, locale }: BuildMetaArgs): SeoMeta {
 
   const price = formatPrice(p.priceCents, p.currency, locale);
   const bedSegment = p.bedrooms != null ? ` · ${p.bedrooms}bd` : '';
-  const cityCountry = `${p.city}, ${p.countryCode}`;
+  const cityCountry = `${p.city}, ${getCountryName(p.countryCode, locale)}`;
   const seoTitle = `${price} · ${title}${bedSegment} · ${cityCountry}`;
 
   const seoDescription = truncated || `${title} — ${cityCountry}. ${price}.`;

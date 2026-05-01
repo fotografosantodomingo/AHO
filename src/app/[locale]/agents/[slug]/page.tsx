@@ -7,6 +7,7 @@ import { fetchAgentProfile } from '@/lib/listings/search';
 import { ListingCard } from '@/components/listings/listing-card';
 import { DotGrid, HeroGlow } from '@/components/ui/dot-grid';
 import { publicEnv } from '@/lib/env';
+import { getCountryName } from '@/lib/i18n/countries';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -31,16 +32,6 @@ interface PageParams {
  * to surface in the Knowledge Panel for branded searches.
  */
 
-function resolveCountryName(countryCode: string, locale: Locale): string {
-  try {
-    const display = new Intl.DisplayNames([locale === 'es' ? 'es-DO' : 'en-US'], {
-      type: 'region',
-    });
-    return display.of(countryCode.toUpperCase()) ?? countryCode.toUpperCase();
-  } catch {
-    return countryCode.toUpperCase();
-  }
-}
 
 export async function generateMetadata({
   params,
@@ -114,7 +105,7 @@ export default async function AgentProfilePage({
 
   // Location strap — "City, Country" if both, "Country" if only country.
   const country = result.org.headquartersCountry
-    ? resolveCountryName(result.org.headquartersCountry, typedLocale)
+    ? getCountryName(result.org.headquartersCountry, typedLocale)
     : null;
   const location = [result.org.headquartersCity, country].filter(Boolean).join(', ');
   const subheading = location
@@ -388,7 +379,7 @@ export default async function AgentProfilePage({
                             titleStr
                           )}
                           <div className="text-xs text-helper">
-                            {l.city}, {l.countryCode}
+                            {l.city}, {getCountryName(l.countryCode, typedLocale)}
                           </div>
                         </td>
                         <td className="px-3 py-2 text-helper">

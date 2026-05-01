@@ -1,6 +1,7 @@
 import 'server-only';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import type { Locale } from '@/i18n/config';
+import { getCountryName } from '@/lib/i18n/countries';
 
 export interface CountryRow {
   countryCode: string;
@@ -71,19 +72,11 @@ export async function getCountriesIndex(locale: Locale): Promise<CountryRow[]> {
     byCountry.set(cc, slot);
   }
 
-  const display = (() => {
-    try {
-      return new Intl.DisplayNames([localeForIntl(locale)], { type: 'region' });
-    } catch {
-      return null;
-    }
-  })();
-
   const rows: CountryRow[] = [];
   for (const [cc, slot] of byCountry.entries()) {
     rows.push({
       countryCode: cc,
-      displayName: display?.of(cc) ?? cc,
+      displayName: getCountryName(cc, locale),
       listingCount: slot.count,
       cityCount: slot.cities.size,
     });

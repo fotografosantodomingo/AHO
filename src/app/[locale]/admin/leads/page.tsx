@@ -1,6 +1,7 @@
 import { setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getCountryName } from '@/lib/i18n/countries';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -159,7 +160,7 @@ export default async function AdminLeadsPage({
               lead.property?.title_es ??
               '(property removed)';
             const propertyCity = lead.property
-              ? `${lead.property.city}, ${lead.property.country_code}`
+              ? `${lead.property.city}, ${getCountryName(lead.property.country_code, typedLocale)}`
               : null;
             const hasContact = !!(
               lead.contact_name ||

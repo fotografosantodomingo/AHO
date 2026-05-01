@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { getCountryCities } from '@/lib/listings/countries';
+import { getCountryName } from '@/lib/i18n/countries';
 import { DotGrid } from '@/components/ui/dot-grid';
 import { publicEnv } from '@/lib/env';
 
@@ -12,18 +13,6 @@ export const dynamic = 'force-dynamic';
 interface PageParams {
   locale: string;
   country: string;
-}
-
-function resolveCountryName(countryCode: string, locale: Locale): string {
-  try {
-    const display = new Intl.DisplayNames(
-      [locale === 'es' ? 'es-DO' : 'en-US'],
-      { type: 'region' },
-    );
-    return display.of(countryCode.toUpperCase()) ?? countryCode.toUpperCase();
-  } catch {
-    return countryCode.toUpperCase();
-  }
 }
 
 export async function generateMetadata({
@@ -38,7 +27,7 @@ export async function generateMetadata({
   if (!/^[A-Z]{2}$/.test(cc)) return {};
 
   const t = await getTranslations({ locale, namespace: 'countryLanding' });
-  const display = resolveCountryName(cc, typedLocale);
+  const display = getCountryName(cc, typedLocale);
   const title = t('headingTemplate', { country: display });
   const description = t('subheading', { country: display });
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
@@ -88,7 +77,7 @@ export default async function CountryLandingPage({
   setRequestLocale(typedLocale);
 
   const cc = country.toUpperCase();
-  const display = resolveCountryName(cc, typedLocale);
+  const display = getCountryName(cc, typedLocale);
   const t = await getTranslations({ locale, namespace: 'countryLanding' });
 
   const result = await getCountryCities(cc);

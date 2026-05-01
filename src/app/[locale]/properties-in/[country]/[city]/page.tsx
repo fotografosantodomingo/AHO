@@ -10,6 +10,7 @@ import {
 import { ListingCard } from '@/components/listings/listing-card';
 import { DotGrid } from '@/components/ui/dot-grid';
 import { publicEnv } from '@/lib/env';
+import { getCountryName } from '@/lib/i18n/countries';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -40,19 +41,6 @@ interface PageParams {
  * a real surface (just empty for now).
  */
 
-function resolveCountryName(countryCode: string, locale: Locale): string {
-  // Intl.DisplayNames is available in V8 (Edge runtime). Returns a
-  // localized country name from the ISO 2-letter code.
-  try {
-    const display = new Intl.DisplayNames([locale === 'es' ? 'es-DO' : 'en-US'], {
-      type: 'region',
-    });
-    return display.of(countryCode.toUpperCase()) ?? countryCode.toUpperCase();
-  } catch {
-    return countryCode.toUpperCase();
-  }
-}
-
 function unslugifyCity(slug: string): string {
   // Title-case a slug for display: "santo-domingo" → "Santo Domingo".
   return citySlugToQuery(slug)
@@ -72,7 +60,7 @@ export async function generateMetadata({
   const typedLocale = locale as Locale;
   const t = await getTranslations({ locale, namespace: 'cityLanding' });
   const cityDisplay = unslugifyCity(city);
-  const countryDisplay = resolveCountryName(country, typedLocale);
+  const countryDisplay = getCountryName(country, typedLocale);
   const title = t('headingTemplate', { city: cityDisplay, country: countryDisplay });
   const description = t('subheading', { city: cityDisplay });
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
@@ -113,7 +101,7 @@ export default async function CityLandingPage({
 
   const t = await getTranslations({ locale, namespace: 'cityLanding' });
   const cityDisplay = unslugifyCity(city);
-  const countryDisplay = resolveCountryName(country, typedLocale);
+  const countryDisplay = getCountryName(country, typedLocale);
   const heading = t('headingTemplate', { city: cityDisplay, country: countryDisplay });
 
   const result = await searchCityLanding({

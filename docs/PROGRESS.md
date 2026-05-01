@@ -12,6 +12,48 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — Phase 1B: country helper + search redesign + price history + avatar upload
+
+Picks up from Phase 1A (`8770964`, mark-as-sold + agent stats + audit_log). Same scope the user laid out in their "1A first, smoke-test live, then 1B" reply. Smoke test gate not yet reported by PO; Phase 1B work landed in parallel and waits behind the same deploy.
+
+### What shipped
+
+**Country-name helper sweep.** New `src/lib/i18n/countries.ts` exports `getCountryName(iso, locale)` — single source backed by a memoized `Intl.DisplayNames` instance per locale. Replaced four inline `resolveCountryName` duplicates (in `properties-in/[country]`, `.../[city]`, `agents/[slug]`, and the inline `Intl.DisplayNames` in `lib/listings/countries.ts`). Swept seven raw `country_code` displays to use the helper: listing card subtitle, property detail title block, SEO title (`buildSeoMeta`), admin listings table, admin leads table, agent profile sold table. After the sweep, no inline `Intl.DisplayNames` calls remain outside the helper itself and `countries-iso.ts` (which still owns the 249-option dropdown builder).
+
+**Hero search redesign.** `HeroSearchForm` rewritten to the spec's three-control layout: `[Buy | Rent] [Country ▾] [City ▾] [Search]   List as agent →`. Defaults to Buy (no Any). Country dropdown is the canonical 249-ISO list via `buildCountryOptions`. City select is disabled until a country is picked, then fetches `/api/cities?country=XX` and populates with active-listing counts. Removed the "Browse listings · Browse by country · List as an agent" link strip from the hero per spec (mega menu is a Phase 2 home for those). Keyword `q` input dropped from the hero (lives only on the search page now). Submits GET to `/search` with `transaction`, `country`, optional `city`.
+
+**`GET /api/cities?country=XX`.** New edge route that wraps `getCountryCities`. 5-min `s-maxage` per the spec. Returns `{ cities: [{city, citySlug, listingCount}, …] }`. Inherits the test-fixture exclusion from the underlying helper.
+
+**Price-history block on `/properties/[slug]`.** New migration `0014_audit_log_public_read.sql` adds an additive RLS policy: `anon` and `authenticated` can read `audit_log` rows for `kind in (listing.price_changed, listing.marked_sold, listing.marked_rented)` whose `target_id` is an `active|sold|rented` + published property. Existing admin/self policies stand. Paired RLS tests added in `tests/rls/properties.test.ts` — service-role seeds an audit row for the active listing and one for the draft, then verifies anon and an unrelated authenticated tier can read the active-listing event but not the draft one. New `src/lib/listings/price-history.ts` builds a chronological event list (synthetic `listed` event from `published_at + price_cents`, then audit_log rows). New `<PriceHistory>` server component renders the timeline; auto-hidden when only the synthetic listed event exists (a single line restating the current price isn't a "history"). Wired into the property page below the description.
+
+**Avatar upload via R2.** New `POST /api/me/avatar` (multipart) — server-side allowlist `image/jpeg|png|webp`, ≤2 MB cap, key shape `avatars/{userId}/{timestamp}-{rand}.{ext}` so each upload cache-busts the prior URL, public-bucket-fronted via `NEXT_PUBLIC_R2_PUBLIC_URL`, side-effect updates `profiles.avatar_url`. `DELETE` clears the URL (orphan in R2). Replaced the URL-paste field on `/dashboard/profile` with new `<AvatarUploader>` (file picker + preview + remove + locale-aware error states for too-large / bad-type / failed). Client validates type+size mirroring server, but server is the trust boundary.
+
+**i18n strings.** ~14 new keys per locale across `home` (selectCountry, selectCity, selectCityDisabled, loadingCities), `property` (priceHistoryHeading, priceHistoryListed, priceHistoryReduced, priceHistorySold, priceHistoryRented, priceHistoryConfidential), and `profileForm` (avatarUpload, avatarReplace, avatarRemove, avatarUploading, avatarTooLarge, avatarBadType, avatarUploadFailed; existing avatarUrl + avatarHelp re-pointed from "URL" wording to "Profile photo / JPG, PNG, or WebP. Up to 2 MB.").
+
+### Verification
+
+- `pnpm typecheck` clean.
+- `pnpm lint` clean (only the pre-existing `_req` warning in `billing/portal/route.ts`).
+- `pnpm test:unit` — 47/47 passing.
+- `pnpm build` (next-on-pages) green; new routes show up: `/api/cities`, `/api/me/avatar`. No edge-runtime errors.
+- RLS tests not run from this seat — they'd require `pnpm db:migrate` to apply 0014 first against the live Supabase project, which is a deploy step.
+
+### Blockers / open questions
+
+- **Phase 1A smoke-test gate still not reported.** PO's plan was: ship 1A, smoke-test on live, then ship 1B. 1B landed in parallel since it's all additive (no overlap with 1A surfaces) and the tests pass locally — but if 1A smoke-test surfaces a bug in the trigger or audit_log writes, fixing it in 1A first is still the rule.
+- Migration `0014` needs `pnpm db:migrate` applied before the price-history block can read anything (without the policy, anon visitors see zero rows; the block hides itself, so it degrades gracefully but doesn't show up at all).
+- R2 public URL must be set in `NEXT_PUBLIC_R2_PUBLIC_URL`. Already wired per the prior R2 setup; the avatar route returns 503 `r2_public_url_missing` if not present.
+
+### Next session should start with
+
+1. Confirm the deploy lands and the smoke-test gate clears (PO action: try mark-as-sold on a real listing per the 1A plan).
+2. Run `pnpm db:migrate` so 0014 is in place.
+3. Run `pnpm test:rls` to confirm the new audit_log policy tests pass against the deployed migration.
+4. Smoke-test 1B: pick a country in the hero search, confirm cities populate; upload an avatar; check the price-history block on a sold listing.
+5. If all green, queue Phase 2 (mega menu, reviews, full property-page rebuild, maps, service areas) — but only after PO opens that scope.
+
+---
+
 ## 2026-04-30 — Light theme overhaul + worldwide country browse hierarchy
 
 PO feedback: dark theme is working well; light theme has problems; the project is "for listing in many countries but now this doesn't exist." Two-thread fix in one commit (`35991e3`).

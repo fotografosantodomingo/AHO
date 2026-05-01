@@ -12,6 +12,28 @@ One entry per significant choice. Newest on top. Format:
 
 ---
 
+## 2026-05-01 — audit_log gets a public-read policy for listing-state events (Phase 1B)
+**Decision:** Migration `0014` adds an additive RLS policy `audit_log_public_read_listing_events` that lets `anon` and `authenticated` read `audit_log` rows where `kind in ('listing.price_changed', 'listing.marked_sold', 'listing.marked_rented')` AND the `target_id` points at an `active|sold|rented` + `published_at IS NOT NULL` property. The existing admin/self read policies stand; RLS policies OR together so a row visible to admins via the existing policy stays visible.
+**Why:** The Phase 1B price-history block on `/properties/[slug]` needs to render a chronological timeline visible to anonymous visitors. The block reads `audit_log` directly (the alternative — using the service-role client from a user-facing page — was explicitly rejected by `src/lib/supabase/admin.ts`'s own docstring, which forbids that import outside webhooks/queues/scripts). Limiting the policy to (a) a closed set of event kinds and (b) properties already public-visible keeps the surface narrow: nothing about drafts, archived listings, or admin-internal events ever escapes.
+**Alternatives considered:**
+- Use the service-role client from the property page. Rejected for the architectural reason above.
+- A dedicated `price_history` table populated by triggers. More normalization work for marginal benefit; the audit_log already captures the events at write time.
+- Public `SELECT` over the whole `audit_log` table. Rejected — the table holds admin-internal events (`admin.user.promoted`) that must not leak.
+**Reconsider if:** (a) we add audit kinds that should be public on the same property surfaces (extend the IN list and ship a paired test), (b) we add audit kinds that are emphatically private but where someone tries to widen this policy to cover them (block in review), (c) RLS performance suffers — the `EXISTS` subquery hits a primary-key lookup so it should stay cheap, but worth re-measuring after a few hundred K rows.
+
+---
+
+## 2026-05-01 — Avatar upload: direct server PUT, not presigned URL (Phase 1B)
+**Decision:** `POST /api/me/avatar` accepts a multipart file ≤2 MB and PUTs the bytes server-side to R2 in a single round-trip (object key `avatars/{userId}/{ts}-{rand}.{ext}`), then writes the resulting public URL to `profiles.avatar_url`. This is different from the property-images flow, which uses the presigned-URL two-step (`POST /api/properties/:id/images` returns an upload URL; client PUTs directly; `POST /:imageId/confirm` finalizes).
+**Why:** Avatars are tightly bounded (2 MB cap) so the file fits in an edge-runtime request body without straining limits. A single round-trip is simpler for the agent UX (pick → done) than the two-step dance, and the security posture is identical because the server is still the trust boundary on type + size validation. Property images are different: they can be 10 MB+ each, often in batches, and benefit from offloading the bytes path away from the edge route directly to R2.
+**Alternatives considered:**
+- Presigned URL flow identical to property images. Rejected — overhead without benefit at 2 MB.
+- Cloudflare Images variant pipeline (the same one property images use). Rejected for v1 — the Images token isn't enabled in this account yet (waiting on a separate paid-plan opt-in), and avatars don't need responsive variants the way listing photos do.
+- Same R2 bucket as property images, different prefix (`avatars/`). Adopted. Avoids needing to provision a second bucket + env var; the `aho-pages-uploads` bucket already exists, and the prefix is a clean enough boundary for orphan sweeps later.
+**Reconsider if:** (a) an avatar exceeds 2 MB regularly enough that the cap is hostile (bump it; the architecture doesn't change), (b) Cloudflare Images becomes available and we want resized avatar variants (`/avatar-s`, `/avatar-m`) — switch to the Images flow then, (c) we want server-side resize/crop before storing (bring in `sharp` via a worker, not the edge route).
+
+---
+
 ## 2026-04-30 — UI/UX polish phase: 21st.dev "Magic" MCP wired; nextlevelbuilder skill optional
 **Decision:** Polish phase uses the [21st.dev "Magic" MCP server](https://21st.dev) for component generation, configured in `.mcp.json` at project root with the API key supplied via `${TWENTY_FIRST_DEV_API_KEY}` env-var substitution (key in `.env.local`; not committed per CLAUDE.md hard rule #1). The earlier framing — that the [`ui-ux-pro-max-skill`](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) from `nextlevelbuilder` was "backed by" 21st.dev — was inaccurate; they're independent products. The Magic MCP is what consumes the API key. The nextlevelbuilder skill is a self-contained design-intelligence engine that can be layered in later if useful but is not required to begin polish work.
 **Why:** PO directive on 2026-04-30 + key paste 2026-04-30. The current design system (HashiCorp tokens + Inter, per `2026-04-29 — Visual design language`) is intentionally minimal. 21st.dev Magic generates production-grade components (hero sections, marquees, testimonial walls, pricing tables, animated transitions) on demand. Each surface gets polished as a separate commit, composing Magic-generated primitives against existing design tokens so the palette stays coherent.

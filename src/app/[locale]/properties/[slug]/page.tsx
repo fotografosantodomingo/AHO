@@ -11,6 +11,9 @@ import { buildSeoMeta, buildListingJsonLd, formatPrice, listingUrls } from '@/li
 import { buildWhatsAppLink } from '@/lib/leads/whatsapp';
 import { ContactForm } from '@/components/listings/contact-form';
 import { PropertyGallery } from '@/components/listings/property-gallery';
+import { PriceHistory } from '@/components/listings/price-history';
+import { getCountryName } from '@/lib/i18n/countries';
+import { fetchPriceHistory } from '@/lib/listings/price-history';
 
 export const runtime = 'edge';
 
@@ -123,6 +126,16 @@ export default async function PropertyDetailPage({
   // (the SECURITY DEFINER function filters that). WhatsApp link is built only
   // if the agent's phone passes the digit-count sanity check.
   const contact = await fetchListingContact(property.id);
+
+  // Price-history timeline. Reads audit_log via the public-read policy
+  // added in 0014 — only event kinds (price_changed, sold, rented) on
+  // active+published properties. Empty/single-row results render nothing.
+  const priceHistory = await fetchPriceHistory({
+    propertyId: property.id,
+    publishedAt: property.publishedAt,
+    currentPriceCents: property.priceCents,
+    currency: property.currency,
+  });
   const canonicalUrl = (typedLocale === 'es' ? urls.es : urls.en) ?? urls.en ?? urls.es ?? '';
   // Prefer the agent's dedicated WhatsApp number if set; fall back to
   // their primary phone. Keeps the contract simple for agents who use
@@ -172,7 +185,7 @@ export default async function PropertyDetailPage({
         <header className="mt-8 grid gap-6 md:grid-cols-[1fr_auto] md:items-start">
           <div className="space-y-2">
             <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
-              {property.city}, {property.countryCode}
+              {property.city}, {getCountryName(property.countryCode, typedLocale)}
             </p>
             <h1 className="font-brand text-3xl font-semibold tracking-tight md:text-[40px] md:leading-[1.12]">
               {title}
@@ -239,6 +252,8 @@ export default async function PropertyDetailPage({
             </p>
           </section>
         )}
+
+        <PriceHistory events={priceHistory} locale={typedLocale} />
 
         {/* Contact section — agent card (left) + lead form (right) on md+.
             On mobile they stack. Only renders contact details when the

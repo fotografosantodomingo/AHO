@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
+import { AvatarUploader } from './avatar-uploader';
 
 export interface ProfileFormInitial {
   full_name: string | null;
@@ -162,16 +163,19 @@ export function ProfileForm({ initial }: Props) {
           />
         </Field>
         <Field>
-          <label htmlFor="pf-avatar" className={labelClass}>
-            {t('avatarUrl')}
-          </label>
-          <input
-            id="pf-avatar"
-            type="url"
-            value={avatarUrl}
-            onChange={(e) => setAvatarUrl(e.target.value)}
-            className={inputClass}
-            placeholder="https://…/photo.jpg"
+          <span className={labelClass}>{t('avatarUrl')}</span>
+          <AvatarUploader
+            current={avatarUrl}
+            onChange={setAvatarUrl}
+            labels={{
+              upload: t('avatarUpload'),
+              replace: t('avatarReplace'),
+              remove: t('avatarRemove'),
+              uploading: t('avatarUploading'),
+              tooLarge: t('avatarTooLarge'),
+              badType: t('avatarBadType'),
+              failed: t('avatarUploadFailed'),
+            }}
           />
           <p className="mt-1 text-xs text-helper">{t('avatarHelp')}</p>
         </Field>
