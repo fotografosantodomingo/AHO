@@ -54,7 +54,13 @@ export default async function AdminLayout({
     .maybeSingle();
 
   if (!profile?.is_admin) {
-    redirect(`/${locale}/${locale === 'es' ? 'panel' : 'dashboard'}`);
+    // Don't bounce non-admin signed-in users through /dashboard — that
+    // surface re-redirects "no Agent subscription" users to /pricing,
+    // which produces a confusing /admin → /precios chain. Send them to
+    // the locale homepage instead. Admins who need access run the
+    // bootstrap SQL from PROGRESS.md "Admin path + first-admin
+    // bootstrap".
+    redirect(`/${locale}`);
   }
 
   // English-only nav labels — admin surface is internal and doesn't need

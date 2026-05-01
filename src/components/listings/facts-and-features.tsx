@@ -190,9 +190,7 @@ export async function FactsAndFeatures({
             {propertyType && (
               <Row
                 label={t('factsField.propertyType')}
-                value={t(`transactionType.${propertyType}` as 'transactionType.sale', {
-                  fallback: propertyType,
-                }).replace(/^propertyType\./, '')}
+                value={propertyType}
               />
             )}
             {lotSizeSqm != null && (
