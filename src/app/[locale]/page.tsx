@@ -7,6 +7,8 @@ import { ListingCard } from '@/components/listings/listing-card';
 import { HeroSearchForm } from '@/components/home/hero-search-form';
 import { DotGrid, HeroGlow } from '@/components/ui/dot-grid';
 import { publicEnv } from '@/lib/env';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getUserFavoriteIds } from '@/lib/listings/favorites';
 
 export const runtime = 'edge';
 
@@ -54,6 +56,14 @@ export default async function HomePage({
     })),
     typedLocale,
   );
+
+  // Pre-resolve the buyer's favorite set so the heart on each card
+  // renders in the correct state on first paint (one query, six cards).
+  const supabase = await createServerSupabaseClient();
+  const { data: userResult } = await supabase.auth.getUser();
+  const userId = userResult.user?.id ?? null;
+  const visibleIds = featured.listings.slice(0, 6).map((l) => l.id);
+  const favoriteIds = await getUserFavoriteIds(supabase, userId, visibleIds);
 
   // Structured data for the homepage. Two graphs:
   //   1. Organization (publisher info — Knowledge Panel eligibility for
@@ -187,6 +197,8 @@ export default async function HomePage({
                   listing={l}
                   locale={typedLocale}
                   approxPriceLabel={approxLabels.get(l.id) ?? null}
+                  favorited={favoriteIds.has(l.id)}
+                  isAuthed={!!userId}
                 />
               </li>
             ))}

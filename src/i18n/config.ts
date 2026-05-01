@@ -91,6 +91,12 @@ export const PATHNAMES = {
     en: '/saved-searches',
     es: '/busquedas-guardadas',
   },
+  // Saved properties (favorites) — same buyer-feature reasoning as
+  // saved-searches; lives at top-level so non-agent buyers can reach it.
+  '/saved-properties': {
+    en: '/saved-properties',
+    es: '/inmuebles-guardados',
+  },
   '/onboarding/welcome': {
     en: '/onboarding/welcome',
     es: '/inicio/bienvenida',

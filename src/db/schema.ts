@@ -519,6 +519,27 @@ export type SavedSearch = typeof savedSearches.$inferSelect;
 export type NewSavedSearch = typeof savedSearches.$inferInsert;
 
 // ----------------------------------------------------------------
+// property_favorites (migration 0024) — buyer-side saved properties.
+// One row per (user, property). RLS: user reads/writes own only;
+// admin can read/delete any. No UPDATE policies.
+// ----------------------------------------------------------------
+
+export const propertyFavorites = pgTable('property_favorites', {
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => profiles.id, { onDelete: 'cascade' }),
+  propertyId: uuid('property_id')
+    .notNull()
+    .references(() => properties.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export type PropertyFavorite = typeof propertyFavorites.$inferSelect;
+export type NewPropertyFavorite = typeof propertyFavorites.$inferInsert;
+
+// ----------------------------------------------------------------
 // audit_log (migration 0013) — append-only ledger of significant
 // state-changing actions. Admin reads everything; users read their
 // own rows (by actor_id). No UPDATE/DELETE policies — append-only.

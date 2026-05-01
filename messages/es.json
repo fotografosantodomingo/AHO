@@ -17,6 +17,7 @@
     "findAgent": "Buscar agente",
     "help": "Ayuda",
     "savedSearches": "Búsquedas guardadas",
+    "savedProperties": "Inmuebles guardados",
     "currency": "Moneda"
   },
   "currencyPicker": {
@@ -137,6 +138,20 @@
   "card": {
     "viewListing": "Ver anuncio"
   },
+  "favorite": {
+    "add": "Guardar en favoritos",
+    "remove": "Quitar de favoritos",
+    "saveLabel": "Guardar",
+    "savedLabel": "Guardado",
+    "error": "No se pudo guardar. Inténtalo de nuevo."
+  },
+  "savedProperties": {
+    "heading": "Inmuebles guardados",
+    "subheading": "Los anuncios que has guardado para más tarde. Te avisaremos si algo cambia.",
+    "emptyHeading": "Aún no tienes inmuebles guardados",
+    "emptyBody": "Cuando encuentres un lugar que te guste, toca el corazón en un anuncio para guardarlo aquí.",
+    "emptyCta": "Explorar anuncios"
+  },
   "footer": {
     "privacy": "Privacidad",
     "terms": "Términos",
@@ -150,6 +165,7 @@
     "linkBrowseListings": "Explorar anuncios",
     "linkBrowseByCountry": "Explorar por país",
     "linkSavedSearches": "Búsquedas guardadas",
+    "linkSavedProperties": "Inmuebles guardados",
     "linkPricing": "Precios",
     "linkSignUp": "Crear cuenta de agente",
     "linkSignIn": "Iniciar sesión",

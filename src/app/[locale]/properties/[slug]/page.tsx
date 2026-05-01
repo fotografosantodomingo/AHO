@@ -19,6 +19,9 @@ import { getCountryName } from '@/lib/i18n/countries';
 import { fetchPriceHistory } from '@/lib/listings/price-history';
 import { findSimilarListings } from '@/lib/listings/similar';
 import { publicEnv } from '@/lib/env';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getUserFavoriteIds } from '@/lib/listings/favorites';
+import { FavoriteButton } from '@/components/listings/favorite-button';
 
 export const runtime = 'edge';
 
@@ -110,6 +113,14 @@ export default async function PropertyDetailPage({
   }
 
   const t = await getTranslations({ locale: typedLocale, namespace: 'property' });
+
+  // Buyer favorite state for this listing — single-row lookup. Anon users
+  // get { favorited: false, isAuthed: false } and the heart bounces to /signin.
+  const supabase = await createServerSupabaseClient();
+  const { data: userResult } = await supabase.auth.getUser();
+  const userId = userResult.user?.id ?? null;
+  const favoriteIds = await getUserFavoriteIds(supabase, userId, [property.id]);
+  const isFavorited = favoriteIds.has(property.id);
 
   const titleForLocale = typedLocale === 'es' ? property.titleEs : property.titleEn;
   const descriptionForLocale =
@@ -273,6 +284,15 @@ export default async function PropertyDetailPage({
                 locale={typedLocale}
                 periodLabel={periodLabel}
                 size="lg"
+              />
+            </div>
+            <div className="mt-3 flex justify-start md:justify-end">
+              <FavoriteButton
+                propertyId={property.id}
+                initialFavorited={isFavorited}
+                isAuthed={!!userId}
+                locale={typedLocale}
+                size="detail"
               />
             </div>
           </div>

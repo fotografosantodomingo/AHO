@@ -11,6 +11,7 @@ import { SearchResultsView } from '@/components/listings/search-results-view';
 import { SaveSearchButton } from '@/components/saved-searches/save-search-button';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { precomputeApproxLabels } from '@/lib/currency/server';
+import { getUserFavoriteIds } from '@/lib/listings/favorites';
 
 export const runtime = 'edge';
 
@@ -73,6 +74,11 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
   const supabase = await createServerSupabaseClient();
   const { data: userResult } = await supabase.auth.getUser();
   const isAuthenticated = !!userResult.user;
+  const favoriteIds = await getUserFavoriteIds(
+    supabase,
+    userResult.user?.id ?? null,
+    result.listings.map((l) => l.id),
+  );
 
   const prevHref =
     filters.page > 1
@@ -155,6 +161,8 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
         resetBboxLabel={t('resetBbox')}
         bboxActiveLabel={t('bboxActive')}
         initialApproxLabels={initialApproxLabels}
+        initialFavoriteIds={Array.from(favoriteIds)}
+        isAuthed={isAuthenticated}
       />
     </main>
   );

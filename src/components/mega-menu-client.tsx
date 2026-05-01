@@ -70,6 +70,7 @@ export function MegaMenuClient({
   const signUpHref = `/${locale}/${locale === 'es' ? 'registrarse' : 'signup'}`;
   const dashboardHref = `/${locale}/${locale === 'es' ? 'panel' : 'dashboard'}`;
   const savedSearchesHref = `/${locale}/${locale === 'es' ? 'busquedas-guardadas' : 'saved-searches'}`;
+  const savedPropertiesHref = `/${locale}/${locale === 'es' ? 'inmuebles-guardados' : 'saved-properties'}`;
 
   return (
     <>
@@ -144,6 +145,13 @@ export function MegaMenuClient({
                 className="btn-primary w-full"
               >
                 {t('dashboard')}
+              </a>
+              <a
+                href={savedPropertiesHref}
+                onClick={() => setOpen(false)}
+                className="btn-secondary w-full"
+              >
+                {t('savedProperties')}
               </a>
               <a
                 href={savedSearchesHref}

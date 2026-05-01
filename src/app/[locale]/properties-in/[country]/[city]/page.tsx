@@ -14,6 +14,8 @@ import { DotGrid } from '@/components/ui/dot-grid';
 import { EmptyState } from '@/components/ui/empty-state';
 import { publicEnv } from '@/lib/env';
 import { getCountryName } from '@/lib/i18n/countries';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getUserFavoriteIds } from '@/lib/listings/favorites';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -129,6 +131,16 @@ export default async function CityLandingPage({
     typedLocale,
   );
 
+  // Favorites: pre-resolve per-listing heart state for the buyer.
+  const supabase = await createServerSupabaseClient();
+  const { data: userResult } = await supabase.auth.getUser();
+  const userId = userResult.user?.id ?? null;
+  const favoriteIds = await getUserFavoriteIds(
+    supabase,
+    userId,
+    result.listings.map((l) => l.id),
+  );
+
   // JSON-LD ItemList for the listings on this page. Helps Google surface
   // city pages with a rich-result list of properties.
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
@@ -220,6 +232,8 @@ export default async function CityLandingPage({
                     listing={l}
                     locale={typedLocale}
                     approxPriceLabel={approxLabels.get(l.id) ?? null}
+                    favorited={favoriteIds.has(l.id)}
+                    isAuthed={!!userId}
                   />
                 </li>
               ))}

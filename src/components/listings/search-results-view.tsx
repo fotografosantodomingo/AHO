@@ -48,6 +48,14 @@ interface SearchResultsViewProps {
    *  server-side. Bbox-driven updates degrade to source-only — the bbox
    *  endpoint doesn't return approx labels (deferred to v1.1). */
   initialApproxLabels?: Record<string, string>;
+  /** Server-resolved set of listing IDs the buyer has favorited. Bbox-
+   *  driven results inherit `false` for newly-visible listings until the
+   *  user clicks the heart (which optimistically flips locally + persists
+   *  via the toggle API). */
+  initialFavoriteIds?: string[];
+  /** Whether there's a signed-in user (so the heart bounces to /signin
+   *  instead of POSTing on click). */
+  isAuthed?: boolean;
 }
 
 export function SearchResultsView({
@@ -66,7 +74,10 @@ export function SearchResultsView({
   resetBboxLabel,
   bboxActiveLabel,
   initialApproxLabels,
+  initialFavoriteIds,
+  isAuthed = false,
 }: SearchResultsViewProps) {
+  const favoriteSet = new Set(initialFavoriteIds ?? []);
   // Track whether bbox-driven mode is active. While inactive, listings =
   // initialListings (server-rendered for SSR + SEO). While active, listings
   // come from the latest /api/properties/by-bbox response.
@@ -167,6 +178,8 @@ export function SearchResultsView({
                     approxPriceLabel={
                       bboxActive ? null : initialApproxLabels?.[l.id] ?? null
                     }
+                    favorited={favoriteSet.has(l.id)}
+                    isAuthed={isAuthed}
                   />
                 </li>
               ))}

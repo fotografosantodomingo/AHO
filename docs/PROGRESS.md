@@ -12,6 +12,78 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — feat/favorites: buyer-side saved properties
+
+First branch off the post-DP-2 6-branch roadmap. Heart toggle on every listing surface + a saved-properties dashboard page for the buyer to come back to.
+
+**Schema (migration 0024_property_favorites.sql, applied to live):**
+  - `property_favorites(user_id, property_id, created_at)` — composite PK on (user_id, property_id) for natural dedup; one row per favorite.
+  - Both FKs CASCADE: deleting a user removes their favorites; deleting a property removes the favorites pointing at it.
+  - Indexes: `(user_id, created_at desc)` for the dashboard list view; `(property_id)` for any future "X saves" count surface.
+  - **RLS** (4 policies):
+    - SELECT: owner (`user_id = auth.uid()`) + admin
+    - INSERT: owner only (with check)
+    - DELETE: owner + admin
+    - No UPDATE (toggle-only)
+    - Anon: no policy = denied by default
+
+**API: `POST /api/properties/[id]/favorite`** — toggle endpoint. Looks up existing state and flips it (insert-or-delete). Idempotent on race (`23505` unique-violation treated as success). Verifies the property is `active+published` before either action — stops anon-via-stale-URL spam. Auth-required; user-context client (RLS does the gating).
+
+**Helpers:**
+  - `getUserFavoriteIds(supabase, userId, propertyIds)` — server-side batch lookup that returns a `Set<string>`. One query for a 6-card grid. Empty Set on anon / empty input / lookup error.
+  - `fetchSavedProperties(supabase, userId)` — full SearchListing shapes for the dashboard page. Inner-joins `properties`, filters to `active+published` (favorites pointing at archived/sold listings stay in the table but disappear from the list), second-pass primary-image join.
+
+**UI components:**
+  - `<FavoriteButton>` (Client) — two variants: `card` (small floating heart top-right of the listing image, 36×36 touch target) and `detail` (h-10 inline pill with text "Save" / "Saved" for the property detail page beside the price). Optimistic UX: flip immediately, snap to server truth on disagreement, roll back on error. Anon click → `/signin?next=<current path>` so the user comes back to the same listing after auth.
+  - `<ListingCard>` extended with optional `favorited` + `isAuthed` props. Defaults to `false` so existing call sites that don't pass through don't break (just always show the not-favorited heart).
+
+**Wired into every listing surface:**
+  - Homepage featured grid
+  - City landing page
+  - Agent profile (active listings only — sold listings keep their card without a heart)
+  - Similar-homes carousel on /properties/[slug]
+  - Search results (list + map views, server-pre-resolved + bbox-refetch fallback)
+  - Property detail page header (the `detail` variant beside the price tile)
+
+For each surface, the page Server Component does one `getUserFavoriteIds()` call after fetching listings, then passes `favorited={favIds.has(l.id)}` + `isAuthed={!!userId}` to each card. One DB roundtrip per page render regardless of card count.
+
+**Bbox-refetch limitation:** when the user pans the map, newly-visible listings show the not-favorited heart even if the user already favorited them. Click still works (server is the truth). Acceptable v1 degradation; documented in the Client component. v1.1 would extend `/api/properties/by-bbox` to include the favorited boolean per listing.
+
+**Saved-properties page:** `/{locale}/saved-properties` (es: `/inmuebles-guardados`). Auth-gated; anon redirects to `/signin?next=…`. Renders the user's favorites as a 3-col grid via the existing `<ListingCard>`, with the same currency-conversion + approx-price-label treatment as everywhere else. Empty state via the existing `<EmptyState>` component, primary CTA back to `/search`. Listed at top-level (not under `/dashboard`) because favorites are a buyer feature — non-agent users reach it directly without going through the dashboard layout's org-membership gate.
+
+**Navigation surface:**
+  - **Header (signed-in, ≥lg):** "Dashboard · Saved properties · Saved searches · email · Sign out". Hidden below lg to keep the header from wrapping.
+  - **Mobile drawer (signed-in):** primary "Dashboard" pill + secondary "Saved properties" + "Saved searches" pills. Below the nav links.
+  - **Footer "For buyers" column:** added "Saved properties" as a link.
+
+**i18n:** new keys in en + es:
+  - `favorite.add` / `favorite.remove` / `favorite.saveLabel` / `favorite.savedLabel` / `favorite.error`
+  - `savedProperties.heading` / `subheading` / `emptyHeading` / `emptyBody` / `emptyCta`
+  - `nav.savedProperties` / `footer.linkSavedProperties`
+
+**RLS tests** at `tests/rls/property-favorites.test.ts` — 10 cases covering every policy from each affected tier:
+  - SELECT: anon denied / owner sees own / cross-user blocked / admin sees all
+  - INSERT: anon denied / owner OK / impersonation blocked
+  - DELETE: owner OK / cross-user silent zero-row / admin can delete any
+
+Total RLS suite: **138/138** (was 128, +10).
+
+**Verify run.**
+  - typecheck clean, lint clean (pre-existing 2 warnings only)
+  - unit 91/91
+  - RLS 138/138
+  - migration 0024 applied to live Supabase
+
+**What you'll see when this hits live:**
+  - **Every listing card** has a heart in the top-right corner of the image. Outline by default; filled forest-green when favorited. Click toggles it (anon → bounces to /signin).
+  - **Property detail page** has a "Save" / "Saved" pill beside the price tile.
+  - **Signed-in users** get a "Saved properties" link in the header (≥lg), in the mobile drawer, in the footer, and at `/{locale}/saved-properties`.
+  - **Empty state** at `/saved-properties` for users who haven't saved anything: clean cream card with primary CTA back to /search.
+
+**Next session should start with**: smoke the favorites flow end-to-end on live (anon click → signin redirect → come back → save → see in /saved-properties → unsave). If green, **DP-2d email redesign** OR jump to next post-DP-2 branch (`feat/recently-viewed`).
+
+---
+
 ## 2026-05-01 — Batch DP-2c (footer redesign + dark-knob CTA sweep)
 
 Closes the public-surface portion of the DP-2 visual pivot. Two stacked deliverables: the new bilingual footer and the wholesale migration of the legacy "dark knob" CTA pattern across the codebase.

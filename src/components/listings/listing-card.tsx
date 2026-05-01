@@ -6,6 +6,7 @@ import { buildImageUrl } from '@/lib/listings/image-url';
 import { getCountryName } from '@/lib/i18n/countries';
 import type { SearchListing } from '@/lib/listings/search';
 import type { Locale } from '@/i18n/config';
+import { FavoriteButton } from './favorite-button';
 
 interface ListingCardProps {
   listing: SearchListing;
@@ -15,6 +16,14 @@ interface ListingCardProps {
    *  precomputed conversion via `precomputeApproxLabels()` — this
    *  Client Component can't read cookies / fetch rates itself. */
   approxPriceLabel?: string | null;
+  /** Whether the signed-in user has favorited this listing. Server-
+   *  resolved via `getUserFavoriteIds()` so the heart renders in the
+   *  correct state on first paint, no client-side fetch storm for a
+   *  6-card grid. */
+  favorited?: boolean;
+  /** Whether there's a signed-in user at all. Anon users see the heart
+   *  but a click bounces to /signin?next=. */
+  isAuthed?: boolean;
 }
 
 /**
@@ -33,7 +42,13 @@ interface ListingCardProps {
  * the listing has no confirmed primary image (early days; no Cloudflare
  * Images yet).
  */
-export function ListingCard({ listing, locale, approxPriceLabel }: ListingCardProps) {
+export function ListingCard({
+  listing,
+  locale,
+  approxPriceLabel,
+  favorited = false,
+  isAuthed = false,
+}: ListingCardProps) {
   const t = useTranslations('property');
   const tCard = useTranslations('card');
 
@@ -101,6 +116,16 @@ export function ListingCard({ listing, locale, approxPriceLabel }: ListingCardPr
         <span className="absolute left-3 top-3 inline-flex items-center rounded-md bg-surface/90 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-ink shadow-whisper backdrop-blur-sm dark:bg-surface-dark/90 dark:text-ink-inverse">
           {transactionLabel}
         </span>
+
+        {/* Favorite heart (top-right). preventDefault inside the button
+            stops the parent <a> from navigating when the heart is tapped. */}
+        <FavoriteButton
+          propertyId={listing.id}
+          initialFavorited={favorited}
+          isAuthed={isAuthed}
+          locale={locale}
+          size="card"
+        />
 
         {/* Image-count chip (bottom-right). Only shows when there are
             multiple confirmed images. */}

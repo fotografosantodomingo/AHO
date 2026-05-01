@@ -11,6 +11,8 @@ import { DotGrid, HeroGlow } from '@/components/ui/dot-grid';
 import { ReviewsSection } from '@/components/reviews/reviews-section';
 import { publicEnv } from '@/lib/env';
 import { getCountryName } from '@/lib/i18n/countries';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getUserFavoriteIds } from '@/lib/listings/favorites';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -123,6 +125,17 @@ export default async function AgentProfilePage({
       })),
     ],
     typedLocale,
+  );
+
+  // Favorites pre-resolved across active listings only — sold ones don't
+  // get a heart (they're historical records, not save-able inventory).
+  const supabase = await createServerSupabaseClient();
+  const { data: userResult } = await supabase.auth.getUser();
+  const userId = userResult.user?.id ?? null;
+  const favoriteIds = await getUserFavoriteIds(
+    supabase,
+    userId,
+    result.listings.map((l) => l.id),
   );
 
   const description =
@@ -384,6 +397,8 @@ export default async function AgentProfilePage({
                     listing={l}
                     locale={typedLocale}
                     approxPriceLabel={approxLabels.get(l.id) ?? null}
+                    favorited={favoriteIds.has(l.id)}
+                    isAuthed={!!userId}
                   />
                 </li>
               ))}

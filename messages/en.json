@@ -17,6 +17,7 @@
     "findAgent": "Find an agent",
     "help": "Help",
     "savedSearches": "Saved searches",
+    "savedProperties": "Saved properties",
     "currency": "Currency"
   },
   "currencyPicker": {
@@ -137,6 +138,20 @@
   "card": {
     "viewListing": "View listing"
   },
+  "favorite": {
+    "add": "Save to favorites",
+    "remove": "Remove from favorites",
+    "saveLabel": "Save",
+    "savedLabel": "Saved",
+    "error": "Couldn't save. Try again."
+  },
+  "savedProperties": {
+    "heading": "Saved properties",
+    "subheading": "The listings you've saved for later. We'll let you know if anything changes.",
+    "emptyHeading": "No saved properties yet",
+    "emptyBody": "When you find a place you love, tap the heart on a listing to save it here.",
+    "emptyCta": "Browse listings"
+  },
   "footer": {
     "privacy": "Privacy",
     "terms": "Terms",
@@ -150,6 +165,7 @@
     "linkBrowseListings": "Browse listings",
     "linkBrowseByCountry": "Browse by country",
     "linkSavedSearches": "Saved searches",
+    "linkSavedProperties": "Saved properties",
     "linkPricing": "Pricing",
     "linkSignUp": "Create an agent account",
     "linkSignIn": "Sign in",

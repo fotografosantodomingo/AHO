@@ -49,16 +49,23 @@ export async function AuthMenu({ locale }: { locale: Locale }) {
   const savedSearchesHref = `/${locale}/${
     locale === 'es' ? 'busquedas-guardadas' : 'saved-searches'
   }`;
+  const savedPropertiesHref = `/${locale}/${
+    locale === 'es' ? 'inmuebles-guardados' : 'saved-properties'
+  }`;
 
   return (
     <div className="flex items-center gap-3 text-sm">
       {/* Always-visible Dashboard link. The dashboard layout itself routes
           non-subscribers to /pricing — no need to gate the link by org
-          membership. Saved-searches stays as a parallel buyer-side link. */}
+          membership. Saved-searches and saved-properties are parallel
+          buyer-side links. */}
       <a className="hover:underline" href={dashboardHref}>
         {tNav('dashboard')}
       </a>
-      <a className="hidden hover:underline sm:inline" href={savedSearchesHref}>
+      <a className="hidden hover:underline lg:inline" href={savedPropertiesHref}>
+        {tNav('savedProperties')}
+      </a>
+      <a className="hidden hover:underline lg:inline" href={savedSearchesHref}>
         {tDashboard('navSavedSearches')}
       </a>
       <span

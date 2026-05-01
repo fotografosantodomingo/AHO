@@ -2,6 +2,8 @@ import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/i18n/config';
 import type { SearchListing } from '@/lib/listings/search';
 import { precomputeApproxLabels } from '@/lib/currency/server';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getUserFavoriteIds } from '@/lib/listings/favorites';
 import { ListingCard } from './listing-card';
 
 interface Props {
@@ -27,6 +29,15 @@ export async function SimilarHomes({ listings, locale }: Props) {
       currency: l.currency,
     })),
     locale,
+  );
+
+  const supabase = await createServerSupabaseClient();
+  const { data: userResult } = await supabase.auth.getUser();
+  const userId = userResult.user?.id ?? null;
+  const favoriteIds = await getUserFavoriteIds(
+    supabase,
+    userId,
+    listings.map((l) => l.id),
   );
 
   return (
@@ -55,6 +66,8 @@ export async function SimilarHomes({ listings, locale }: Props) {
               listing={listing}
               locale={locale}
               approxPriceLabel={approxLabels.get(listing.id) ?? null}
+              favorited={favoriteIds.has(listing.id)}
+              isAuthed={!!userId}
             />
           </li>
         ))}

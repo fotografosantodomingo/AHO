@@ -48,10 +48,12 @@ export async function SiteFooter({ locale }: Props) {
   // Reusable shape for column links — same JSX rendered both inside the
   // mobile accordion and inside the desktop column. Pulling into a const
   // avoids duplicating the JSX twice per section.
+  const savedPropertiesHref = `/${locale}/${locale === 'es' ? 'inmuebles-guardados' : 'saved-properties'}`;
   const buyersLinks = (
     <ul className="space-y-2 text-sm">
       <li><a href={buyHref} className="footer-link">{t('linkBrowseListings')}</a></li>
       <li><a href={countriesHref} className="footer-link">{t('linkBrowseByCountry')}</a></li>
+      <li><a href={savedPropertiesHref} className="footer-link">{t('linkSavedProperties')}</a></li>
       <li><a href={savedSearchesHref} className="footer-link">{t('linkSavedSearches')}</a></li>
     </ul>
   );
