@@ -88,6 +88,21 @@ const config: NextConfig = {
   poweredByHeader: false,
   experimental: {
     typedRoutes: false, // re-enable once next-intl typed routes settle
+    // Server Actions: explicitly allow the production + Pages preview
+    // origins. Behind Cloudflare Pages the X-Forwarded-Host detection
+    // sometimes drops the public hostname, and Next.js 15 default-
+    // rejects Server Action POSTs whose Origin doesn't match the host
+    // it sees → 404 + "An unexpected response was received from the
+    // server" in the browser. Whitelisting both origins fixes it.
+    serverActions: {
+      allowedOrigins: [
+        'advertisehomes.online',
+        'aho-web.pages.dev',
+        // Each preview deploy gets a unique <hash>.aho-web.pages.dev
+        // subdomain. Wildcard accepts them all.
+        '*.aho-web.pages.dev',
+      ],
+    },
   },
   async headers() {
     return [

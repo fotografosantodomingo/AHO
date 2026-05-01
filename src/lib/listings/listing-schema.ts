@@ -81,8 +81,15 @@ const ListingInputBase = z.object({
   country_code: z.string().trim().length(2).toUpperCase(),
   postal_code: z.string().trim().max(20).optional().nullable(),
   display_address: z.boolean().default(true),
-  latitude: z.number().min(-90).max(90),
-  longitude: z.number().min(-180).max(180),
+  // Optional. Listings without lat/lng don't show on the map but work
+  // everywhere else (search, city landing, detail page). DB column is
+  // nullable as of migration 0011.
+  latitude: nullableNumber.pipe(
+    z.number().min(-90).max(90).optional().nullable(),
+  ),
+  longitude: nullableNumber.pipe(
+    z.number().min(-180).max(180).optional().nullable(),
+  ),
   // Frontend sends only valid keys; server filters to the catalog too so
   // a tampered request can't store rogue values.
   amenities: z

@@ -338,6 +338,7 @@
     "postalCode": "Código postal",
     "latitude": "Latitud",
     "longitude": "Longitud",
+    "latLngHelp": "Opcional. Los anuncios con coordenadas aparecen en el mapa; sin ellas siguen siendo buscables.",
     "displayAddress": "Mostrar la dirección exacta públicamente.",
     "saved": "Guardado.",
     "publishedSuccess": "Anuncio publicado.",

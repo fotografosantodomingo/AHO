@@ -338,6 +338,7 @@
     "postalCode": "Postal code",
     "latitude": "Latitude",
     "longitude": "Longitude",
+    "latLngHelp": "Optional. Listings with coordinates appear on the map; without them they're still searchable.",
     "displayAddress": "Show the exact street address publicly.",
     "saved": "Saved.",
     "publishedSuccess": "Listing published.",

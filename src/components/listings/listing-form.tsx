@@ -516,38 +516,33 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
             />
           </div>
         </Field>
+        <Field>
+          <p className="text-xs text-helper">{t('latLngHelp')}</p>
+        </Field>
         <Field className="grid grid-cols-2 gap-3">
           <div>
             <label htmlFor="latitude" className={labelClass}>
-              {t('latitude')} *
+              {t('latitude')}
             </label>
             <input
               id="latitude"
               type="number"
               step="any"
-              required
               {...register('latitude', { valueAsNumber: true })}
               className={inputClass}
             />
-            {errors.latitude && (
-              <p className="mt-1 text-sm text-red-600">{t('errors.latRequired')}</p>
-            )}
           </div>
           <div>
             <label htmlFor="longitude" className={labelClass}>
-              {t('longitude')} *
+              {t('longitude')}
             </label>
             <input
               id="longitude"
               type="number"
               step="any"
-              required
               {...register('longitude', { valueAsNumber: true })}
               className={inputClass}
             />
-            {errors.longitude && (
-              <p className="mt-1 text-sm text-red-600">{t('errors.lngRequired')}</p>
-            )}
           </div>
         </Field>
         <Field>

@@ -116,7 +116,13 @@ export async function createListing(input: unknown): Promise<ActionResult> {
       country_code: data.country_code,
       postal_code: data.postal_code || null,
       display_address: data.display_address,
-      location: buildLocationEwkt(data.longitude, data.latitude),
+      // Only build a geography point if both coords are provided. The
+      // sync_property_latlng() trigger handles the latitude/longitude
+      // denorm columns either way.
+      location:
+        data.latitude != null && data.longitude != null
+          ? buildLocationEwkt(data.longitude, data.latitude)
+          : null,
       amenities: data.amenities ?? [],
     })
     .select('id')
