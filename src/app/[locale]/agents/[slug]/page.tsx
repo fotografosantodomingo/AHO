@@ -227,7 +227,7 @@ export default async function AgentProfilePage({
       />
       <main>
         {/* Hero band — dot-grid + glow, logo or initials chip on the seam. */}
-        <section className="relative overflow-hidden border-b border-border dark:bg-surface-deep">
+        <section className="relative overflow-hidden border-b border-border">
           <DotGrid />
           <HeroGlow />
           <div className="relative mx-auto max-w-6xl px-6 pb-16 pt-14 md:pb-20 md:pt-16">

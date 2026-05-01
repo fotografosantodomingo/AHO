@@ -162,7 +162,7 @@ export default async function CityLandingPage({
           city={canonicalCity}
         />
         {/* Hero band — dot-grid pattern, breadcrumb above H1. */}
-        <section className="relative overflow-hidden border-b border-border dark:bg-surface-deep">
+        <section className="relative overflow-hidden border-b border-border">
           <DotGrid />
           <div className="relative mx-auto max-w-6xl px-6 py-14 md:py-16">
             <nav

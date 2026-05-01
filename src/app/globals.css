@@ -103,3 +103,98 @@
     font-feature-settings: 'kern';
   }
 }
+
+@layer components {
+  /* Reusable component patterns to prevent the 200-char utility-chain
+     drift that produced the "mismatched feel" we audited 2026-05-01.
+     Every page-scoped surface should reach for these instead of
+     re-rolling the chain. Override individual properties as needed. */
+
+  /* — Cards — */
+  .card-base {
+    @apply rounded-card border border-border bg-surface shadow-whisper;
+  }
+  .dark .card-base {
+    background-color: var(--color-surface-deep);
+  }
+
+  /* Used inside hero bands or banded sections where the body bg is
+     surface-deep on dark mode. The card-on-band pattern needs an extra
+     contrast step. */
+  .card-on-band {
+    @apply rounded-card border border-border bg-surface-muted shadow-whisper;
+  }
+  .dark .card-on-band {
+    background-color: var(--color-surface-dark);
+  }
+
+  /* — Buttons —
+     Three variants. All are h-10 (40px) by default — full touch target;
+     drop to h-9 only for inline secondary actions. The primary uses the
+     dark ink as the canvas in light mode and inverts in dark; this is
+     the HashiCorp "knob" pattern. */
+  .btn-primary {
+    @apply inline-flex h-10 items-center justify-center rounded-lg bg-surface-dark px-5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition;
+  }
+  .btn-primary:hover {
+    background-color: var(--color-ink);
+  }
+  .dark .btn-primary {
+    background-color: var(--color-surface);
+    color: var(--color-ink);
+  }
+  .dark .btn-primary:hover {
+    background-color: var(--color-surface-muted);
+  }
+
+  .btn-secondary {
+    @apply inline-flex h-10 items-center justify-center rounded-lg border border-border-strong bg-surface px-4 text-sm font-medium transition;
+  }
+  .btn-secondary:hover {
+    background-color: rgb(0 0 0 / 0.05);
+  }
+  .dark .btn-secondary {
+    background-color: var(--color-surface-deep);
+  }
+  .dark .btn-secondary:hover {
+    background-color: rgb(255 255 255 / 0.05);
+  }
+
+  .btn-ghost {
+    @apply inline-flex h-9 items-center justify-center rounded-lg px-3 text-sm font-medium text-helper transition;
+  }
+  .btn-ghost:hover {
+    color: var(--color-ink);
+  }
+  .dark .btn-ghost:hover {
+    color: var(--color-ink-inverse);
+  }
+
+  /* — Section rhythm —
+     Two patterns: regular content section and band section.
+     Container width is consistently max-w-6xl (was drifting between
+     5xl and 6xl across pages). */
+  .section-pad {
+    @apply mx-auto max-w-6xl px-6 py-16 md:py-20;
+  }
+  .section-pad-tight {
+    @apply mx-auto max-w-6xl px-6 py-10 md:py-12;
+  }
+  .section-pad-content {
+    /* Detail-page chrome — narrower, less vertical padding. */
+    @apply mx-auto max-w-5xl px-6 py-8 md:py-10;
+  }
+
+  /* Eyebrow label — consistent uppercase track + size. */
+  .eyebrow {
+    @apply font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper;
+  }
+
+  /* Stat tile (used on agent profile, homepage trust strip). */
+  .stat-tile {
+    @apply flex flex-col gap-1 rounded-card border border-border bg-surface p-4 shadow-whisper;
+  }
+  .dark .stat-tile {
+    background-color: var(--color-surface-deep);
+  }
+}

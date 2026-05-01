@@ -83,7 +83,7 @@ export default async function PricingPage({
     <main>
       {/* Hero band — same dot-grid treatment as homepage. Centers the
           page identity before the plan card. */}
-      <section className="relative overflow-hidden border-b border-border dark:bg-surface-deep">
+      <section className="relative overflow-hidden border-b border-border">
         <DotGrid />
         <div className="relative mx-auto max-w-3xl px-6 py-16 text-center md:py-20">
           <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">

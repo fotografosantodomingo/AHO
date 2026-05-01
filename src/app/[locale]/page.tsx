@@ -100,12 +100,13 @@ export default async function HomePage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
       />
 
-      {/* Hero. Body in light mode is surface-muted, so this section has the
-          same fill as the body. Visual definition comes from the dot-grid
-          + glow + bottom border, not a contrasting background. In dark
-          mode the section bg goes one shade deeper than body for a
-          traditional band look. */}
-      <section className="relative overflow-hidden border-b border-border dark:bg-surface-deep">
+      {/* Hero. Body bg in BOTH modes (light: surface-muted; dark:
+          surface-dark). No section-band fill — visual definition
+          comes from the dot-grid + glow + bottom border. Fixed in
+          batch DP: previously had `dark:bg-surface-deep` which made
+          the hero a banded section in dark mode but a flat section
+          in light mode (asymmetric mismatch). Now consistent. */}
+      <section className="relative overflow-hidden border-b border-border">
         <DotGrid ellipse="80% 60%" />
         <HeroGlow />
 
@@ -193,11 +194,13 @@ export default async function HomePage({
         )}
       </section>
 
-      {/* How AHO works. Three-step explainer for visitors who arrive without
-          context. Pure structural copy — no images, no fake testimonials.
-          Borders + numbered chips keep it dense without feeling hollow. */}
-      <section className="border-t border-border bg-surface dark:bg-surface-deep">
-        <div className="mx-auto max-w-5xl px-6 py-20">
+      {/* How AHO works. Three-step explainer. Cards use the standard
+          `card-base` (bg-surface light / bg-surface-deep dark) so they
+          lift from the muted body bg without an extra section band —
+          previously this section had its own banding which created a
+          light/dark asymmetry the rest of the page didn't share. */}
+      <section className="border-t border-border">
+        <div className="section-pad">
           <h2 className="font-brand text-3xl font-semibold tracking-tight md:text-[40px] md:leading-[1.15]">
             {t('howHeading')}
           </h2>
@@ -207,11 +210,8 @@ export default async function HomePage({
 
           <ol className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
             {([1, 2, 3] as const).map((n) => (
-              <li
-                key={n}
-                className="flex flex-col gap-3 rounded-card border border-border bg-surface-muted p-6 shadow-whisper dark:bg-surface-dark"
-              >
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border-strong/30 bg-surface font-brand text-sm font-semibold text-action shadow-whisper dark:bg-surface-deep dark:text-action-dark">
+              <li key={n} className="card-base flex flex-col gap-3 p-6">
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border-strong/30 bg-surface-muted font-brand text-sm font-semibold text-action shadow-whisper dark:bg-surface-dark dark:text-action-dark">
                   {n}
                 </span>
                 <h3 className="font-brand text-lg font-semibold tracking-tight">
@@ -225,10 +225,7 @@ export default async function HomePage({
           </ol>
 
           <div className="mt-10">
-            <a
-              href={pricingPath}
-              className="inline-flex items-center rounded-lg bg-surface-dark px-5 py-2.5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink dark:bg-surface dark:text-ink dark:hover:bg-surface-muted"
-            >
+            <a href={pricingPath} className="btn-primary">
               {t('howCta')} →
             </a>
           </div>

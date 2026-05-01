@@ -72,7 +72,7 @@ export default async function CountriesPage({
 
   return (
     <main>
-      <section className="relative overflow-hidden border-b border-border dark:bg-surface-deep">
+      <section className="relative overflow-hidden border-b border-border">
         <DotGrid />
         <div className="relative mx-auto max-w-5xl px-6 py-14 md:py-16">
           <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">

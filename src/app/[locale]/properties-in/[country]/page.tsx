@@ -97,7 +97,7 @@ export default async function CountryLandingPage({
         countryCode={cc}
         countryDisplay={display}
       />
-      <section className="relative overflow-hidden border-b border-border dark:bg-surface-deep">
+      <section className="relative overflow-hidden border-b border-border">
         <DotGrid />
         <div className="relative mx-auto max-w-6xl px-6 py-14 md:py-16">
           <nav
