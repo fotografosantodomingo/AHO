@@ -655,7 +655,13 @@ describe('Trigger · recompute_agent_stats (0013)', () => {
         property_type: 'apartment',
         status: 'sold',
         title_en: `AHO Trigger Test — ${spec.shortId}`,
-        slug_en: null,
+        // slug_en + published_at required by the table-level CHECKs from
+        // 0004 for any non-draft status (slug must be present alongside
+        // title in the same language; published_at not null for public
+        // states). slug_en is fixture-prefixed so the public-detail-page
+        // filter (0019 hotfix) hides these from anon traffic.
+        slug_en: `aho-fixture-trg-${spec.shortId}`,
+        published_at: spec.soldDate,
         price_cents: 20_000_000,
         currency: 'USD',
         bedrooms: 2,
