@@ -12,6 +12,22 @@ One entry per significant choice. Newest on top. Format:
 
 ---
 
+## 2026-05-01 — `protect_profile_admin_fields` allows null-JWT updates (admin bootstrap fix)
+**Decision:** Migration 0018 loosens the `protect_profile_admin_fields()` trigger from migration 0002 to permit `is_admin` / `admin_role` UPDATEs when the caller has EITHER (a) a `service_role` JWT (the existing app-driven path via `setUserAdmin`) OR (b) no JWT context at all (direct DB access via Supabase SQL Editor, migrations, scheduled jobs, postgres superuser). Authenticated user-context UPDATEs (any non-null JWT that isn't `service_role`) still get the silent revert — the original privilege-escalation defense is preserved. Migration 0018 also bakes in an idempotent UPDATE that promotes `info@advertisehomes.online` to admin once that profile row exists.
+**Why:** The original trigger condition was `(auth.jwt() ->> 'role') = 'service_role'`. The Supabase SQL Editor runs as the postgres role with no JWT, so `auth.jwt()` returns NULL, the condition was false, and the SQL Editor's UPDATEs were silently reverted. The first-admin bootstrap documented in PROGRESS.md was failing because of this — the user ran the SQL repeatedly with no effect, eventually traced via the Supabase AI assistant. Anyone with direct DB access already has full DB privilege, so allowing them to bypass the trigger doesn't expand attack surface; the trigger's actual job is preventing AUTHENTICATED user-context UPDATEs from elevating their own privileges, which stays intact.
+**Alternatives considered:**
+- Force bootstrap through a JS service-role script (`scripts/bootstrap-admin.ts`) — rejected; adds a script + auth-context plumbing for a one-line SQL operation.
+- `ALTER TABLE … DISABLE TRIGGER` before each manual UPDATE — rejected; fragile, easy to forget to re-enable.
+- SECURITY DEFINER `bootstrap_first_admin(email)` function — rejected; one more surface to keep aligned.
+- Drop the trigger and rely on RLS only — rejected; RLS doesn't gate column-level writes, the trigger is the actual defense.
+**Reconsider if:** scheduled jobs ever need to run admin-promotion under non-service-role auth contexts, OR we adopt a stricter posture where even direct DB access requires explicit re-auth.
+**Build implications:**
+- Migration 0018 includes both the trigger update + an idempotent UPDATE for `info@advertisehomes.online`. Re-running the migration is a no-op once the row is already promoted.
+- Future first-admin bootstraps in fresh Supabase projects: edit 0018's WHERE clause OR add a follow-up migration. Pattern is now repeatable.
+- The user-facing PROGRESS.md instruction "run this SQL in Supabase SQL Editor" still works AFTER migration 0018 applies — the trigger no longer reverts.
+
+---
+
 ## 2026-05-01 — Currency converter: openexchangerates.org free tier, USD-base snapshot, 24h DB cache + 7d stale-OK (Batch A3)
 **Decision:** Worldwide price-tile conversion uses openexchangerates.org's free tier ($0/mo, USD base only, 1000 req/mo). The latest snapshot is cached in `currency_rate_snapshot` (single-row, base='USD', jsonb of all rates) for 24h. After 24h the next read triggers a lazy refresh via the service-role admin client; concurrent refreshes are race-safe via idempotent upsert. Cross-rates (e.g., EUR → DOP) are computed in app code via the USD pivot. If OXR is unreachable AND the cache is empty, the converter returns null and the tile renders source-only — never throws. Stale cache up to 7 days old is served when OXR is down (worse to break the page than show approximate-but-close stale data).
 **Why:**
