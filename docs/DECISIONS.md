@@ -12,6 +12,40 @@ One entry per significant choice. Newest on top. Format:
 
 ---
 
+## 2026-05-01 — Audit-log payload contract: public-safe lifecycle facts only
+**Decision:** `audit_log.payload` for ANY kind is restricted to public-safe lifecycle facts only. Specifically excluded everywhere: `closing_notes` (private agent deal notes, max 2000 chars) and `prior_status` (lifecycle transitions: `draft`/`pending`/`coming_soon`). The rule is enforced at the writer side via `lib/audit/audit-payload.ts` builders; new audit writers MUST go through a builder, not assemble a payload inline. Migration `0015` retroactively scrubbed any rows written between Phase 1A deploy and the patch (idempotent jsonb minus-operator). Pinned by 6 unit tests in `tests/unit/audit-payload.test.ts`.
+**Why:** 0014's anon-read policy makes `payload` content publicly readable for `kind in (listing.marked_sold, listing.marked_rented, listing.price_changed)`. The original Phase 1A writer included `closing_notes` and `prior_status` — both fields the PO explicitly identified as private. Tightening the policy is the wrong fix (the public-read policy is needed for the price-history block); tightening the payload is the right fix.
+**Alternatives considered:**
+- Tighten the 0014 policy to redact specific JSON keys. Postgres RLS doesn't support field-level filtering on jsonb; would require a view or a SECURITY DEFINER function returning a curated row. Way more complex than scrubbing at write time.
+- Move private fields to a parallel `audit_log_private` table. Over-engineered for the current event volume; may revisit if private audit needs grow.
+- Defensively scrub on read in the property page Server Component. Doesn't help; anon can still query via the Supabase JS client directly.
+**Reconsider if:** (a) a new audit kind is added to the 0014 IN-list (extend the contract, audit ALL existing payloads against the new exposure), (b) an "agent-only audit view" feature is requested — build it as a separate table/policy, do NOT widen this one.
+
+---
+
+## 2026-05-01 — Phase 1B test-debt triage (post-Phase-1B audit punch list)
+**Decision:** The Phase 1B test-coverage audit surfaced 6 should-have gaps and 4 nice-to-have gaps. Disposition:
+
+**Should-haves — queue as Phase 2 prep tickets, one per route, NOT batched:**
+1. `audit_log_self_insert` policy untested — **bumped to top priority within Phase 2**. Same risk profile as the "audit log silently failing for weeks" bug from Phase 1A: silent INSERT failures are invisible until the trail is needed and missing.
+2. `mark-sold` route-level tests (sold_date defaulting, audit-failure-doesn't-unwind, RLS forbid mapping, rented kind branch).
+3. `archive` route-level tests (status flip, undo, audit row, RLS interaction with status changes).
+4. `/api/cities` route tests (param validation, fixture exclusion, cache header).
+5. `/api/me/avatar` route tests (auth, 2 MB cap, MIME guard, R2 prefix, DELETE).
+6. `getCountryName` actual-behavior documentation — already addressed via inline comment in `src/lib/i18n/countries.ts` (locale → ISO only; no cross-locale chain). No code change needed; the gap was a doc-vs-impl mismatch, fixed.
+
+**Nice-to-haves — known gaps with triage notes:**
+- **Avatar orphan cleanup (#9):** chosen approach is delete-on-upload (single `DeleteObjectCommand` keyed off the prior `avatar_url` before writing the new one), NOT a quarterly sweep cron. Cron adds infrastructure cost and accumulates tech debt; per-upload delete is one extra round-trip on a path that's already async. Implementation deferred to Phase 2 — touches the avatar route which is in the 1A/1B smoke-test scope, hold until smoke-test green.
+- `getCountryName` edge cases (#10): empty/null/whitespace input, lowercase ISO, malformed input. Tiny unit test file. Phase 2.
+- `fetchPriceHistory` helper edge cases (#11): empty publishedAt, single-event hide rule, retroactive `from_cents` rewrite. Phase 2.
+- `require_sold_date_on_close` trigger isolated test (#12): Phase 2, alongside the broader `recompute_agent_stats` trigger coverage (blocker #2 from the same audit).
+
+**Why batch this in DECISIONS rather than as separate tickets per gap:** there's no issue tracker wired up (no `gh` CLI installed; project tracks PO decisions in `OPEN_QUESTIONS.md` and architectural choices here). One DECISIONS entry preserves the triage rationale alongside the gap list, so future-Claude reading the log understands what was deliberately deferred vs. forgotten.
+
+**Reconsider if:** (a) the smoke-test surfaces a regression in any of the should-have areas — promote that ticket immediately, don't wait for Phase 2, (b) a future contributor adds a test for one of these areas without referencing this triage — point them here so they understand the priority order, (c) issue tracking gets formalized — port the should-haves over and reference this entry from each.
+
+---
+
 ## 2026-05-01 — audit_log gets a public-read policy for listing-state events (Phase 1B)
 **Decision:** Migration `0014` adds an additive RLS policy `audit_log_public_read_listing_events` that lets `anon` and `authenticated` read `audit_log` rows where `kind in ('listing.price_changed', 'listing.marked_sold', 'listing.marked_rented')` AND the `target_id` points at an `active|sold|rented` + `published_at IS NOT NULL` property. The existing admin/self read policies stand; RLS policies OR together so a row visible to admins via the existing policy stays visible.
 **Why:** The Phase 1B price-history block on `/properties/[slug]` needs to render a chronological timeline visible to anonymous visitors. The block reads `audit_log` directly (the alternative — using the service-role client from a user-facing page — was explicitly rejected by `src/lib/supabase/admin.ts`'s own docstring, which forbids that import outside webhooks/queues/scripts). Limiting the policy to (a) a closed set of event kinds and (b) properties already public-visible keeps the surface narrow: nothing about drafts, archived listings, or admin-internal events ever escapes.

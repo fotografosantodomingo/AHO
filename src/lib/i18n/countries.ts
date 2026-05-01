@@ -9,6 +9,12 @@ import type { Locale } from '@/i18n/config';
  *
  * Returns the uppercased ISO code unchanged if the runtime can't resolve
  * the region (older Edge runtimes, malformed input, etc.) — never throws.
+ *
+ * Locale-fallback policy: locale → ISO only. There is intentionally NO
+ * cross-locale fallback chain (e.g. es → en → ISO). V8 supports both en
+ * and es region-name resolution natively, so the chain would never fire
+ * in practice; adding it would just be untested code paths. If a future
+ * locale is added that lacks region support, fall back to ISO directly.
  */
 const cache = new Map<Locale, Intl.DisplayNames | null>();
 
