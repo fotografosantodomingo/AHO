@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { TRANSACTION_TYPES, PRICE_PERIODS } from '@/db/schema';
+import { AMENITY_KEYS } from '@/lib/listings/amenities';
 
 /**
  * Server actions for the listing form. Both `createListing` and `updateListing`
@@ -63,6 +64,13 @@ const ListingInputBase = z.object({
   display_address: z.boolean().default(true),
   latitude: z.number().min(-90).max(90),
   longitude: z.number().min(-180).max(180),
+  // Amenity tags. Frontend sends only valid keys; we filter to the catalog
+  // server-side too so a tampered request can't store rogue values.
+  amenities: z
+    .array(z.enum(AMENITY_KEYS))
+    .max(AMENITY_KEYS.length)
+    .optional()
+    .default([]),
 });
 
 export const CreateListingSchema = ListingInputBase.and(TitleAtLeastOneLanguage);
@@ -163,6 +171,7 @@ export async function createListing(input: unknown): Promise<ActionResult> {
       postal_code: data.postal_code || null,
       display_address: data.display_address,
       location: buildLocationEwkt(data.longitude, data.latitude),
+      amenities: data.amenities ?? [],
     })
     .select('id')
     .single();

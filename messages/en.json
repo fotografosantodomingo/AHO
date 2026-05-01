@@ -236,6 +236,12 @@
     "manageBilling": "Manage billing",
     "listingsHeading": "My Listings",
     "newListing": "New listing",
+    "saveAsDraft": "Save as draft",
+    "planUsage": "Properties posted",
+    "planUsageRemaining_one": "{count} remaining in plan",
+    "planUsageRemaining_other": "{count} remaining in plan",
+    "planUsageUnlimited": "Unlimited listings on this plan",
+    "planUsageAtCap": "Plan limit reached — archive a listing or upgrade to add more",
     "listingsEmpty": "You haven't published any listings yet.",
     "emptyHelp": "Add your first property — title, photos, price, location — and AHO will publish it across the public site, the city landing page, and your agent profile.",
     "listingsEmptyCta": "Create your first listing",
@@ -291,6 +297,19 @@
       }
     }
   },
+  "imageUploader": {
+    "heading": "Property photos",
+    "dropHere": "Drop images here",
+    "orClickHint": "or use the picker — JPEG, PNG, WebP, HEIC up to 25 MB each",
+    "selectFiles": "Choose files",
+    "limits": "Maximum 30 images per listing.",
+    "atCap": "Image limit reached (30). Remove one to upload another.",
+    "statusPending": "Pending",
+    "statusUploading": "Uploading…",
+    "statusConfirmed": "Uploaded",
+    "statusError": "Failed",
+    "r2NotConfigured": "Image storage isn't enabled on the account yet. The upload API endpoints exist; we'll start accepting uploads once Cloudflare R2 is wired up."
+  },
   "listingForm": {
     "sectionBasics": "Basics",
     "sectionLocation": "Location",
@@ -321,6 +340,22 @@
     "displayAddress": "Show the exact street address publicly.",
     "saved": "Saved.",
     "publishedSuccess": "Listing published.",
+    "amenitiesHeading": "Property features",
+    "amenities": {
+      "parking": "Parking",
+      "pool": "Pool",
+      "garden": "Garden",
+      "terrace": "Terrace",
+      "balcony": "Balcony",
+      "jacuzzi": "Jacuzzi",
+      "gym": "Gym",
+      "security": "24h security",
+      "air_conditioning": "Air conditioning",
+      "furnished": "Furnished",
+      "pet_friendly": "Pet-friendly",
+      "basement": "Basement"
+    },
+    "publishAfterImages": "Save as draft now, then add photos and publish.",
     "errors": {
       "titleRequired": "Title in at least one language is required.",
       "priceRequired": "Price is required.",

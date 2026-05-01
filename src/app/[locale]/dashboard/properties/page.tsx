@@ -44,6 +44,42 @@ export default async function DashboardListingsPage({
     .order('updated_at', { ascending: false })
     .limit(50);
 
+  // Plan tracker — count occupying listings (active/pending) and read the
+  // org's listing_cap. Only the user's own org rows pass RLS, so a single
+  // membership lookup gives us the cap and a count of occupying rows.
+  const { data: userResult } = await supabase.auth.getUser();
+  const userId = userResult.user?.id;
+  let listingCap: number | null = null;
+  let occupyingCount = 0;
+  if (userId) {
+    const { data: membership } = await supabase
+      .from('organization_members')
+      .select('org_id, organizations!inner(listing_cap)')
+      .eq('user_id', userId)
+      .limit(1)
+      .maybeSingle();
+    // PostgREST returns related rows from an inner-join as either an
+    // object (single relation) or an array, depending on whether the FK
+    // is a single-row link. Drizzle / postgres-js sometimes infers it as
+    // an array; normalize.
+    const orgField = membership?.organizations as
+      | { listing_cap: number | null }
+      | { listing_cap: number | null }[]
+      | null
+      | undefined;
+    const org = Array.isArray(orgField) ? orgField[0] ?? null : orgField ?? null;
+    listingCap = org?.listing_cap ?? null;
+
+    if (membership?.org_id) {
+      const { count: occCount } = await supabase
+        .from('properties')
+        .select('id', { count: 'exact', head: true })
+        .eq('org_id', membership.org_id)
+        .in('status', ['active', 'pending']);
+      occupyingCount = occCount ?? 0;
+    }
+  }
+
   if (error) {
     return (
       <main>
@@ -67,19 +103,73 @@ export default async function DashboardListingsPage({
     day: 'numeric',
   });
 
+  // Pre-compute plan tracker copy. Three states:
+  //   - listingCap is null = unlimited (Expert tier in v2; no cap)
+  //   - listingCap > occupyingCount = "X / Y · Z remaining"
+  //   - listingCap === occupyingCount = "X / Y · plan limit reached"
+  const remaining = listingCap == null ? null : Math.max(0, listingCap - occupyingCount);
+  const atCap = listingCap != null && occupyingCount >= listingCap;
+  const usagePct = listingCap == null ? 0 : Math.min(100, (occupyingCount / listingCap) * 100);
+  const planAtCapDisabled = atCap;
+
   return (
     <main className="space-y-6">
-      <header className="flex items-center justify-between">
+      <header className="flex items-center justify-between gap-4">
         <h1 className="font-brand text-2xl font-semibold tracking-tight md:text-[26px] md:leading-[1.19]">
           {t('listingsHeading')}
         </h1>
         <a
-          href={newListingPath}
-          className="inline-flex h-9 items-center rounded-lg bg-surface-dark px-3 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink"
+          href={planAtCapDisabled ? '#' : newListingPath}
+          aria-disabled={planAtCapDisabled || undefined}
+          className={`inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium shadow-whisper transition ${
+            planAtCapDisabled
+              ? 'cursor-not-allowed bg-border-strong/20 text-helper'
+              : 'bg-surface-dark text-ink-inverse-muted hover:bg-ink dark:bg-surface dark:text-ink dark:hover:bg-surface-muted'
+          }`}
         >
           {t('newListing')}
         </a>
       </header>
+
+      {/* Plan tracker — shows for every org. Hidden if listingCap is null
+          (unlimited tier). Bar fills as the user approaches the cap; flips
+          to a warn-color message at the cap. */}
+      {listingCap != null && (
+        <section
+          aria-label={t('planUsage')}
+          className="rounded-card border border-border bg-surface p-4 shadow-whisper dark:bg-surface-deep"
+        >
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+              {t('planUsage')}
+            </p>
+            <p className="font-brand text-base font-semibold tabular-nums">
+              {occupyingCount} <span className="text-helper">/ {listingCap}</span>
+            </p>
+          </div>
+          <div
+            className="mt-3 h-2 w-full overflow-hidden rounded-full bg-border-strong/15"
+            role="progressbar"
+            aria-valuenow={occupyingCount}
+            aria-valuemin={0}
+            aria-valuemax={listingCap}
+          >
+            <div
+              className={`h-full transition-all ${
+                atCap ? 'bg-warn' : 'bg-action dark:bg-action-dark'
+              }`}
+              style={{ width: `${usagePct}%` }}
+            />
+          </div>
+          <p className={`mt-2 text-xs ${atCap ? 'text-warn' : 'text-helper'}`}>
+            {atCap
+              ? t('planUsageAtCap')
+              : t(remaining === 1 ? 'planUsageRemaining_one' : 'planUsageRemaining_other', {
+                  count: remaining ?? 0,
+                })}
+          </p>
+        </section>
+      )}
 
       {listings.length === 0 ? (
         <div className="rounded-card border border-border bg-surface p-12 text-center shadow-whisper dark:bg-surface-deep">

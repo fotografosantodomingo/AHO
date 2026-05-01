@@ -236,6 +236,12 @@
     "manageBilling": "Administrar facturación",
     "listingsHeading": "Mis anuncios",
     "newListing": "Nuevo anuncio",
+    "saveAsDraft": "Guardar como borrador",
+    "planUsage": "Propiedades publicadas",
+    "planUsageRemaining_one": "{count} disponible en tu plan",
+    "planUsageRemaining_other": "{count} disponibles en tu plan",
+    "planUsageUnlimited": "Anuncios ilimitados en este plan",
+    "planUsageAtCap": "Has llegado al límite de tu plan — archiva un anuncio o mejora tu plan para añadir más",
     "listingsEmpty": "Aún no has publicado ningún anuncio.",
     "emptyHelp": "Agrega tu primera propiedad — título, fotos, precio, ubicación — y AHO la publicará en el sitio público, en la página de la ciudad y en tu perfil de agente.",
     "listingsEmptyCta": "Crear tu primer anuncio",
@@ -291,6 +297,19 @@
       }
     }
   },
+  "imageUploader": {
+    "heading": "Fotos del inmueble",
+    "dropHere": "Arrastra imágenes aquí",
+    "orClickHint": "o usa el selector — JPEG, PNG, WebP, HEIC hasta 25 MB cada una",
+    "selectFiles": "Elegir archivos",
+    "limits": "Máximo 30 imágenes por anuncio.",
+    "atCap": "Has alcanzado el límite (30). Elimina una para subir otra.",
+    "statusPending": "Pendiente",
+    "statusUploading": "Subiendo…",
+    "statusConfirmed": "Subida",
+    "statusError": "Falló",
+    "r2NotConfigured": "El almacenamiento de imágenes aún no está activo en la cuenta. Los endpoints existen; empezaremos a aceptar fotos cuando Cloudflare R2 esté configurado."
+  },
   "listingForm": {
     "sectionBasics": "Información básica",
     "sectionLocation": "Ubicación",
@@ -321,6 +340,22 @@
     "displayAddress": "Mostrar la dirección exacta públicamente.",
     "saved": "Guardado.",
     "publishedSuccess": "Anuncio publicado.",
+    "amenitiesHeading": "Características del inmueble",
+    "amenities": {
+      "parking": "Estacionamiento",
+      "pool": "Piscina",
+      "garden": "Jardín",
+      "terrace": "Terraza",
+      "balcony": "Balcón",
+      "jacuzzi": "Jacuzzi",
+      "gym": "Gimnasio",
+      "security": "Seguridad 24h",
+      "air_conditioning": "Aire acondicionado",
+      "furnished": "Amueblado",
+      "pet_friendly": "Acepta mascotas",
+      "basement": "Sótano"
+    },
+    "publishAfterImages": "Guarda como borrador, luego añade fotos y publica.",
     "errors": {
       "titleRequired": "Se requiere un título en al menos un idioma.",
       "priceRequired": "El precio es obligatorio.",

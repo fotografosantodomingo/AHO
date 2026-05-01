@@ -113,11 +113,31 @@ export async function clientFor(tier: FixtureTier): Promise<SupabaseClient> {
   const c = createClient(SUPABASE_URL!, ANON_KEY!, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
-  const { error } = await c.auth.signInWithPassword(creds);
-  if (error) {
+
+  // We can't use signInWithPassword once the project has Turnstile
+  // captcha protection enabled — every signin would need a real browser-
+  // produced token. Instead we mint a magic-link via the admin (service-
+  // role) client, then verifyOtp on the anon client. verifyOtp does not
+  // require captcha, so this gives us a real user-context session
+  // (anon-key + user JWT) which is exactly what RLS testing needs.
+  const a = admin();
+  const { data: linkData, error: linkErr } = await a.auth.admin.generateLink({
+    type: 'magiclink',
+    email: creds.email,
+  });
+  if (linkErr || !linkData?.properties?.hashed_token) {
     throw new Error(
-      `Could not sign in fixture user ${creds.email}: ${error.message}. ` +
+      `Could not mint magic link for ${creds.email}: ${linkErr?.message ?? 'no hashed_token'}. ` +
         `Did you call ensureFixtures() in beforeAll?`,
+    );
+  }
+  const { error: verifyErr } = await c.auth.verifyOtp({
+    token_hash: linkData.properties.hashed_token,
+    type: 'magiclink',
+  });
+  if (verifyErr) {
+    throw new Error(
+      `Could not verify magic link for ${creds.email}: ${verifyErr.message}`,
     );
   }
   clientCache.set(tier, c);

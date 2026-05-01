@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useMemo, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -10,6 +10,8 @@ import {
   type CreateListingInput,
   createListing,
 } from '@/lib/listings/actions';
+import { buildCountryOptions } from '@/lib/listings/countries-iso';
+import { AMENITY_KEYS, type AmenityKey } from '@/lib/listings/amenities';
 
 const inputClass =
   'mt-1 block w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm shadow-whisper outline-hidden focus:ring-3 focus:ring-action dark:bg-surface-deep dark:focus:ring-action-dark';
@@ -34,12 +36,60 @@ interface ListingFormProps {
   successRedirectBase: string;
 }
 
+/**
+ * Listing form. Five UX improvements over the previous version:
+ *
+ *   - Country: searchable dropdown of ISO 3166-1 alpha-2 codes with names
+ *     localized via `Intl.DisplayNames` (no more typo-prone text input).
+ *   - Period: only renders when transaction is rent / short_term — the
+ *     "nightly" / "weekly" / "monthly" choices are meaningless for a sale
+ *     listing and were confusing.
+ *   - Amenities: 12-checkbox grid (parking, pool, garden, …) maps to the
+ *     `properties.amenities text[]` column.
+ *   - Price: collected in whole-currency units (e.g. `350000` for
+ *     $350,000) instead of cents. Multiplied by 100 on submit. Saves
+ *     every user from the cents-vs-dollars footgun.
+ *   - Submit label: "Save as draft" — accurate to what the action does.
+ *     Publish happens on the edit page once images are uploaded.
+ */
 export function ListingForm({ initialValues, successRedirectBase }: ListingFormProps) {
   const t = useTranslations('listingForm');
+  const tDashboard = useTranslations('dashboard');
   const locale = useLocale();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | null>(null);
+
+  const countryOptions = useMemo(
+    () => buildCountryOptions(locale === 'es' ? 'es' : 'en'),
+    [locale],
+  );
+
+  // Form state for the conditional Period field. Local mirror of the
+  // transaction_type to avoid threading react-hook-form's `watch` through
+  // every render (cheaper + less noisy).
+  const [transactionType, setTransactionType] = useState<
+    'sale' | 'rent' | 'short_term'
+  >((initialValues?.transaction_type as 'sale' | 'rent' | 'short_term') ?? 'sale');
+  const isRental = transactionType === 'rent' || transactionType === 'short_term';
+
+  // Amenities — controlled separately (checkbox group), then merged on submit.
+  const [amenities, setAmenities] = useState<Set<AmenityKey>>(
+    new Set((initialValues?.amenities as AmenityKey[] | undefined) ?? []),
+  );
+  function toggleAmenity(key: AmenityKey) {
+    setAmenities((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
+
+  // Price — convert cents back to whole units for the form display.
+  const initialPriceWhole = initialValues?.price_cents
+    ? Math.round(Number(initialValues.price_cents) / 100)
+    : undefined;
 
   const {
     register,
@@ -58,8 +108,22 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
 
   function onSubmit(values: CreateListingInput) {
     setServerError(null);
+    // Convert whole-units price back to cents for the DB column.
+    const priceCents = Math.round(Number(values.price_cents) * 100);
+    if (!Number.isFinite(priceCents) || priceCents <= 0) {
+      setServerError('priceRequired');
+      return;
+    }
+    const enriched: CreateListingInput = {
+      ...values,
+      price_cents: priceCents,
+      // Period is meaningless for sale listings — drop it server-side too.
+      price_period: isRental ? values.price_period ?? null : null,
+      amenities: [...amenities],
+    };
+
     startTransition(async () => {
-      const result = await createListing(values);
+      const result = await createListing(enriched);
       if (!result.ok) {
         setServerError(result.errorCode ?? 'create_failed');
         return;
@@ -80,7 +144,10 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
           </label>
           <select
             id="transaction_type"
-            {...register('transaction_type')}
+            {...register('transaction_type', {
+              onChange: (e) =>
+                setTransactionType(e.target.value as 'sale' | 'rent' | 'short_term'),
+            })}
             className={inputClass}
           >
             <option value="sale">{locale === 'es' ? 'Venta' : 'Sale'}</option>
@@ -122,16 +189,17 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
           )}
         </Field>
 
-        <Field className="grid grid-cols-3 gap-3">
+        <Field className={`grid gap-3 ${isRental ? 'grid-cols-3' : 'grid-cols-2'}`}>
           <div>
             <label htmlFor="price_cents" className={labelClass}>
-              {t('price')} (cents)
+              {t('price')}
             </label>
             <input
               id="price_cents"
               type="number"
               step="1"
               min="1"
+              defaultValue={initialPriceWhole}
               {...register('price_cents', { valueAsNumber: true })}
               className={inputClass}
             />
@@ -151,18 +219,24 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
               ))}
             </select>
           </div>
-          <div>
-            <label htmlFor="price_period" className={labelClass}>
-              {t('pricePeriod')}
-            </label>
-            <select id="price_period" {...register('price_period')} className={inputClass}>
-              <option value="">—</option>
-              <option value="total">total</option>
-              <option value="monthly">monthly</option>
-              <option value="weekly">weekly</option>
-              <option value="nightly">nightly</option>
-            </select>
-          </div>
+          {/* Period only makes sense for rentals. Hidden entirely for sale
+              listings so users don't see / fill irrelevant fields. */}
+          {isRental && (
+            <div>
+              <label htmlFor="price_period" className={labelClass}>
+                {t('pricePeriod')}
+              </label>
+              <select
+                id="price_period"
+                {...register('price_period')}
+                className={inputClass}
+              >
+                <option value="monthly">monthly</option>
+                <option value="weekly">weekly</option>
+                <option value="nightly">nightly</option>
+              </select>
+            </div>
+          )}
         </Field>
       </Section>
 
@@ -177,7 +251,10 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
               type="number"
               min="0"
               step="1"
-              {...register('bedrooms', { valueAsNumber: true, setValueAs: (v) => (v === '' || isNaN(v) ? null : Number(v)) })}
+              {...register('bedrooms', {
+                valueAsNumber: true,
+                setValueAs: (v) => (v === '' || isNaN(v) ? null : Number(v)),
+              })}
               className={inputClass}
             />
           </div>
@@ -190,7 +267,10 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
               type="number"
               min="0"
               step="0.5"
-              {...register('bathrooms', { valueAsNumber: true, setValueAs: (v) => (v === '' || isNaN(v) ? null : Number(v)) })}
+              {...register('bathrooms', {
+                valueAsNumber: true,
+                setValueAs: (v) => (v === '' || isNaN(v) ? null : Number(v)),
+              })}
               className={inputClass}
             />
           </div>
@@ -203,9 +283,43 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
               type="number"
               min="1"
               step="0.01"
-              {...register('area_sqm', { valueAsNumber: true, setValueAs: (v) => (v === '' || isNaN(v) ? null : Number(v)) })}
+              {...register('area_sqm', {
+                valueAsNumber: true,
+                setValueAs: (v) => (v === '' || isNaN(v) ? null : Number(v)),
+              })}
               className={inputClass}
             />
+          </div>
+        </Field>
+
+        {/* Amenities — 4-col grid on md+, 2-col on mobile. Toggling a
+            checkbox flips a Set entry; the Set is merged into the
+            submission payload via `amenities`. */}
+        <Field>
+          <p className={labelClass}>{t('amenitiesHeading')}</p>
+          <div className="mt-2 grid grid-cols-2 gap-2 md:grid-cols-4">
+            {AMENITY_KEYS.map((key) => {
+              const checked = amenities.has(key);
+              return (
+                <label
+                  key={key}
+                  className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition ${
+                    checked
+                      ? 'border-action bg-action/10 text-action dark:border-action-dark dark:bg-action-dark/15 dark:text-action-dark'
+                      : 'border-border bg-surface hover:bg-black/5 dark:bg-surface-deep dark:hover:bg-white/5'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => toggleAmenity(key)}
+                    className="sr-only"
+                  />
+                  <span aria-hidden="true">{checked ? '✓' : '+'}</span>
+                  <span>{t(`amenities.${key}` as 'amenities.parking')}</span>
+                </label>
+              );
+            })}
           </div>
         </Field>
       </Section>
@@ -260,14 +374,22 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
             <label htmlFor="country_code" className={labelClass}>
               {t('countryCode')} *
             </label>
-            <input
+            <select
               id="country_code"
-              type="text"
               required
-              maxLength={2}
               {...register('country_code')}
               className={inputClass}
-            />
+              defaultValue={initialValues?.country_code ?? ''}
+            >
+              <option value="" disabled>
+                {locale === 'es' ? 'Selecciona un país' : 'Select a country'}
+              </option>
+              {countryOptions.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.name} ({c.code})
+                </option>
+              ))}
+            </select>
             {errors.country_code && (
               <p className="mt-1 text-sm text-red-600">{t('errors.countryRequired')}</p>
             )}
@@ -360,14 +482,15 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
         </div>
       )}
 
-      <div className="flex items-center gap-3 border-t border-border pt-4">
+      <div className="flex flex-wrap items-center gap-3 border-t border-border pt-4">
         <button
           type="submit"
           disabled={busy}
-          className="inline-flex h-10 items-center rounded-lg bg-surface-dark px-4 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink disabled:opacity-50"
+          className="inline-flex h-10 items-center rounded-lg bg-surface-dark px-5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink disabled:opacity-50"
         >
-          {busy ? '…' : t('saved') /* "Saved." doubles as the in-progress label until we add a real "Saving..." key */}
+          {busy ? '…' : tDashboard('saveAsDraft')}
         </button>
+        <p className="text-xs text-helper">{t('publishAfterImages')}</p>
       </div>
     </form>
   );

@@ -4,6 +4,7 @@ import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { formatPrice } from '@/lib/listings/seo';
 import { PublishButton } from '@/components/listings/publish-button';
+import { ImageUploader } from '@/components/listings/image-uploader';
 
 export const runtime = 'edge';
 
@@ -82,12 +83,13 @@ export default async function EditListingPage({
         <Stat label={t('table.images')} value={String(listing.image_count)} />
       </dl>
 
-      <section className="rounded-card border border-dashed border-border-strong/60 p-6 text-sm text-helper">
-        Image upload UI lands once Cloudflare R2 is configured. The API
-        endpoints exist (<code>POST /api/properties/{listing.id}/images</code>{' '}
-        + confirm), and the data layer enforces the 30-image cap and
-        upload_status lifecycle.
-      </section>
+      <ImageUploader
+        propertyId={listing.id}
+        titleEn={listing.title_en}
+        titleEs={listing.title_es}
+        city={listing.city}
+        initialCount={listing.image_count}
+      />
     </main>
   );
 }
