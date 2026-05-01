@@ -7,6 +7,12 @@ import { ImageUploader } from '@/components/listings/image-uploader';
 import { MarkAsSoldButton } from '@/components/listings/mark-as-sold-button';
 import { ArchiveListingButton } from '@/components/listings/archive-listing-button';
 import { EditListingForm } from '@/components/listings/edit-listing-form';
+import {
+  getCurrentUserOrgPlan,
+  isOrgOnProAutomation,
+} from '@/lib/billing/plan-gating';
+import { LockedSocialModule } from '@/components/social/locked-social-module';
+import { UnlockedSocialPlaceholder } from '@/components/social/unlocked-social-placeholder';
 
 export const runtime = 'edge';
 
@@ -34,6 +40,15 @@ export default async function EditListingPage({
   if (error || !listing) notFound();
 
   const tStatus = await getTranslations({ locale, namespace: 'dashboard.status' });
+
+  // Plan-gating context for the social-automation module rendered
+  // below the listing form. Lower-tier orgs see the locked upsell;
+  // Pro Automation orgs see the unlocked placeholder (Phase 4 OAuth
+  // UI replaces this).
+  const planCtx = await getCurrentUserOrgPlan(supabase);
+  const proUnlocked = planCtx
+    ? await isOrgOnProAutomation(supabase, planCtx.orgId)
+    : false;
 
   const title =
     (typedLocale === 'es' ? listing.title_es : listing.title_en) ??
@@ -120,6 +135,18 @@ export default async function EditListingPage({
         city={listing.city}
         initialCount={listing.image_count}
       />
+
+      {/* Social Media Automation module — visible to all paid agents,
+          interactive only on Pro Automation. Lower tiers see the
+          locked upsell + "Upgrade to Pro Automation" CTA. The button
+          itself is rendered as part of the unlocked placeholder
+          (Phase 4 of social-distribution spec replaces the placeholder
+          with the real connect-accounts + post-modal UI). */}
+      {proUnlocked ? (
+        <UnlockedSocialPlaceholder locale={typedLocale} />
+      ) : (
+        <LockedSocialModule locale={typedLocale} size="compact" />
+      )}
     </main>
   );
 }

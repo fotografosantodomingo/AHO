@@ -29,12 +29,18 @@ import { createAdminClient } from '@/lib/supabase/admin';
 export const CheckoutPlan = z.enum(['monthly', 'annual']);
 export type CheckoutPlan = z.infer<typeof CheckoutPlan>;
 
+export const CheckoutTier = z.enum(['agent', 'plus', 'pro_automation']);
+export type CheckoutTier = z.infer<typeof CheckoutTier>;
+
 export const CheckoutLocale = z.enum(['en', 'es']);
 export type CheckoutLocale = z.infer<typeof CheckoutLocale>;
 
 export const CreateCheckoutSessionInput = z.object({
   userId: z.string().uuid(),
   userEmail: z.string().email(),
+  /** Tier: agent ($29) / plus ($49) / pro_automation ($99). */
+  tier: CheckoutTier,
+  /** Billing period: monthly or annual. */
   plan: CheckoutPlan,
   /** Org display name from the signup form (free text; slug is derived later). */
   orgName: z.string().min(2).max(120),
@@ -42,6 +48,26 @@ export const CreateCheckoutSessionInput = z.object({
   locale: CheckoutLocale,
 });
 export type CreateCheckoutSessionInput = z.infer<typeof CreateCheckoutSessionInput>;
+
+/** Resolves the Stripe price ID for a given tier + period combo from
+ *  the env vars seeded by `pnpm stripe:setup` and persisted to
+ *  Cloudflare Pages secrets. Throws if the env var is missing. */
+function resolvePriceId(tier: CheckoutTier, plan: CheckoutPlan): string {
+  const map: Record<string, string | undefined> = {
+    agent_monthly: process.env.STRIPE_AGENT_MONTHLY_PRICE_ID,
+    agent_annual: process.env.STRIPE_AGENT_ANNUAL_PRICE_ID,
+    plus_monthly: process.env.STRIPE_PLUS_MONTHLY_PRICE_ID,
+    plus_annual: process.env.STRIPE_PLUS_ANNUAL_PRICE_ID,
+    pro_automation_monthly: process.env.STRIPE_PRO_AUTOMATION_MONTHLY_PRICE_ID,
+    pro_automation_annual: process.env.STRIPE_PRO_AUTOMATION_ANNUAL_PRICE_ID,
+  };
+  const key = `${tier}_${plan}`;
+  const priceId = map[key];
+  if (!priceId) {
+    throw new Error(`Missing Stripe price env var for ${key}.`);
+  }
+  return priceId;
+}
 
 export interface CreateCheckoutSessionResult {
   sessionId: string;
@@ -54,20 +80,8 @@ export async function createAgentCheckoutSession(
   const stripe = getStripeClient();
   const pub = publicEnv();
 
-  // Pick the price ID from env. Plans are seeded in `public.plans` referencing
-  // these same IDs (see `scripts/seed-plans.ts` + `STRIPE_AGENT_*_PRICE_ID`
-  // env vars). Verify the env is populated before we attempt the API call —
-  // Stripe rejects bare-string price IDs that don't match a real price.
-  const priceId =
-    input.plan === 'monthly'
-      ? process.env.STRIPE_AGENT_MONTHLY_PRICE_ID
-      : process.env.STRIPE_AGENT_ANNUAL_PRICE_ID;
-
-  if (!priceId) {
-    throw new Error(
-      `Missing STRIPE_AGENT_${input.plan.toUpperCase()}_PRICE_ID env var.`,
-    );
-  }
+  // Pick the price ID from env via the tier+period map.
+  const priceId = resolvePriceId(input.tier, input.plan);
 
   // Look up an existing Stripe customer for the user (idempotent across
   // checkout retries). We look in our `subscriptions` table first; if the
@@ -93,12 +107,14 @@ export async function createAgentCheckoutSession(
     line_items: [{ price: priceId, quantity: 1 }],
     metadata: {
       aho_user_id: input.userId,
+      aho_tier: input.tier,
       aho_plan: input.plan,
       aho_org_name: input.orgName,
     },
     subscription_data: {
       metadata: {
         aho_user_id: input.userId,
+        aho_tier: input.tier,
         aho_plan: input.plan,
       },
     },

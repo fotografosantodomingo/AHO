@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import {
   CheckoutLocale,
   CheckoutPlan,
+  CheckoutTier,
   createAgentCheckoutSession,
 } from '@/lib/billing/checkout';
 import { z } from 'zod';
@@ -28,6 +29,9 @@ export const runtime = 'edge';
  */
 
 const RequestSchema = z.object({
+  /** Tier: agent / plus / pro_automation. Defaults to 'agent' for
+   *  backwards compatibility with the v1 form which only had Agent. */
+  tier: CheckoutTier.default('agent'),
   plan: CheckoutPlan,
   orgName: z.string().min(2).max(120),
   locale: CheckoutLocale,
@@ -58,6 +62,7 @@ export async function POST(req: NextRequest) {
     const result = await createAgentCheckoutSession({
       userId: user.id,
       userEmail: user.email,
+      tier: parsed.data.tier,
       plan: parsed.data.plan,
       orgName: parsed.data.orgName,
       locale: parsed.data.locale,

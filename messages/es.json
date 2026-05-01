@@ -34,6 +34,52 @@
     "eyebrow": "Precios",
     "heading": "Un plan. Hecho para agentes que trabajan.",
     "subheading": "Paga mensual o ahorra con el anual. Cancela cuando quieras desde el Portal de Cliente de Stripe.",
+    "periodToggleAria": "Periodo de facturación",
+    "period": {
+      "monthly": "Mensual",
+      "annual": "Anual"
+    },
+    "annualBadge": "ahorra ~17%",
+    "perMonth": "/ mes",
+    "perYear": "/ año",
+    "mostPopular": "Más popular",
+    "currentPlan": "Plan actual",
+    "subscribe": "Suscribirme",
+    "signInToSubscribe": "Inicia sesión para suscribirte",
+    "subscribeError": "No pudimos iniciar el pago. Inténtalo de nuevo.",
+    "orgNamePrompt": "¿Cuál es el nombre de tu organización o agente?",
+    "tier": {
+      "agent": {
+        "eyebrow": "Inicial",
+        "name": "Agente",
+        "tagline": "Publica anuncios y empieza a recibir contactos.",
+        "feat1": "Hasta 5 anuncios activos",
+        "feat2": "Texto manual para compartir en FB / IG / WhatsApp",
+        "feat3": "Captura de contactos por WhatsApp + email",
+        "feat4": "Bandeja de contactos con seguimiento de estado",
+        "feat5": "Estadísticas de rendimiento por anuncio"
+      },
+      "plus": {
+        "eyebrow": "Agencia en crecimiento",
+        "name": "Plus",
+        "tagline": "Más inventario + señales de confianza verificadas.",
+        "feat1": "Hasta 15 anuncios activos",
+        "feat2": "Distintivo de Agente Inmobiliario Verificado",
+        "feat3": "Posicionamiento prioritario en páginas de ciudad",
+        "feat4": "Anuncios en varias ciudades",
+        "feat5": "Todo lo del plan Agente"
+      },
+      "pro_automation": {
+        "eyebrow": "Plan superior",
+        "name": "Pro Automation",
+        "tagline": "Publica una vez y aparece en todas partes — automáticamente.",
+        "feat1": "Hasta 30 anuncios activos",
+        "feat2": "Publicación con un clic en Facebook + Instagram + LinkedIn",
+        "feat3": "Subtítulos generados con IA específicos para cada plataforma",
+        "feat4": "Historial de publicaciones + reintentos + seguimiento de tráfico",
+        "feat5": "Todo lo del plan Plus"
+      }
+    },
     "agentPlanName": "AHO Agente",
     "monthly": "Mensual",
     "annual": "Anual",
@@ -510,6 +556,7 @@
     "navAriaLabel": "Secciones del panel",
     "navListings": "Mis anuncios",
     "navAnalytics": "Estadísticas",
+    "navSocial": "Social",
     "navLeads": "Contactos",
     "navReviews": "Reseñas",
     "navSavedSearches": "Búsquedas guardadas",
@@ -865,6 +912,35 @@
     "saveButtonAuth": "Inicia sesión para guardar",
     "saveButtonError": "Error al guardar",
     "alertsBlocked": "Las alertas por correo empezarán cuando AHO termine de configurar su transporte de email."
+  },
+  "social": {
+    "pageHeading": "Automatización de Redes Sociales",
+    "pageSubheading": "Publica tus anuncios automáticamente en Facebook, Instagram y LinkedIn.",
+    "lockedEyebrow": "Solo Pro Automation",
+    "lockedHeading": "Automatización social de un clic",
+    "lockedBody": "Convierte cada anuncio en publicaciones listas para Facebook, Instagram y LinkedIn — con subtítulos generados por IA y enlaces que dirigen el tráfico de vuelta a tu anuncio en AHO.",
+    "platform": {
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn"
+    },
+    "features": {
+      "featAi": "Subtítulos generados por IA por plataforma",
+      "featImages": "Selección automática de imágenes por plataforma",
+      "featLinks": "Enlaces incorporados a tu anuncio AHO con seguimiento",
+      "featHistory": "Historial de publicaciones + reintento en errores"
+    },
+    "upgradeCta": "Actualizar a Pro Automation",
+    "upgradeNote": "$99/mes o $990/año",
+    "unlockedEyebrow": "Pro Automation — tu plan",
+    "unlockedHeading": "Automatización social, llegando pronto",
+    "unlockedBody": "Estás en Pro Automation. Estamos desplegando el flujo de conectar y publicar por fases — verás nuevas secciones aparecer aquí conforme cada fase se publique.",
+    "rollout": {
+      "rolloutOauth": "Conectar cuentas de Facebook / Instagram / LinkedIn (Fase 4)",
+      "rolloutPreview": "Previsualizar publicaciones generadas por IA antes de publicar (Fase 5)",
+      "rolloutPosting": "Publicación asíncrona con reintento + renovación de tokens (Fase 6)",
+      "rolloutHistory": "Historial de publicaciones con enlaces externos + estado (Fase 7)"
+    }
   },
   "analytics": {
     "heading": "Rendimiento",

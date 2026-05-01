@@ -32,8 +32,56 @@
   },
   "pricing": {
     "eyebrow": "Pricing",
-    "heading": "One plan. Built for working agents.",
-    "subheading": "Pay monthly or save with annual. Cancel anytime in the Stripe Customer Portal.",
+    "heading": "Plans built for working agents.",
+    "subheading": "Pay monthly or save with annual. Upgrade anytime through the Stripe Customer Portal.",
+    "periodToggleAria": "Billing period",
+    "period": {
+      "monthly": "Monthly",
+      "annual": "Annual"
+    },
+    "annualBadge": "save ~17%",
+    "perMonth": "/ month",
+    "perYear": "/ year",
+    "mostPopular": "Most popular",
+    "currentPlan": "Current plan",
+    "subscribe": "Subscribe",
+    "signInToSubscribe": "Sign in to subscribe",
+    "redirecting": "Redirecting to checkout…",
+    "subscribeError": "Couldn't start checkout. Please try again.",
+    "orgNamePrompt": "What's your organization or agent name?",
+    "tier": {
+      "agent": {
+        "eyebrow": "Entry",
+        "name": "Agent",
+        "tagline": "Get listings live and start collecting leads.",
+        "feat1": "Up to 5 active listings",
+        "feat2": "Manual share text for FB / IG / WhatsApp",
+        "feat3": "WhatsApp + email lead capture",
+        "feat4": "Lead inbox with status tracking",
+        "feat5": "Performance analytics per listing"
+      },
+      "plus": {
+        "eyebrow": "Growing agency",
+        "name": "Plus",
+        "tagline": "More inventory + verified-pro trust signals.",
+        "feat1": "Up to 15 active listings",
+        "feat2": "Verified Real Estate Agent badge",
+        "feat3": "Priority placement on city landings",
+        "feat4": "Multi-city listings",
+        "feat5": "Everything in Agent"
+      },
+      "pro_automation": {
+        "eyebrow": "Highest tier",
+        "name": "Pro Automation",
+        "tagline": "Post once, publish everywhere — automatically.",
+        "feat1": "Up to 30 active listings",
+        "feat2": "One-click posting to Facebook + Instagram + LinkedIn",
+        "feat3": "AI-generated platform-specific captions",
+        "feat4": "Post history + retry + traffic tracking",
+        "feat5": "Everything in Plus"
+      }
+    },
+    "manageBilling": "Manage billing",
     "agentPlanName": "AHO Agent",
     "monthly": "Monthly",
     "annual": "Annual",
@@ -510,6 +558,7 @@
     "navAriaLabel": "Dashboard sections",
     "navListings": "My Listings",
     "navAnalytics": "Analytics",
+    "navSocial": "Social",
     "navLeads": "Leads",
     "navReviews": "Reviews",
     "navSavedSearches": "Saved searches",
@@ -865,6 +914,35 @@
     "saveButtonAuth": "Sign in to save",
     "saveButtonError": "Save failed",
     "alertsBlocked": "Email alerts will start when AHO finishes wiring its email transport."
+  },
+  "social": {
+    "pageHeading": "Social Media Automation",
+    "pageSubheading": "Post your listings to Facebook, Instagram and LinkedIn automatically.",
+    "lockedEyebrow": "Pro Automation only",
+    "lockedHeading": "One-click social automation",
+    "lockedBody": "Turn every listing into platform-ready posts for Facebook, Instagram and LinkedIn — with AI-generated captions and links driving buyers back to your AHO listing.",
+    "platform": {
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn"
+    },
+    "features": {
+      "featAi": "AI-generated platform-specific captions",
+      "featImages": "Automatic image selection per platform",
+      "featLinks": "Built-in AHO listing links with traffic tracking",
+      "featHistory": "Post history + retry on failure"
+    },
+    "upgradeCta": "Upgrade to Pro Automation",
+    "upgradeNote": "$99/month or $990/year",
+    "unlockedEyebrow": "Pro Automation — your plan",
+    "unlockedHeading": "Social automation, coming online soon",
+    "unlockedBody": "You're on Pro Automation. We're rolling out the connect-and-publish flow in stages — you'll see new sections appear here as each phase ships.",
+    "rollout": {
+      "rolloutOauth": "Connect Facebook / Instagram / LinkedIn accounts (Phase 4)",
+      "rolloutPreview": "Preview AI-generated posts before publishing (Phase 5)",
+      "rolloutPosting": "Async posting with retry + token refresh (Phase 6)",
+      "rolloutHistory": "Post history with external links + status (Phase 7)"
+    }
   },
   "analytics": {
     "heading": "Performance",

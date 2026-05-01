@@ -12,6 +12,62 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — Path 1 batch 1: 3-tier pricing (Agent / Plus / Pro Automation) with social automation gated to $99
+
+Per the Phase-5 social-distribution spec analysis (`docs/social media shering on 99$ plan.rtf`) the PO chose Path 1: keep the existing 3-tier shape, no migration of existing customers, and gate social-media automation to a new $99 "Pro Automation" tier that ships now alongside a $49 "Plus" middle tier. Existing $29 "Agent" plan is unchanged. Locked UI on $29/$49 explains why the upgrade exists.
+
+**1. Stripe products + prices.** Extended `scripts/setup-stripe-products.ts` to create three products (`aho_agent`, `aho_plus`, `aho_pro_automation`) and seven prices total. New price IDs (test mode):
+  - `plus_monthly` → `price_1TSNkrBsPTDRb0ccAwJpVOrO`
+  - `plus_annual` → `price_1TSNksBsPTDRb0ccq6HN5cCe`
+  - `pro_automation_monthly` → `price_1TSNksBsPTDRb0ccOQ0ESoow`
+  - `pro_automation_annual` → `price_1TSNktBsPTDRb0ccuEaie3u9`
+  Live-key guardrail in the script preserved. Per CLAUDE.md hard rule #9, live promotion still requires an explicit DECISIONS.md entry — these are TEST-mode only.
+
+**2. Plans table seeded.** `scripts/seed-plans.ts` now upserts seven plan rows: 3 Agent (existing) + 2 Plus + 2 Pro Automation. All seven keep `tier='agent'` (CHECK constraint accepts `premium|agent|agency|expert`); the *sub*-tier is encoded in the `id` and recovered via `planTierLabel()`. listing_caps: Agent 5, Plus 15, Pro Automation 30. Seed succeeded against TEST DB.
+
+**3. Plan-gating helper.** `src/lib/billing/plan-gating.ts`:
+  - `getOrgPlanId(supabase, orgId)` / `getCurrentUserOrgPlan(supabase)` resolve `org.current_plan_id` (set by the migration-0007 trigger).
+  - `isOrgOnProAutomation(orgId)` returns true only if planId is `aho_pro_automation_monthly | aho_pro_automation_annual`.
+  - `requireProAutomation(orgId)` is the server-action variant that returns boolean for 403 branches.
+  - `planTierLabel(planId)` maps the seven plan ids back to one of `agent | plus | pro_automation | none` for UI badges.
+
+**4. Backend route shells (Phase 1).** Three routes that all return 403 for non-Pro-Automation orgs and 501 `not_implemented` otherwise — placeholder for Phases 4-7 (OAuth, preview, posting, history). Same `ALLOWED_PLATFORMS = ['facebook', 'instagram', 'linkedin']` validation across all three.
+  - `POST /api/social/connect/[platform]/start`
+  - `POST /api/social/connect/[platform]/disconnect`
+  - `POST /api/social/post`
+
+**5. Locked-state UI.** `src/components/social/locked-social-module.tsx` — Server Component with `size='compact'|'full'` variants. Brass lock icon + 3 disabled platform pills + (full only) feature list + "Upgrade to Pro Automation" CTA pointing to /pricing. `unlocked-social-placeholder.tsx` for Pro Automation users — "you have it, rolling out soon" with Phase 4-7 preview rail.
+
+**6. Dashboard pages + nav.**
+  - `/dashboard/social` (en) / `/panel/social` (es) — branches between locked + unlocked variants based on `isOrgOnProAutomation`.
+  - Sidebar/dropdown adds "Social" item below "Analytics".
+  - Property detail dashboard page shows the compact locked module (or unlocked placeholder) below the image uploader so $29/$49 agents see the upgrade CTA in the natural flow.
+
+**7. /pricing rebuild.** Replaced single-card `<PricingForm>` with `<PricingTiers>` Client Component:
+  - Shared monthly/annual toggle.
+  - 3 cards: Agent ($29/$290), Plus ($49/$490), Pro Automation ($99/$990 — emphasized with `border-2 border-action`).
+  - "Most popular" badge on Pro Automation.
+  - "Current plan" pill on the matching tier when signed in; CTA flips to "Manage billing" linking to the Customer Portal.
+  - Subscribe button → `window.prompt()` for org name → POST `/api/billing/checkout-session` → Stripe Checkout.
+
+**8. Checkout extended.** `CheckoutTier = z.enum(['agent','plus','pro_automation'])`. `resolvePriceId(tier, plan)` maps tier+period → env var name (reads `process.env.STRIPE_{TIER}_{PERIOD}_PRICE_ID` directly; throws clearly when missing). Session metadata gains `aho_tier` + `aho_plan` (informational). The `checkout.session.completed` handler already resolves the internal plan id from `stripe_price_id` via a `plans` table lookup — since `seed-plans.ts` upserts the new Plus + Pro Automation rows with their correct `stripe_price_id`, the handler picks up the new tiers without code changes. `aho_tier` metadata is redundant on the happy path but useful for debugging.
+
+**9. i18n.** Mirrored the entire `pricing.tier.{agent,plus,pro_automation}` sub-namespace and the new period-toggle / CTA strings (`mostPopular`, `currentPlan`, `subscribe`, `signInToSubscribe`, `redirecting`, `subscribeError`, `orgNamePrompt`, `perMonth`, `perYear`, `annualBadge`) into both en.json and es.json. New `social.*` namespace covers locked + unlocked module copy + Phase 4-7 rollout strings.
+
+**10. Verification.** typecheck clean · lint only pre-existing `_req` unused-var warnings · 91/91 unit tests pass.
+
+**Phases 4-7 deferred.** OAuth + preview modal + posting engine + post history are still gated on Meta/LinkedIn app review + Workers Paid plan. The current shells deliberately 501 so a Pro Automation customer signing up today gets a clean "rolling out soon" UX rather than a feature stub that misbehaves.
+
+**Cumulative state:** Path 1 batch 1 complete — Pro Automation tier is purchasable in TEST mode end-to-end (Stripe Checkout → webhook materializes org with `current_plan_id = aho_pro_automation_*` → dashboard /social page flips to unlocked variant). Existing Agent customers are completely unaffected.
+
+**Blockers / open questions:**
+  - **PO actions still pending:** soft-beta agents (3-5 real Santo Domingo agents) for first real listings; Resend DKIM/SPF/DMARC; R2 paid-tier opt-in (already provisioned per env), www→apex Cloudflare redirect (manual per the Page Rules-vs-Rulesets blocker logged 2026-05-01).
+  - **Phases 4-7 of social-distribution:** gated on Meta + LinkedIn app review (week-1 submission per `DECISIONS.md` "v1 scope") + Cloudflare Workers Paid plan ($5/mo) for the posting queue.
+
+**Next session should start with:** Either (a) Phase 4 — Meta/LinkedIn OAuth start route + callback route + `social_connections` table migration once the app reviews are approved, or (b) Phase 6 of the broader 6-branch roadmap (per the post-DP-2 plan: feat/seo-og-images, feat/marker-clustering, feat/neighborhood-overlays — pick the next one). Do **not** start Phase 4 until app reviews are approved; the route shells return 501 by design, and shipping a half-wired OAuth surface against unapproved apps would just generate review-rejection traffic.
+
+---
+
 ## 2026-05-01 — feat/property-analytics sub-batch B: dashboard widgets + client trackers
 
 Closes Phase 3 of the post-DP-2 6-branch roadmap. The data flow that started in sub-batch A (`property_view`, `lead_form_submit`, `favorite_add` server-side) now reaches the agent via a real performance dashboard, AND three more event types fire from the client (`image_gallery_open`, `whatsapp_click`, `phone_click`).

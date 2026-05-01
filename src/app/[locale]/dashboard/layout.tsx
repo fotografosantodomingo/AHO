@@ -55,6 +55,7 @@ export default async function DashboardLayout({
   const t = await getTranslations({ locale, namespace: 'dashboard' });
   const propertiesPath = `/${locale}/${locale === 'es' ? 'panel/propiedades' : 'dashboard/properties'}`;
   const analyticsPath = `/${locale}/${locale === 'es' ? 'panel/estadisticas' : 'dashboard/analytics'}`;
+  const socialPath = `/${locale}/${locale === 'es' ? 'panel/social' : 'dashboard/social'}`;
   const leadsPath = `/${locale}/${locale === 'es' ? 'panel/contactos' : 'dashboard/leads'}`;
   const reviewsPath = `/${locale}/${locale === 'es' ? 'panel/resenas' : 'dashboard/reviews'}`;
   const savedSearchesPath = `/${locale}/${
@@ -68,6 +69,7 @@ export default async function DashboardLayout({
   const navItems = [
     { href: propertiesPath, label: t('navListings') },
     { href: analyticsPath, label: t('navAnalytics') },
+    { href: socialPath, label: t('navSocial') },
     { href: leadsPath, label: t('navLeads') },
     { href: reviewsPath, label: t('navReviews') },
     { href: savedSearchesPath, label: t('navSavedSearches') },
@@ -103,6 +105,12 @@ export default async function DashboardLayout({
             className="rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5"
           >
             {t('navAnalytics')}
+          </a>
+          <a
+            href={socialPath}
+            className="rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5"
+          >
+            {t('navSocial')}
           </a>
           <a
             href={leadsPath}
