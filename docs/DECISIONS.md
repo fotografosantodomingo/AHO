@@ -12,6 +12,42 @@ One entry per significant choice. Newest on top. Format:
 
 ---
 
+## 2026-05-01 — Visual direction pivot: HashiCorp → Starbucks-inspired ("Inspired by", not 1:1)
+**Decision:** Reverse the 2026-04-29 "AHO uses HashiCorp visual language" decision. AHO's new visual direction is a **Starbucks-inspired** warm/premium aesthetic — cream-warm canvas, forest-green primary, pill CTAs, 12px card radius, tight letter-spacing — but **NOT a 1:1 Starbucks clone**. Specifically:
+  - Distinct token values from Starbucks's published palette (e.g. our forest green is `#1d5a3c`, not Starbucks `#006241`; our cream surface is `#f4ede1`, not Starbucks `#f2f0eb`).
+  - Inter throughout (no SoDoSans-mimic; no Kalam/Lander Tall).
+  - No "Frap"-style floating circular CTA, no gold-status-only color, no gift-card photographed-product motif.
+  - AHO's brand identity stays at the top — the visual mood is borrowed, not the trade dress.
+
+Implemented as four reviewable batches:
+  - **DP-2a** — globals.css token rewrite (surfaces/text/borders/brand/radius/shadow/typography).
+  - **DP-2b** — site-header + mega-menu + theme/locale toggles, mobile-first ≥44×44 touch targets.
+  - **DP-2c** — footer (4-col → mobile accordions, newsletter, quick-contact, language mirror).
+  - **DP-2d** — email templates (tabular HTML, green-accent header, minimalist footer).
+
+Each batch ships independently behind a smoke-test on Cloudflare Pages so direction errors get caught early instead of unwinding four batches.
+
+**Why:** Per PO directive 2026-05-01, the brand voice we want is "warm, premium, approachable" — coffeehouse rather than enterprise-tooling. HashiCorp's voice is enterprise-developer-confident; cool slate, blue accent, sharp 8px corners. That's right for a developer tool launch and wrong for a consumer real-estate marketplace addressing buyers + agents in markets where trust and warmth are the conversion drivers (DR + LATAM in particular).
+
+**Alternatives considered:**
+  - Stay HashiCorp — rejected; PO judgment that the cool/enterprise voice doesn't match the consumer audience. The DP/DP-1 polish work landed cleanly but the underlying voice was the issue, not the execution.
+  - Literal Starbucks 1:1 clone — rejected; trade-dress/trademark risk in an unrelated commercial domain. Starbucks aggressively defends visual identity.
+  - Bespoke "AHO original" with no reference brand — rejected as too abstract for a single design pass; "Starbucks-inspired with our own greens + type" is concrete enough to converge.
+
+**Reconsider if:**
+  - User research / conversion data shows the warm-premium tone underperforms the enterprise-cool tone with our actual audience.
+  - Trade-dress complaints surface (then we move further toward "AHO-original" by shifting greens further from forest into a teal or olive variant).
+  - We add a tier or surface (e.g. an enterprise-broker product) that needs a different voice. At that point, surface-level visual variants can branch off the same token base.
+
+**Build implications:**
+  - The `@theme` block in `src/app/globals.css` is the single source of truth for tokens. Every component should reach for `bg-surface`, `text-ink`, `text-action`, `rounded-card`, `shadow-whisper`, `btn-primary` etc. — never raw zinc/gray utilities — so DP-2a's token swap propagates without per-component edits.
+  - Token names stay (e.g. `--color-action` is still the primary-link/CTA color, even though its value is now green instead of blue). This avoids a sweeping rename across the codebase.
+  - `docs/DESIGN_REFERENCE.md` (current canonical HashiCorp spec) is superseded by DP-2's commits + this DECISIONS entry. Will rename to `DESIGN_REFERENCE_HASHICORP_HISTORICAL.md` when DP-2d lands and write a new `DESIGN_REFERENCE.md` reflecting the inspired-by direction.
+  - `npx getdesign@latest add starbucks` was rejected. Hand-roll only — keeps everything in-band with the existing Tailwind v4 `@theme` token architecture.
+  - Plus tier (A4b-3) + A4c paused until DP-2d ships, so PO can evaluate the new pricing surface before the 2-tier UI redesign.
+
+---
+
 ## 2026-05-01 — GDPR account deletion: hard-delete auth.users, soft via FK SET NULL elsewhere
 **Decision:** Self-service account deletion (Batch A4b) hard-deletes the user's `auth.users` row via `supabase.auth.admin.deleteUser(userId)`. The downstream effect is governed by FK clauses, set as follows by migration `0023_account_deletion_fk_cascade.sql`:
   - **CASCADE delete** rows that are scoped to the user and have no value to the platform after the user is gone: `profiles` (via `auth.users.id`), `organization_members`, `saved_searches`, `reviews.agent_id` (reviews ABOUT the deleted user).

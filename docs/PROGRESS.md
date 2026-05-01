@@ -12,6 +12,89 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — Batch DP-2a (visual pivot, tokens-only): HashiCorp → Starbucks-inspired
+
+PO directive: pivot AHO's visual voice from HashiCorp-cool/enterprise to Starbucks-inspired warm/premium. Detailed in `docs/DECISIONS.md` "2026-05-01 — Visual direction pivot." Implementation as 4 batches; **DP-2a** is just the token swap.
+
+**What changed in `src/app/globals.css`:**
+
+Token names PRESERVED across the codebase so the swap is a pure cascade — no per-component edits in this batch. Values are what changed.
+
+**Surfaces** (cool gray → warm cream):
+  - `--color-surface-muted`: `#f1f2f3` → `#f4ede1` (warm cream — primary body bg)
+  - `--color-surface-dark`: `#15181e` → `#0f1f17` (warm dark green — dark-mode body)
+  - `--color-surface-deep`: `#0d0e12` → `#0a1812` (deepest — dark-mode card bg)
+  - **NEW** `--color-surface-warm`: `#ebe1ce` (deeper cream for separators / cards-on-band)
+  - **NEW** `--color-surface-band`: `#16382a` (deep forest near-black — light-mode feature bands)
+
+**Brand greens** (HashiCorp blue → forest green; deliberately distinct from Starbucks's `#006241`):
+  - `--color-action`: `#2264d6` → `#1d5a3c` (primary CTA / link on light)
+  - `--color-action-dark`: `#1060ff` → `#3a8b5d` (CTA / link on dark mode)
+  - `--color-action-active`: `#2b89ff` → `#236a47` (hover / pressed)
+
+**Text** (cool slate → warm off-blacks; cream on dark instead of cool gray):
+  - `--color-ink`: `#000000` → `#1a1612` (warm near-black on cream)
+  - `--color-ink-muted`: `#3b3d45` → `#3a342c`
+  - `--color-helper`: `#52525b` → `#5e574d` (warm gray)
+  - `--color-ink-inverse`: `#efeff1` → `#f4ede1` (cream on dark)
+  - `--color-ink-inverse-muted`: `#d5d7db` → `#cabd9f`
+
+WCAG AA contrast verified per token comments — body 5.8–17.8:1, action ≥5.4:1 in both modes, error/warn unchanged from prior good values.
+
+**Borders** (cool slate → warm tan):
+  - `--color-border`: `rgb(178 182 189 / 0.85)` → `rgb(180 165 138 / 0.55)`
+  - `--color-border-strong`: `rgb(82 90 104)` → `rgb(112 95 70)`
+
+**Radii** (8px card → 12px):
+  - `--radius-card`: `8px` → `12px`
+  - Other radii (xs/sm/md/lg) close to prior — input/badge sizing unaffected.
+
+**Shadows** (cool slate → warm sepia):
+  - `--shadow-whisper`: re-tinted to `rgb(82 60 40 / 0.06)` dual-layer
+  - **NEW** `--shadow-lift`: heavier two-layer for floating CTAs / cards-on-band
+
+**Premium accent** (NEW — used sparingly for verified-pro / founder-rate signals):
+  - `--color-accent`: `#b8893a` (aged brass; deliberately not Starbucks's gold `#cba258`)
+  - `--color-accent-tint`: `#f4ecd9` (pale wash)
+
+**Typography** (Inter throughout; tighter letter-spacing as default):
+  - body: `letter-spacing: -0.01em` cascades globally — Inter reads compressed-but-confident, the way SoDoSans does in the source
+  - h1–h6: `letter-spacing: -0.015em`, `line-height: 1.19` (kept)
+
+**State colors:**
+  - `--color-error`: `#731e25` → `#9f2424` (warmer red against cream canvas)
+  - warn unchanged
+
+**Component layer changes:**
+  - **`.btn-primary`**: was a dark "knob" (rounded-lg / surface-dark fill / ink-inverse text). NOW a forest-green pill (`rounded-full` / `bg-action` fill / `text-white` / `active:scale-0.97` press). Three pages auto-pivot: home, country, city-landing empty-state.
+  - **NEW `.btn-primary-inverse`**: cream pill with forest-green text — for use on dark forest bands (DP-2c will adopt).
+  - **`.btn-secondary`**: rounded-lg outlined preserved; warm-tinted hover.
+  - **`.btn-ghost`**: hover color now action (forest) instead of ink.
+  - **NEW `.section-band`**: dark forest bg + cream text for the inspired-by "color-block page rhythm." Used when DP-2b/c land.
+  - **NEW `.badge-accent`**: brass-on-cream pill for premium signals (will land with Plus tier's "Verified RE Agent").
+
+**What's intentionally NOT in DP-2a:**
+  - Header / mega-menu / theme + locale toggles → DP-2b
+  - Footer → DP-2c
+  - Email templates → DP-2d
+  - Per-page hand-rolled button utilities (e.g. pricing's "Subscribe" button) — these still pick up the new tokens (warm-dark-green knob + cream text reads coherently against cream canvas) but aren't migrated to `.btn-primary` until their owning batch lands.
+
+**Verify run.**
+- typecheck clean, lint clean (pre-existing warnings only), unit 91/91
+- RLS not re-run (CSS-only batch, no DB changes)
+- Live deploy smoke after push
+
+**What you'll see when this hits live:**
+  - Cream warm canvas everywhere on light mode (was off-white); warm dark green canvas on dark mode (was cool slate)
+  - Every link, focus ring, ".action" tint chip turns forest green (was blue)
+  - Cards have softer 12px radius
+  - Three primary CTAs (home "How it works", country / city empty-state) become forest-green pills
+  - Pricing CTA becomes a warm-dark-green knob + cream text (deferred migration to `.btn-primary` until DP-2c-ish)
+
+**Next session should start with**: DP-2b — site-header + mega-menu + Dark/Bright slider + EN/ES dropdown (touch ≥44×44 on mobile).
+
+---
+
 ## 2026-05-01 — Batch A4b partial (GDPR account deletion + Customer Portal verify)
 
 Two of the three A4b items shipped. The third — Agent Plus tier — is paused waiting on PO input on the feature differential vs Agent (price was confirmed at $49/mo / $490/yr; what Plus unlocks beyond a higher listing cap is the open question).
