@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { recordPropertyEvent } from '@/lib/listings/events';
 
 export const runtime = 'edge';
 
@@ -49,9 +51,10 @@ export async function POST(
   // Verify the property is publicly visible. RLS on `properties` already
   // gates non-published rows from anon/non-member users; this lookup
   // both confirms existence + filters out drafts as a belt-and-braces step.
+  // Also pulls org_id for the analytics event below.
   const { data: prop, error: propErr } = await supabase
     .from('properties')
-    .select('id, status, published_at')
+    .select('id, status, published_at, org_id')
     .eq('id', propertyId)
     .maybeSingle();
   if (propErr) {
@@ -98,6 +101,22 @@ export async function POST(
     }
     console.error('[favorite] insert', insErr);
     return NextResponse.json({ ok: false, errorCode: 'insert_failed' }, { status: 500 });
+  }
+
+  // Analytics fan-out: favorite_add event. Best-effort; logged on
+  // failure. Anonymous_id stays null here — the favorite path is
+  // auth-only, so we have a real user_id.
+  try {
+    await recordPropertyEvent({
+      supabase: createAdminClient(),
+      propertyId,
+      orgId: prop.org_id as string,
+      eventType: 'favorite_add',
+      userId,
+      anonymousId: null,
+    });
+  } catch (e) {
+    console.warn('[favorite] event record failed', e);
   }
 
   return NextResponse.json({ ok: true, favorited: true });

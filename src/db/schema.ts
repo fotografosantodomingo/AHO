@@ -563,6 +563,46 @@ export type PropertyRecentView = typeof propertyRecentViews.$inferSelect;
 export type NewPropertyRecentView = typeof propertyRecentViews.$inferInsert;
 
 // ----------------------------------------------------------------
+// property_events (migration 0027) — append-only engagement event
+// log. Powers agent dashboard analytics + promoted-listings ROI.
+// Server-mediated writes only (no INSERT policy); SELECT gated to
+// own-org members + admins.
+// ----------------------------------------------------------------
+
+export const PROPERTY_EVENT_TYPES = [
+  'property_view',
+  'image_gallery_open',
+  'whatsapp_click',
+  'phone_click',
+  'email_click',
+  'lead_form_submit',
+  'favorite_add',
+  'share_click',
+] as const;
+export type PropertyEventType = (typeof PROPERTY_EVENT_TYPES)[number];
+
+export const propertyEvents = pgTable('property_events', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  propertyId: uuid('property_id')
+    .notNull()
+    .references(() => properties.id, { onDelete: 'cascade' }),
+  orgId: uuid('org_id')
+    .notNull()
+    .references(() => organizations.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').references(() => profiles.id, { onDelete: 'set null' }),
+  anonymousId: uuid('anonymous_id'),
+  eventType: text('event_type').notNull(),
+  source: text('source'),
+  metadata: jsonb('metadata').notNull().default(sql`'{}'::jsonb`),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export type PropertyEvent = typeof propertyEvents.$inferSelect;
+export type NewPropertyEvent = typeof propertyEvents.$inferInsert;
+
+// ----------------------------------------------------------------
 // audit_log (migration 0013) — append-only ledger of significant
 // state-changing actions. Admin reads everything; users read their
 // own rows (by actor_id). No UPDATE/DELETE policies — append-only.

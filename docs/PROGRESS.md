@@ -12,6 +12,67 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — feat/property-analytics sub-batch A: events table + server-side fan-out
+
+Phase 3 of the post-DP-2 6-branch roadmap. Lays the data foundation for agent dashboard performance widgets, promoted-listings ROI, and "X people viewed this" surfaces. UI dashboard widgets land in **sub-batch B** (next session).
+
+**Schema (migration 0027 applied):** `property_events` — append-only engagement event log.
+
+  - Columns: `id`, `property_id` (FK cascade), `org_id` (denormalized FK cascade), `user_id` (FK set null), `anonymous_id`, `event_type`, `source`, `metadata jsonb`, `created_at`.
+  - **Event types** (CHECK constraint, 8 values): `property_view`, `image_gallery_open`, `whatsapp_click`, `phone_click`, `email_click`, `lead_form_submit`, `favorite_add`, `share_click`. Adding new types in later phases is an additive migration.
+  - **Why org_id denormalized:** dashboard aggregations run per-org. Putting org_id directly on the event row keeps the RLS expression simple and lets queries hit `(org_id, created_at)` / `(org_id, event_type, created_at)` indexes without joining through `properties`.
+  - **Append-only by design:** no INSERT/UPDATE/DELETE policies. Writes go through service-role-only API routes. RLS SELECT lets org members read events for their own org's properties (queries `organization_members` to resolve membership) + admin reads all.
+  - **Cascades:** property delete → events cascade. Org delete → events cascade. User delete → user_id SET NULL (anonymized; aggregate signal preserved).
+  - **Indexes:** `(property_id, created_at)`, `(org_id, created_at)`, `(org_id, event_type, created_at)`, `(property_id, event_type, created_at)`, partial uniques on `user_id`/`anonymous_id` for per-visitor recall.
+
+**Identity model.** Same as feat/recently-viewed (migration 0025): `user_id` from session when authed, `anonymous_id` from the existing `aho_anon_id` HTTP-only cookie when not. Both can be null for edge cases (e.g. lead_form_submit from a brand-new anon visitor whose cookie hasn't been issued yet).
+
+**Helper: `recordPropertyEvent({...})`** — `src/lib/listings/events.ts`. Single insert into `property_events` via the service-role admin client. Best-effort: errors logged, never thrown — analytics tracking failures must not break the user-facing flow. Caller passes pre-resolved `org_id` (cheap; the calling routes already look up the property).
+
+**Server-side wire-ins (3 routes, no client involvement):**
+
+  - **`POST /api/properties/[id]/view`** — already records "Recently viewed" via `recordPropertyView`. Now also fans into `property_events` with `event_type='property_view'`. New helper `deriveSourceTag(path)` maps the `sourcePath` (e.g. `/en/search?city=…`) to a coarse tag (`search` / `home` / `city` / `agent` / `countries` / `saved` / null) for "which surface drives the most views" cuts. Full path lives in metadata.
+  - **`POST /api/leads`** — after the lead row inserts, fans `lead_form_submit` event with metadata `{ has_message, has_phone, language }`. Identity resolved via the existing user-context client + `aho_anon_id` cookie.
+  - **`POST /api/properties/[id]/favorite`** — on a fresh insert (not the toggle-off path), fans `favorite_add` event. Auth-only path so no anonymous_id ever.
+
+**Generic client-side endpoint: `POST /api/properties/[id]/event`** — for events that fire from the browser:
+  - **Allowed event types:** `image_gallery_open`, `whatsapp_click`, `phone_click`, `email_click`, `share_click` (the future Phase 5 surface).
+  - **Disallowed (redirect to dedicated routes):** `property_view`, `lead_form_submit`, `favorite_add` — these have privileged server-side write paths that already fan into events. Returns `400 event_type_not_client_allowed` if a client tries to fire them directly (a lint-style guard against double-counting bugs).
+  - Body: `{ eventType, source?, metadata? }`. Verifies the property is active+published before recording. Identity resolved server-side.
+  - **Sub-batch B will wire** `<PropertyGallery>` → `image_gallery_open`, `<ContactSection>` → `whatsapp_click` / `phone_click` / `email_click` via this endpoint.
+
+**RLS tests** (`tests/rls/property-events.test.ts`): 9 cases.
+  - SELECT: anon denied / org owner reads own / org agent reads own / cross-org isolation / non-org-member denied / admin sees all
+  - INSERT: anon denied / org owner denied (server-mediated only)
+  - DELETE: org owner denied (append-only by RLS, not just by convention)
+
+  Total RLS suite: **155/155** target (146 before + 9 new). Sporadic auth-rate-limit re-runs may report transient flake but individual tests + the events suite all pass cleanly.
+
+**Verify run.**
+  - typecheck clean, lint clean (pre-existing 2 warnings only)
+  - unit 91/91
+  - property-events RLS 9/9 in isolation
+  - migration 0027 applied to live Supabase
+
+**What's intentionally NOT in sub-batch A:**
+  - `<PropertyGallery>`, contact-section, share-button client-side trackers — sub-batch B
+  - `/dashboard/analytics` page with widgets (views 7d/30d, leads 7d/30d, conversion %, top listings) — sub-batch B
+  - "X people viewed this" surface on the public detail page — sub-batch B or later
+  - Per-visitor "your activity" surface — out of scope for this branch
+
+**Data flow once deployed:**
+  1. Visitor lands on `/properties/[slug]`.
+  2. `<TrackPropertyView>` fires `POST /view` → records recent-view + `property_view` event.
+  3. Visitor opens image gallery (after sub-batch B) → `image_gallery_open` event.
+  4. Visitor clicks WhatsApp/phone/email → respective click event.
+  5. Visitor submits lead form → `/api/leads` records the lead AND fans `lead_form_submit` event.
+  6. Authed user clicks heart → `/favorite` toggles + fans `favorite_add` event.
+  7. Agent loads `/dashboard/analytics` (sub-batch B) → reads aggregates over their org's events.
+
+**Next session should start with**: sub-batch B — wire the client-side trackers (gallery / contact-button clicks) + build `/dashboard/analytics` page.
+
+---
+
 ## 2026-05-01 — BREVO_API_KEY bug fix: every transactional email had been silently 401'ing
 
 Caught while smoke-testing the newsletter form post-`BREVO_NEWSLETTER_LIST_ID=2` deploy. Newsletter `/api/newsletter` was returning Cloudflare-level 502 even after the env was wired. Direct probe of Brevo's REST API revealed the actual fault.

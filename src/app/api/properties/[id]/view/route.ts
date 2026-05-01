@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { recordPropertyView, ANON_COOKIE_NAME } from '@/lib/listings/recent-views';
+import { recordPropertyEvent } from '@/lib/listings/events';
 import type { Locale } from '@/i18n/config';
 
 export const runtime = 'edge';
@@ -35,6 +36,30 @@ const BodySchema = z.object({
   locale: z.enum(['en', 'es']),
   sourcePath: z.string().max(500).optional(),
 });
+
+/**
+ * Coarse-grained source classification from the referrer path. Maps a
+ * URL like `/en/search?city=...` to the tag `'search'`. Used as the
+ * short `source` column on property_events so dashboards can cut "which
+ * surface drives the most views" without parsing full paths.
+ *
+ * Returns null when the path doesn't match any known surface (direct
+ * visit, deep link, etc.). The full path is still stored in metadata.
+ */
+function deriveSourceTag(path: string | null): string | null {
+  if (!path) return null;
+  // Strip locale prefix.
+  const m = path.match(/^\/(en|es)(\/.*)?$/);
+  const rest = m ? (m[2] ?? '/') : path;
+  if (rest.startsWith('/search') || rest.startsWith('/buscar')) return 'search';
+  if (rest.startsWith('/properties-in') || rest.startsWith('/inmuebles-en')) return 'city';
+  if (rest.startsWith('/agents/') || rest.startsWith('/agentes/')) return 'agent';
+  if (rest.startsWith('/countries') || rest.startsWith('/paises')) return 'countries';
+  if (rest.startsWith('/saved-properties') || rest.startsWith('/inmuebles-guardados'))
+    return 'saved';
+  if (rest === '/' || rest === '') return 'home';
+  return null;
+}
 
 export async function POST(
   req: NextRequest,
@@ -75,10 +100,12 @@ export async function POST(
   }
 
   // Verify the property is publicly visible. Quick existence + status
-  // check; doesn't block the response on lookup failure.
+  // check; doesn't block the response on lookup failure. Also pulls
+  // org_id so we can denormalize it onto the property_events row
+  // (saves a re-lookup in recordPropertyEvent).
   const { data: prop, error: propErr } = await userClient
     .from('properties')
-    .select('id, status, published_at')
+    .select('id, status, published_at, org_id')
     .eq('id', propertyId)
     .maybeSingle();
   if (propErr) {
@@ -103,6 +130,9 @@ export async function POST(
 
   // Record the view. Admin client so anon writes work (no RLS INSERT
   // policy by design — server is the trust boundary).
+  // Two writes happen: (a) the per-visitor recent-view UPSERT for the
+  // "Recently viewed" rail, (b) the append-only analytics event for
+  // the agent dashboard. Both best-effort; failures logged not thrown.
   const admin = createAdminClient();
   await recordPropertyView({
     supabase: admin,
@@ -111,6 +141,16 @@ export async function POST(
     anonymousId,
     locale: locale as Locale,
     sourcePath: sourcePath ?? null,
+  });
+  await recordPropertyEvent({
+    supabase: admin,
+    propertyId,
+    orgId: prop.org_id as string,
+    eventType: 'property_view',
+    userId,
+    anonymousId,
+    source: deriveSourceTag(sourcePath ?? null),
+    metadata: sourcePath ? { source_path: sourcePath } : {},
   });
 
   const res = NextResponse.json({ ok: true, tracked: true });

@@ -5,6 +5,9 @@ import { sendEmail } from '@/lib/email/brevo';
 import { renderLeadNotificationEmail } from '@/lib/email/templates/lead-notification';
 import { formatPrice } from '@/lib/listings/seo';
 import { publicEnv } from '@/lib/env';
+import { recordPropertyEvent } from '@/lib/listings/events';
+import { ANON_COOKIE_NAME } from '@/lib/listings/recent-views';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 export const runtime = 'edge';
 
@@ -74,6 +77,33 @@ export async function POST(req: NextRequest) {
       { error: 'insert_failed', details: insertErr.message },
       { status: 500 },
     );
+  }
+
+  // Analytics event — `lead_form_submit`. Fan into property_events so
+  // the agent dashboard's "leads in last 7 days" widget has data.
+  // Identity-resolution: signed-in user_id from session, anon_id from
+  // cookie if set. Both can be null for fresh-cookie-less anon submits.
+  try {
+    const userClient = await createServerSupabaseClient();
+    const { data: userResult } = await userClient.auth.getUser();
+    const userId = userResult.user?.id ?? null;
+    const anonymousId = req.cookies.get(ANON_COOKIE_NAME)?.value ?? null;
+    await recordPropertyEvent({
+      supabase,
+      propertyId: property.id,
+      orgId: property.org_id,
+      eventType: 'lead_form_submit',
+      userId,
+      anonymousId,
+      source: data.source ?? null,
+      metadata: {
+        has_message: !!data.message,
+        has_phone: !!data.contact_phone,
+        language: data.language ?? 'en',
+      },
+    });
+  } catch (e) {
+    console.warn('[leads] analytics event record failed', e);
   }
 
   // Fire-and-await the notification email. Failures are logged but don't
