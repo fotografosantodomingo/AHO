@@ -12,6 +12,68 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — Batch A2: property page rebuild (Facts & Features + similar homes + breadcrumb JSON-LD) + edit-listing PATCH
+
+Second execution batch of the v1-completion plan. Property detail page now shows the seven-section Facts & Features block plus a similar-homes carousel below, with BreadcrumbList JSON-LD added to the structured-data graph. The edit-listing PATCH endpoint and the editable form on `/dashboard/properties/[id]` are folded in (revenue-blocker per the strategic doc — agents previously couldn't edit a price after publish).
+
+### What shipped
+
+**Worldwide-shaped field labels — locked decision:** neutral labels everywhere ("Community fee", "Annual property tax", "Year built", m² primary). No country-specific aliases (no "HOA" → "strata"). Reasoning + tradeoff captured in the new DECISIONS entry below; reconsider only if a market explicitly asks for local terminology.
+
+**`lib/listings/features.ts`** — typed shape for `properties.features` jsonb. ~25 fields across the 7 categories (Interior / Property / Construction / Utilities / Community / Location / Financial). All optional. `parseFeatures()` accepts arbitrary unknown input and returns a typed `PropertyFeatures` — drops unknown keys, coerces wrong-type values to `undefined`, caps cents values at 13 digits, rejects negative numbers, validates enum membership. `computeSectionPresence()` reports which sections have at least one set field, used to collapse empty sections.
+
+**PATCH `/api/listings/:id` endpoint** — agent edits a listing. Strict-mode Zod schema covering 20+ editable fields (titles, descriptions, price, currency, period, bd/ba/area/lot/year, address, neighborhood, postal_code, display_address, amenities, features jsonb, SEO fields, city, state, country). NOT editable: status (use mark-sold/archive/publish), short_id, slug_en/slug_es (URL-stable), location/lat/lng, sold_* fields, primary_agent_id, org_id, created_by. RLS gates the row scope. **Price-change audit:** when `price_cents` differs, writes a `listing.price_changed` audit_log row with payload `{from_cents, to_cents, currency, changed_at}` per the 0014 anon-read policy contract. The price-history block on `/properties/:slug` picks it up automatically. Audit-write failure does NOT unwind the listing edit.
+
+**Property detail page (`/properties/[slug]`) rebuild** —
+- `<FactsAndFeatures>` server component renders the 7 sections; empty sections collapse, empty whole-block hides. Uses Intl.NumberFormat for areas/distances; locale-neutral labels.
+- `<SimilarHomes>` carousel (mobile snap-scroll, md+ 3-col grid) below price-history. Hides when empty (no fake-fill).
+- `findSimilarListings()` helper: same city + same transaction_type + ±20% price + active+published + not-self, limit 6, fixture-org excluded, primary-image fetch in second pass.
+- `BreadcrumbList` JSON-LD added alongside `RealEstateListing`. Path: AHO → Country → City → This listing. Crawler-friendly canonical breadcrumb.
+- `PropertyDetail` interface extended: `lotSizeSqm`, `yearBuilt`, `amenities`, `features` now read from the row.
+
+**Edit-listing flow** —
+- `<EditListingForm>` client component: 6 collapsible sections (Title & description / Pricing / Dimensions / Location / Amenities / Facts & features). Tri-state toggles for booleans (✓ / ✕ / unset). Amenity chips with add/remove. Currency as free-form 3-letter (worldwide-friendly). Posts to PATCH; success flash on save.
+- `/dashboard/properties/[id]` page rewritten: top-of-page status header + action buttons (View public / Publish / MarkSold / Archive) unchanged; the static Stat row replaced with the full `<EditListingForm>`; `<ImageUploader>` retained below. Selects all 20+ fields the form needs.
+
+**i18n** — ~110 new keys per locale: `property.factsHeading`, `property.factsSection*` (7), `property.factsField.*` (~28), `property.factsBool.{yes,no}`, `property.featuresEnum.*` (parkingType×5, heatingFuel×6, cooling×5, water×4, sewer×3, hoaFeePeriod×2, petPolicy×3, listingTerm×5), `property.similarHomesHeading`, plus the new `editListing.*` namespace (~30 keys: section titles, field labels, period labels, save states, error messages).
+
+**Tests** —
+- New unit suite `tests/unit/features-parser.test.ts` (11 tests): empty/null/array input, drop unknown keys, coerce wrong types, string array filtering, listingTerms enum array, cents overflow protection, negative-number rejection, computeSectionPresence rules including boolean-false-counts-as-set.
+- Total: 75 unit tests (64 prior + 11 new).
+- No new RLS test in this batch; the audit_log_self_insert policy test stays queued for Batch A8 per the existing triage.
+
+### Verification
+
+- `pnpm typecheck` clean
+- `pnpm lint` clean (only the pre-existing `_req` warning)
+- `pnpm test:unit` 75/75 passing
+- `pnpm build` green; PATCH endpoint visible in route listing as `/api/listings/[id]`
+
+### Worldwide design notes
+
+- Currency is free-form 3-letter at the form layer; the price-history block + JSON-LD use whatever the listing stores
+- Areas in m² universally; sqft fallback is v1.5 work
+- Community fee + period (monthly|annual) replaces HOA-specific terminology
+- Acceptable terms (cash / mortgage / owner_financing / lease_to_own / trade) covers LATAM + EU + US transaction realities
+- Similar-homes excludes self via `id != selfId` and inner-joins organizations to filter out test fixtures (same belt-and-suspenders pattern as sitemap and city landing)
+
+### Blockers / open questions
+
+- No new migration in this batch — `features` jsonb already exists. If we promote any feature field to a column for search filters (HOA fee bracket, pet-allowed flag), that's a Phase 2 / search-overhaul migration.
+- Edit-listing UI deliberately doesn't expose city / country / property_type / transaction_type — those would require slug regeneration. v1.1 work.
+- Mobile pass on the new edit form: section fieldsets, 2-column dimension grid, tri-state toggles all use Tailwind responsive classes. Tested by reading the layout — no Cypress/Playwright run yet (no E2E suite exists).
+
+### Next session should start with
+
+1. Smoke-test Batch A2 on the live deploy:
+   - Edit a published listing's price → confirm `listing.price_changed` audit row written → confirm price-history block on the public page now shows the change
+   - View a property detail page with several Facts & Features set → confirm sections render correctly + empty sections collapse
+   - Confirm BreadcrumbList JSON-LD shows in `view-source`
+   - Check similar-homes carousel renders when there's adjacent inventory
+2. If green → Batch A3 (mega menu + currency converter on price tiles)
+
+---
+
 ## 2026-05-01 — Batch A1: reviews system (schema + verification flow + agent profile + dashboard + admin moderation)
 
 First execution batch of the v1-completion plan. Reviews are agent-targeted (not listing-targeted), email-token verified, admin-moderated, with agent reply + report/flag system. Wires into the existing `/agents/[slug]` page where the AggregateRating JSON-LD placeholder was already conditional.

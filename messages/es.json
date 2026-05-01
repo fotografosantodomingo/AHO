@@ -162,7 +162,110 @@
     "priceHistoryReduced": "Cambio de precio",
     "priceHistorySold": "Vendido",
     "priceHistoryRented": "Alquilado",
-    "priceHistoryConfidential": "Precio de cierre no divulgado"
+    "priceHistoryConfidential": "Precio de cierre no divulgado",
+    "factsHeading": "Datos y características",
+    "factsSectionInterior": "Interior",
+    "factsSectionProperty": "Propiedad",
+    "factsSectionConstruction": "Construcción",
+    "factsSectionUtilities": "Servicios",
+    "factsSectionCommunity": "Comunidad",
+    "factsSectionLocation": "Ubicación",
+    "factsSectionFinancial": "Financiero",
+    "factsBool": {
+      "yes": "Sí",
+      "no": "No"
+    },
+    "factsField": {
+      "bedrooms": "Habitaciones",
+      "bathrooms": "Baños",
+      "area": "Área",
+      "lotSize": "Tamaño del lote",
+      "yearBuilt": "Año de construcción",
+      "propertyType": "Tipo de inmueble",
+      "stories": "Plantas",
+      "basement": "Sótano",
+      "petPolicy": "Política de mascotas",
+      "lastRenovationYear": "Última renovación",
+      "exteriorMaterial": "Material exterior",
+      "roofType": "Techo",
+      "water": "Agua",
+      "sewer": "Alcantarillado",
+      "solar": "Energía solar",
+      "communityFee": "Cuota de comunidad",
+      "communityFeePeriod": "Periodo de cuota",
+      "gated": "Comunidad cerrada",
+      "securitySystem": "Sistema de seguridad",
+      "communityAmenities": "Amenidades de la comunidad",
+      "neighborhood": "Barrio",
+      "cityRegion": "Ciudad / región",
+      "schoolDistrict": "Distrito escolar",
+      "distanceToBeach": "Distancia a la playa",
+      "publicTransit": "Transporte público cercano",
+      "propertyTaxAnnual": "Impuesto anual",
+      "listingTerms": "Formas de pago aceptadas",
+      "parkingSpaces": "Plazas de parqueo",
+      "parkingType": "Tipo de parqueo",
+      "heating": "Calefacción",
+      "cooling": "Aire acondicionado",
+      "flooring": "Pisos",
+      "laundryInUnit": "Lavandería en la unidad",
+      "furnished": "Amueblado",
+      "balcony": "Balcón",
+      "terrace": "Terraza",
+      "amenities": "Amenidades de la unidad"
+    },
+    "featuresEnum": {
+      "parkingType": {
+        "garage": "Garaje",
+        "carport": "Cochera",
+        "street": "Calle",
+        "lot": "Estacionamiento",
+        "none": "Ninguno"
+      },
+      "heatingFuel": {
+        "electric": "Eléctrico",
+        "gas": "Gas",
+        "oil": "Combustible",
+        "solar": "Solar",
+        "wood": "Leña",
+        "none": "Ninguno"
+      },
+      "cooling": {
+        "central": "Central",
+        "split": "Split",
+        "window": "Ventana",
+        "evaporative": "Evaporativo",
+        "none": "Ninguno"
+      },
+      "water": {
+        "public": "Pública",
+        "well": "Pozo",
+        "cistern": "Cisterna",
+        "truck": "Camión cisterna"
+      },
+      "sewer": {
+        "public": "Pública",
+        "septic": "Pozo séptico",
+        "none": "Ninguno"
+      },
+      "hoaFeePeriod": {
+        "monthly": "mes",
+        "annual": "año"
+      },
+      "petPolicy": {
+        "allowed": "Permitidas",
+        "restricted": "Con restricciones",
+        "none": "No permitidas"
+      },
+      "listingTerm": {
+        "cash": "Contado",
+        "mortgage": "Hipoteca",
+        "owner_financing": "Financiamiento del propietario",
+        "lease_to_own": "Alquiler con opción a compra",
+        "trade": "Permuta"
+      }
+    },
+    "similarHomesHeading": "Inmuebles similares cerca"
   },
   "reviews": {
     "sectionHeading": "Reseñas",
@@ -417,6 +520,45 @@
         "lost": "Perdido"
       }
     }
+  },
+  "editListing": {
+    "sectionCore": "Título y descripción",
+    "sectionPricing": "Precio",
+    "sectionDimensions": "Dimensiones",
+    "sectionLocation": "Ubicación",
+    "sectionAmenities": "Amenidades",
+    "sectionFacts": "Datos y características",
+    "factsExplainer": "Todos los campos son opcionales. Solo aparecen públicamente los campos que completes.",
+    "titleEn": "Título (inglés)",
+    "titleEs": "Título (español)",
+    "descriptionEn": "Descripción (inglés)",
+    "descriptionEs": "Descripción (español)",
+    "price": "Precio",
+    "currency": "Moneda",
+    "pricePeriod": "Periodo",
+    "pricePeriodNone": "Sin periodo",
+    "periodTotal": "Total",
+    "periodMonthly": "Mensual",
+    "periodWeekly": "Semanal",
+    "periodNightly": "Por noche",
+    "bedrooms": "Habitaciones",
+    "bathrooms": "Baños",
+    "areaSqm": "Área (m²)",
+    "lotSqm": "Lote (m²)",
+    "yearBuilt": "Año de construcción",
+    "addressLine": "Dirección",
+    "neighborhood": "Barrio",
+    "postalCode": "Código postal",
+    "displayAddress": "Mostrar dirección completa públicamente",
+    "amenitiesLabel": "Amenidades de la unidad",
+    "amenitiesPlaceholder": "Agregar amenidad (p. ej. piscina, ascensor)",
+    "amenitiesAdd": "Agregar",
+    "save": "Guardar cambios",
+    "saving": "Guardando…",
+    "saved": "Guardado",
+    "priceInvalid": "Ingresa un precio válido.",
+    "forbidden": "No tienes permiso para editar este anuncio.",
+    "genericError": "No se pudieron guardar los cambios. Inténtalo de nuevo."
   },
   "profileForm": {
     "heading": "Tu perfil de agente",

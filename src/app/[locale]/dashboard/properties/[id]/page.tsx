@@ -2,11 +2,11 @@ import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { formatPrice } from '@/lib/listings/seo';
 import { PublishButton } from '@/components/listings/publish-button';
 import { ImageUploader } from '@/components/listings/image-uploader';
 import { MarkAsSoldButton } from '@/components/listings/mark-as-sold-button';
 import { ArchiveListingButton } from '@/components/listings/archive-listing-button';
+import { EditListingForm } from '@/components/listings/edit-listing-form';
 
 export const runtime = 'edge';
 
@@ -26,14 +26,13 @@ export default async function EditListingPage({
   const { data: listing, error } = await supabase
     .from('properties')
     .select(
-      'id, short_id, status, title_en, title_es, slug_en, slug_es, city, country_code, price_cents, currency, image_count, published_at, updated_at, transaction_type, sold_date, sold_price_cents',
+      'id, short_id, status, title_en, title_es, slug_en, slug_es, description_en, description_es, city, state_region, country_code, price_cents, currency, price_period, image_count, published_at, updated_at, transaction_type, sold_date, sold_price_cents, bedrooms, bathrooms, area_sqm, lot_size_sqm, year_built, address_line, neighborhood, postal_code, display_address, amenities, features',
     )
     .eq('id', id)
     .maybeSingle();
 
   if (error || !listing) notFound();
 
-  const t = await getTranslations({ locale, namespace: 'dashboard' });
   const tStatus = await getTranslations({ locale, namespace: 'dashboard.status' });
 
   const title =
@@ -89,14 +88,30 @@ export default async function EditListingPage({
         </div>
       </header>
 
-      <dl className="grid grid-cols-2 gap-4 rounded-card border border-border bg-surface p-4 text-sm shadow-whisper dark:bg-surface-deep sm:grid-cols-3">
-        <Stat label={t('table.city')} value={listing.city} />
-        <Stat
-          label={t('table.price')}
-          value={formatPrice(Number(listing.price_cents), listing.currency, typedLocale)}
-        />
-        <Stat label={t('table.images')} value={String(listing.image_count)} />
-      </dl>
+      <EditListingForm
+        initial={{
+          id: listing.id,
+          status: listing.status,
+          titleEn: listing.title_en,
+          titleEs: listing.title_es,
+          descriptionEn: listing.description_en,
+          descriptionEs: listing.description_es,
+          priceCents: Number(listing.price_cents),
+          currency: listing.currency,
+          pricePeriod: listing.price_period,
+          bedrooms: listing.bedrooms,
+          bathrooms: listing.bathrooms != null ? Number(listing.bathrooms) : null,
+          areaSqm: listing.area_sqm != null ? Number(listing.area_sqm) : null,
+          lotSizeSqm: listing.lot_size_sqm != null ? Number(listing.lot_size_sqm) : null,
+          yearBuilt: listing.year_built,
+          addressLine: listing.address_line,
+          neighborhood: listing.neighborhood,
+          postalCode: listing.postal_code,
+          displayAddress: listing.display_address,
+          amenities: (listing.amenities as string[] | null) ?? [],
+          features: listing.features ?? {},
+        }}
+      />
 
       <ImageUploader
         propertyId={listing.id}
@@ -106,16 +121,5 @@ export default async function EditListingPage({
         initialCount={listing.image_count}
       />
     </main>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <dt className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
-        {label}
-      </dt>
-      <dd className="mt-1 font-medium">{value}</dd>
-    </div>
   );
 }

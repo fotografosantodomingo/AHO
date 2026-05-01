@@ -162,7 +162,110 @@
     "priceHistoryReduced": "Price changed",
     "priceHistorySold": "Sold",
     "priceHistoryRented": "Rented",
-    "priceHistoryConfidential": "Closing price not disclosed"
+    "priceHistoryConfidential": "Closing price not disclosed",
+    "factsHeading": "Facts & Features",
+    "factsSectionInterior": "Interior",
+    "factsSectionProperty": "Property",
+    "factsSectionConstruction": "Construction",
+    "factsSectionUtilities": "Utilities",
+    "factsSectionCommunity": "Community",
+    "factsSectionLocation": "Location",
+    "factsSectionFinancial": "Financial",
+    "factsBool": {
+      "yes": "Yes",
+      "no": "No"
+    },
+    "factsField": {
+      "bedrooms": "Bedrooms",
+      "bathrooms": "Bathrooms",
+      "area": "Area",
+      "lotSize": "Lot size",
+      "yearBuilt": "Year built",
+      "propertyType": "Property type",
+      "stories": "Stories",
+      "basement": "Basement",
+      "petPolicy": "Pet policy",
+      "lastRenovationYear": "Last renovated",
+      "exteriorMaterial": "Exterior material",
+      "roofType": "Roof",
+      "water": "Water",
+      "sewer": "Sewer",
+      "solar": "Solar power",
+      "communityFee": "Community fee",
+      "communityFeePeriod": "Fee period",
+      "gated": "Gated community",
+      "securitySystem": "Security system",
+      "communityAmenities": "Community amenities",
+      "neighborhood": "Neighborhood",
+      "cityRegion": "City / region",
+      "schoolDistrict": "School district",
+      "distanceToBeach": "Distance to beach",
+      "publicTransit": "Public transit nearby",
+      "propertyTaxAnnual": "Annual property tax",
+      "listingTerms": "Acceptable terms",
+      "parkingSpaces": "Parking spaces",
+      "parkingType": "Parking type",
+      "heating": "Heating",
+      "cooling": "Cooling",
+      "flooring": "Flooring",
+      "laundryInUnit": "In-unit laundry",
+      "furnished": "Furnished",
+      "balcony": "Balcony",
+      "terrace": "Terrace",
+      "amenities": "Unit amenities"
+    },
+    "featuresEnum": {
+      "parkingType": {
+        "garage": "Garage",
+        "carport": "Carport",
+        "street": "Street",
+        "lot": "Lot",
+        "none": "None"
+      },
+      "heatingFuel": {
+        "electric": "Electric",
+        "gas": "Gas",
+        "oil": "Oil",
+        "solar": "Solar",
+        "wood": "Wood",
+        "none": "None"
+      },
+      "cooling": {
+        "central": "Central",
+        "split": "Split system",
+        "window": "Window unit",
+        "evaporative": "Evaporative",
+        "none": "None"
+      },
+      "water": {
+        "public": "Public",
+        "well": "Well",
+        "cistern": "Cistern",
+        "truck": "Truck delivery"
+      },
+      "sewer": {
+        "public": "Public sewer",
+        "septic": "Septic",
+        "none": "None"
+      },
+      "hoaFeePeriod": {
+        "monthly": "month",
+        "annual": "year"
+      },
+      "petPolicy": {
+        "allowed": "Allowed",
+        "restricted": "Restricted",
+        "none": "Not allowed"
+      },
+      "listingTerm": {
+        "cash": "Cash",
+        "mortgage": "Mortgage",
+        "owner_financing": "Owner financing",
+        "lease_to_own": "Lease to own",
+        "trade": "Trade"
+      }
+    },
+    "similarHomesHeading": "Similar homes nearby"
   },
   "reviews": {
     "sectionHeading": "Reviews",
@@ -417,6 +520,45 @@
         "lost": "Lost"
       }
     }
+  },
+  "editListing": {
+    "sectionCore": "Title & description",
+    "sectionPricing": "Pricing",
+    "sectionDimensions": "Dimensions",
+    "sectionLocation": "Location",
+    "sectionAmenities": "Amenities",
+    "sectionFacts": "Facts & features",
+    "factsExplainer": "All fields optional. Only filled fields appear on the public page.",
+    "titleEn": "Title (English)",
+    "titleEs": "Title (Spanish)",
+    "descriptionEn": "Description (English)",
+    "descriptionEs": "Description (Spanish)",
+    "price": "Price",
+    "currency": "Currency",
+    "pricePeriod": "Period",
+    "pricePeriodNone": "No period",
+    "periodTotal": "Total",
+    "periodMonthly": "Monthly",
+    "periodWeekly": "Weekly",
+    "periodNightly": "Nightly",
+    "bedrooms": "Bedrooms",
+    "bathrooms": "Bathrooms",
+    "areaSqm": "Area (m²)",
+    "lotSqm": "Lot (m²)",
+    "yearBuilt": "Year built",
+    "addressLine": "Street address",
+    "neighborhood": "Neighborhood",
+    "postalCode": "Postal code",
+    "displayAddress": "Show full address publicly",
+    "amenitiesLabel": "Unit amenities",
+    "amenitiesPlaceholder": "Add amenity (e.g. pool, elevator)",
+    "amenitiesAdd": "Add",
+    "save": "Save changes",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "priceInvalid": "Enter a valid price.",
+    "forbidden": "You don't have permission to edit this listing.",
+    "genericError": "Could not save. Please try again."
   },
   "profileForm": {
     "heading": "Your agent profile",

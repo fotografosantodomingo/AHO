@@ -12,6 +12,52 @@ One entry per significant choice. Newest on top. Format:
 
 ---
 
+## 2026-05-01 — Worldwide field labels: locale-neutral, no country aliases (Batch A2)
+**Decision:** Every Facts & Features label and enum value uses a locale-neutral phrase. No country-specific aliases — "HOA" stays "Community fee" globally, "strata" never appears, "council tax" stays "Annual property tax", measurements stay m² (no sqft branching). One i18n key per locale, reused across all markets.
+**Why:**
+- The platform is worldwide-shaped from the schema up. Per-country label tables would mean every new market needs a translation pass + a country-detection branch in the renderer.
+- Reviewer-mode UX research (industry pattern): international buyers searching "agent in Madrid" or "agent in Santo Domingo" have varying familiarity with American real estate jargon. Neutral terms are universally legible; idiomatic terms create market-of-origin assumptions.
+- Maintenance economics: at 5 markets, the country-aliases table is fine. At 50, it's brittle. Picking the worldwide-friendly default now avoids a future migration to it.
+**Alternatives considered:**
+- Country-tagged labels per `country_code` — rejected for maintenance + no proven UX gain
+- Locale-only with American defaults (HOA in EN, comunidad in ES) — rejected because Spanish-speaking US agents working with Latino buyers in Miami would face the same vocabulary mismatch
+- Defer the decision to per-listing override — rejected as scope creep; agents rarely override platform terminology
+**Reconsider if:** (a) a launch market explicitly demands local terminology and the localization is part of the closing argument (e.g., a UK partnership requesting "freehold" / "leasehold"), (b) automated SERP analysis shows neutral terms underperform idiomatic terms in branded searches, (c) Stripe/regulatory-driven label requirements per market force per-country renderings.
+
+---
+
+## 2026-05-01 — Property `features` jsonb stays jsonb; no per-field columns (Batch A2)
+**Decision:** The ~25 Facts & Features fields stored on `properties.features` jsonb are NOT promoted to dedicated columns. Validation lives at the application layer (`lib/listings/features.ts` `parseFeatures()`); the column is opaque jsonb at the DB level.
+**Why:**
+- Each new column would be a migration. Schema churn for fields that won't be searchable in v1.
+- Search filters in v1 are: city, country, transaction, price min/max, beds_min, q. Nothing in F&F is searched.
+- Old listings with stale jsonb shapes don't break: `parseFeatures()` drops unknown keys.
+- When a field becomes searchable (HOA fee bracket; pets allowed flag), THAT field gets promoted to a column with a focused migration. The hot-set of searchable fields stays small.
+**Alternatives considered:**
+- Promote all to columns now — rejected; ~25 columns of nullable scalars + arrays for fields that won't be queried this year.
+- Use a separate `property_features` table (1:1 with properties) — rejected; no upside vs. jsonb at this scale.
+- Schema-validate the jsonb at the DB level via a CHECK constraint — rejected; PG check constraints on jsonb are awkward; app-layer validation is simpler.
+**Reconsider if:** (a) we add search filters that hit specific feature fields — promote those individually, (b) the jsonb gets so dense that read latency suffers — measure first.
+
+---
+
+## 2026-05-01 — Edit-listing PATCH: most fields editable; URL-stable fields locked (Batch A2)
+**Decision:** Agents can edit titles, descriptions, price, currency, period, dimensions (bd/ba/area/lot/year), address, neighborhood, postal code, display_address flag, amenities, the full `features` jsonb, SEO override fields, city, state_region, country_code via `PATCH /api/listings/:id`. NOT editable through this surface: status (use mark-sold / archive / publish routes), short_id, slug_en, slug_es, location (PostGIS) + latitude + longitude, sold_date, sold_price_cents, represented_side, closing_notes, primary_agent_id, org_id, created_by.
+**Why:**
+- Slugs determine the public URL. Changing them breaks SEO authority — every external link to the old URL 404s. Agents who genuinely need a different URL delete + re-create.
+- Status changes are domain transitions with side effects (audit_log writes, agent stats trigger, image-cap recompute) — they have dedicated routes that handle the side effects correctly.
+- Sold-side fields are written exclusively by the mark-sold flow.
+- primary_agent_id is a v1.1 multi-agent forward-compat hook with no v1 UI.
+- City + country_code ARE editable through this endpoint (typo correction common; URL doesn't depend on them) but the `<EditListingForm>` UI doesn't expose them — the route accepts them so admin tooling and future country-correction flows can use them.
+- Price changes write a `listing.price_changed` audit_log row, populating the public price-history block via the 0014 anon-read policy.
+**Alternatives considered:**
+- Allow slug edit with auto-301 — rejected for v1; auto-301 infrastructure is its own work, and slug correction is rare enough that delete+recreate is acceptable.
+- Read-only after publish — rejected; agents need to edit pricing constantly. No-edit means no platform.
+- Status editable via PATCH too — rejected; the existing dedicated routes already handle side effects + audit correctly.
+**Reconsider if:** (a) a real agent surfaces a use case for slug edit that delete+recreate doesn't solve (likely: rebrand of the listing's marketing language) — implement slug rebuild + 301 in v1.5, (b) we need per-field editability per role (e.g., manager can change price but not title) — RLS already supports it; just split the `with check` clauses.
+
+---
+
 ## 2026-05-01 — Reviews are agent-targeted with email-token verification and admin moderation (Batch A1)
 **Decision:** Reviews target the agent's `profiles.id`, not individual listings or organizations. Verification is email-token (32-char hex, 7-day TTL, single-use atomic flip via SECURITY DEFINER `verify_review_token`). Moderation is mandatory: every review passes through `pending_moderation` before going public. Star scale 1–5 required; body 50–5000 chars; agent reply 10–2000 chars (single per review, public). Self-review blocked at DB-CHECK level. AggregateRating JSON-LD is rendered ONLY when `count > 0` (schema.org rejects empty aggregates). Reports go to admin queue without auto-hiding the review (auto-hide invites brigading; admin makes the call).
 **Why:**

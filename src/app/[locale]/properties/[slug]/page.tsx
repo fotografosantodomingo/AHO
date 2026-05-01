@@ -12,8 +12,12 @@ import { buildWhatsAppLink } from '@/lib/leads/whatsapp';
 import { ContactForm } from '@/components/listings/contact-form';
 import { PropertyGallery } from '@/components/listings/property-gallery';
 import { PriceHistory } from '@/components/listings/price-history';
+import { FactsAndFeatures } from '@/components/listings/facts-and-features';
+import { SimilarHomes } from '@/components/listings/similar-homes';
 import { getCountryName } from '@/lib/i18n/countries';
 import { fetchPriceHistory } from '@/lib/listings/price-history';
+import { findSimilarListings } from '@/lib/listings/similar';
+import { publicEnv } from '@/lib/env';
 
 export const runtime = 'edge';
 
@@ -136,6 +140,61 @@ export default async function PropertyDetailPage({
     currentPriceCents: property.priceCents,
     currency: property.currency,
   });
+
+  // Similar homes — same city + same transaction_type + ±20% price.
+  // Empty result hides the section entirely.
+  const similar = await findSimilarListings({
+    selfId: property.id,
+    city: property.city,
+    countryCode: property.countryCode,
+    transactionType: property.transactionType,
+    priceCents: property.priceCents,
+  });
+
+  // BreadcrumbList JSON-LD — schema.org canonical breadcrumbs for SERP.
+  // Path: AHO → Country → City → This listing. Country + city land on the
+  // existing /properties-in/[country] and /properties-in/[country]/[city]
+  // surfaces respectively.
+  const { NEXT_PUBLIC_SITE_URL: _site } = publicEnv();
+  const breadcrumbCountrySegment = typedLocale === 'es' ? 'inmuebles-en' : 'properties-in';
+  const countryLanding = `${_site}/${typedLocale}/${breadcrumbCountrySegment}/${property.countryCode.toLowerCase()}`;
+  const citySlugified = property.city
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+  const cityLanding = `${countryLanding}/${citySlugified}`;
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'AHO',
+        item: `${_site}/${typedLocale}`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: getCountryName(property.countryCode, typedLocale),
+        item: countryLanding,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: property.city,
+        item: cityLanding,
+      },
+      {
+        '@type': 'ListItem',
+        position: 4,
+        name: title,
+      },
+    ],
+  };
+
   const canonicalUrl = (typedLocale === 'es' ? urls.es : urls.en) ?? urls.en ?? urls.es ?? '';
   // Prefer the agent's dedicated WhatsApp number if set; fall back to
   // their primary phone. Keeps the contract simple for agents who use
@@ -160,6 +219,10 @@ export default async function PropertyDetailPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
       <main className="mx-auto max-w-5xl px-6 py-8 md:py-10">
@@ -253,7 +316,25 @@ export default async function PropertyDetailPage({
           </section>
         )}
 
+        <FactsAndFeatures
+          features={property.features}
+          bedrooms={property.bedrooms}
+          bathrooms={property.bathrooms}
+          areaSqm={property.areaSqm}
+          lotSizeSqm={property.lotSizeSqm}
+          yearBuilt={property.yearBuilt}
+          propertyType={property.propertyType}
+          amenities={property.amenities}
+          currency={property.currency}
+          neighborhood={property.neighborhood}
+          city={property.city}
+          stateRegion={property.stateRegion}
+          locale={typedLocale}
+        />
+
         <PriceHistory events={priceHistory} locale={typedLocale} />
+
+        <SimilarHomes listings={similar} locale={typedLocale} />
 
         {/* Contact section — agent card (left) + lead form (right) on md+.
             On mobile they stack. Only renders contact details when the

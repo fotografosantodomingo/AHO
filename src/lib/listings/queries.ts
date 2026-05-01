@@ -23,6 +23,10 @@ export interface PropertyDetail {
   bedrooms: number | null;
   bathrooms: number | null;
   areaSqm: number | null;
+  /** Lot size in m² — used by Property section of Facts & Features. */
+  lotSizeSqm: number | null;
+  /** Year built — used by Property + Construction sections. */
+  yearBuilt: number | null;
   addressLine: string | null;
   neighborhood: string | null;
   city: string;
@@ -30,6 +34,12 @@ export interface PropertyDetail {
   countryCode: string;
   postalCode: string | null;
   displayAddress: boolean;
+  /** Per-unit amenities (rooftop, elevator, etc.) — distinct from
+   *  community-level amenities which live in features.communityAmenities. */
+  amenities: string[];
+  /** Raw jsonb features. Pass through `parseFeatures()` from
+   *  `@/lib/listings/features` to get the typed shape. */
+  features: unknown;
   orgId: string;
   createdAt: string;
   updatedAt: string;
@@ -141,7 +151,8 @@ export async function fetchPropertyByShortId(
         slug_en, slug_es,
         transaction_type, property_type,
         price_cents, currency, price_period,
-        bedrooms, bathrooms, area_sqm,
+        bedrooms, bathrooms, area_sqm, lot_size_sqm, year_built,
+        amenities, features,
         address_line, neighborhood, city, state_region, country_code, postal_code, display_address,
         org_id, created_at, updated_at,
         property_images (
@@ -180,6 +191,10 @@ export async function fetchPropertyByShortId(
     bedrooms: data.bedrooms,
     bathrooms: data.bathrooms != null ? Number(data.bathrooms) : null,
     areaSqm: data.area_sqm != null ? Number(data.area_sqm) : null,
+    lotSizeSqm: data.lot_size_sqm != null ? Number(data.lot_size_sqm) : null,
+    yearBuilt: data.year_built,
+    amenities: (data.amenities as string[] | null) ?? [],
+    features: data.features ?? {},
     addressLine: data.address_line,
     neighborhood: data.neighborhood,
     city: data.city,
