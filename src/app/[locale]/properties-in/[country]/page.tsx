@@ -5,6 +5,7 @@ import { LOCALES, type Locale } from '@/i18n/config';
 import { getCountryCities } from '@/lib/listings/countries';
 import { getCountryName } from '@/lib/i18n/countries';
 import { DotGrid } from '@/components/ui/dot-grid';
+import { EmptyState } from '@/components/ui/empty-state';
 import { LocationSubBar } from '@/components/location-sub-bar';
 import { publicEnv } from '@/lib/env';
 
@@ -128,28 +129,20 @@ export default async function CountryLandingPage({
 
       <div className="mx-auto max-w-6xl px-6 py-12">
         {result.cities.length === 0 ? (
-          <div className="rounded-card border border-dashed border-border-strong/60 bg-surface p-12 text-center shadow-whisper dark:bg-surface-deep">
-            <h2 className="font-brand text-xl font-semibold">
-              {t('emptyHeading', { country: display })}
-            </h2>
-            <p className="mx-auto mt-3 max-w-md text-sm text-helper">
-              {t('emptyBody', { country: display })}
-            </p>
-            <div className="mt-6 flex flex-col items-center justify-center gap-2 sm:flex-row">
-              <Link
-                href={pricingHref}
-                className="inline-flex h-10 items-center justify-center rounded-lg bg-surface-dark px-5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink dark:bg-surface dark:text-ink dark:hover:bg-surface-muted"
-              >
+          <EmptyState
+            heading={t('emptyHeading', { country: display })}
+            body={t('emptyBody', { country: display })}
+            primaryCta={
+              <Link href={pricingHref} className="btn-primary">
                 {t('emptyAgentCta')}
               </Link>
-              <Link
-                href={countriesPath}
-                className="inline-flex h-10 items-center justify-center rounded-lg border border-border-strong px-5 text-sm font-medium transition hover:bg-black/5 dark:hover:bg-white/5"
-              >
+            }
+            secondaryCta={
+              <Link href={countriesPath} className="btn-secondary">
                 {t('browseCountriesCta')}
               </Link>
-            </div>
-          </div>
+            }
+          />
         ) : (
           <>
             <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">

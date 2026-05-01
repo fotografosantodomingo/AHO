@@ -110,7 +110,7 @@ export default async function HomePage({
         <DotGrid ellipse="80% 60%" />
         <HeroGlow />
 
-        <div className="relative mx-auto max-w-5xl px-6 py-20 md:py-28">
+        <div className="relative mx-auto max-w-6xl px-6 py-20 md:py-28">
           <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
             {t('eyebrow')}
           </p>
@@ -162,7 +162,7 @@ export default async function HomePage({
       </section>
 
       {/* Featured listings. Section label uses the HashiCorp uppercase wayfinding pattern (13px / 600 / 1.3px tracking). */}
-      <section className="mx-auto max-w-5xl px-6 py-16">
+      <section className="mx-auto max-w-6xl px-6 py-16">
         <div className="flex items-end justify-between">
           <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
             {t('featuredHeading')}

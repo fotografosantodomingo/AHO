@@ -11,6 +11,7 @@ import { ListingCard } from '@/components/listings/listing-card';
 import { precomputeApproxLabels } from '@/lib/currency/server';
 import { LocationSubBar } from '@/components/location-sub-bar';
 import { DotGrid } from '@/components/ui/dot-grid';
+import { EmptyState } from '@/components/ui/empty-state';
 import { publicEnv } from '@/lib/env';
 import { getCountryName } from '@/lib/i18n/countries';
 
@@ -190,28 +191,20 @@ export default async function CityLandingPage({
 
         <div className="mx-auto max-w-6xl space-y-8 px-6 py-12">
         {result.listings.length === 0 ? (
-          <section className="rounded-card border border-dashed border-border-strong/60 p-12 text-center">
-            <h2 className="font-brand text-xl font-bold">
-              {t('emptyHeading', { city: canonicalCity })}
-            </h2>
-            <p className="mx-auto mt-3 max-w-md text-sm text-ink-muted dark:text-ink-inverse-muted">
-              {t('emptyBody', { city: canonicalCity })}
-            </p>
-            <div className="mt-6 flex flex-col items-center justify-center gap-2 sm:flex-row">
-              <Link
-                href={pricingHref}
-                className="inline-flex h-10 items-center justify-center rounded-lg bg-surface-dark px-5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink"
-              >
+          <EmptyState
+            heading={t('emptyHeading', { city: canonicalCity })}
+            body={t('emptyBody', { city: canonicalCity })}
+            primaryCta={
+              <Link href={pricingHref} className="btn-primary">
                 {t('emptyAgentCta')}
               </Link>
-              <Link
-                href={browseAllHref}
-                className="inline-flex h-10 items-center justify-center rounded-lg border border-border-strong px-5 text-sm font-medium transition hover:bg-black/5 dark:hover:bg-white/5"
-              >
+            }
+            secondaryCta={
+              <Link href={browseAllHref} className="btn-secondary">
                 {t('browseAllCta')}
               </Link>
-            </div>
-          </section>
+            }
+          />
         ) : (
           <>
             <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
