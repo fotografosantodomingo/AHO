@@ -6,19 +6,19 @@
  * gradient dot pattern + a radial-mask that fades the dots toward the
  * edges so the band has a soft visual boundary.
  *
- * Tuned per-mode: light needs more dot opacity since the body is now
- * surface-muted (#f1f2f3) and the same alpha reads fainter on muted
- * than it did on white. Dark stays low — dots over near-black should
- * be a whisper.
+ * DP-2b.1: warm sepia dot color + uniform 0.18 opacity. The previous
+ * light-mode 0.55 + cool slate dots produced a "dirty newspaper" effect
+ * over the cream canvas. Sepia dots at low opacity read as quiet
+ * atmosphere on both cream and dark forest — single setting both modes.
  */
 export function DotGrid({ ellipse = '70% 50%' }: { ellipse?: string } = {}) {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 opacity-[0.55] dark:opacity-[0.18]"
+      className="pointer-events-none absolute inset-0 opacity-[0.18]"
       style={{
         backgroundImage:
-          'radial-gradient(rgb(97 104 117 / 0.45) 1px, transparent 1px)',
+          'radial-gradient(rgb(112 95 70 / 0.22) 1px, transparent 1px)',
         backgroundSize: '24px 24px',
         maskImage: `radial-gradient(ellipse ${ellipse} at 50% 30%, #000 30%, transparent 75%)`,
         WebkitMaskImage: `radial-gradient(ellipse ${ellipse} at 50% 30%, #000 30%, transparent 75%)`,

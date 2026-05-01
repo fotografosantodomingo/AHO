@@ -36,7 +36,7 @@ export async function AuthMenu({ locale }: { locale: Locale }) {
           {t('signInCta')}
         </a>
         <a
-          className="inline-flex h-9 items-center rounded-lg bg-surface-dark px-3 font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink"
+          className="btn-primary h-9 px-3"
           href={`/${locale}/${locale === 'es' ? 'registrarse' : 'signup'}`}
         >
           {t('signUpCta')}

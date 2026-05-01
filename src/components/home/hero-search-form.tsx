@@ -120,8 +120,8 @@ export function HeroSearchForm({
               onClick={() => setTransaction(tab.value)}
               className={
                 active
-                  ? 'rounded-md bg-surface-dark px-3.5 py-1.5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition dark:bg-surface dark:text-ink'
-                  : 'rounded-md px-3.5 py-1.5 text-sm text-helper transition hover:text-ink dark:hover:text-ink-inverse'
+                  ? 'rounded-md bg-action px-3.5 py-1.5 text-sm font-medium text-white shadow-whisper transition dark:bg-action-dark dark:text-surface-deep'
+                  : 'rounded-md px-3.5 py-1.5 text-sm text-helper transition hover:text-action dark:hover:text-action-dark'
               }
             >
               {tab.label}
@@ -165,10 +165,7 @@ export function HeroSearchForm({
           ))}
         </select>
 
-        <button
-          type="submit"
-          className="inline-flex h-12 items-center justify-center rounded-lg bg-surface-dark px-6 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink dark:bg-surface dark:text-ink dark:hover:bg-surface-muted"
-        >
+        <button type="submit" className="btn-primary h-12 rounded-lg px-6">
           {submitLabel}
         </button>
       </div>

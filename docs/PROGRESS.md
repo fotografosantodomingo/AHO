@@ -12,6 +12,48 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — Batch DP-2b.1 (light-mode surgical fixes)
+
+PO did a careful audit of the live DP-2b deploy and identified four specific components that were dragging light mode down: still using the legacy "dark knob" CTA pattern (bg-surface-dark default + dark:bg-surface override), and a dot-grid tuned for cool-slate that read as a "dirty newspaper" effect on warm cream. Verdict: globals.css tokens are fine; the DP-2a token cascade is doing its job; the bug is per-component utilities that haven't migrated yet.
+
+Four surgical changes — no token restructure, no sweep over the 67 other files. Just the four specific bugs.
+
+**1. `src/components/home/hero-search-form.tsx` — active-tab pill.**
+
+  Was: `'rounded-md bg-surface-dark px-3.5 py-1.5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition dark:bg-surface dark:text-ink'` — a dark knob in light mode (warm dark green block on cream canvas).
+  Now: `'rounded-md bg-action px-3.5 py-1.5 text-sm font-medium text-white shadow-whisper transition dark:bg-action-dark dark:text-surface-deep'` — forest-green pill with white text in both modes. Inactive-tab hover also bumped from `hover:text-ink` to `hover:text-action` for the Starbucks-y green-on-hover feel.
+
+**2. `src/components/home/hero-search-form.tsx` — Search button.**
+
+  Was: 100-character utility chain doing the dark-knob pattern.
+  Now: `className="btn-primary h-12 rounded-lg px-6"` — adopts the DP-2a `.btn-primary` pill, sized at h-12 to match the surrounding country/city dropdowns. The `rounded-lg` override turns off `.btn-primary`'s default `rounded-full` because a square-cornered submit aligns with the rectangular dropdowns it sits next to (visual alignment > brand-consistent pill in this context).
+
+**3. `src/components/auth/auth-menu.tsx` — desktop signup CTA.**
+
+  Was: same 80-character dark-knob chain.
+  Now: `className="btn-primary h-9 px-3"` — uses `.btn-primary` at the smaller h-9 desktop-header size.
+
+**4. `src/components/ui/dot-grid.tsx` — atmospheric overlay tuning.**
+
+  Was: `opacity-[0.55] dark:opacity-[0.18]` with `radial-gradient(rgb(97 104 117 / 0.45) 1px, transparent 1px)` — cool slate dots at 0.55 opacity over warm cream. The "dirty newspaper" effect.
+  Now: uniform `opacity-[0.18]` with `radial-gradient(rgb(112 95 70 / 0.22) 1px, transparent 1px)` — warm sepia dots at 0.18 opacity. Reads as quiet atmosphere on both cream and dark forest. Single setting both modes; comment updated to explain the simplification.
+
+**What this batch is NOT:**
+
+  - NOT the full architectural restructure (semantic role tokens with `.dark` cascade override). The audit confirmed the existing `@theme` block is fine; auto-pivot wasn't necessary given the visible bugs were all in components, not tokens. Left the proposal in conversation history; can revisit later if a different surface starts to feel inverted.
+  - NOT a sweep over the remaining ~40 files using the legacy dark-knob default. Those are mostly tucked-away surfaces (404 page back-button, error-page recovery CTA, admin filter pills, agent-profile avatar fallback) — visible but not the headlining offenders. Will migrate them in DP-2c (footer batch is the natural place to do a sweep) or as touched.
+
+**Verify run.**
+  - typecheck clean, lint clean (pre-existing 2 warnings), unit 91/91
+  - UI-only batch — no DB / RLS changes
+  - Live deploy smoke after push
+
+**6-branch roadmap noted (post-DP-2):** PO laid out the next major work after DP-2 closes — favorites → recently-viewed → property analytics → promoted listings → social distribution (manual first, automated later) → agent storefront. Documented for sequencing; will start once DP-2c + DP-2d ship and the redesign is done.
+
+**Next session should start with**: DP-2c — footer redesign (4-col → mobile accordions, newsletter, quick-contact, language mirror). After DP-2c lands, DP-2d emails, then either resume Plus tier (A4b-3) or pivot to the 6-branch roadmap starting with favorites.
+
+---
+
 ## 2026-05-01 — Batch DP-2b (header + mega-menu redesign)
 
 Second batch of the DP-2 visual pivot. Token cascade from DP-2a is the canvas; DP-2b is the first surface that gets a deliberate redesign on top of those tokens. The mega-menu and theme/locale toggles change layout, not just colors.
