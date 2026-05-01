@@ -12,6 +12,77 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — feat/recently-viewed: tracking + "Recently viewed" rail
+
+Second branch off the post-DP-2 6-branch roadmap, after favorites. Tracks which listings a visitor has seen (anon or signed-in) and renders a rail on homepage + property detail.
+
+**Schema (migrations 0025 + 0026, applied to live):**
+  - `property_recent_views(id, user_id, anonymous_id, property_id, viewed_at, locale, source_path)` — one row per visitor-property pair (UPSERT semantics).
+  - **CHECK** constraint: at least one of `user_id` / `anonymous_id` must be non-null.
+  - Two PARTIAL UNIQUE indexes for the per-visitor uniqueness key:
+    - `(user_id, property_id) WHERE user_id IS NOT NULL`
+    - `(anonymous_id, property_id) WHERE anonymous_id IS NOT NULL`
+  - Read indexes on each visitor type's `(id, viewed_at desc)` plus a `(property_id, viewed_at desc)` for future analytics.
+  - **RLS**: SELECT (owner self + admin), DELETE (owner self + admin), no INSERT/UPDATE policies. Server-mediated writes only via the SECURITY DEFINER `record_property_view(...)` RPC.
+
+**0026: `record_property_view` RPC.** PostgREST's `.upsert(... onConflict: 'a,b')` doesn't accept partial-unique indexes as a conflict target — it generates `ON CONFLICT (a, b)` without the `WHERE` predicate, which doesn't match either of the partial uniques. The RPC dispatches the right `INSERT … ON CONFLICT … WHERE … DO UPDATE` branch based on which identity field is set. Service-role only.
+
+**Identity model.**
+  - **Authenticated:** `user_id = auth.users.id` (cross-device).
+  - **Anonymous:** `anonymous_id = UUID` from the `aho_anon_id` HTTP-only cookie. Per-browser; 1-year TTL; SameSite=Lax. The cookie is set lazily by the view-tracking route on first /properties/[slug] visit.
+
+**Server-mediated tracking flow:**
+  1. Visitor lands on `/{locale}/properties/[slug]`.
+  2. The page Server Component renders normally.
+  3. A small `<TrackPropertyView>` Client Component mounts and fires `POST /api/properties/[id]/view` with `{ locale, sourcePath }`.
+  4. The route handler resolves identity (auth session + cookie), sets `aho_anon_id` if absent, calls the `record_property_view` RPC via the admin client.
+  5. Returns 200 (silent on errors — view tracking is best-effort).
+
+This decouples view-recording from page rendering. JS-disabled visitors aren't tracked (small loss); the page itself never blocks on tracking.
+
+**Helpers (`src/lib/listings/recent-views.ts`):**
+  - `recordPropertyView({ supabase, propertyId, userId, anonymousId, locale, sourcePath })` — wraps the RPC.
+  - `getRecentViews({ supabase, userId, anonymousId, excludeId, limit })` — fetches the visitor's recent views as full SearchListing shapes. Filters to `active+published` (rows pointing at archived/sold listings stay in DB but disappear from the rail until republished). Overfetches 2× then trims, since rows may filter out at the visibility check.
+
+**`<RecentlyViewed>` Server Component (`src/components/listings/recently-viewed.tsx`):**
+  - Reads identity (auth + cookie), calls `getRecentViews`, attaches approx-price labels + favorite state for parity with every other surface using `<ListingCard>`.
+  - Mobile snap-scroll horizontal list; md+ 2-col grid; lg+ 4-col grid.
+  - Self-hides when the visitor has no view history yet OR when the only viewed property is the one currently being shown (`excludeId`).
+
+**Wired into:**
+  - **Homepage** — between the featured listings grid and the "How AHO works" explainer band.
+  - **Property detail page** — after the similar-homes carousel, with `excludeId={property.id}` so the rail doesn't show the listing the user is currently on. The `<TrackPropertyView>` tracker also mounts here.
+
+**i18n:** `recentlyViewed.heading` ("Recently viewed" / "Vistos recientemente") in en + es.
+
+**RLS tests (`tests/rls/property-recent-views.test.ts`):** 8 cases covering every policy:
+  - SELECT: anon denied / owner OK / cross-user blocked / admin sees all
+  - INSERT: anon denied / authed user denied (no INSERT policy by design — server-mediated only)
+  - DELETE: owner OK / cross-user blocked
+
+Total RLS suite: **146/146** (was 138, +8).
+
+**Verify run.**
+  - typecheck clean, lint clean (pre-existing 2 warnings)
+  - unit 91/91
+  - RLS 146/146
+  - migrations 0025 + 0026 applied to live
+
+**Privacy / GDPR notes:**
+  - Anon tracking via HTTP-only cookie is the lowest-friction approach; the cookie is the only identifier.
+  - DELETE policy lets a user clear their own history (a future "Clear recently viewed" UI is a small follow-up).
+  - GDPR account-deletion flow (A4b, migration 0023) cascades through `user_id` already; for anon-only views, the rows persist until cookie expiry — a future nightly prune of `viewed_at < now() - interval '90 days'` covers this.
+
+**What's intentionally NOT in this batch:**
+  - "Clear my recently viewed" UI — DELETE policy is wired, UI to surface it is a follow-up.
+  - /search empty state rail — defer to a tighter polish pass.
+  - Per-property "X people viewed this" surface — Phase 3 analytics work.
+  - Anon→signed-in identity merge (when an anon visitor signs up, their view history is currently abandoned) — future enhancement.
+
+**Next session should start with**: smoke the tracking flow on live (visit property → return home → see rail), then **DP-2d email redesign**.
+
+---
+
 ## 2026-05-01 — feat/favorites: buyer-side saved properties
 
 First branch off the post-DP-2 6-branch roadmap. Heart toggle on every listing surface + a saved-properties dashboard page for the buyer to come back to.

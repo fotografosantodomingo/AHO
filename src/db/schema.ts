@@ -540,6 +540,29 @@ export type PropertyFavorite = typeof propertyFavorites.$inferSelect;
 export type NewPropertyFavorite = typeof propertyFavorites.$inferInsert;
 
 // ----------------------------------------------------------------
+// property_recent_views (migration 0025) — track which properties a
+// visitor (anon or authed) has looked at. Server-mediated writes only
+// (no INSERT/UPDATE policies); user-context SELECT for own rows + admin.
+// ----------------------------------------------------------------
+
+export const propertyRecentViews = pgTable('property_recent_views', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  userId: uuid('user_id').references(() => profiles.id, { onDelete: 'cascade' }),
+  anonymousId: uuid('anonymous_id'),
+  propertyId: uuid('property_id')
+    .notNull()
+    .references(() => properties.id, { onDelete: 'cascade' }),
+  viewedAt: timestamp('viewed_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  locale: text('locale').notNull(),
+  sourcePath: text('source_path'),
+});
+
+export type PropertyRecentView = typeof propertyRecentViews.$inferSelect;
+export type NewPropertyRecentView = typeof propertyRecentViews.$inferInsert;
+
+// ----------------------------------------------------------------
 // audit_log (migration 0013) — append-only ledger of significant
 // state-changing actions. Admin reads everything; users read their
 // own rows (by actor_id). No UPDATE/DELETE policies — append-only.

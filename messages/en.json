@@ -152,6 +152,9 @@
     "emptyBody": "When you find a place you love, tap the heart on a listing to save it here.",
     "emptyCta": "Browse listings"
   },
+  "recentlyViewed": {
+    "heading": "Recently viewed"
+  },
   "footer": {
     "privacy": "Privacy",
     "terms": "Terms",

@@ -22,6 +22,8 @@ import { publicEnv } from '@/lib/env';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getUserFavoriteIds } from '@/lib/listings/favorites';
 import { FavoriteButton } from '@/components/listings/favorite-button';
+import { TrackPropertyView } from '@/components/listings/track-property-view';
+import { RecentlyViewed } from '@/components/listings/recently-viewed';
 
 export const runtime = 'edge';
 
@@ -358,6 +360,16 @@ export default async function PropertyDetailPage({
         <PriceHistory events={priceHistory} locale={typedLocale} />
 
         <SimilarHomes listings={similar} locale={typedLocale} />
+
+        {/* Recently viewed rail — excludes the current property so the
+            user doesn't see "you viewed this listing" on the listing
+            they're already on. Self-hides when no other recent views. */}
+        <RecentlyViewed locale={typedLocale} excludeId={property.id} />
+
+        {/* Fire-and-forget client tracker — POSTs to /api/properties/[id]/view
+            on mount, sets the aho_anon_id cookie if absent + records the
+            view. Hidden render (returns null). */}
+        <TrackPropertyView propertyId={property.id} />
 
         {/* Contact section — agent card (left) + lead form (right) on md+.
             On mobile they stack. Only renders contact details when the

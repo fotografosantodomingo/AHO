@@ -9,6 +9,7 @@ import { DotGrid, HeroGlow } from '@/components/ui/dot-grid';
 import { publicEnv } from '@/lib/env';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getUserFavoriteIds } from '@/lib/listings/favorites';
+import { RecentlyViewed } from '@/components/listings/recently-viewed';
 
 export const runtime = 'edge';
 
@@ -204,6 +205,12 @@ export default async function HomePage({
             ))}
           </ul>
         )}
+      </section>
+
+      {/* Recently viewed rail (feat/recently-viewed). Self-hides when
+          the visitor has no view history yet. */}
+      <section className="mx-auto max-w-6xl px-6 pb-4">
+        <RecentlyViewed locale={typedLocale} />
       </section>
 
       {/* How AHO works. Three-step explainer. Cards use the standard

@@ -152,6 +152,9 @@
     "emptyBody": "Cuando encuentres un lugar que te guste, toca el corazón en un anuncio para guardarlo aquí.",
     "emptyCta": "Explorar anuncios"
   },
+  "recentlyViewed": {
+    "heading": "Vistos recientemente"
+  },
   "footer": {
     "privacy": "Privacidad",
     "terms": "Términos",
