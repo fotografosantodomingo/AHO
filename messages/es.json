@@ -305,7 +305,7 @@
     "selectFiles": "Elegir archivos",
     "limits": "Máximo 30 imágenes por anuncio.",
     "atCap": "Has alcanzado el límite (30). Elimina una para subir otra.",
-    "statusPending": "Pendiente",
+    "statusPending": "Se subirá al guardar",
     "statusUploading": "Subiendo…",
     "statusConfirmed": "Subida",
     "statusError": "Falló",

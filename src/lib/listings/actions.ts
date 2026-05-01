@@ -3,8 +3,13 @@
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { TRANSACTION_TYPES, PRICE_PERIODS } from '@/db/schema';
-import { AMENITY_KEYS } from '@/lib/listings/amenities';
+// Schema lives in a sibling non-server module so the client form can
+// import it for `zodResolver(...)`. Next.js 15 only allows async-function
+// exports from `'use server'` files — non-function exports (Zod schemas,
+// types, constants) become undefined on the client and crash the
+// resolver. We import the schema here for server-side validation; the
+// form imports the same schema directly from `./listing-schema`.
+import { CreateListingSchema } from './listing-schema';
 
 /**
  * Server actions for the listing form. Both `createListing` and `updateListing`
@@ -16,65 +21,6 @@ import { AMENITY_KEYS } from '@/lib/listings/amenities';
  * The inputs are Zod-validated so the route handler / form submission gets a
  * 400 with field-level errors before the DB sees the request.
  */
-
-const TransactionType = z.enum(TRANSACTION_TYPES);
-const PricePeriod = z.enum(PRICE_PERIODS);
-
-const TitleAtLeastOneLanguage = z
-  .object({
-    title_en: z.string().trim().max(200).optional().nullable(),
-    title_es: z.string().trim().max(200).optional().nullable(),
-  })
-  .refine(
-    (data) =>
-      (data.title_en && data.title_en.length > 0) ||
-      (data.title_es && data.title_es.length > 0),
-    { message: 'titleRequired', path: ['title_en'] },
-  );
-
-const ListingInputBase = z.object({
-  description_en: z.string().trim().max(8000).optional().nullable(),
-  description_es: z.string().trim().max(8000).optional().nullable(),
-  transaction_type: TransactionType,
-  property_type: z
-    .string()
-    .min(1)
-    .max(50)
-    .default('apartment'),
-  price_cents: z
-    .number()
-    .int()
-    .positive()
-    .max(9_999_999_999_999),
-  currency: z
-    .string()
-    .length(3)
-    .toUpperCase()
-    .default('USD'),
-  price_period: PricePeriod.optional().nullable(),
-  bedrooms: z.number().int().nonnegative().max(50).optional().nullable(),
-  bathrooms: z.number().nonnegative().max(50).optional().nullable(),
-  area_sqm: z.number().positive().max(100_000).optional().nullable(),
-  address_line: z.string().trim().max(200).optional().nullable(),
-  neighborhood: z.string().trim().max(120).optional().nullable(),
-  city: z.string().trim().min(1).max(120),
-  state_region: z.string().trim().max(120).optional().nullable(),
-  country_code: z.string().trim().length(2).toUpperCase(),
-  postal_code: z.string().trim().max(20).optional().nullable(),
-  display_address: z.boolean().default(true),
-  latitude: z.number().min(-90).max(90),
-  longitude: z.number().min(-180).max(180),
-  // Amenity tags. Frontend sends only valid keys; we filter to the catalog
-  // server-side too so a tampered request can't store rogue values.
-  amenities: z
-    .array(z.enum(AMENITY_KEYS))
-    .max(AMENITY_KEYS.length)
-    .optional()
-    .default([]),
-});
-
-export const CreateListingSchema = ListingInputBase.and(TitleAtLeastOneLanguage);
-export type CreateListingInput = z.infer<typeof CreateListingSchema>;
 
 interface ActionResult {
   ok: boolean;

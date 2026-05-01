@@ -5,12 +5,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
+// Schema imported from a non-server module — actions.ts has 'use server'
+// which strips non-function exports from the client bundle.
 import {
   CreateListingSchema,
   type CreateListingInput,
-  createListing,
-  publishListing,
-} from '@/lib/listings/actions';
+} from '@/lib/listings/listing-schema';
+import { createListing, publishListing } from '@/lib/listings/actions';
 import { buildCountryOptions } from '@/lib/listings/countries-iso';
 import { AMENITY_KEYS, type AmenityKey } from '@/lib/listings/amenities';
 import { uploadOneFile } from '@/lib/listings/client-upload';

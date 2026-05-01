@@ -305,7 +305,7 @@
     "selectFiles": "Choose files",
     "limits": "Maximum 30 images per listing.",
     "atCap": "Image limit reached (30). Remove one to upload another.",
-    "statusPending": "Pending",
+    "statusPending": "Will upload on save",
     "statusUploading": "Uploading…",
     "statusConfirmed": "Uploaded",
     "statusError": "Failed",
