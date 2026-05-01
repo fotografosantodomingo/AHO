@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { ProfileForm } from '@/components/dashboard/profile-form';
+import { DangerZone } from '@/components/dashboard/danger-zone';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -65,6 +66,8 @@ export default async function ProfilePage({
     country_code: profile?.country_code ?? null,
   };
 
+  const userEmail = userResult.user.email ?? '';
+
   return (
     <main className="space-y-6">
       <header>
@@ -74,6 +77,7 @@ export default async function ProfilePage({
         <p className="mt-1 text-sm text-helper">{t('subheading')}</p>
       </header>
       <ProfileForm initial={initial} />
+      <DangerZone email={userEmail} locale={locale as Locale} />
     </main>
   );
 }

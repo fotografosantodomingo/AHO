@@ -12,6 +12,37 @@ One entry per significant choice. Newest on top. Format:
 
 ---
 
+## 2026-05-01 — GDPR account deletion: hard-delete auth.users, soft via FK SET NULL elsewhere
+**Decision:** Self-service account deletion (Batch A4b) hard-deletes the user's `auth.users` row via `supabase.auth.admin.deleteUser(userId)`. The downstream effect is governed by FK clauses, set as follows by migration `0023_account_deletion_fk_cascade.sql`:
+  - **CASCADE delete** rows that are scoped to the user and have no value to the platform after the user is gone: `profiles` (via `auth.users.id`), `organization_members`, `saved_searches`, `reviews.agent_id` (reviews ABOUT the deleted user).
+  - **SET NULL** rows that have value to the platform's audit / billing / lead history but should lose their PII linkage: `audit_log.actor_id`, `leads.user_id`, `leads.assigned_to`, `subscriptions.user_id`, `founder_rate_grants.user_id`, `properties.created_by`, `properties.primary_agent_id`, `reviews.reviewer_user_id` (was already SET NULL), `reviews.moderated_by` (was already SET NULL).
+  - **Pre-step:** archive listings and cancel Stripe subscriptions in JS code before the auth-user delete, so the user's data is removed from the public surface immediately and Stripe stops billing the same instant.
+  - **Stripe customer records** are NOT deleted. Stripe TOS / accounting requirements mandate retention of customer + invoice records. The PII linkage is severed by NULLing `subscriptions.user_id`; the Stripe customer object remains in Stripe's system, decoupled from any AHO user.
+
+**Why:** Right-to-erasure (GDPR Article 17, CCPA equivalents) is the v1 floor. The two real options for "what does deletion mean": (A) hard-delete the auth user with cascade fanout, (B) anonymize the profile in-place and set a `deleted_at` flag. We picked A because it's the cleaner contract — once the call returns 200, the user record genuinely doesn't exist. Option B would require touch-points everywhere any UI loads a profile (every joined query, every avatar render, every name display) to gate on `deleted_at IS NULL`, with high risk of leaks. Option A puts the policy in the FK schema where it can't be forgotten.
+
+The mixed CASCADE / SET NULL split is the GDPR principle of data minimization meeting the platform's legitimate-interest retention. Audit logs of admin actions, lead funnels for an org's analytics, billing-side subscription history, and aggregate review stats all have legitimate retention purposes and don't need user identity attached to remain useful — so SET NULL. Personal artifacts (saved searches, reviews-about-the-user, organization memberships) have no value once the user is gone — so CASCADE.
+
+**Alternatives considered:**
+- Soft-delete with `deleted_at` and PII anonymization in-place — rejected; too many surface-area touch points to gate, easy to leak via a forgotten join.
+- Hard-delete with full CASCADE everywhere (including audit_log, leads) — rejected; destroys the org's lead funnel and the platform's audit trail, both of which have legitimate retention purposes beyond the deleted user's PII.
+- Stripe-side PII deletion (calling Stripe's data-deletion endpoints) — rejected for v1; Stripe's customer-deletion flow is a separate Trust & Safety operation, not real-time API. Documented as a v1.x op.
+- Grace period (30-day soft delete → hard delete) — rejected for v1; adds a queue/cron we don't need yet. Re-add if the support burden of accidental deletions becomes real.
+
+**Reconsider if:**
+- A regulator demands grace-period soft-delete (e.g., for spurious-deletion recovery).
+- The platform grows to where Stripe customer-record deletion has to be in-band (not ops-only).
+- Org-level "transfer ownership before delete" becomes table-stakes (e.g., agency switches owner without losing the org). Today we leave the org orphaned if the sole owner deletes; a future flow could prompt for transfer.
+
+**Build implications:**
+- Migration 0023 drops + re-adds 7 FK constraints. Idempotent via `do $$ … exception when undefined_object`. Constraint names follow the auto-generated `<table>_<column>_fkey` convention.
+- New route: `src/app/api/account/delete/route.ts`. Edge runtime. Service-role admin client for the privileged ops.
+- New component: `src/components/dashboard/danger-zone.tsx`. Inline disclosure (not modal) — typed-email confirmation is the safety net.
+- i18n: new `dangerZone` namespace in `messages/{en,es}.json`.
+- Sole-owner orphan-org case: an org whose only owner deletes is left in DB with `properties.created_by = NULL`. Listings auto-archived. No active sub (we cancelled it). The org row itself isn't cleaned up — that's a future ops concern (could nightly-prune orgs with 0 members + 0 active sub).
+
+---
+
 ## 2026-05-01 — Stripe webhook side-effects move into SECURITY DEFINER RPCs (transactions, not chained REST calls)
 **Decision:** The two multi-step DB write paths driven by Stripe webhooks — `checkout.session.completed`'s org+member+subscription materialization and the founder-rate counter+grant claim — are now each implemented as a single `SECURITY DEFINER` PL/pgSQL function (`materialize_subscription_from_checkout`, `claim_founder_rate_slot_with_grant`) called via one `supabase.rpc(...)` per webhook delivery. The handlers no longer issue chained `.from(...).insert/upsert(...)` calls between the steps that need atomicity. Functions are revoked from `anon` / `authenticated`; only the service-role admin client invokes them.
 **Why:** Pre-live audit on the strategic doc (Phase 1B, blockers #1 and #2) flagged that the Supabase JS client doesn't expose explicit transactions — every `.from(...)` / `.rpc(...)` call is its own auto-committed PostgREST request. The old comment "inside the same transaction the caller should also insert a grant row" was a polite fiction. Two concrete failure modes hit on a partial failure + Stripe retry: (1) the org INSERT in checkout-session succeeded, the subscription INSERT failed, Stripe retried, the dedup-by-subscription-id missed, and the user got a duplicate organization with a different slug suffix; (2) the founder-rate counter was incremented but the grant INSERT failed, leaving the counter forever +1 with no grant — silent slot loss with no reconciler. Wrapping each path in a single PG function-level transaction makes both bug classes go away by construction (PG transactions are atomic; if the grant INSERT throws, the counter UPDATE rolls back automatically). The handler also gets shorter and faster — fewer round trips.

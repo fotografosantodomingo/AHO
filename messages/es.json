@@ -618,6 +618,28 @@
     "saveChanges": "Guardar cambios",
     "saved": "Perfil guardado."
   },
+  "dangerZone": {
+    "heading": "Zona de peligro",
+    "subheading": "Acciones irreversibles sobre tu cuenta.",
+    "deleteAccountTitle": "Eliminar tu cuenta",
+    "deleteAccountBody": "Elimina permanentemente tu perfil, anuncios, búsquedas guardadas y reseñas. Cualquier suscripción activa se cancela inmediatamente. Esta acción no se puede deshacer.",
+    "deleteAccountButton": "Eliminar cuenta",
+    "confirmModalTitle": "¿Estás seguro?",
+    "confirmModalBody": "Esto elimina permanentemente tu cuenta y cierra tu sesión. Para confirmar, escribe tu dirección de correo abajo.",
+    "whatGetsDeletedHeading": "Qué se elimina:",
+    "whatGetsDeletedItems": "Tu perfil, anuncios (archivados), búsquedas guardadas, reseñas que escribiste, y tu suscripción activa (cancelada en Stripe).",
+    "whatStaysHeading": "Qué se conserva:",
+    "whatStaysItems": "Historial de leads anonimizado de las organizaciones a las que perteneciste y registros de facturación en Stripe (por requisitos contables).",
+    "confirmEmailLabel": "Escribe tu correo para confirmar",
+    "confirmEmailPlaceholder": "tu@ejemplo.com",
+    "confirmButton": "Eliminar mi cuenta de forma permanente",
+    "cancelButton": "Cancelar",
+    "deletingState": "Eliminando…",
+    "errorMismatch": "Ese correo no coincide con el de tu cuenta.",
+    "errorStripe": "No se pudo cancelar tu suscripción en Stripe. Inténtalo de nuevo en unos momentos.",
+    "errorGeneric": "Algo salió mal. Inténtalo de nuevo o contacta con soporte.",
+    "successRedirecting": "Cuenta eliminada. Redirigiendo…"
+  },
   "imageUploader": {
     "heading": "Fotos del inmueble",
     "dropHere": "Arrastra imágenes aquí",

@@ -12,6 +12,60 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — Batch A4b partial (GDPR account deletion + Customer Portal verify)
+
+Two of the three A4b items shipped. The third — Agent Plus tier — is paused waiting on PO input on the feature differential vs Agent (price was confirmed at $49/mo / $490/yr; what Plus unlocks beyond a higher listing cap is the open question).
+
+**1. Self-service account deletion (GDPR right-to-erasure floor).**
+
+New surface: a "Danger zone" panel at the bottom of `/dashboard/profile`. The user clicks "Delete account", an inline confirmation panel opens, they type their email exactly to enable the destructive button, and a single POST to `/api/account/delete` does the rest:
+
+  1. Look up orgs the user OWNS (organization_members.role='owner').
+  2. For each owned org with a non-terminal Stripe subscription, call `stripe.subscriptions.cancel(...)` immediately (no `at_period_end` — full erasure semantics; idempotent on already-cancelled subs).
+  3. Archive every property where `created_by = self` and status is not in (archived, sold, rented). Listings stay in the DB but disappear from the public surface.
+  4. Call `supabase.auth.admin.deleteUser(userId)`. The cascade then handles:
+     - `auth.users` → `profiles` (CASCADE from migration 0002)
+     - `profiles` → `organization_members` (CASCADE)
+     - `profiles` → `saved_searches` (CASCADE from 0010)
+     - `profiles` → `reviews.agent_id` (CASCADE from 0016 — reviews ABOUT a deleted user disappear)
+     - SET NULL on `audit_log.actor_id`, `leads.user_id`, `leads.assigned_to`, `subscriptions.user_id`, `founder_rate_grants.user_id`, `properties.created_by`, `properties.primary_agent_id`, `reviews.reviewer_user_id` (already SET NULL pre-A4b), `reviews.moderated_by` (already SET NULL).
+
+The cascade was previously blocked by `properties.created_by NOT NULL`, `subscriptions.user_id NO ACTION`, `leads.user_id/assigned_to NO ACTION`, `founder_rate_grants.user_id NOT NULL`, `audit_log.actor_id NO ACTION`. Migration **0023_account_deletion_fk_cascade.sql** drops + re-adds each FK with `ON DELETE SET NULL` and relaxes the two `NOT NULL` constraints. Idempotent (`do $$ … exception when undefined_object`). Applied to live Supabase.
+
+  - i18n strings live under the `dangerZone` namespace in `messages/{en,es}.json` (heading, body, what-gets-deleted / what-stays disclosure, error states, success state).
+  - The route runs on edge; uses `createAdminClient()` for the privileged ops (Stripe cancel + auth user delete + cross-org archive). Auth check up front: only the signed-in user can delete themselves; the typed email must match the session's email (case-insensitive); 400 on mismatch.
+  - On 200, the client redirects to `/{locale}` and `router.refresh()`s — the session cookie is now stale (its user is gone) and middleware will re-render in anon state.
+
+**Stripe customer record retention:** per Stripe's accounting requirements, Stripe customer records and historical invoices stay. The cancellation severs the user's PII linkage on our side (subscription row's `user_id` becomes NULL); Stripe keeps its own record. This is the conventional GDPR posture for SaaS on Stripe — documented in DECISIONS.md.
+
+**2. Customer Portal verification.**
+
+No code change — the portal route (`POST /api/billing/portal`) was already wired in slice-1 and round-trips plan changes / cancellations via the existing `customer.subscription.updated` and `customer.subscription.deleted` handlers. Verified: the `BillingPortalButton` component on `/pricing` (alreadySubscribed branch) and on `/dashboard/billing` already fetches the portal route and follows `window.location.href = url`. Stripe Customer Portal config in the Stripe Dashboard is the missing-by-design piece — that's a Stripe-side checkbox + product-allowlist op and lives outside the codebase.
+
+**3. Agent Plus tier — PAUSED.**
+
+Awaiting PO input on the feature differential. Open question for next chat: what does Plus unlock beyond Agent? Candidate moves: higher `listing_cap` (e.g. 25 vs 5), priority placement in city landings, "verified pro" badge, additional social channels, deeper analytics, multi-city coverage. Won't build the 2-tier `/pricing` UI redesign without that input — the price ($49/mo / $490/yr) is set but the value prop isn't.
+
+**Verify run.**
+- typecheck: clean
+- lint: only pre-existing 2 unused-arg warnings
+- unit: 91/91
+- RLS: 128/128 (FK relaxation didn't regress any existing tier-enforcement test)
+- migration 0023 applied to live Supabase
+
+**Pending Phase 1B test-debt** (after A4b ships):
+  - listing-cap concurrency RLS test (advisory-lock fast path)
+  - `protect_review_fields` per-status edge cases
+  - account-deletion happy-path RLS/integration test (would create a fixture user, delete, verify cascade — moderate complexity)
+
+**Blockers / open questions:**
+  - Plus tier feature differential (PO).
+  - Stripe customer-record PII deletion ops flow (out of scope for v1; documented).
+
+**Next session should start with**: PO confirms Plus tier feature spec → ship A4b-3 (Plus tier products + 2-tier /pricing UI). OR jump to A4c (VAT / regional payments / Agency Lite docs) if Plus is still pending.
+
+---
+
 ## 2026-05-01 — Batch A4a (pre-live Stripe robustness)
 
 Closes the two pre-live blockers the strategic-doc Stripe-flow audit flagged, plus the top Phase 1B test-debt item, plus a webhook-handler timeout cap. Scope deliberately scoped just to safety — Agent Plus tier + Customer Portal + account-deletion will land in A4b.

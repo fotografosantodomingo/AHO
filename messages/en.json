@@ -618,6 +618,28 @@
     "saveChanges": "Save changes",
     "saved": "Profile saved."
   },
+  "dangerZone": {
+    "heading": "Danger zone",
+    "subheading": "Irreversible account actions.",
+    "deleteAccountTitle": "Delete your account",
+    "deleteAccountBody": "Permanently removes your profile, listings, saved searches, and reviews. Active subscriptions are cancelled immediately. This cannot be undone.",
+    "deleteAccountButton": "Delete account",
+    "confirmModalTitle": "Are you sure?",
+    "confirmModalBody": "This permanently deletes your account and signs you out. To confirm, type your email address below.",
+    "whatGetsDeletedHeading": "What gets removed:",
+    "whatGetsDeletedItems": "Your profile, listings (archived), saved searches, reviews you wrote, and your active subscription (cancelled in Stripe).",
+    "whatStaysHeading": "What is retained:",
+    "whatStaysItems": "Anonymized lead history for organizations you belonged to, and Stripe billing records (per accounting requirements).",
+    "confirmEmailLabel": "Type your email to confirm",
+    "confirmEmailPlaceholder": "you@example.com",
+    "confirmButton": "Permanently delete my account",
+    "cancelButton": "Cancel",
+    "deletingState": "Deleting…",
+    "errorMismatch": "That email doesn't match the one on your account.",
+    "errorStripe": "Couldn't cancel your subscription with Stripe. Please try again in a moment.",
+    "errorGeneric": "Something went wrong. Please try again or contact support.",
+    "successRedirecting": "Account deleted. Redirecting…"
+  },
   "imageUploader": {
     "heading": "Property photos",
     "dropHere": "Drop images here",
