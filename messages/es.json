@@ -509,6 +509,7 @@
   "dashboard": {
     "navAriaLabel": "Secciones del panel",
     "navListings": "Mis anuncios",
+    "navAnalytics": "Estadísticas",
     "navLeads": "Contactos",
     "navReviews": "Reseñas",
     "navSavedSearches": "Búsquedas guardadas",
@@ -864,5 +865,42 @@
     "saveButtonAuth": "Inicia sesión para guardar",
     "saveButtonError": "Error al guardar",
     "alertsBlocked": "Las alertas por correo empezarán cuando AHO termine de configurar su transporte de email."
+  },
+  "analytics": {
+    "heading": "Rendimiento",
+    "subheading": "Cómo los compradores interactúan con tus anuncios.",
+    "statsAria": "Resumen de rendimiento",
+    "statViews": "Visitas",
+    "statLeads": "Contactos",
+    "statFavorites": "Guardados",
+    "statConversion": "Tasa de contacto",
+    "past7d": "últimos 7 días",
+    "past30d": "últimos 30 días",
+    "past30dWindow": "ventana de 30 días",
+    "topListingsHeading": "Anuncios destacados — últimos 30 días",
+    "colTitle": "Anuncio",
+    "colCity": "Ciudad",
+    "colViews": "Visitas",
+    "colLeads": "Contactos",
+    "colFavorites": "Guardados",
+    "colConv": "Tasa",
+    "activityHeading": "Actividad reciente",
+    "emptyHeading": "Tus estadísticas aparecerán aquí",
+    "emptyBody": "Cuando los compradores empiecen a ver tus anuncios, verás aquí las visitas, contactos, guardados y tasa de contacto.",
+    "emptyCta": "Administrar anuncios",
+    "eventType": {
+      "property_view": "Visita",
+      "image_gallery_open": "Fotos",
+      "whatsapp_click": "WhatsApp",
+      "phone_click": "Teléfono",
+      "email_click": "Email",
+      "lead_form_submit": "Contacto",
+      "favorite_add": "Guardado",
+      "share_click": "Compartir"
+    },
+    "visitor": {
+      "auth": "registrado",
+      "anon": "visitante"
+    }
   }
 }

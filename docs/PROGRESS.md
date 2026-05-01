@@ -12,6 +12,51 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — feat/property-analytics sub-batch B: dashboard widgets + client trackers
+
+Closes Phase 3 of the post-DP-2 6-branch roadmap. The data flow that started in sub-batch A (`property_view`, `lead_form_submit`, `favorite_add` server-side) now reaches the agent via a real performance dashboard, AND three more event types fire from the client (`image_gallery_open`, `whatsapp_click`, `phone_click`).
+
+**1. `/dashboard/analytics` page** (en) / `/panel/estadisticas` (es) — Server Component, agent-only (gated by the existing dashboard layout's auth + org-membership check).
+
+  - **4 stat tiles:** Views · Leads · Saves · Lead-rate. Each shows a 7-day primary number + 30-day context number. Lead-rate is `leads / views` over the 30-day window.
+  - **Top listings table** (top 10 by views in 30d): Title · City · Views · Leads · Saves · Lead-rate. Mobile collapses CITY / FAVORITES / CONV columns; sm+ progressively reveal them.
+  - **Recent activity feed** (last 20 events): event-type pill (View / Lead / Save / Photos / WhatsApp / Phone / Email / Share) + property title + visitor type (signed-in / visitor) + relative timestamp.
+  - **Empty state** (no events yet): clean cream card with primary CTA back to /dashboard/properties. No mock numbers — honest emptiness per CLAUDE.md hard rule #8.
+
+**2. Aggregation strategy.** `src/lib/analytics/queries.ts` — three helpers (`getOrgAnalytics`, `getTopListingsByEngagement`, `getRecentActivity`). All use the user-context Supabase client; RLS gates results to the agent's own org via `property_events_org_select`. Aggregation done in JS after a single fetch per query (limit 50k events) — fine for v1 scale.
+
+**3. Dashboard nav extended.** New "Analytics" item between "My Listings" and "Leads" in mobile dropdown + desktop sidebar. PATHNAMES: `/dashboard/analytics` ↔ `/panel/estadisticas`. i18n: `dashboard.navAnalytics`.
+
+**4. Client-side event trackers.** `src/lib/analytics/client.ts` exports `trackPropertyEvent(propertyId, eventType, options)` — fire-and-forget POST with `keepalive: true` so the request survives the page-unload that follows an outbound link click. Two thin wrapper components:
+
+  - **`<TrackedLink>`** drop-in `<a>` replacement that fires the event before navigation. Used on the property detail page for WhatsApp + tel: links.
+  - **`<TrackGalleryOpen>`** wraps `<PropertyGallery>` (which stays a Server Component for SEO + LCP). First click anywhere within the gallery fires `image_gallery_open` once per page-render.
+
+**5. Wired into the property detail page:** WhatsApp → `whatsapp_click`, tel: → `phone_click`, gallery first-click → `image_gallery_open`. Social-link chips (FB/IG/LinkedIn/web) deliberately not tracked — they go to the agent's external profile, not direct property contact.
+
+**6. i18n.** New `analytics.*` namespace in en + es covering heading/subheading, stat tile labels, table column headers, top-listings + activity-feed headings, empty-state copy, per-event-type display labels, visitor-type labels.
+
+**Event type → fire path matrix (Phase 3 complete):**
+
+| Event | Path | Status |
+|---|---|---|
+| `property_view` | server `/view` | ✓ |
+| `image_gallery_open` | client `<TrackGalleryOpen>` | ✓ this batch |
+| `whatsapp_click` | client `<TrackedLink>` | ✓ this batch |
+| `phone_click` | client `<TrackedLink>` | ✓ this batch |
+| `email_click` | (no UI surface yet) | endpoint ready |
+| `lead_form_submit` | server `/api/leads` | ✓ |
+| `favorite_add` | server `/favorite` | ✓ |
+| `share_click` | future Phase 5 | endpoint ready |
+
+**Verify run.** typecheck clean, lint clean, unit 91/91. RLS unchanged (uses 0027 from sub-batch A).
+
+**Phase 3 closed.** Roadmap remaining: Phase 4 (`feat/promoted-listings`), Phase 5 (`feat/social-distribution`), Phase 6 (`feat/agent-storefront`).
+
+**Next session should start with**: PO smokes the analytics dashboard end-to-end, then `feat/promoted-listings` or `feat/social-distribution`.
+
+---
+
 ## 2026-05-01 — DP-3: architectural light-mode fix (token auto-pivot via .dark scope) + visible hamburger
 
 After multiple rounds of surgical patches, the light-mode visibility issues kept resurfacing. This batch is the structural correction I should have shipped weeks ago — the ultimatum from the PO: ship working light mode OR drop the toggle.

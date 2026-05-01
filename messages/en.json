@@ -509,6 +509,7 @@
   "dashboard": {
     "navAriaLabel": "Dashboard sections",
     "navListings": "My Listings",
+    "navAnalytics": "Analytics",
     "navLeads": "Leads",
     "navReviews": "Reviews",
     "navSavedSearches": "Saved searches",
@@ -864,5 +865,42 @@
     "saveButtonAuth": "Sign in to save",
     "saveButtonError": "Save failed",
     "alertsBlocked": "Email alerts will start when AHO finishes wiring its email transport."
+  },
+  "analytics": {
+    "heading": "Performance",
+    "subheading": "How buyers are engaging with your listings.",
+    "statsAria": "Performance summary",
+    "statViews": "Views",
+    "statLeads": "Leads",
+    "statFavorites": "Saves",
+    "statConversion": "Lead rate",
+    "past7d": "past 7 days",
+    "past30d": "past 30 days",
+    "past30dWindow": "30-day window",
+    "topListingsHeading": "Top listings — past 30 days",
+    "colTitle": "Listing",
+    "colCity": "City",
+    "colViews": "Views",
+    "colLeads": "Leads",
+    "colFavorites": "Saves",
+    "colConv": "Lead rate",
+    "activityHeading": "Recent activity",
+    "emptyHeading": "Your analytics will appear here",
+    "emptyBody": "Once buyers start viewing your listings, you'll see views, leads, saves, and lead rate here.",
+    "emptyCta": "Manage listings",
+    "eventType": {
+      "property_view": "View",
+      "image_gallery_open": "Photos",
+      "whatsapp_click": "WhatsApp",
+      "phone_click": "Phone",
+      "email_click": "Email",
+      "lead_form_submit": "Lead",
+      "favorite_add": "Save",
+      "share_click": "Share"
+    },
+    "visitor": {
+      "auth": "signed-in",
+      "anon": "visitor"
+    }
   }
 }

@@ -24,6 +24,8 @@ import { getUserFavoriteIds } from '@/lib/listings/favorites';
 import { FavoriteButton } from '@/components/listings/favorite-button';
 import { TrackPropertyView } from '@/components/listings/track-property-view';
 import { RecentlyViewed } from '@/components/listings/recently-viewed';
+import { TrackedLink } from '@/components/listings/tracked-link';
+import { TrackGalleryOpen } from '@/components/listings/track-gallery-open';
 
 export const runtime = 'edge';
 
@@ -249,12 +251,17 @@ export default async function PropertyDetailPage({
         )}
 
         {/* Hero gallery — primary photo + up to 4 secondaries. Token-styled
-            empty placeholder if no images yet (no fake stock photos). */}
-        <PropertyGallery
-          images={property.images}
-          locale={typedLocale}
-          fallbackAlt={title}
-        />
+            empty placeholder if no images yet (no fake stock photos).
+            Wrapped in TrackGalleryOpen so the first click anywhere in
+            the gallery records an `image_gallery_open` event for the
+            agent dashboard analytics. */}
+        <TrackGalleryOpen propertyId={property.id}>
+          <PropertyGallery
+            images={property.images}
+            locale={typedLocale}
+            fallbackAlt={title}
+          />
+        </TrackGalleryOpen>
 
         {/* Title block. Two columns on md+: location/title on the left,
             transaction-type chip + price stacked on the right. */}
@@ -454,22 +461,26 @@ export default async function PropertyDetailPage({
                 then phone, then social links as small icon-style chips. */}
             <div className="flex flex-wrap gap-2">
               {whatsappLink && (
-                <a
+                <TrackedLink
+                  propertyId={property.id}
+                  eventType="whatsapp_click"
                   href={whatsappLink}
                   rel="noopener noreferrer"
                   target="_blank"
                   className="inline-flex h-9 items-center rounded-lg border border-emerald-600 bg-emerald-50 px-3 text-sm font-medium text-emerald-900 shadow-whisper transition hover:bg-emerald-100 dark:border-emerald-500 dark:bg-emerald-950/40 dark:text-emerald-100 dark:hover:bg-emerald-950/60"
                 >
                   {t('chatOnWhatsapp')}
-                </a>
+                </TrackedLink>
               )}
               {telHref && (
-                <a
+                <TrackedLink
+                  propertyId={property.id}
+                  eventType="phone_click"
                   href={telHref}
                   className="inline-flex h-9 items-center rounded-lg border border-border-strong px-3 text-sm transition hover:bg-black/5 dark:hover:bg-white/5"
                 >
                   {typedLocale === 'es' ? 'Llamar' : 'Call'}
-                </a>
+                </TrackedLink>
               )}
               {contact?.agentWebsiteUrl && (
                 <a

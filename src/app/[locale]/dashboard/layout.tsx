@@ -54,6 +54,7 @@ export default async function DashboardLayout({
 
   const t = await getTranslations({ locale, namespace: 'dashboard' });
   const propertiesPath = `/${locale}/${locale === 'es' ? 'panel/propiedades' : 'dashboard/properties'}`;
+  const analyticsPath = `/${locale}/${locale === 'es' ? 'panel/estadisticas' : 'dashboard/analytics'}`;
   const leadsPath = `/${locale}/${locale === 'es' ? 'panel/contactos' : 'dashboard/leads'}`;
   const reviewsPath = `/${locale}/${locale === 'es' ? 'panel/resenas' : 'dashboard/reviews'}`;
   const savedSearchesPath = `/${locale}/${
@@ -66,6 +67,7 @@ export default async function DashboardLayout({
   // identical to the sidebar for muscle memory.
   const navItems = [
     { href: propertiesPath, label: t('navListings') },
+    { href: analyticsPath, label: t('navAnalytics') },
     { href: leadsPath, label: t('navLeads') },
     { href: reviewsPath, label: t('navReviews') },
     { href: savedSearchesPath, label: t('navSavedSearches') },
@@ -95,6 +97,12 @@ export default async function DashboardLayout({
             className="rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5"
           >
             {t('navListings')}
+          </a>
+          <a
+            href={analyticsPath}
+            className="rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5"
+          >
+            {t('navAnalytics')}
           </a>
           <a
             href={leadsPath}

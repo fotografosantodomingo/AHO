@@ -78,6 +78,10 @@ export const PATHNAMES = {
     en: '/dashboard/leads',
     es: '/panel/contactos',
   },
+  '/dashboard/analytics': {
+    en: '/dashboard/analytics',
+    es: '/panel/estadisticas',
+  },
   '/dashboard/profile': {
     en: '/dashboard/profile',
     es: '/panel/perfil',
