@@ -33,24 +33,22 @@ export default async function DashboardListingsPage({
   const t = await getTranslations({ locale, namespace: 'dashboard' });
   const tStatus = await getTranslations({ locale, namespace: 'dashboard.status' });
 
-  // RLS: org members read all of their org's properties. Layout has already
-  // confirmed the user has at least one membership.
   const supabase = await createServerSupabaseClient();
-  const { data: rawListings, error } = await supabase
-    .from('properties')
-    .select(
-      'id, short_id, status, title_en, title_es, city, price_cents, currency, image_count, updated_at',
-    )
-    .order('updated_at', { ascending: false })
-    .limit(50);
 
-  // Plan tracker — count occupying listings (active/pending) and read the
-  // org's listing_cap. Only the user's own org rows pass RLS, so a single
-  // membership lookup gives us the cap and a count of occupying rows.
+  // Resolve the user's org first. Two reasons we need this BEFORE the
+  // listings query:
+  //   1. We use it to filter the listings query by org_id explicitly.
+  //      Without an explicit filter, RLS lets admins (who have
+  //      `properties_admin_all` policy) see every listing across the
+  //      whole platform — including RLS test fixtures from
+  //      `aho-test-org-a`. The dashboard means "my org's listings",
+  //      not "every listing I can see".
+  //   2. Plan tracker needs the org's listing_cap + occupying count.
   const { data: userResult } = await supabase.auth.getUser();
   const userId = userResult.user?.id;
   let listingCap: number | null = null;
   let occupyingCount = 0;
+  let myOrgId: string | null = null;
   if (userId) {
     const { data: membership } = await supabase
       .from('organization_members')
@@ -71,6 +69,7 @@ export default async function DashboardListingsPage({
     listingCap = org?.listing_cap ?? null;
 
     if (membership?.org_id) {
+      myOrgId = membership.org_id;
       const { count: occCount } = await supabase
         .from('properties')
         .select('id', { count: 'exact', head: true })
@@ -78,6 +77,31 @@ export default async function DashboardListingsPage({
         .in('status', ['active', 'pending']);
       occupyingCount = occCount ?? 0;
     }
+  }
+
+  // Now fetch the listings, scoped to the user's own org. Belt-and-
+  // suspenders fixture exclusion (aho-test-org-* + aho-fixture-*) so
+  // admin accounts that happen to match a fixture org or have the
+  // admin_all RLS policy still don't see fixture rows here. The /admin
+  // surface is where fixtures intentionally show up (with a badge).
+  let rawListings: ListingRow[] = [];
+  let error: { message: string } | null = null;
+  if (myOrgId) {
+    const { data, error: listErr } = await supabase
+      .from('properties')
+      .select(
+        'id, short_id, status, title_en, title_es, slug_en, slug_es, city, price_cents, currency, image_count, updated_at',
+      )
+      .eq('org_id', myOrgId)
+      .order('updated_at', { ascending: false })
+      .limit(50);
+    if (listErr) error = { message: listErr.message };
+    rawListings = ((data ?? []) as unknown as Array<ListingRow & { slug_en: string | null; slug_es: string | null }>)
+      .filter(
+        (r) =>
+          !r.slug_en?.startsWith('aho-fixture-') &&
+          !r.slug_es?.startsWith('aho-fixture-'),
+      );
   }
 
   if (error) {
@@ -90,7 +114,7 @@ export default async function DashboardListingsPage({
     );
   }
 
-  const listings = (rawListings ?? []) as unknown as ListingRow[];
+  const listings = rawListings;
   const newListingPath = `/${locale}/${
     locale === 'es' ? 'panel/propiedades/nuevo' : 'dashboard/properties/new'
   }`;
