@@ -574,3 +574,220 @@ describe('RLS · audit_log · public-read of listing events (0014)', () => {
     expect(visible.data?.map((r) => r.id).sort()).toEqual([activeAuditId]);
   });
 });
+
+// ============================================================
+// Trigger · recompute_agent_stats (migration 0013)
+// ============================================================
+//
+// Pairs with the AFTER INSERT/UPDATE/DELETE trigger on properties +
+// the recompute_agent_stats(uuid) function from 0013. Audits flagged
+// four branches as Phase 1A's blocker #2 (none had test coverage):
+//
+//   1. Admin-driven flip recomputes the OWNING agent's stats — proves
+//      the trigger keys off coalesce(primary_agent_id, created_by),
+//      not auth.uid().
+//   2. AVG ignores NULL — confidential closings (sold_price_cents NULL
+//      on the row) don't drag stats_avg_price_cents toward 0.
+//   3. 12-month rolling window — sales > 12 months ago are excluded
+//      from stats_sales_12mo but counted in stats_total_sales.
+//   4. Reassignment — changing primary_agent_id triggers a recompute
+//      for both the old and new owning agent.
+//
+// All tests use admin-client INSERT/UPDATE so we exercise the trigger
+// without needing user-context RLS rights. Cleanup deletes the throw-
+// away properties via the existing `cleanupTestProperties()` (matches
+// short_id LIKE 'fixtest%'), and the DELETE itself fires the trigger
+// to restore the agent's stats to the pre-test baseline.
+
+describe('Trigger · recompute_agent_stats (0013)', () => {
+  let ownerAId: string;
+  let agentAId: string;
+
+  beforeAll(async () => {
+    ownerAId = await fixtureUserId('agent_a_owner');
+    agentAId = await fixtureUserId('agent_a_agent');
+  });
+
+  afterEach(async () => {
+    // Each test inserts properties with short_id 'fixtest...'; remove
+    // them so the trigger fires DELETE and stats roll back. Order
+    // matters: cleanup must complete before the next test reads stats.
+    await cleanupTestProperties();
+  });
+
+  async function readStats(agentId: string) {
+    const a = admin();
+    const { data, error } = await a
+      .from('profiles')
+      .select(
+        'stats_total_sales, stats_sales_12mo, stats_price_min_cents, stats_price_max_cents, stats_avg_price_cents',
+      )
+      .eq('id', agentId)
+      .single();
+    if (error || !data) {
+      throw new Error(`stats read failed for ${agentId}: ${error?.message}`);
+    }
+    return data as {
+      stats_total_sales: number;
+      stats_sales_12mo: number;
+      stats_price_min_cents: number | null;
+      stats_price_max_cents: number | null;
+      stats_avg_price_cents: number | null;
+    };
+  }
+
+  async function insertSold(spec: {
+    shortId: string;
+    createdBy: string;
+    primaryAgentId?: string | null;
+    soldPriceCents: number | null;
+    soldDate: string;
+  }): Promise<string> {
+    const a = admin();
+    const { data, error } = await a
+      .from('properties')
+      .insert({
+        org_id: ctx.orgAId,
+        created_by: spec.createdBy,
+        primary_agent_id: spec.primaryAgentId ?? null,
+        short_id: spec.shortId,
+        transaction_type: 'sale',
+        property_type: 'apartment',
+        status: 'sold',
+        title_en: `AHO Trigger Test — ${spec.shortId}`,
+        slug_en: null,
+        price_cents: 20_000_000,
+        currency: 'USD',
+        bedrooms: 2,
+        bathrooms: 1,
+        area_sqm: 80,
+        city: 'Santo Domingo',
+        country_code: 'DO',
+        location: 'SRID=4326;POINT(-69.92 18.47)',
+        sold_date: spec.soldDate,
+        sold_price_cents: spec.soldPriceCents,
+      })
+      .select('id')
+      .single();
+    if (error || !data) {
+      throw new Error(`insertSold failed for ${spec.shortId}: ${error?.message}`);
+    }
+    return data.id as string;
+  }
+
+  // --- Branch 1: admin-driven flip credits the OWNING agent ---
+  it('admin-context INSERT credits the OWNING agent (created_by), not the calling admin', async () => {
+    const before = await readStats(ownerAId);
+    await insertSold({
+      shortId: 'fixtesttrg1',
+      createdBy: ownerAId,
+      soldPriceCents: 25_000_000,
+      soldDate: new Date().toISOString(),
+    });
+    const after = await readStats(ownerAId);
+    expect(after.stats_total_sales).toBe(before.stats_total_sales + 1);
+    expect(after.stats_sales_12mo).toBe(before.stats_sales_12mo + 1);
+    // Verify the admin user's stats are NOT touched. The trigger keys
+    // off coalesce(primary_agent_id, created_by) — i.e. the property's
+    // owner — never auth.uid(). If this assertion fails, admin-driven
+    // flips are mistakenly attributing sales to the admin.
+    const adminUserId = await fixtureUserId('admin');
+    const adminStats = await readStats(adminUserId);
+    // We don't know the admin's pre-test value, but the trigger should
+    // never have written for them as a result of THIS insert. We assert
+    // the recomputed-at timestamp is not bumped by checking the count
+    // didn't increment from the only sold listing we just added.
+    // (If stats_total_sales reflects this fixture, it would also reflect
+    // any prior tests' inserts — so we assert the property is NOT in
+    // the admin's owning set via a direct query.)
+    const a = admin();
+    const { count: adminOwnedSold } = await a
+      .from('properties')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'sold')
+      .or(`primary_agent_id.eq.${adminUserId},and(primary_agent_id.is.null,created_by.eq.${adminUserId})`);
+    expect(adminOwnedSold ?? 0).toBe(0);
+    expect(adminStats.stats_total_sales).toBe(0);
+  });
+
+  // --- Branch 2: AVG ignores NULL (confidential closings don't pull avg toward 0) ---
+  it('AVG ignores NULL: a confidential closing (sold_price_cents = null) is excluded from stats_avg_price_cents', async () => {
+    // Two sales by the same agent: one priced (10M cents = $100k), one
+    // confidential (null price). The average should be 10M cents, NOT
+    // 5M (which is what averaging-with-zero would produce).
+    await insertSold({
+      shortId: 'fixtesttrg2',
+      createdBy: ownerAId,
+      soldPriceCents: 10_000_000,
+      soldDate: new Date().toISOString(),
+    });
+    await insertSold({
+      shortId: 'fixtesttrg3',
+      createdBy: ownerAId,
+      soldPriceCents: null,
+      soldDate: new Date().toISOString(),
+    });
+    const after = await readStats(ownerAId);
+    // stats_total_sales counts BOTH (no filter on price); stats_avg
+    // counts only the priced one.
+    expect(after.stats_avg_price_cents).toBe(10_000_000);
+    expect(after.stats_price_min_cents).toBe(10_000_000);
+    expect(after.stats_price_max_cents).toBe(10_000_000);
+  });
+
+  // --- Branch 3: 12-month rolling window ---
+  it('12-month window: sale > 12 months ago is in stats_total_sales but NOT in stats_sales_12mo', async () => {
+    const before = await readStats(ownerAId);
+    // 13 months ago.
+    const oldDate = new Date();
+    oldDate.setMonth(oldDate.getMonth() - 13);
+    await insertSold({
+      shortId: 'fixtesttrg4',
+      createdBy: ownerAId,
+      soldPriceCents: 30_000_000,
+      soldDate: oldDate.toISOString(),
+    });
+    // Today.
+    await insertSold({
+      shortId: 'fixtesttrg5',
+      createdBy: ownerAId,
+      soldPriceCents: 40_000_000,
+      soldDate: new Date().toISOString(),
+    });
+    const after = await readStats(ownerAId);
+    // Both count toward stats_total_sales.
+    expect(after.stats_total_sales).toBe(before.stats_total_sales + 2);
+    // Only the recent one counts toward stats_sales_12mo.
+    expect(after.stats_sales_12mo).toBe(before.stats_sales_12mo + 1);
+  });
+
+  // --- Branch 4: reassignment recomputes for BOTH agents ---
+  it('reassigning primary_agent_id from agentA to agentB recomputes stats for both', async () => {
+    const ownerBefore = await readStats(ownerAId);
+    const agentBefore = await readStats(agentAId);
+    // Insert a sold property credited to ownerA (primary_agent_id NULL,
+    // created_by = ownerA → coalesced to ownerA).
+    const propertyId = await insertSold({
+      shortId: 'fixtesttrg6',
+      createdBy: ownerAId,
+      primaryAgentId: null,
+      soldPriceCents: 50_000_000,
+      soldDate: new Date().toISOString(),
+    });
+    const ownerAfterInsert = await readStats(ownerAId);
+    expect(ownerAfterInsert.stats_total_sales).toBe(ownerBefore.stats_total_sales + 1);
+    // Now reassign primary_agent_id to agentA (the agent, not owner).
+    const a = admin();
+    const { error: updErr } = await a
+      .from('properties')
+      .update({ primary_agent_id: agentAId })
+      .eq('id', propertyId);
+    expect(updErr).toBeNull();
+    // Trigger should have recomputed for BOTH ownerA (decrement: the
+    // listing no longer coalesces to them) AND agentA (increment).
+    const ownerAfterReassign = await readStats(ownerAId);
+    const agentAfterReassign = await readStats(agentAId);
+    expect(ownerAfterReassign.stats_total_sales).toBe(ownerBefore.stats_total_sales);
+    expect(agentAfterReassign.stats_total_sales).toBe(agentBefore.stats_total_sales + 1);
+  });
+});
