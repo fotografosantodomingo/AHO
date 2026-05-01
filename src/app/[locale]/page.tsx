@@ -10,6 +10,7 @@ import { publicEnv } from '@/lib/env';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getUserFavoriteIds } from '@/lib/listings/favorites';
 import { RecentlyViewed } from '@/components/listings/recently-viewed';
+import { ProAutomationSection } from '@/components/home/pro-automation-section';
 
 export const runtime = 'edge';
 
@@ -212,6 +213,12 @@ export default async function HomePage({
       <section className="mx-auto max-w-6xl px-6 pb-4">
         <RecentlyViewed locale={typedLocale} />
       </section>
+
+      {/* Pro Automation sales section — Phase 2 of the social-distribution
+          spec. Always-dark forest-green band (matches the Pro Automation
+          locked-state UI on /pricing) so visitors see the marquee feature
+          before reaching the pricing-CTA at the bottom. */}
+      <ProAutomationSection pricingPath={pricingPath} locale={locale} />
 
       {/* How AHO works. Three-step explainer. Cards use the standard
           `card-base` (bg-surface light / bg-surface-deep dark) so they

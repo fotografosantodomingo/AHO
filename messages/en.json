@@ -154,7 +154,17 @@
     "howStep2Body": "Title, photos, price, location — bilingual EN/ES. Up to 5 active listings on the Agent plan.",
     "howStep3Title": "Reach buyers everywhere",
     "howStep3Body": "Listings auto-publish to your AHO profile, the city landing page, and your social channels.",
-    "howCta": "See pricing"
+    "howCta": "See pricing",
+    "proSocialEyebrow": "Pro Automation",
+    "proSocialHeading": "Post once. Publish everywhere.",
+    "proSocialBody": "One listing becomes Facebook, Instagram, and LinkedIn posts — automatically. Pro Automation handles the captions, the images, and the cross-posting so you spend more time closing deals and less time copy-pasting.",
+    "proSocialFeat1Title": "AI captions per platform",
+    "proSocialFeat1Body": "Each network gets its own tuned post — never the same generic copy across all three.",
+    "proSocialFeat2Title": "Hands-free cross-posting",
+    "proSocialFeat2Body": "Connect once. Every new listing pushes to FB, IG, and LinkedIn the moment you publish.",
+    "proSocialFeat3Title": "Built-in traffic tracking",
+    "proSocialFeat3Body": "UTM-tagged links surface which platform sent each lead — straight in your dashboard.",
+    "proSocialCta": "See Pro Automation pricing"
   },
   "search": {
     "heading": "Browse listings",

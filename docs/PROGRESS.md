@@ -12,6 +12,23 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — Path 1 batch 2 (Phase 2): Homepage Pro Automation sales section
+
+Phase 2 of the social-distribution spec — the homepage marketing module that sells the marquee feature. Doable without app review (it's pure UI), so it ships now while Phase 4 OAuth waits on Meta + LinkedIn approval.
+
+  - **`src/components/home/pro-automation-section.tsx`** — Server Component. Always-dark forest-green band (`bg-surface-band` from DP-3 — same token the footer uses) so the section visually matches the Pro Automation locked-state UI on /pricing and the rebrand's signature accent.
+  - **Layout:** uppercase eyebrow `Pro Automation` → headline `Post once. Publish everywhere.` → 2-line tagline → 3-platform pill rail (FB · IG · LinkedIn) connected to an AHO pill via a hairline → 3 feature cards (AI captions / hands-free cross-posting / built-in traffic tracking) → primary CTA to /pricing.
+  - **Slot:** between the Recently Viewed rail and "How AHO works", so visitors see the marquee feature *before* the pricing CTA in the How section. That makes the existing `howCta` link feel like the natural next step instead of a cold ask.
+  - **i18n:** new `home.proSocial*` keys in both en + es (eyebrow / heading / body / 3 feat title+body pairs / CTA). All bilingual; structurally identical.
+
+**Why now:** with the Pro Automation tier purchasable as of this morning, the homepage was still selling generic "FB and IG" copy (`leadCopy`). A visitor landing on the marketing site had no signal that AHO has a marquee tier worth $99/mo. Phase 2 closes that gap with a self-contained section that doesn't depend on any backend wiring — Phase 4-7 (OAuth, preview, posting, history) can ship behind it without changing this surface.
+
+**Verification:** typecheck clean · 91/91 unit tests · lint only pre-existing `_req` warnings.
+
+**Next:** Phase 3 of the social-distribution spec — Manual Social Share. A "Share" button on the property detail page that opens a modal with platform-specific pre-formatted captions + UTM-tagged AHO links + copy buttons. No OAuth needed; degrades the marquee feature into a "we'll write the copy, you paste it" stopgap that all three paid tiers can use until Phase 4+ ship. After that: Phase 4 still parked behind app review; alternatively the deferred webhook-replay fixture-Stripe-state harness for pre-live confidence.
+
+---
+
 ## 2026-05-01 — feat/seo-og-images: dynamic OpenGraph images for all SEO surfaces
 
 Closes the OG-image branch from the post-DP-2 6-branch roadmap. Two surfaces already had ImageResponse OG (homepage + property detail); this batch fills in the other four indexable surfaces so every link share renders a rich preview.

@@ -152,7 +152,17 @@
     "howStep2Body": "Título, fotos, precio, ubicación — bilingüe EN/ES. Hasta 5 anuncios activos en el plan Agente.",
     "howStep3Title": "Llega a compradores en todas partes",
     "howStep3Body": "Tus anuncios se publican automáticamente en tu perfil de AHO, la página de la ciudad y tus redes sociales.",
-    "howCta": "Ver precios"
+    "howCta": "Ver precios",
+    "proSocialEyebrow": "Pro Automation",
+    "proSocialHeading": "Publica una vez. Aparece en todas partes.",
+    "proSocialBody": "Un anuncio se convierte en publicaciones para Facebook, Instagram y LinkedIn — automáticamente. Pro Automation se encarga de los subtítulos, las imágenes y la publicación cruzada para que pases más tiempo cerrando ventas y menos copiando y pegando.",
+    "proSocialFeat1Title": "Subtítulos con IA por plataforma",
+    "proSocialFeat1Body": "Cada red recibe su propia publicación adaptada — nunca el mismo texto genérico en las tres.",
+    "proSocialFeat2Title": "Publicación cruzada sin esfuerzo",
+    "proSocialFeat2Body": "Conecta una vez. Cada nuevo anuncio se publica en FB, IG y LinkedIn en el momento en que lo lanzas.",
+    "proSocialFeat3Title": "Seguimiento de tráfico integrado",
+    "proSocialFeat3Body": "Los enlaces con etiquetas UTM revelan qué plataforma trajo cada contacto — directo en tu panel.",
+    "proSocialCta": "Ver precios de Pro Automation"
   },
   "search": {
     "heading": "Explorar anuncios",
