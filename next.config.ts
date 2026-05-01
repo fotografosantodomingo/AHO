@@ -22,12 +22,18 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
  */
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://js.stripe.com",
+  // js.stripe.com — Checkout/Elements; challenges.cloudflare.com — Turnstile
+  // bot challenge widget script.
+  "script-src 'self' 'unsafe-inline' https://js.stripe.com https://challenges.cloudflare.com",
   "style-src 'self' 'unsafe-inline' https://unpkg.com",
   "img-src 'self' data: blob: https://imagedelivery.net https://*.tile.openstreetmap.org",
   "font-src 'self' data:",
-  "connect-src 'self' https://*.supabase.co https://api.stripe.com",
-  "frame-src https://js.stripe.com https://hooks.stripe.com",
+  // api.pwnedpasswords.com — HIBP k-anonymity check on signup; never sees
+  // the password (only first 5 chars of SHA-1 hash). Turnstile callbacks
+  // are same-origin via the script.
+  "connect-src 'self' https://*.supabase.co https://api.stripe.com https://api.pwnedpasswords.com",
+  // Stripe 3DS challenge iframe + Turnstile challenge iframe.
+  "frame-src https://js.stripe.com https://hooks.stripe.com https://challenges.cloudflare.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

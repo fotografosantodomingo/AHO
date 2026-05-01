@@ -408,6 +408,7 @@
       "needsUppercase": "Incluye al menos una letra mayúscula.",
       "needsNumber": "Incluye al menos un número.",
       "mustAcceptTerms": "Debes aceptar los Términos y la Política de Privacidad.",
+      "pwned": "Esta contraseña ha aparecido en filtraciones de datos conocidas. Por favor elige otra.",
       "generic": "Algo salió mal. Inténtalo de nuevo."
     }
   },

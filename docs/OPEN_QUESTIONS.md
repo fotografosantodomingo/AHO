@@ -46,10 +46,13 @@ Audit triggered by PO security checklist 2026-04-30. Mapping the list against cu
 ### Authentication
 - [x] Strong password policy: 8 chars + uppercase + number (`SignUpSchema`). Could tighten to 12 chars + HIBP check.
 - [ ] **MFA enforcement at signup.** Supabase supports TOTP; not yet enrolled in the signup flow. Spec calls for required MFA on admin accounts (HANDOFF §5.1) — currently optional. Action: add a post-signup MFA setup step, mandatory for `is_admin = true` profiles.
-- [ ] **HIBP / breach-list password check.** Have I Been Pwned k-anonymity API on the signup form. ~10 lines via fetch + SHA-1 prefix.
+- [x] **HIBP / breach-list password check.** Implemented at `src/lib/auth/hibp.ts` — k-anonymity (only first 5 chars of SHA-1 hash sent to api.pwnedpasswords.com). Wired into signup + reset-password forms. Fails open on network error so HIBP downtime doesn't block signup. CSP allow-listed.
 - [x] Rate limiting on auth: Supabase Auth has built-in per-IP + per-email rate limits; Cloudflare also rate-limits at the edge.
 - [ ] **Progressive account lockout** after N failed signin attempts. Supabase rate-limits but doesn't lock — would need a `failed_signin_attempts` table + middleware check.
-- [ ] **CAPTCHA / Cloudflare Turnstile** on signup + signin. Spec §22 mentions Turnstile; not yet integrated.
+- [~] **CAPTCHA / Cloudflare Turnstile** on signup + signin. Widget component at `src/components/auth/turnstile-widget.tsx`; signup + signin forms render it when `NEXT_PUBLIC_TURNSTILE_SITE_KEY` is set, capture the token, and pass `options.captchaToken` to Supabase. Two **PO actions** for it to actually verify:
+  1. Cloudflare Dashboard → **Turnstile** → Add a site → domain `advertisehomes.online` → save the **Site Key** + **Secret Key**.
+  2. Set `NEXT_PUBLIC_TURNSTILE_SITE_KEY` in `.env.local` + Pages secrets + GitHub Actions secret.
+  3. Supabase Dashboard → **Project Settings** → **Auth** → **Captcha protection** → Enable, choose **Turnstile**, paste the **Secret Key**, save. (Supabase verifies the token server-side against this secret.)
 - [x] Generic error messages: Supabase Auth returns `Invalid login credentials` on bad password OR unknown email — no enumeration. Verified.
 
 ### Session management
@@ -71,7 +74,7 @@ Audit triggered by PO security checklist 2026-04-30. Mapping the list against cu
 - [x] **Referrer-Policy:** `strict-origin-when-cross-origin`.
 - [x] **Permissions-Policy:** camera/microphone/geolocation blocked; payment scoped to Stripe only.
 - [~] WAF: Cloudflare's free-tier managed rules are active. Full WAF (custom rules, OWASP Top 10 ruleset) is paid-tier.
-- [ ] **`pnpm audit` in CI.** Trivial add: `corepack pnpm@9.12.3 audit --prod --audit-level=high` in `.github/workflows/ci.yml`. Fail the build on high+ vulnerabilities.
+- [x] **`pnpm audit` in CI.** `pnpm audit --prod --audit-level=high` runs before typecheck. Failed initially on a `drizzle-orm@<0.45.2` advisory; resolved by upgrading to `drizzle-orm@^0.45.2` + `next-intl@^4.x` (both via `pnpm add latest`, no code changes needed — Drizzle schema API + next-intl 3→4 API are stable for our usage). 2 moderate vulnerabilities remain (transitive `uuid@<14` + similar) — these don't fail CI at the `high` threshold but are tracked for cleanup.
 
 ---
 

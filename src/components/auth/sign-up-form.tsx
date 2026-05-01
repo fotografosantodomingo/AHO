@@ -1,17 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { useLocale } from 'next-intl';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { SignUpSchema, type SignUpInput } from '@/lib/auth/schemas';
+import { isPasswordPwned } from '@/lib/auth/hibp';
+import { TurnstileWidget, isTurnstileConfigured } from './turnstile-widget';
 
 const inputClass =
   'mt-1 block w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm shadow-whisper outline-hidden focus:ring-3 focus:ring-action dark:bg-surface-deep dark:focus:ring-action-dark';
 
-const ERROR_KEYS = ['min8', 'needsUppercase', 'needsNumber', 'mustAcceptTerms'] as const;
+const ERROR_KEYS = ['min8', 'needsUppercase', 'needsNumber', 'mustAcceptTerms', 'pwned'] as const;
 type KnownErrorKey = (typeof ERROR_KEYS)[number];
 
 function isKnownErrorKey(key: string): key is KnownErrorKey {
@@ -23,6 +25,12 @@ export function SignUpForm() {
   const locale = useLocale();
   const [serverError, setServerError] = useState<string | null>(null);
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
+  const [pwnedError, setPwnedError] = useState<boolean>(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const turnstileRequired = isTurnstileConfigured();
+
+  const onCaptchaToken = useCallback((token: string) => setCaptchaToken(token), []);
+  const onCaptchaExpire = useCallback(() => setCaptchaToken(null), []);
 
   const {
     register,
@@ -35,6 +43,17 @@ export function SignUpForm() {
 
   async function onSubmit(values: SignUpInput) {
     setServerError(null);
+    setPwnedError(false);
+
+    // HIBP breach check — defense-in-depth on top of the zod password
+    // policy. If HIBP is unreachable we treat as not-pwned (fail-open) so
+    // signup never blocks on a third-party outage.
+    const pwn = await isPasswordPwned(values.password);
+    if (pwn.pwned) {
+      setPwnedError(true);
+      return;
+    }
+
     const supabase = getSupabaseBrowserClient();
     // Post-confirmation landing: the user's localized dashboard. The
     // dashboard layout itself bounces non-subscribers to /pricing, so:
@@ -47,6 +66,11 @@ export function SignUpForm() {
       password: values.password,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(dashPath)}`,
+        // Supabase verifies the captcha token server-side against the
+        // secret key configured in Project Settings → Auth → Captcha.
+        // Without a configured provider this option is ignored, so it's
+        // safe to always pass when present.
+        ...(captchaToken ? { captchaToken } : {}),
         data: {
           marketing_opt_in: values.marketingOptIn ?? false,
           locale,
@@ -73,10 +97,13 @@ export function SignUpForm() {
 
   // Pull out the password error message lookup so the JSX stays readable.
   const passwordErrorMessage = (() => {
+    if (pwnedError) return t('errors.pwned');
     if (!errors.password?.message) return null;
     const key = errors.password.message;
     return isKnownErrorKey(key) ? t(`errors.${key}`) : t('errors.generic');
   })();
+
+  const submitDisabled = isSubmitting || (turnstileRequired && !captchaToken);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
@@ -110,7 +137,7 @@ export function SignUpForm() {
           type="password"
           autoComplete="new-password"
           required
-          aria-invalid={errors.password ? 'true' : undefined}
+          aria-invalid={errors.password || pwnedError ? 'true' : undefined}
           aria-describedby="password-help password-error"
           {...register('password')}
           className={inputClass}
@@ -173,6 +200,8 @@ export function SignUpForm() {
         </label>
       </div>
 
+      <TurnstileWidget onToken={onCaptchaToken} onExpire={onCaptchaExpire} />
+
       {serverError && (
         <div
           role="alert"
@@ -184,7 +213,7 @@ export function SignUpForm() {
 
       <button
         type="submit"
-        disabled={isSubmitting}
+        disabled={submitDisabled}
         className="w-full rounded-lg bg-surface-dark px-4 py-2.5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink disabled:opacity-50"
       >
         {isSubmitting ? t('signingUp') : t('signUpCta')}

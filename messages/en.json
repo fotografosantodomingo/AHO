@@ -408,6 +408,7 @@
       "needsUppercase": "Include at least one uppercase letter.",
       "needsNumber": "Include at least one number.",
       "mustAcceptTerms": "You must accept the Terms and Privacy Policy.",
+      "pwned": "This password has appeared in known data breaches. Please choose a different one.",
       "generic": "Something went wrong. Try again."
     }
   },

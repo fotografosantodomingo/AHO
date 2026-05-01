@@ -7,11 +7,12 @@ import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { ResetPasswordSchema, type ResetPasswordInput } from '@/lib/auth/schemas';
+import { isPasswordPwned } from '@/lib/auth/hibp';
 
 const inputClass =
   'mt-1 block w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm shadow-whisper outline-hidden focus:ring-3 focus:ring-action dark:bg-surface-deep dark:focus:ring-action-dark';
 
-const ERROR_KEYS = ['min8', 'needsUppercase', 'needsNumber'] as const;
+const ERROR_KEYS = ['min8', 'needsUppercase', 'needsNumber', 'pwned'] as const;
 type KnownErrorKey = (typeof ERROR_KEYS)[number];
 function isKnownErrorKey(k: string): k is KnownErrorKey {
   return (ERROR_KEYS as readonly string[]).includes(k);
@@ -31,6 +32,7 @@ export function ResetPasswordForm() {
 
   const [hasSession, setHasSession] = useState<boolean | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [pwnedError, setPwnedError] = useState(false);
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
@@ -50,6 +52,15 @@ export function ResetPasswordForm() {
 
   async function onSubmit(values: ResetPasswordInput) {
     setServerError(null);
+    setPwnedError(false);
+
+    // HIBP breach check (defense-in-depth; fails open on network error).
+    const pwn = await isPasswordPwned(values.password);
+    if (pwn.pwned) {
+      setPwnedError(true);
+      return;
+    }
+
     const supabase = getSupabaseBrowserClient();
     const { error } = await supabase.auth.updateUser({ password: values.password });
     if (error) {
@@ -94,6 +105,7 @@ export function ResetPasswordForm() {
   }
 
   const passwordErr = (() => {
+    if (pwnedError) return t('errors.pwned');
     const m = errors.password?.message;
     if (!m) return null;
     return isKnownErrorKey(m) ? t(`errors.${m}`) : t('errors.generic');

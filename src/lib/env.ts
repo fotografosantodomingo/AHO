@@ -20,6 +20,11 @@ const publicSchema = z.object({
   NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
   NEXT_PUBLIC_POSTHOG_HOST: z.string().url().optional(),
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
+  // Cloudflare Turnstile site key. When set, the auth forms render the
+  // bot-challenge widget and the form refuses to submit without a token.
+  // Pair with the SECRET key configured in Supabase Project Settings →
+  // Auth → Captcha (so Supabase can verify tokens server-side).
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().optional(),
 });
 
 const serverSchema = z.object({
@@ -67,6 +72,7 @@ export function publicEnv(): PublicEnv {
     NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
     NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
   });
   if (!parsed.success) {
     throw new Error(

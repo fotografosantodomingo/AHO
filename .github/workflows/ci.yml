@@ -37,6 +37,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Audit dependencies (high+)
+        # Surfaces high/critical vulnerabilities in production deps. Dev-only
+        # advisories don't fail the build (--prod). Run before typecheck so
+        # supply-chain issues surface fast.
+        run: pnpm audit --prod --audit-level=high
+
       - name: Typecheck
         run: pnpm typecheck
 
