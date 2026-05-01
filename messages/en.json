@@ -15,7 +15,9 @@
     "rent": "Rent",
     "sell": "Sell",
     "findAgent": "Find an agent",
-    "help": "Help"
+    "help": "Help",
+    "savedSearches": "Saved searches",
+    "currency": "Currency"
   },
   "currencyPicker": {
     "label": "Display currency"

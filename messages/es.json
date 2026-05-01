@@ -15,7 +15,9 @@
     "rent": "Alquilar",
     "sell": "Vender",
     "findAgent": "Buscar agente",
-    "help": "Ayuda"
+    "help": "Ayuda",
+    "savedSearches": "Búsquedas guardadas",
+    "currency": "Moneda"
   },
   "currencyPicker": {
     "label": "Moneda de visualización"

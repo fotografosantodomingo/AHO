@@ -93,7 +93,14 @@ export function LocaleToggle() {
         value={locale}
         onChange={(e) => switchTo(e.target.value as Locale)}
         disabled={isPending}
-        className="h-9 rounded-lg border border-border-strong bg-transparent px-2 text-sm"
+        className="h-11 cursor-pointer appearance-none rounded-full border border-border-strong bg-surface bg-[image:var(--chevron-down)] bg-[position:right_0.625rem_center] bg-[size:0.85em] bg-no-repeat py-0 pr-8 pl-4 text-sm font-medium tracking-tight transition-colors hover:border-action focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-action/50 disabled:opacity-60 dark:bg-surface-deep dark:hover:border-action-dark dark:focus-visible:ring-action-dark/50"
+        style={{
+          // Inline SVG chevron — solid forest green so it reads against
+          // both cream and dark forest backgrounds. Inline keeps the
+          // asset out of the public/ tree (no extra HTTP request).
+          ['--chevron-down' as string]:
+            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none' stroke='%231d5a3c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='1,1 6,6 11,1'/></svg>\")",
+        }}
       >
         {LOCALES.map((l) => (
           <option key={l} value={l}>

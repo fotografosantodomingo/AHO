@@ -12,6 +12,63 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — Batch DP-2b (header + mega-menu redesign)
+
+Second batch of the DP-2 visual pivot. Token cascade from DP-2a is the canvas; DP-2b is the first surface that gets a deliberate redesign on top of those tokens. The mega-menu and theme/locale toggles change layout, not just colors.
+
+**Layout reorganization (per DP-2b PO directive):** theme + locale toggles move to sit immediately next to the AHO logo on EVERY breakpoint. Previously they were buried in the desktop right cluster and inside the mobile drawer — both made quick personalization (toggle theme, switch language) needlessly hard. New layout:
+
+  - **Mobile (< md):** `[AHO] [Theme] [Locale]` ............................ `[Hamburger]`
+  - **Desktop (≥ md):** `[AHO] [Theme] [Locale]` ─nav─ `[Currency] [Auth]`
+
+All controls are ≥44×44 px touch targets.
+
+**Theme toggle — Starbucks-elegant pill switch.**
+
+Reworked from the prior 36×56 (h-9 w-14) version to a generous 44×64 (h-11 w-16) pill:
+  - Forest-green knob (`bg-action` light / `bg-action-dark` dark) carrying the active-mode icon (sun on light, moon on dark) in white. The KNOB IS the state indicator — the track icons (sun/moon at the edges) are subdued helper-color hints.
+  - Slide on a 220 ms cubic-bezier(.4, 0, .2, 1) transition — quiet and confident, not bouncy.
+  - `active:scale-95` press feedback, mirroring the same micro-interaction baked into `.btn-primary` in DP-2a.
+  - Forest-green focus ring (`focus-visible:ring-2 ring-action/50`) for keyboard nav.
+  - Hover: track border tints to forest green.
+
+**Locale toggle — refined native select.**
+
+44 px height, full pill rounding, custom inline-SVG forest-green chevron (no extra HTTP request for the icon asset), warm-tan border that goes forest on hover/focus. Native `<select>` preserved for accessibility (mobile keyboard support, screen reader semantics) — only the chrome is restyled.
+
+**Mega-menu drawer — slide-in animation + auth integrated.**
+
+Previously the drawer mounted/unmounted on `open` toggle, popping in instantly. Now mounted always; transitions:
+  - Drawer: `translate-x-full → translate-x-0` over 320 ms cubic-bezier(.4, 0, .2, 1).
+  - Backdrop: opacity 0 → 1 over the same 300 ms.
+  - `pointer-events-none` + `aria-hidden="true"` gate the drawer when closed so it doesn't intercept tab focus or pointer events.
+
+Drawer content reorganized:
+  - Theme + locale toggles **removed** (now in the top bar).
+  - **Auth section added.** Signed-out users see two pill CTAs (Sign up = `.btn-primary`, Sign in = `.btn-secondary`). Signed-in users see Dashboard + Saved searches links. Was previously absent on mobile entirely — sign-in CTA was unreachable without zooming or pinch-rotating.
+  - Currency picker pinned to the bottom for quick access.
+  - Nav items: larger font, more padding (~44 px row height each), forest-green hover with a warm-bg tint, → glyph affordance.
+
+Hamburger button (44×44):
+  - Pill (rounded-full) instead of rounded-lg square; warm-tan border; lucide `Menu` icon.
+  - Icon swaps to `X` when the drawer is open (the button itself doesn't disappear — it stays as the close affordance from the top bar; redundant with the drawer's internal close button but no harm).
+
+**i18n additions.** Two new keys in the `nav` namespace, both en + es: `savedSearches` ("Saved searches" / "Búsquedas guardadas") and `currency` ("Currency" / "Moneda"). Both are used inside the drawer.
+
+**What's intentionally NOT in DP-2b:**
+  - Footer (still HashiCorp-shaped) → DP-2c.
+  - Email templates → DP-2d.
+  - Per-page hand-rolled buttons (e.g. pricing's Subscribe) — picked up the new tokens via DP-2a cascade but not migrated to `.btn-primary` until their owning batch lands.
+
+**Verify run.**
+  - typecheck clean, lint clean (pre-existing 2 warnings), unit 91/91
+  - RLS not re-run (UI-only batch, no DB changes)
+  - Live deploy smoke after push
+
+**Next session should start with**: DP-2c — footer redesign (4-col → mobile accordions, newsletter, quick-contact, language mirror).
+
+---
+
 ## 2026-05-01 — Batch DP-2a (visual pivot, tokens-only): HashiCorp → Starbucks-inspired
 
 PO directive: pivot AHO's visual voice from HashiCorp-cool/enterprise to Starbucks-inspired warm/premium. Detailed in `docs/DECISIONS.md` "2026-05-01 — Visual direction pivot." Implementation as 4 batches; **DP-2a** is just the token swap.
