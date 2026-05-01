@@ -12,6 +12,32 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — feat/seo-og-images: dynamic OpenGraph images for all SEO surfaces
+
+Closes the OG-image branch from the post-DP-2 6-branch roadmap. Two surfaces already had ImageResponse OG (homepage + property detail); this batch fills in the other four indexable surfaces so every link share renders a rich preview.
+
+**New OG image routes (all 1200×630 PNG, edge runtime, system fonts, dark `#15181e` background to match the existing convention):**
+
+  1. **`/[locale]/countries/opengraph-image.tsx`** — countries directory. Static-ish per locale. Eyebrow `Browse` / `Explorar` + headline `Real estate worldwide` / `Inmuebles en todo el mundo` + tagline.
+
+  2. **`/[locale]/properties-in/[country]/opengraph-image.tsx`** — country landing. Resolves country name via `Intl.DisplayNames` + listing/city counts via `getCountryCities()`. ISO-code validation falls through to a generic AHO card on bad input. Empty country shows "Coming soon — be the first agent" instead of a misleading zero count.
+
+  3. **`/[locale]/properties-in/[country]/[city]/opengraph-image.tsx`** — city landing. Calls `searchCityLanding()` with `limit:30` to get the canonical city name (via `resolvedCity`) + active listing count. Falls back to unslugified URL form when no listings yet. Stat line: `12 active listings · Dominican Republic`.
+
+  4. **`/[locale]/agents/[slug]/opengraph-image.tsx`** — public agent profile. Calls `fetchAgentProfile()` (which already short-circuits to `org: null` for `aho-test-org-*` fixtures, satisfying CLAUDE.md hard rule #8). Eyebrow varies by org type: `Real estate agent` / `agency` / `expert`. Stat line: `8 active listings · Santo Domingo, Dominican Republic`. Stale slug or fixture → generic AHO card so the share never breaks.
+
+**Why this matters now:** with the Pro Automation tier shipped this morning, every social-distribution post the engine eventually generates relies on the link's OG preview being the post. A Pro Automation customer auto-posting a property to FB/LinkedIn gets the property OG; an agent sharing their `/agents/{slug}` profile in a WhatsApp DM gets the org OG. Without these four surfaces, half the share paths would degrade to a generic AHO card.
+
+**Convention preserved:** all six OG images now share the same visual language — top strap (AHO wordmark + uppercase eyebrow) / hero block (huge title + subtitle) / bottom domain. `system-ui` font stack (no remote font fetch — Cloudflare Pages + @vercel/og's font fetching has been finicky historically; documented in the existing files and kept here).
+
+**Verification:** typecheck clean · lint only pre-existing `_req` warnings · 91/91 unit tests pass.
+
+**Cumulative state:** Six dynamic OG image routes total. All public indexable surfaces now have rich previews. Property detail OG was the original (already shipped); homepage is the brand card; the four shipped today cover the geography hierarchy + agent profiles.
+
+**Next session should start with:** Pick the next branch from the post-DP-2 roadmap — feat/marker-clustering (search-page UX polish at high listing density) or feat/neighborhood-overlays (city landing — neighborhood polygons over the map). Marker clustering is higher leverage in the short term because the bbox-driven map fetch shipped in slice-3 polish exposes scaling pain at the listing densities the soft-beta agents will eventually generate. Phase 4 of social-distribution stays parked behind Meta/LinkedIn app review.
+
+---
+
 ## 2026-05-01 — Path 1 batch 1: 3-tier pricing (Agent / Plus / Pro Automation) with social automation gated to $99
 
 Per the Phase-5 social-distribution spec analysis (`docs/social media shering on 99$ plan.rtf`) the PO chose Path 1: keep the existing 3-tier shape, no migration of existing customers, and gate social-media automation to a new $99 "Pro Automation" tier that ships now alongside a $49 "Plus" middle tier. Existing $29 "Agent" plan is unchanged. Locked UI on $29/$49 explains why the upgrade exists.
