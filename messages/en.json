@@ -237,6 +237,7 @@
     "listingsHeading": "My Listings",
     "newListing": "New listing",
     "saveAsDraft": "Save as draft",
+    "publishListing": "Publish listing",
     "planUsage": "Properties posted",
     "planUsageRemaining_one": "{count} remaining in plan",
     "planUsageRemaining_other": "{count} remaining in plan",
@@ -356,6 +357,7 @@
       "basement": "Basement"
     },
     "publishAfterImages": "Save as draft now, then add photos and publish.",
+    "publishNeedsPhotos": "Tip: add at least one photo before publishing.",
     "errors": {
       "titleRequired": "Title in at least one language is required.",
       "priceRequired": "Price is required.",

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useTransition } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -9,9 +9,23 @@ import {
   CreateListingSchema,
   type CreateListingInput,
   createListing,
+  publishListing,
 } from '@/lib/listings/actions';
 import { buildCountryOptions } from '@/lib/listings/countries-iso';
 import { AMENITY_KEYS, type AmenityKey } from '@/lib/listings/amenities';
+import { uploadOneFile } from '@/lib/listings/client-upload';
+
+const MAX_STAGED_IMAGES = 30;
+const MAX_FILE_BYTES = 25 * 1024 * 1024;
+const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+
+interface StagedFile {
+  clientId: string;
+  file: File;
+  previewUrl: string;
+  status: 'pending' | 'uploading' | 'confirmed' | 'error';
+  errorCode?: string;
+}
 
 const inputClass =
   'mt-1 block w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm shadow-whisper outline-hidden focus:ring-3 focus:ring-action dark:bg-surface-deep dark:focus:ring-action-dark';
@@ -55,15 +69,55 @@ interface ListingFormProps {
 export function ListingForm({ initialValues, successRedirectBase }: ListingFormProps) {
   const t = useTranslations('listingForm');
   const tDashboard = useTranslations('dashboard');
+  const tUploader = useTranslations('imageUploader');
   const locale = useLocale();
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | null>(null);
+  // 'idle' = ready, 'creating' = posting form, 'uploading' = uploading staged
+  // photos, 'publishing' = flipping status to active. Drives label state on
+  // the buttons + spinner.
+  const [phase, setPhase] = useState<
+    'idle' | 'creating' | 'uploading' | 'publishing'
+  >('idle');
 
   const countryOptions = useMemo(
     () => buildCountryOptions(locale === 'es' ? 'es' : 'en'),
     [locale],
   );
+
+  // Staged photos — held client-side until the property row is created,
+  // then batch-uploaded on submit. Lets the user see the full new-listing
+  // experience (form + photos + Publish) on a single page.
+  const [stagedFiles, setStagedFiles] = useState<StagedFile[]>([]);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [dragOver, setDragOver] = useState(false);
+
+  function addFiles(files: FileList | File[]) {
+    const arr = Array.from(files);
+    const remaining = MAX_STAGED_IMAGES - stagedFiles.length;
+    const accepted: StagedFile[] = [];
+    for (const f of arr) {
+      if (accepted.length >= remaining) break;
+      if (!ACCEPTED_TYPES.includes(f.type)) continue;
+      if (f.size > MAX_FILE_BYTES) continue;
+      accepted.push({
+        clientId: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        file: f,
+        previewUrl: URL.createObjectURL(f),
+        status: 'pending',
+      });
+    }
+    if (accepted.length === 0) return;
+    setStagedFiles((prev) => [...prev, ...accepted]);
+  }
+
+  function removeStaged(clientId: string) {
+    setStagedFiles((prev) => {
+      const target = prev.find((s) => s.clientId === clientId);
+      if (target) URL.revokeObjectURL(target.previewUrl);
+      return prev.filter((s) => s.clientId !== clientId);
+    });
+  }
 
   // Form state for the conditional Period field. Local mirror of the
   // transaction_type to avoid threading react-hook-form's `watch` through
@@ -106,7 +160,9 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
     },
   });
 
-  function onSubmit(values: CreateListingInput) {
+  // Internal submit handler. `intent` controls whether to flip the new
+  // property to `active` after photos finish uploading.
+  async function submit(values: CreateListingInput, intent: 'draft' | 'publish') {
     setServerError(null);
     // Convert whole-units price back to cents for the DB column.
     const priceCents = Math.round(Number(values.price_cents) * 100);
@@ -117,26 +173,79 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
     const enriched: CreateListingInput = {
       ...values,
       price_cents: priceCents,
-      // Period is meaningless for sale listings — drop it server-side too.
       price_period: isRental ? values.price_period ?? null : null,
       amenities: [...amenities],
     };
 
-    startTransition(async () => {
-      const result = await createListing(enriched);
-      if (!result.ok) {
-        setServerError(result.errorCode ?? 'create_failed');
+    setPhase('creating');
+    const result = await createListing(enriched);
+    if (!result.ok) {
+      setPhase('idle');
+      setServerError(result.errorCode ?? 'create_failed');
+      return;
+    }
+    const propertyId = result.id!;
+
+    // Upload staged photos, if any. Sequential to keep R2 / RLS-insert
+    // behavior predictable; small N (cap 30).
+    if (stagedFiles.length > 0) {
+      setPhase('uploading');
+      // Alt text for SEO + a11y. {title} — {city} — {n}.
+      const altBase = (enriched.title_en || enriched.title_es || 'listing').trim();
+      let allOk = true;
+      for (let i = 0; i < stagedFiles.length; i++) {
+        const sf = stagedFiles[i]!;
+        const altText = `${altBase} — ${enriched.city} — ${i + 1}`;
+        const r = await uploadOneFile({
+          propertyId,
+          file: sf.file,
+          altText,
+          onStatus: (status, errorCode) => {
+            setStagedFiles((prev) =>
+              prev.map((s) => (s.clientId === sf.clientId ? { ...s, status, errorCode } : s)),
+            );
+          },
+        });
+        if (!r.ok) allOk = false;
+      }
+      if (!allOk && intent === 'publish') {
+        // Some uploads failed; refuse to publish a half-uploaded listing.
+        setPhase('idle');
+        setServerError('partial_upload_publish_blocked');
+        // The draft is still created; user can fix on the edit page.
+        router.push(`${successRedirectBase}/${propertyId}`);
         return;
       }
-      router.push(`${successRedirectBase}/${result.id}`);
-      router.refresh();
-    });
+    }
+
+    if (intent === 'publish') {
+      setPhase('publishing');
+      const pubResult = await publishListing(propertyId);
+      if (!pubResult.ok) {
+        setPhase('idle');
+        setServerError(pubResult.errorCode ?? 'publish_failed');
+        // Land on edit page anyway — the draft + photos are saved.
+        router.push(`${successRedirectBase}/${propertyId}`);
+        return;
+      }
+    }
+
+    setPhase('idle');
+    router.push(`${successRedirectBase}/${propertyId}`);
+    router.refresh();
   }
 
-  const busy = isSubmitting || isPending;
+  // We need TWO submit paths from one form. RHF's handleSubmit returns a
+  // function we can re-trigger with different intents. Bind once per
+  // intent so the buttons can call them.
+  const submitAsDraft = handleSubmit((values) => submit(values, 'draft'));
+  const submitAndPublish = handleSubmit((values) => submit(values, 'publish'));
+
+  const busy = isSubmitting || phase !== 'idle';
+  const totalSlots = stagedFiles.filter((s) => s.status !== 'error').length;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8" noValidate>
+    <form onSubmit={submitAsDraft} className="space-y-8" noValidate>
       <Section heading={t('sectionBasics')}>
         <Field>
           <label htmlFor="transaction_type" className={labelClass}>
@@ -473,6 +582,112 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
         </Field>
       </Section>
 
+      {/* Photo staging — files are held client-side until the property
+          row is created on submit, then batched uploaded. The user sees
+          previews + a per-file status badge once the upload starts. */}
+      <Section heading={tUploader('heading')}>
+        <Field>
+          <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragOver(true);
+            }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragOver(false);
+              if (e.dataTransfer.files) addFiles(e.dataTransfer.files);
+            }}
+            className={`rounded-card border-2 border-dashed p-6 text-center transition ${
+              totalSlots >= MAX_STAGED_IMAGES
+                ? 'cursor-not-allowed border-border-strong/30 bg-surface-muted/40'
+                : dragOver
+                ? 'border-action bg-action/5'
+                : 'border-border-strong/40 bg-surface hover:border-border-strong/60 dark:bg-surface-deep'
+            }`}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept={ACCEPTED_TYPES.join(',')}
+              multiple
+              disabled={busy || totalSlots >= MAX_STAGED_IMAGES}
+              onChange={(e) => {
+                if (e.target.files) addFiles(e.target.files);
+                e.target.value = '';
+              }}
+              className="sr-only"
+            />
+            <p className="font-brand text-sm font-semibold">
+              {totalSlots >= MAX_STAGED_IMAGES ? tUploader('atCap') : tUploader('dropHere')}
+            </p>
+            <p className="mt-1 text-xs text-helper">
+              {totalSlots} <span>/ {MAX_STAGED_IMAGES}</span> · {tUploader('orClickHint')}
+            </p>
+            {totalSlots < MAX_STAGED_IMAGES && (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={busy}
+                className="mt-3 inline-flex h-9 items-center rounded-lg border border-border-strong px-4 text-sm transition hover:bg-black/5 disabled:opacity-50 dark:hover:bg-white/5"
+              >
+                {tUploader('selectFiles')}
+              </button>
+            )}
+          </div>
+
+          {stagedFiles.length > 0 && (
+            <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+              {stagedFiles.map((s) => (
+                <li
+                  key={s.clientId}
+                  className="overflow-hidden rounded-card border border-border bg-surface shadow-whisper dark:bg-surface-deep"
+                >
+                  <div className="relative aspect-[4/3] bg-surface-muted dark:bg-surface-dark">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={s.previewUrl}
+                      alt={s.file.name}
+                      className="h-full w-full object-cover"
+                    />
+                    <span
+                      className={`absolute left-2 top-2 inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium backdrop-blur-sm ${
+                        s.status === 'confirmed'
+                          ? 'bg-emerald-100/90 text-emerald-900 dark:bg-emerald-950/70 dark:text-emerald-200'
+                          : s.status === 'error'
+                          ? 'bg-red-100/90 text-red-900 dark:bg-red-950/70 dark:text-red-200'
+                          : 'bg-surface/90 text-ink dark:bg-surface-dark/90 dark:text-ink-inverse'
+                      }`}
+                    >
+                      {s.status === 'pending' && tUploader('statusPending')}
+                      {s.status === 'uploading' && tUploader('statusUploading')}
+                      {s.status === 'confirmed' && `✓ ${tUploader('statusConfirmed')}`}
+                      {s.status === 'error' && tUploader('statusError')}
+                    </span>
+                    {s.status === 'pending' && !busy && (
+                      <button
+                        type="button"
+                        onClick={() => removeStaged(s.clientId)}
+                        aria-label="Remove"
+                        className="absolute right-2 top-2 inline-flex h-6 w-6 items-center justify-center rounded-md bg-surface/90 text-xs text-ink shadow-whisper hover:bg-surface dark:bg-surface-dark/90 dark:text-ink-inverse"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                  <p className="truncate p-2 text-xs text-helper" title={s.file.name}>
+                    {s.file.name}
+                  </p>
+                  {s.errorCode && (
+                    <p className="px-2 pb-2 text-xs text-red-600">{s.errorCode}</p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </Field>
+      </Section>
+
       {serverError && (
         <div
           role="alert"
@@ -483,14 +698,32 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
       )}
 
       <div className="flex flex-wrap items-center gap-3 border-t border-border pt-4">
+        {/* Two-button submit. Default form submit (Enter key + the bare
+            button click) goes through `submitAsDraft`. The Publish button
+            calls submitAndPublish via onClick + type="button" so it doesn't
+            double-fire form submission. */}
         <button
           type="submit"
           disabled={busy}
-          className="inline-flex h-10 items-center rounded-lg bg-surface-dark px-5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink disabled:opacity-50"
+          className="inline-flex h-10 items-center rounded-lg border border-border-strong bg-surface px-5 text-sm font-medium shadow-whisper transition hover:bg-black/5 disabled:opacity-50 dark:bg-surface-deep dark:hover:bg-white/5"
         >
-          {busy ? '…' : tDashboard('saveAsDraft')}
+          {phase === 'creating' || phase === 'uploading' ? '…' : tDashboard('saveAsDraft')}
         </button>
-        <p className="text-xs text-helper">{t('publishAfterImages')}</p>
+        <button
+          type="button"
+          onClick={() => submitAndPublish()}
+          disabled={busy}
+          className="inline-flex h-10 items-center rounded-lg bg-surface-dark px-5 text-sm font-medium text-ink-inverse-muted shadow-whisper transition hover:bg-ink disabled:opacity-50 dark:bg-surface dark:text-ink dark:hover:bg-surface-muted"
+        >
+          {phase === 'publishing'
+            ? '…'
+            : phase === 'uploading'
+            ? tUploader('statusUploading')
+            : tDashboard('publishListing')}
+        </button>
+        <p className="ml-auto text-xs text-helper">
+          {stagedFiles.length === 0 ? t('publishNeedsPhotos') : null}
+        </p>
       </div>
     </form>
   );

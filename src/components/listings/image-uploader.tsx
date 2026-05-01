@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { uploadOneFile } from '@/lib/listings/client-upload';
 
 const MAX_IMAGES = 30;
 const MAX_FILE_BYTES = 25 * 1024 * 1024;
@@ -253,114 +254,17 @@ async function uploadOne(
   setItems: React.Dispatch<React.SetStateAction<UploadItem[]>>,
   setR2Disabled: React.Dispatch<React.SetStateAction<boolean>>,
 ) {
-  // Step 1: sign upload + insert pending row.
-  setItems((prev) =>
-    prev.map((it) => (it.clientId === clientId ? { ...it, status: 'uploading' } : it)),
-  );
-  const signRes = await fetch(`/api/properties/${propertyId}/images`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({
-      filename: file.name,
-      contentType: file.type,
-      byteSize: file.size,
-      altTextEn: altText,
-      altTextEs: altText,
-    }),
-  });
-  if (!signRes.ok) {
-    const body = await signRes.json().catch(() => ({}));
-    if (body?.error === 'r2_not_configured') {
-      setR2Disabled(true);
-    }
-    setItems((prev) =>
-      prev.map((it) =>
-        it.clientId === clientId
-          ? { ...it, status: 'error', errorCode: body?.error ?? `http_${signRes.status}` }
-          : it,
-      ),
-    );
-    return;
-  }
-  const { imageId, uploadUrl, headers: putHeaders } = (await signRes.json()) as {
-    imageId: string;
-    uploadUrl: string;
-    headers: Record<string, string>;
-  };
-  setItems((prev) =>
-    prev.map((it) => (it.clientId === clientId ? { ...it, imageId } : it)),
-  );
-
-  // Step 2: PUT bytes to R2.
-  const putRes = await fetch(uploadUrl, {
-    method: 'PUT',
-    headers: putHeaders,
-    body: file,
-  });
-  if (!putRes.ok) {
-    setItems((prev) =>
-      prev.map((it) =>
-        it.clientId === clientId
-          ? { ...it, status: 'error', errorCode: `r2_put_${putRes.status}` }
-          : it,
-      ),
-    );
-    return;
-  }
-
-  // Step 3: read dimensions client-side, then confirm.
-  const dims = await readImageDimensions(file).catch(() => ({ width: 0, height: 0 }));
-  if (dims.width === 0 || dims.height === 0) {
-    setItems((prev) =>
-      prev.map((it) =>
-        it.clientId === clientId
-          ? { ...it, status: 'error', errorCode: 'dimensions_failed' }
-          : it,
-      ),
-    );
-    return;
-  }
-  const confirmRes = await fetch(
-    `/api/properties/${propertyId}/images/${imageId}/confirm`,
-    {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ width: dims.width, height: dims.height }),
+  await uploadOneFile({
+    propertyId,
+    file,
+    altText,
+    onStatus: (status, errorCode) => {
+      if (errorCode === 'r2_not_configured') setR2Disabled(true);
+      setItems((prev) =>
+        prev.map((it) =>
+          it.clientId === clientId ? { ...it, status, errorCode } : it,
+        ),
+      );
     },
-  );
-  if (!confirmRes.ok) {
-    const body = await confirmRes.json().catch(() => ({}));
-    setItems((prev) =>
-      prev.map((it) =>
-        it.clientId === clientId
-          ? { ...it, status: 'error', errorCode: body?.error ?? `http_${confirmRes.status}` }
-          : it,
-      ),
-    );
-    return;
-  }
-
-  setItems((prev) =>
-    prev.map((it) =>
-      it.clientId === clientId ? { ...it, status: 'confirmed' } : it,
-    ),
-  );
-}
-
-function readImageDimensions(
-  file: File,
-): Promise<{ width: number; height: number }> {
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      resolve({ width: img.naturalWidth, height: img.naturalHeight });
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error('image_load_failed'));
-    };
-    img.src = url;
   });
 }

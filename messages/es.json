@@ -237,6 +237,7 @@
     "listingsHeading": "Mis anuncios",
     "newListing": "Nuevo anuncio",
     "saveAsDraft": "Guardar como borrador",
+    "publishListing": "Publicar anuncio",
     "planUsage": "Propiedades publicadas",
     "planUsageRemaining_one": "{count} disponible en tu plan",
     "planUsageRemaining_other": "{count} disponibles en tu plan",
@@ -356,6 +357,7 @@
       "basement": "Sótano"
     },
     "publishAfterImages": "Guarda como borrador, luego añade fotos y publica.",
+    "publishNeedsPhotos": "Sugerencia: añade al menos una foto antes de publicar.",
     "errors": {
       "titleRequired": "Se requiere un título en al menos un idioma.",
       "priceRequired": "El precio es obligatorio.",
