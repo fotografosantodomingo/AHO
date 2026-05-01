@@ -22,7 +22,7 @@ export const runtime = 'edge';
  * before the DB sees the row.
  *
  * Email notification to the agent fires after the row is committed. If
- * RESEND_API_KEY isn't set the wrapper logs and no-ops — the lead is still
+ * BREVO_API_KEY isn't set the wrapper logs and no-ops — the lead is still
  * created and visible in the dashboard inbox.
  *
  * Anti-abuse — TODO before public launch:

@@ -17,8 +17,8 @@ export const runtime = 'edge';
  *   - **Email confirmation / password recovery** flows arrive with
  *     `?token_hash=...&type=signup|recovery|...` — verify the OTP.
  *
- * On `type=signup` confirmations we fire a welcome email via Resend. The
- * email is best-effort (no-op if RESEND_API_KEY is unset) and runs
+ * On `type=signup` confirmations we fire a welcome email via Brevo. The
+ * email is best-effort (no-op if BREVO_API_KEY is unset) and runs
  * post-redirect via fire-and-forget — failures don't block the user from
  * signing in.
  *

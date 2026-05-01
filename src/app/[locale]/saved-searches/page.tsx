@@ -13,10 +13,10 @@ export const dynamic = 'force-dynamic';
  * bounces unsubbed users to /pricing, but this surface is open to all
  * registered users).
  *
- * Email-alert worker is OUT of scope until Resend wiring lands; today
- * the saved searches are revisit-bookmarks only. The `notify_email`
- * column persists the user's preference so the worker just turns on
- * once it's deployed.
+ * Email-alert worker is OUT of scope until the Brevo transactional
+ * sender is wired into a scheduled cron; today the saved searches are
+ * revisit-bookmarks only. The `notify_email` column persists the
+ * user's preference so the worker just turns on once it's deployed.
  *
  * Robots: noindex,nofollow (auth-gated; not a public surface).
  */

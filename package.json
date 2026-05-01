@@ -52,7 +52,6 @@
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.0",
     "react-leaflet": "^5.0.0",
-    "resend": "^6.12.2",
     "server-only": "^0.0.1",
     "stripe": "^17.4.0",
     "tailwind-merge": "^2.5.5",

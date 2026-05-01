@@ -12,6 +12,51 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — Resend → Brevo final cleanup + smart partitioned sitemap with image:image children
+
+PO confirmation that Brevo is the only email provider (the bilingual Resend → Brevo swap happened weeks ago in `src/lib/email/brevo.ts`). Today's pass found and removed every leftover that still named Resend.
+
+**Resend leftovers cleaned up:**
+  - `src/lib/env.ts` — dropped the legacy `RESEND_API_KEY` schema entry (was kept "optional" for backwards compat; no code reads it)
+  - `package.json` — dropped the `resend` npm dependency (unused)
+  - 5 source-file docstrings updated to say "Brevo" / "BREVO_API_KEY":
+    - `src/app/[locale]/saved-searches/page.tsx` (saved-search alert worker comment)
+    - `src/app/auth/callback/route.ts` (welcome-email comment)
+    - `src/app/api/leads/route.ts` (lead-notification comment)
+    - `src/db/schema.ts` (saved_searches table comment)
+    - `src/lib/billing/handlers/checkout-session-completed.ts` (welcome email)
+    - `src/lib/billing/handlers/invoice-payment-action-required.ts` (3DS notification)
+    - `src/lib/billing/handlers/invoice-payment-failed.ts` (dunning email)
+  - `CLAUDE.md` tech-stack line: "Email: Resend" → "Email: Brevo". Pending-PO-action table replaces "Resend API key + DKIM/SPF/DMARC" with "Brevo DKIM/SPF/DMARC" (the API key is set; only sending-domain auth is missing). R2 line dropped (already enabled per earlier session).
+  - `docs/DNS.md` — full Resend section replaced with a Brevo section: SPF `include:spf.brevo.com`, CNAME `mail._domainkey.mail` for DKIM, `_brevo.mail` TXT for one-time domain verification. Inbound MX section deferred (Brevo doesn't provide inbound on the sending domain; route through agent's own email client for v1).
+  - `docs/RISKS.md` R6 — "warm up per Resend's recommendations" → "warm up per Brevo's recommendations".
+  - Migration `.sql` files and historical `PROGRESS.md` entries left untouched (they're history; rewriting is misleading).
+
+**Smart partitioned sitemap (the user-requested SEO upgrade):**
+
+Refactored `src/app/sitemap.ts` to use Next 15's `generateSitemaps()` API. The result: a sitemap-index at `/sitemap.xml` that points to five per-section sub-sitemaps at `/sitemap/{id}.xml`.
+
+| Section | Cadence | What's in it |
+|---|---|---|
+| `marketing` | yearly–weekly | homepage, pricing, privacy, terms, countries directory (all bilingual with hreflang) |
+| `properties` | weekly | every active+published property URL **with `<image:image>` children** for each photo |
+| `cities` | daily | distinct (country, city) landing pages |
+| `countries` | daily | distinct country landing pages |
+| `agents` | weekly | distinct organization profile pages |
+
+**Three real wins:**
+  1. **Image sitemap** — Next's `images: string[]` field per entry triggers `<image:image>` XML children. Google Image Search uses these to surface property photos directly in image results (Zillow / Redfin pattern). Each property URL now declares all its confirmed images, ordered by `position`.
+  2. **Per-section crawl-cadence signaling** — properties refresh weekly, cities daily, marketing yearly. Crawlers can refresh each on its own schedule rather than worst-case across all of them.
+  3. **50K URL cap headroom** — sitemap protocol limits each file to 50K. Partitioning gives each section its own budget.
+
+**Image fetch:** the `properties` partition does two DB round-trips: one for listings, one batched `IN (...)` for `property_images` filtered to `upload_status='confirmed'` and ordered by `position`. URLs go through the existing `buildImageUrl` (CF Images preferred, R2 public URL fallback). Empty arrays are not emitted (no empty `<image:image>` tags).
+
+**Confirmed: new listings auto-add to sitemap.** The sitemap is `runtime='edge'` + `dynamic='force-dynamic'`, so every fetch hits Supabase live. The moment an agent flips `status='active'` + `published_at IS NOT NULL`, the next sitemap fetch picks it up — no rebuild, no cache, no manual ping.
+
+**Verification:** typecheck clean · 124/124 unit tests · lint only pre-existing `_req` warnings.
+
+---
+
 ## 2026-05-01 — Pre-live confidence: extracted + unit-tested cross-version Stripe parsers
 
 A surgical pre-live-readiness piece. The webhook handlers had three pure functions for parsing across Stripe API versions (`periodFromSubscription`, `invoiceSubscriptionId`, `paymentIntentIdFromInvoice`) — two of them duplicated between `invoice-paid.ts` and `invoice-payment-failed.ts`. All three are exactly the kind of code that fails silently in production: a wrong return value gives "no rows updated" with no error, and the deferred webhook-replay cases couldn't catch them without live Stripe state.
@@ -34,7 +79,7 @@ A surgical pre-live-readiness piece. The webhook handlers had three pure functio
   - Neighborhood overlays (PO decision on polygon-data source)
   - Soft-beta agent recruitment (PO outreach for first real listings)
   - Custom domain DNS www→apex (manual via PO Cloudflare dashboard)
-  - Resend DKIM/SPF/DMARC (PO action)
+  - Brevo DKIM/SPF/DMARC for `mail.advertisehomes.online` (PO action — DNS records per `docs/DNS.md`; the API key is set, only sending-domain auth is missing)
   - Live-mode Stripe promotion (requires DECISIONS.md entry per CLAUDE.md hard rule #9)
 
 The autonomous-progress backlog from CLAUDE.md "Current focus" is now genuinely complete.
@@ -176,7 +221,7 @@ Per the Phase-5 social-distribution spec analysis (`docs/social media shering on
 **Cumulative state:** Path 1 batch 1 complete — Pro Automation tier is purchasable in TEST mode end-to-end (Stripe Checkout → webhook materializes org with `current_plan_id = aho_pro_automation_*` → dashboard /social page flips to unlocked variant). Existing Agent customers are completely unaffected.
 
 **Blockers / open questions:**
-  - **PO actions still pending:** soft-beta agents (3-5 real Santo Domingo agents) for first real listings; Resend DKIM/SPF/DMARC; R2 paid-tier opt-in (already provisioned per env), www→apex Cloudflare redirect (manual per the Page Rules-vs-Rulesets blocker logged 2026-05-01).
+  - **PO actions still pending:** soft-beta agents (3-5 real Santo Domingo agents) for first real listings; Brevo DKIM/SPF/DMARC for `mail.advertisehomes.online`; www→apex Cloudflare redirect (manual per the Page Rules-vs-Rulesets blocker logged 2026-05-01).
   - **Phases 4-7 of social-distribution:** gated on Meta + LinkedIn app review (week-1 submission per `DECISIONS.md` "v1 scope") + Cloudflare Workers Paid plan ($5/mo) for the posting queue.
 
 **Next session should start with:** Either (a) Phase 4 — Meta/LinkedIn OAuth start route + callback route + `social_connections` table migration once the app reviews are approved, or (b) Phase 6 of the broader 6-branch roadmap (per the post-DP-2 plan: feat/seo-og-images, feat/marker-clustering, feat/neighborhood-overlays — pick the next one). Do **not** start Phase 4 until app reviews are approved; the route shells return 501 by design, and shipping a half-wired OAuth surface against unapproved apps would just generate review-rejection traffic.

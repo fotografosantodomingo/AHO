@@ -14,7 +14,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
  * URL and complete the challenge or the payment fails.
  *
  * We notify the customer via email with the hosted-invoice URL. The email
- * is best-effort (no-op if Resend isn't configured).
+ * is best-effort (no-op if Brevo isn't configured).
  *
  * The subscription's status will already be `incomplete` or `past_due`
  * after this event; the regular `customer.subscription.updated` handler

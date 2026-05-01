@@ -19,7 +19,7 @@ import {
  *      `past_due` (Stripe handles dunning retries internally; we just
  *      reflect what they tell us).
  *   4. Record the failed payment.
- *   5. (Future) Kick off our T+0 dunning email via Resend. Out of scope this
+ *   5. (Future) Kick off our T+0 dunning email via Brevo. Out of scope this
  *      turn; the dunning policy is in HANDOFF §7.5.
  *
  * The dunning policy progressively restricts access at T+5 (listings

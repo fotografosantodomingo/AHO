@@ -499,8 +499,9 @@ export type LeadStatus = (typeof LEAD_STATUSES)[number];
 
 // Saved searches. See `0010_saved_searches.sql`. Buyer-side: any signed-in
 // user can save a filter set + opt into email alerts when matching listings
-// are published. Email-alert worker is OUT of scope until Resend wiring
-// lands; the data layer + dashboard view ship first.
+// are published. Email-alert worker is OUT of scope until the Brevo
+// transactional sender is wired into a scheduled cron; the data layer +
+// dashboard view ship first.
 export const savedSearches = pgTable('saved_searches', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id')

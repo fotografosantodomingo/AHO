@@ -47,9 +47,6 @@ const serverSchema = z.object({
   BREVO_FROM_NAME: z.string().optional(),
   /** Where admin notifications (new signups, etc.) get delivered. */
   ADMIN_EMAIL: z.string().email().optional(),
-  // Resend was the previous email provider. Kept optional in the schema so
-  // legacy `.env.local` files don't fail validation; no code reads it.
-  RESEND_API_KEY: z.string().optional(),
   CLOUDFLARE_API_TOKEN: z.string().optional(),
   CLOUDFLARE_ACCOUNT_ID: z.string().optional(),
   SENTRY_DSN_WEB: z.string().optional(),

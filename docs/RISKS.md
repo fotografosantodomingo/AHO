@@ -37,7 +37,7 @@ Live document. Update as risks materialize, are mitigated, or close. Status valu
 ## R6 — Email deliverability cold start
 **Status:** open
 **Risk:** A new sending domain on `mail.advertisehomes.online` will land in spam without proper auth records and gradual warm-up. Verification, welcome, dunning, and password-reset emails are critical-path — failures here block real money.
-**Mitigation:** Set up SPF, DKIM, DMARC week 1 (requires DNS access — see `OPEN_QUESTIONS.md`). Warm up sending volume gradually per Resend's recommendations. Monitor bounces and complaints from the first send onward.
+**Mitigation:** Set up SPF, DKIM, DMARC week 1 (requires DNS access — see `OPEN_QUESTIONS.md`). Warm up sending volume gradually per Brevo's recommendations. Monitor bounces and complaints from the first send onward.
 **Owner:** dev (technical) + product (DNS access)
 
 ## R7 — RLS bypass through service-role misuse

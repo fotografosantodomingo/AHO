@@ -4,7 +4,7 @@
 Subscription-based real estate platform (Zillow-style) with bilingual EN/ES, multi-currency display, and a marquee one-click social-distribution feature for paid tiers. Worldwide market scope (with launch-market caveats — see `docs/RISKS.md`). Domain: **advertisehomes.online**, brand short name **AHO**, internal slug `aho`. Repo: `git@github.com:fotografosantodomingo/AHO.git`. Cloudflare account ID: `5a389e6eea7a4e92999c5f1612eafbcc` (account IDs are not secrets; the API token in `.env.local` is). Supabase project ref: `lqujtquofsdsxtujvjtl` (URL: `https://lqujtquofsdsxtujvjtl.supabase.co`).
 
 ## Status
-Live at **https://aho-web.pages.dev** (Cloudflare Pages, auto-deploy on push to `main` via `.github/workflows/deploy.yml`). Slice 1 ~88% (gated on PO actions: Resend / R2 / custom domain / soft-beta agents). All five slice-2 surfaces shipped: city landing, agent profiles, admin moderation, saved searches, search/filter/map. Slice-3 polish in progress (bbox-driven map re-fetch, loading skeletons, design-system migration complete). 33 Edge Function Routes. 141/141 tests. See `docs/PROGRESS.md` for the per-session log.
+Live at **https://aho-web.pages.dev** (Cloudflare Pages, auto-deploy on push to `main` via `.github/workflows/deploy.yml`). Slice 1 ~88% (gated on PO actions: Brevo DKIM/SPF/DMARC / custom domain / soft-beta agents). All five slice-2 surfaces shipped: city landing, agent profiles, admin moderation, saved searches, search/filter/map. Slice-3 polish in progress (bbox-driven map re-fetch, loading skeletons, design-system migration complete). 33 Edge Function Routes. 141/141 tests. See `docs/PROGRESS.md` for the per-session log.
 
 ## Tech stack (summary — full detail in `docs/HANDOFF.md` §3)
 - Frontend: Next.js 15 (App Router, RSC) on Cloudflare Pages
@@ -13,7 +13,7 @@ Live at **https://aho-web.pages.dev** (Cloudflare Pages, auto-deploy on push to 
 - Storage: Cloudflare R2 (originals) + Cloudflare Images (variants)
 - Edge: Cloudflare Workers + Queues
 - Payments: Stripe (Checkout, Billing, Customer Portal); Stripe Tax for VAT/sales tax
-- Email: Resend (transactional) on `mail.advertisehomes.online`
+- Email: Brevo (transactional) on `mail.advertisehomes.online`
 - ORM/migrations: Drizzle (recorded in `docs/DECISIONS.md`)
 
 ## Folder map
@@ -88,8 +88,7 @@ Slice 2 surfaces all live; slice-3 polish in progress (live-bbox map shipped; lo
 
 | Pending PO action | Unlocks |
 |---|---|
-| Resend API key + DKIM/SPF/DMARC for `mail.advertisehomes.online` | Welcome / lead-notification / 3DS-challenge / reset-password emails actually send (currently no-op via the optional wrapper). Saved-search email-alert worker. |
-| R2 enablement (paid-tier opt-in) | Image upload UI on `/dashboard/properties/[id]`. |
+| Brevo DKIM / SPF / DMARC for `mail.advertisehomes.online` | Welcome / lead-notification / 3DS-challenge / reset-password emails actually send (today the Brevo API key is set but the sending domain isn't authenticated, so deliverability is poor). Saved-search email-alert worker. |
 | Custom domain DNS (`advertisehomes.online` → Cloudflare Pages) | Production-grade URL. Sitemap + canonical URLs auto-pivot via `NEXT_PUBLIC_SITE_URL`. |
 | Soft-beta agent recruitment (3–5 in DR) | First real listings; everything downstream of "real-only data" rule starts to pay off. |
 | 21st.dev API key rotation (leaked in chat 2026-04-30) | UI/UX polish phase via `ui-ux-pro-max` skill (see `DECISIONS.md` "2026-04-30 — UI/UX polish phase"). |

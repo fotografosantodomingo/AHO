@@ -22,7 +22,7 @@ import { isFounderEligible } from '../founder-rate';
  *   - Founder-rate selection happens here (not at session creation) — gated
  *     by an advisory-locked count of `founder_rate_grants`. Implementing in
  *     a follow-up turn alongside the dunning + downgrade handlers.
- *   - Welcome email via Resend + onboarding tour kickoff also live here.
+ *   - Welcome email via Brevo + onboarding tour kickoff also live here.
  */
 export async function handleCheckoutSessionCompleted(
   event: Stripe.Event,
