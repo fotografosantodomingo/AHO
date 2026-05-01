@@ -123,7 +123,14 @@ export default async function DashboardLayout({
           <BillingPortalButton />
         </nav>
       </aside>
-      <section>{children}</section>
+      {/* `min-w-0` is the magic incantation: by default a grid track's
+          `auto` min-width prevents children from shrinking below their
+          intrinsic content width. Without it, a wide table inside
+          children would force the whole grid to overflow horizontally
+          past the viewport on mobile. With it, the table's wrapper
+          `overflow-x-auto` actually constrains the scroll within the
+          section. */}
+      <section className="min-w-0">{children}</section>
     </div>
   );
 }

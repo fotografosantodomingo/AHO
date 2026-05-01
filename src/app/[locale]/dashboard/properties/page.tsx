@@ -222,16 +222,16 @@ export default async function DashboardListingsPage({
                 <th className="px-3 py-2 font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
                   {t('table.status')}
                 </th>
-                <th className="px-3 py-2 font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+                <th className="hidden px-3 py-2 font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper md:table-cell">
                   {t('table.city')}
                 </th>
                 <th className="px-3 py-2 text-right font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
                   {t('table.price')}
                 </th>
-                <th className="px-3 py-2 text-right font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+                <th className="hidden px-3 py-2 text-right font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper md:table-cell">
                   {t('table.images')}
                 </th>
-                <th className="px-3 py-2 font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+                <th className="hidden px-3 py-2 font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper lg:table-cell">
                   {t('table.updated')}
                 </th>
                 <th className="px-3 py-2 text-right font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
@@ -251,21 +251,29 @@ export default async function DashboardListingsPage({
                     key={row.id}
                     className="transition hover:bg-black/5 dark:hover:bg-white/5"
                   >
-                    <td className="px-3 py-2">
-                      <a className="underline" href={editPathFor(row.id)}>
+                    <td className="max-w-[160px] px-3 py-2 sm:max-w-[260px] md:max-w-none">
+                      <a
+                        className="block truncate font-medium underline"
+                        href={editPathFor(row.id)}
+                      >
                         {title}
                       </a>
-                      <span className="ml-2 text-xs text-helper">{row.short_id}</span>
+                      <span className="text-xs text-helper">{row.short_id}</span>
+                      {/* Mobile-only: stack city beneath the title since
+                          the dedicated CITY column is hidden <md. */}
+                      <span className="block text-xs text-helper md:hidden">
+                        {row.city}
+                      </span>
                     </td>
                     <td className="px-3 py-2">
                       <StatusBadge status={row.status} label={tStatus(row.status)} />
                     </td>
-                    <td className="px-3 py-2">{row.city}</td>
+                    <td className="hidden px-3 py-2 md:table-cell">{row.city}</td>
                     <td className="px-3 py-2 text-right tabular-nums">
                       {formatPrice(Number(row.price_cents), row.currency, typedLocale)}
                     </td>
-                    <td className="px-3 py-2 text-right tabular-nums">{row.image_count}</td>
-                    <td className="px-3 py-2 text-helper">
+                    <td className="hidden px-3 py-2 text-right tabular-nums md:table-cell">{row.image_count}</td>
+                    <td className="hidden px-3 py-2 text-helper lg:table-cell">
                       {dateFormatter.format(new Date(row.updated_at))}
                     </td>
                     <td className="px-3 py-2 text-right">

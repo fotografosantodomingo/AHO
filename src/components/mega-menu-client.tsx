@@ -99,22 +99,23 @@ export function MegaMenuClient({
       />
 
       {/* Drawer — always mounted; transforms via translate-x.
-          PO reported the drawer reading as transparent on mobile.
-          Belt-and-braces solidity: `bg-white dark:bg-[#0a1812]` raw
-          color values (theme-token-equivalent) so even if the @theme
-          cascade misses, the bg lands. Plus an explicit inline style
-          backstop and a fallback solid background-image on the body
-          tier to keep contents readable in either mode. */}
+          PO reported the drawer reading as transparent on mobile in
+          dark mode. Root cause was a previous fix that added an inline
+          `style={{ backgroundColor: 'var(--color-surface)' }}` backstop
+          — but inline styles win over `dark:` Tailwind class variants,
+          and `--color-surface` resolves to white in both modes (no
+          `.dark` scope override at @theme level). So the inline white
+          stomped the `dark:bg-[#0a1812]` class.
+          Fix: drop the inline style entirely. Tailwind's `bg-white`
+          (light) + `dark:bg-[#0a1812]` (dark) are unambiguous and
+          render solid in both modes. */}
       <div
         id="mobile-drawer"
         role="dialog"
         aria-modal="true"
         aria-hidden={!open}
         aria-label="Site navigation"
-        style={{
-          backgroundColor: 'var(--color-surface)',
-        }}
-        className={`fixed top-0 right-0 bottom-0 z-50 flex w-[88%] max-w-sm flex-col gap-5 border-l-2 border-border-strong bg-white p-6 text-ink shadow-2xl transition-transform duration-[320ms] ease-[cubic-bezier(0.4,0,0.2,1)] md:hidden dark:bg-[#0a1812] dark:text-ink-inverse ${
+        className={`fixed top-0 right-0 bottom-0 z-50 flex w-[88%] max-w-sm flex-col gap-5 overflow-y-auto border-l-2 border-border-strong bg-white p-6 text-ink shadow-2xl transition-transform duration-[320ms] ease-[cubic-bezier(0.4,0,0.2,1)] md:hidden dark:bg-[#0a1812] dark:text-ink-inverse ${
           open ? 'translate-x-0' : 'pointer-events-none translate-x-full'
         }`}
       >
