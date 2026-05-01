@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { buildSoldAuditPayload } from '@/lib/audit/audit-payload';
 
 export const runtime = 'edge';
 
@@ -64,19 +65,22 @@ export async function POST(
   }
   const actorId = userResult.user.id;
 
-  // Capture prior status for the audit log payload.
+  // Existence/auth check via RLS-aware read; we don't include any
+  // captured fields in the audit payload (see lib/audit/audit-payload.ts
+  // — payload is restricted to public-safe lifecycle facts only).
   const { data: prior } = await supabase
     .from('properties')
-    .select('status, sold_date, sold_price_cents, represented_side')
+    .select('id')
     .eq('id', id)
     .maybeSingle();
   if (!prior) {
     return NextResponse.json({ ok: false, errorCode: 'not_found' }, { status: 404 });
   }
 
+  const soldDate = data.sold_date ?? new Date().toISOString();
   const update: Record<string, unknown> = {
     status: data.status,
-    sold_date: data.sold_date ?? new Date().toISOString(),
+    sold_date: soldDate,
   };
   if (data.sold_price_cents !== undefined) update.sold_price_cents = data.sold_price_cents;
   if (data.represented_side !== undefined) update.represented_side = data.represented_side;
@@ -98,19 +102,20 @@ export async function POST(
     );
   }
 
-  // Append-only audit row. RLS allows authenticated users to insert
-  // rows where actor_id = auth.uid(). Cheap; one INSERT.
+  // Append-only audit row. Payload is anon-readable via the 0014 RLS
+  // policy for kind in (listing.marked_sold, listing.marked_rented),
+  // so it MUST contain only public-safe fields. closing_notes and
+  // prior_status are intentionally excluded; see lib/audit/audit-payload.ts.
   const { error: auditErr } = await supabase.from('audit_log').insert({
     kind: data.status === 'rented' ? 'listing.marked_rented' : 'listing.marked_sold',
     actor_id: actorId,
     target_id: id,
-    payload: {
-      prior_status: prior.status,
-      sold_date: update.sold_date,
-      sold_price_cents: data.sold_price_cents ?? null,
-      represented_side: data.represented_side ?? null,
-      closing_notes: data.closing_notes ?? null,
-    },
+    payload: buildSoldAuditPayload({
+      status: data.status,
+      soldDate,
+      soldPriceCents: data.sold_price_cents,
+      representedSide: data.represented_side,
+    }),
   });
   if (auditErr) {
     // Audit failure shouldn't unwind the sold flip — the listing IS

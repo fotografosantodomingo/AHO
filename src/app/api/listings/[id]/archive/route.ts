@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { buildArchiveAuditPayload } from '@/lib/audit/audit-payload';
 
 export const runtime = 'edge';
 
@@ -40,15 +41,6 @@ export async function POST(
   }
   const actorId = userResult.user.id;
 
-  const { data: prior } = await supabase
-    .from('properties')
-    .select('status')
-    .eq('id', id)
-    .maybeSingle();
-  if (!prior) {
-    return NextResponse.json({ ok: false, errorCode: 'not_found' }, { status: 404 });
-  }
-
   const { data: updated, error: updateErr } = await supabase
     .from('properties')
     .update({ status: newStatus })
@@ -69,11 +61,16 @@ export async function POST(
     return NextResponse.json({ ok: false, errorCode: 'not_found' }, { status: 404 });
   }
 
+  // listing.archived / listing.unarchived are NOT in the 0014 anon-read
+  // IN-list today, but we scrub the payload to the same rule defensively
+  // — if a future PR widens the IN-list, the payload doesn't suddenly
+  // become a leak vector. Kept fields: new_status only. Excluded:
+  // prior_status (lifecycle private). See lib/audit/audit-payload.ts.
   const { error: auditErr } = await supabase.from('audit_log').insert({
     kind: undo ? 'listing.unarchived' : 'listing.archived',
     actor_id: actorId,
     target_id: id,
-    payload: { prior_status: prior.status, new_status: newStatus },
+    payload: buildArchiveAuditPayload({ newStatus }),
   });
   if (auditErr) {
     console.error('[POST /api/listings/:id/archive] audit insert failed', auditErr);
