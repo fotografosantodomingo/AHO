@@ -12,6 +12,24 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — Phase 3 extension: buyer-side share button on public property detail
+
+Extends the agent-only Manual Share module from earlier today onto the public property detail page so any visitor can share a listing they like. Logical completion of Phase 3 — same captions, same copy buttons, same WhatsApp deep-link, but with a different UTM campaign tag so dashboard/analytics distinguishes "agent self-promotes" from "buyer shares the listing they liked".
+
+  - **`ShareInput` extended:** new optional `campaign?: string` prop on the input shape; defaults to `agent_share` (preserving existing behavior). The 4 caption builders thread it through `withUtm()`.
+  - **`ManualShareModule` parametrized:** new `variant?: 'card' | 'inline'` prop. `'card'` (default) preserves the agent-dashboard surface unchanged. `'inline'` renders only a compact pill-button trigger sized to sit alongside the FavoriteButton on the public page; opens the same modal.
+  - **`/properties/[slug]` wired:** ManualShareModule with `variant='inline'` + `campaign='visitor_share'` placed next to the FavoriteButton in the title-block right column. Header column converted to `flex-wrap items-center gap-2 md:justify-end` so the two pills sit cleanly on one row.
+  - **i18n:** `manualShare.inlineButtonLabel` (`Share` / `Compartir`) + `inlineButtonAria` for the compact trigger. Same modal copy reused.
+  - **Tests:** 2 new unit tests — campaign defaulting + per-platform override propagation. 110/110 total (was 108).
+
+**Why now:** the agent-side Manual Share shipped earlier today is half the story — it lets the listing owner promote, but a buyer who finds a listing they love had no way to send it to a friend. Two-sided share funnels both into the same UTM-tagged URL, and the campaign-tag split keeps the analytics surface honest about who's driving which clicks.
+
+**Verification:** typecheck clean · 110/110 unit tests · lint only pre-existing `_req` warnings.
+
+**Next:** Truly remaining items all need external action — Phase 4-7 (Meta + LinkedIn app review), neighborhood overlays (PO decision on polygon-data source), webhook-replay fixture-Stripe-state harness (medium-large lift; needs a strategy decision on production-Supabase vs separate test project per Local-dev quirks). At this point the autonomous-progress backlog from CLAUDE.md "Current focus" is genuinely complete: ✅ marker clustering · ✅ list-view sync to bbox · ✅ OG image generation · ✅ Pro Automation tier + Phases 1-3 of social-distribution.
+
+---
+
 ## 2026-05-01 — Path 1 batch 3 (Phase 3): Manual Social Share — copy-paste captions for all paid tiers
 
 Phase 3 of the social-distribution spec. The marquee feature degraded into a copy-paste stopgap: every paid agent (regardless of tier) gets pre-formatted captions for FB / IG / LinkedIn / WhatsApp on their property dashboard, with UTM-tagged AHO links and per-platform copy buttons. Bridges the gap until Phase 4+ OAuth ships behind app review.

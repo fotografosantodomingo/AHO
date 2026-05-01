@@ -957,6 +957,8 @@
     "heading": "Comparte en tus redes sociales",
     "body": "Subtítulos pre-formateados para Facebook, Instagram, LinkedIn y WhatsApp — copia y pega desde tu teléfono o laptop.",
     "openButton": "Obtener texto",
+    "inlineButtonLabel": "Compartir",
+    "inlineButtonAria": "Compartir este anuncio en redes sociales",
     "modalHeading": "Compartir este anuncio",
     "close": "Cerrar",
     "tablistLabel": "Elige una plataforma",

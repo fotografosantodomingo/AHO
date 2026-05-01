@@ -13,6 +13,14 @@ interface Props {
    *  page resolves locale-specific title + country display name + the
    *  absolute base URL (without UTM params) before passing them down. */
   share: ShareInput;
+  /**
+   * `card` (default) renders the agent-dashboard surface — full card with
+   *  eyebrow + heading + body + primary "Get share text" button.
+   * `inline` renders ONLY a compact icon-button trigger for use inside an
+   *  existing layout (e.g. next to the favorite button on the public
+   *  property detail page).
+   */
+  variant?: 'card' | 'inline';
 }
 
 const PLATFORMS: SharePlatform[] = ['facebook', 'instagram', 'linkedin', 'whatsapp'];
@@ -34,7 +42,7 @@ const PLATFORM_LABEL: Record<SharePlatform, string> = {
  * on Meta + LinkedIn app review. Pro Automation customers can still use
  * this until their auto-posting flow ships.
  */
-export function ManualShareModule({ share }: Props) {
+export function ManualShareModule({ share, variant = 'card' }: Props) {
   const t = useTranslations('manualShare');
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<SharePlatform>('facebook');
@@ -66,31 +74,47 @@ export function ManualShareModule({ share }: Props) {
 
   const activeCaption = captions[active];
 
+  function openModal() {
+    setOpen(true);
+    setActive('facebook');
+  }
+
   return (
-    <section className="rounded-card border border-border bg-surface p-6 shadow-whisper dark:bg-surface-deep">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
-            {t('eyebrow')}
-          </p>
-          <h2 className="mt-1 font-brand text-lg font-semibold tracking-tight">
-            {t('heading')}
-          </h2>
-          <p className="mt-1 text-sm text-ink-muted dark:text-ink-inverse-muted">
-            {t('body')}
-          </p>
-        </div>
+    <>
+      {variant === 'card' ? (
+        <section className="rounded-card border border-border bg-surface p-6 shadow-whisper dark:bg-surface-deep">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+                {t('eyebrow')}
+              </p>
+              <h2 className="mt-1 font-brand text-lg font-semibold tracking-tight">
+                {t('heading')}
+              </h2>
+              <p className="mt-1 text-sm text-ink-muted dark:text-ink-inverse-muted">
+                {t('body')}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={openModal}
+              className="btn-primary shrink-0"
+            >
+              {t('openButton')}
+            </button>
+          </div>
+        </section>
+      ) : (
         <button
           type="button"
-          onClick={() => {
-            setOpen(true);
-            setActive('facebook');
-          }}
-          className="btn-primary shrink-0"
+          onClick={openModal}
+          aria-label={t('inlineButtonAria')}
+          className="inline-flex h-10 items-center gap-2 rounded-lg border border-border-strong bg-surface px-3 text-sm font-medium text-ink shadow-whisper transition hover:bg-black/5 dark:bg-surface-deep dark:text-ink-inverse dark:hover:bg-white/5"
         >
-          {t('openButton')}
+          <span aria-hidden="true">↗</span>
+          <span>{t('inlineButtonLabel')}</span>
         </button>
-      </div>
+      )}
 
       {open && (
         <div
@@ -186,6 +210,6 @@ export function ManualShareModule({ share }: Props) {
           </div>
         </div>
       )}
-    </section>
+    </>
   );
 }

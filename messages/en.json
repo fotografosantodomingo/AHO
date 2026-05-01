@@ -959,6 +959,8 @@
     "heading": "Share to your social channels",
     "body": "Pre-formatted captions for Facebook, Instagram, LinkedIn and WhatsApp — copy and paste from your phone or laptop.",
     "openButton": "Get share text",
+    "inlineButtonLabel": "Share",
+    "inlineButtonAria": "Share this listing on social media",
     "modalHeading": "Share this listing",
     "close": "Close",
     "tablistLabel": "Choose a platform",

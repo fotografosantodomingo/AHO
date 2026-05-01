@@ -26,6 +26,7 @@ import { TrackPropertyView } from '@/components/listings/track-property-view';
 import { RecentlyViewed } from '@/components/listings/recently-viewed';
 import { TrackedLink } from '@/components/listings/tracked-link';
 import { TrackGalleryOpen } from '@/components/listings/track-gallery-open';
+import { ManualShareModule } from '@/components/listings/manual-share-module';
 
 export const runtime = 'edge';
 
@@ -295,13 +296,29 @@ export default async function PropertyDetailPage({
                 size="lg"
               />
             </div>
-            <div className="mt-3 flex justify-start md:justify-end">
+            <div className="mt-3 flex flex-wrap items-center gap-2 md:justify-end">
               <FavoriteButton
                 propertyId={property.id}
                 initialFavorited={isFavorited}
                 isAuthed={!!userId}
                 locale={typedLocale}
                 size="detail"
+              />
+              <ManualShareModule
+                variant="inline"
+                share={{
+                  title: title,
+                  city: property.city,
+                  countryDisplay: getCountryName(property.countryCode, typedLocale),
+                  priceCents: property.priceCents,
+                  currency: property.currency,
+                  bedrooms: property.bedrooms,
+                  bathrooms: property.bathrooms,
+                  areaSqm: property.areaSqm,
+                  baseUrl: `${_site}/${typedLocale}/${typedLocale === 'es' ? 'propiedades' : 'properties'}/${canonicalSlug ?? parsed.slugPart}-${property.shortId}`,
+                  locale: typedLocale,
+                  campaign: 'visitor_share',
+                }}
               />
             </div>
           </div>

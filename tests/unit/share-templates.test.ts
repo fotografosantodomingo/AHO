@@ -49,6 +49,23 @@ describe('share-templates', () => {
       });
       expect(fb).toContain('?ref=foo&utm_source=facebook');
     });
+
+    it('defaults the campaign to agent_share when omitted', () => {
+      const fb = captionFacebook(baseInput);
+      expect(fb).toContain('utm_campaign=agent_share');
+    });
+
+    it('overrides the campaign tag when provided', () => {
+      const fb = captionFacebook({ ...baseInput, campaign: 'visitor_share' });
+      const ig = captionInstagram({ ...baseInput, campaign: 'visitor_share' });
+      const li = captionLinkedIn({ ...baseInput, campaign: 'visitor_share' });
+      const wa = captionWhatsApp({ ...baseInput, campaign: 'visitor_share' });
+      expect(fb).toContain('utm_campaign=visitor_share');
+      expect(ig).toContain('utm_campaign=visitor_share');
+      expect(li).toContain('utm_campaign=visitor_share');
+      expect(wa).toContain('utm_campaign=visitor_share');
+      expect(fb).not.toContain('utm_campaign=agent_share');
+    });
   });
 
   describe('locale switching', () => {

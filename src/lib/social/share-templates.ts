@@ -30,13 +30,18 @@ export interface ShareInput {
    *  Templates append the per-platform `utm_source`. */
   baseUrl: string;
   locale: Locale;
+  /** UTM campaign tag. Defaults to `agent_share` (the agent dashboard
+   *  use case). Public/buyer-side surfaces pass `visitor_share` so the
+   *  analytics dashboard can distinguish "agent self-promotes" from
+   *  "buyer shares the listing they liked". */
+  campaign?: string;
 }
 
-const CAMPAIGN = 'agent_share';
+const DEFAULT_CAMPAIGN = 'agent_share';
 
-function withUtm(baseUrl: string, source: SharePlatform): string {
+function withUtm(baseUrl: string, source: SharePlatform, campaign: string): string {
   const sep = baseUrl.includes('?') ? '&' : '?';
-  return `${baseUrl}${sep}utm_source=${source}&utm_medium=social&utm_campaign=${CAMPAIGN}`;
+  return `${baseUrl}${sep}utm_source=${source}&utm_medium=social&utm_campaign=${campaign}`;
 }
 
 function specsLine(
@@ -85,7 +90,7 @@ function formatFacts(input: ShareInput): FormattedFacts {
 
 export function captionFacebook(input: ShareInput): string {
   const facts = formatFacts(input);
-  const url = withUtm(input.baseUrl, 'facebook');
+  const url = withUtm(input.baseUrl, 'facebook', input.campaign ?? DEFAULT_CAMPAIGN);
   if (input.locale === 'es') {
     return [
       input.title,
@@ -116,7 +121,7 @@ export function captionFacebook(input: ShareInput): string {
  *  the body and tell the agent to put the link in their bio. */
 export function captionInstagram(input: ShareInput): string {
   const facts = formatFacts(input);
-  const url = withUtm(input.baseUrl, 'instagram');
+  const url = withUtm(input.baseUrl, 'instagram', input.campaign ?? DEFAULT_CAMPAIGN);
   if (input.locale === 'es') {
     return [
       `✨ ${input.title}`,
@@ -147,7 +152,7 @@ export function captionInstagram(input: ShareInput): string {
 
 export function captionLinkedIn(input: ShareInput): string {
   const facts = formatFacts(input);
-  const url = withUtm(input.baseUrl, 'linkedin');
+  const url = withUtm(input.baseUrl, 'linkedin', input.campaign ?? DEFAULT_CAMPAIGN);
   if (input.locale === 'es') {
     return [
       `Nuevo en el mercado: ${input.title}`,
@@ -178,7 +183,7 @@ export function captionLinkedIn(input: ShareInput): string {
  *  client also generates a `wa.me/?text=...` deep-link from this string. */
 export function captionWhatsApp(input: ShareInput): string {
   const facts = formatFacts(input);
-  const url = withUtm(input.baseUrl, 'whatsapp');
+  const url = withUtm(input.baseUrl, 'whatsapp', input.campaign ?? DEFAULT_CAMPAIGN);
   if (input.locale === 'es') {
     return [
       input.title,
