@@ -12,6 +12,55 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — Ops session: Brevo newsletter + Supabase Auth templates + R2 confirmed live
+
+Three PO action items closed, no new code beyond a docs entry. Pure ops + smoke-probes.
+
+**1. Brevo newsletter list wired (id = 2)**
+
+  - Local: `BREVO_NEWSLETTER_LIST_ID=2` added to `.env.local` next to `BREVO_API_KEY`.
+  - Production: pushed to Cloudflare Pages via `wrangler pages secret put BREVO_NEWSLETTER_LIST_ID --project-name=aho-web`. Secret-put doesn't hot-reload running deployments; the next deploy picks it up. This commit's deploy is the trigger.
+  - Brevo list URL for reference: <https://app.brevo.com/contact/list-listing/id/2>.
+  - First production smoke: POST `/api/newsletter` with `smoke@example` returned `{"ok":true,"stored":false}` because the deploy at commit `bdc2369` predates the secret. Re-probe expected to return `stored: true` after this commit's deploy lands.
+
+**2. Supabase Auth email templates synced (5 templates)**
+
+  - Personal Access Token (sbp_*) added to `.env.local` as `SUPABASE_ACCESS_TOKEN`. Account-scoped, separate from project-scoped service-role key (which 401s against the Management API — confirmed last batch).
+  - Ran `pnpm supabase:templates`. The script PATCHed `https://api.supabase.com/v1/projects/lqujtquofsdsxtujvjtl/config/auth` with all 5 subjects + 5 HTML bodies in one call:
+    - **Confirm signup** → "Confirm your AHO account"
+    - **Magic link** → "Your AHO sign-in link"
+    - **Reset password** → "Reset your AHO password"
+    - **Change email** → "Confirm your new email on AHO"
+    - **Invite user** → "You're invited to AHO"
+  - All 5 wear the DP-2d palette: warm cream canvas, 4-px forest-green accent strip on white card, forest-green pill CTAs, soft-cream footer with FB / IG / LinkedIn social row.
+  - Idempotent — rerun any time `scripts/lib/supabase-auth-templates.ts` changes.
+
+**3. R2 image upload — confirmed fully wired**
+
+  Production secret audit via `wrangler pages secret list --project-name=aho-web` revealed all 5 R2 vars are already set: `R2_ENDPOINT`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_PROPERTY_IMAGES`, `NEXT_PUBLIC_R2_PUBLIC_URL`.
+
+  The `<ImageUploader>` component (`src/components/listings/image-uploader.tsx`) and the two-step API route (`POST /api/properties/:id/images` for sign + `POST /api/properties/:id/images/:imageId/confirm` for finalize) were already built — the prior R2-not-configured graceful-degradation path (`503 r2_not_configured`) shouldn't fire anymore. Wired into `/dashboard/properties/[id]/page.tsx` line 116.
+
+  Smoke-test path (PO action — requires a real Agent account + a draft listing):
+    1. Sign in as an Agent with a drafted listing.
+    2. Navigate to `/dashboard/properties/[id]`.
+    3. Drop a JPEG into the uploader.
+    4. Confirm: per-file thumbnail flips pending → uploading → ✓.
+    5. Public detail page (after publishing) renders the image via Cloudflare Images variant URL.
+
+**Verify run.**
+  - typecheck clean (no source changes; only PROGRESS.md doc + .env.local + production secret).
+  - Supabase template sync confirmed via the script's success output.
+  - Newsletter `stored: true` re-probe: pending this commit's deploy.
+
+**Pending PO actions still on the v1 close-out list:**
+  - **Soft-beta agent recruitment** (3–5 real Santo Domingo agents) → first real listings; everything downstream of "real-only data" rule starts to pay off.
+  - **www → apex Cloudflare page rule** (optional polish; canonical tags handle SEO dedupe today).
+
+**Next session should start with**: PO smokes the newsletter form end-to-end (footer signup → Brevo list shows the email), then either `feat/property-analytics` (Phase 3) OR `feat/promoted-listings` (Phase 4) on the post-DP-2 roadmap.
+
+---
+
 ## 2026-05-01 — Mobile / UX polish batch + custom-domain audit + Supabase email templates
 
 PO punch list addressing six items from the live deploy:
