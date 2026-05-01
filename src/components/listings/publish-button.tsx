@@ -48,6 +48,11 @@ export function PublishButton({ id }: { id: string }) {
         ? 'Has alcanzado el límite de tu plan — archiva uno o sube de plan.'
         : 'Plan limit reached — archive a listing or upgrade.';
     }
+    if (error === 'no_images') {
+      return locale === 'es'
+        ? 'Sube al menos una foto antes de publicar.'
+        : 'Upload at least one photo before publishing.';
+    }
     if (error === 'forbidden') {
       return locale === 'es'
         ? 'No tienes permisos para publicar este anuncio.'

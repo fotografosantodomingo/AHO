@@ -3,6 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { TRANSACTION_TYPES, PRICE_PERIODS } from '@/db/schema';
+import { slugifyListing } from '@/lib/listings/slug';
 
 export const runtime = 'edge';
 
@@ -21,8 +22,12 @@ export const runtime = 'edge';
  *                       created_by.
  *
  * Slugs are intentionally locked at publish: changing them breaks SEO
- * authority. Title changes do NOT auto-regenerate the slug. If an agent
- * needs a different URL they delete + re-create.
+ * authority. Title changes do NOT auto-regenerate an existing slug. The
+ * one exception is locale-fill: if a listing has slug_en but slug_es is
+ * null, and the agent adds title_es on PATCH, we generate the missing
+ * slug_es so the listing has a Spanish URL. Existing non-null slugs are
+ * never overwritten. If an agent needs a different URL they delete +
+ * re-create.
  *
  * Price-change audit: when `price_cents` differs from the prior value,
  * we write a `listing.price_changed` audit_log row. The 0014 anon-read
@@ -117,21 +122,57 @@ export async function PATCH(
   }
   const actorId = userResult.user.id;
 
-  // Read prior price for the audit row. If RLS denies the SELECT, we'd
-  // get null here — treat as not_found. The subsequent UPDATE has its
-  // own RLS check.
+  // Read prior price + slugs + city/country for the audit row + slug fill.
+  // If RLS denies the SELECT, we'd get null here — treat as not_found. The
+  // subsequent UPDATE has its own RLS check.
   const { data: prior } = await supabase
     .from('properties')
-    .select('id, price_cents, currency')
+    .select('id, price_cents, currency, slug_en, slug_es, city, country_code')
     .eq('id', id)
     .maybeSingle();
   if (!prior) {
     return NextResponse.json({ ok: false, errorCode: 'not_found' }, { status: 404 });
   }
 
+  // Locale slug fill: when an agent adds a title in a previously-empty
+  // locale (e.g. EN-only listing later gets a Spanish title), generate
+  // the missing slug so `/es/propiedades/...` resolves. We do NOT
+  // regenerate existing non-null slugs — those are URL-stable per the
+  // SEO rule (changing a published slug breaks back-links). City /
+  // country in the update body take precedence; otherwise we use the
+  // current row's values.
+  const updatePayload: Record<string, unknown> = { ...data };
+  const effectiveCity = (data.city ?? (prior.city as string)) || '';
+  const effectiveCountry =
+    (data.country_code ?? (prior.country_code as string)) || '';
+  if (
+    data.title_en &&
+    !prior.slug_en &&
+    effectiveCity &&
+    effectiveCountry
+  ) {
+    updatePayload.slug_en = slugifyListing(
+      data.title_en,
+      effectiveCity,
+      effectiveCountry,
+    );
+  }
+  if (
+    data.title_es &&
+    !prior.slug_es &&
+    effectiveCity &&
+    effectiveCountry
+  ) {
+    updatePayload.slug_es = slugifyListing(
+      data.title_es,
+      effectiveCity,
+      effectiveCountry,
+    );
+  }
+
   const { data: updated, error: updateErr } = await supabase
     .from('properties')
-    .update(data)
+    .update(updatePayload)
     .eq('id', id)
     .select('id')
     .single();

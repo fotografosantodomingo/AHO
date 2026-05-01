@@ -12,6 +12,60 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — Customer-flow audit: full bug log + 4 verified fixes
+
+PO requested an end-to-end customer-perspective audit covering listing CRUD, dashboard, admin, pricing/packages, ranking, and "all other functions". Spawned 4 parallel Explore agents to cover (a) listing CRUD + dashboard, (b) pricing → subscription → plan-gating, (c) leads + analytics + buyer surfaces, (d) admin + ranking + SEO. Each finding verified against the actual code before classification. Approximately half the agent findings were false positives or already-intentional decisions.
+
+### Confirmed real bugs — fixed this batch
+
+**1. Publish without images allowed** — `src/app/api/listings/[id]/publish/route.ts`
+  - The publish handler flips status to `active` without verifying ≥1 confirmed image exists. Listings with 0 photos can be published, appearing in search/sitemap with broken galleries.
+  - **Fix:** count `property_images WHERE upload_status='confirmed'` before status update; return 400 `errorCode='no_images'` if zero.
+
+**2. Customer Portal return URL strips locale** — `src/app/api/billing/portal/route.ts:82`
+  - `return_url: ${SITE_URL}/dashboard` — hardcoded English-only path with no locale prefix. Spanish users redirected to `/dashboard` (which doesn't exist; locale-prefixed routes are required) instead of `/panel`.
+  - **Fix:** add optional `locale` body param to the route; build `return_url` with `/{locale}/${locale === 'es' ? 'panel' : 'dashboard'}`. Manage-billing buttons pass the active locale.
+
+**3. OG image URL fallback emits literal template string** — `src/lib/listings/seo.ts:72,78`
+  - `process.env.NEXT_PUBLIC_CF_IMAGES_HASH ?? '${cf_images_hash}'` — the fallback is a literal string, not interpolation. When the env var is unset, OG image URLs become `https://imagedelivery.net/${cf_images_hash}/abc/og` (broken). The docstring on line 69 says "fall back to null and let the page show a no-image state" — that intent isn't realized.
+  - **Fix:** when `NEXT_PUBLIC_CF_IMAGES_HASH` is unset, return null for `ogImage` + empty array for `imageUrls`. Property metadata then omits the og:image entirely.
+
+**4. Locale-specific slug never filled on PATCH** — `src/app/api/listings/[id]/route.ts`
+  - The PATCH route docstring locks slugs at publish (good — stable URLs > convenience). But it also doesn't fill a previously-null slug when the agent later adds a title in that locale. An EN-only listing that gets a Spanish title later has `slug_es=null`, so the listing has no `/es/propiedades/...` URL.
+  - **Fix:** on PATCH, if `title_en` is provided AND existing `slug_en IS NULL`, generate one. Same for ES. Existing non-null slugs left alone (preserves the SEO-stability rule).
+
+### False positives / intentional behavior (NOT fixed)
+
+- **Slug collision** — claim was duplicate slugs cause unreachable listings. **False:** URLs are `{slug}-{shortId}` and lookup is by 6-char shortId, not slug. Slug is decorative/SEO only. Two listings can share a slug without routing conflict.
+- **Lead source field never written** — claim was the `source` column stays null. **False:** `src/app/api/leads/route.ts:67` writes `source: data.source` to the leads insert.
+- **Slugs not regenerated on title change** — by design per the PATCH docstring (stable URLs > auto-rename). Only the previously-null case is a real bug.
+- **Review approve→reject strictness** — intentional per inline comments.
+- **Plan lookup throws on unknown price_id** — loud failure is the correct behavior; silent skip would mask a misconfigured Stripe.
+
+### Open items needing PO design decisions (logged, not patched)
+
+- **Plus tier features are vaporware** — pricing card promises Verified Real Estate Agent badge + Priority placement on city landings + Multi-city listings. None implemented. Choices: (a) ship a `verified_pro: bool` column + admin toggle + badge render + featured-listing UI, OR (b) soften pricing copy to "rolling out for Plus" until shipped.
+- **Featured listings ranking is vaporware** — `featured_until` column exists; ORDER BY clause already prefers it; nothing populates it; the listing card doesn't render a "Featured" badge. Same Plus-tier decision applies — needs admin UI + visual treatment.
+- **Lead form anti-abuse missing** — Turnstile / per-IP rate limit / honeypot all logged as "TODO before public launch" but the form is live. Blocked on Turnstile site key + KV namespace from PO.
+- **Anon→authed view tracking doesn't merge** — recently-viewed splits identity at sign-in (`aho_anon_id` cookie + `user_id` row tracked separately). Low impact but data-correctness; deferred — identity-merge is a multi-step migration.
+- **Conversion rate not visitor-deduped** — analytics shows `leads / views` from raw event counts; one visitor with 10 views + 1 lead reads as 10% conversion, not 100%. Needs metric-definition decision.
+- **Audit log not written on `setUserAdmin`** — admin promotion/demotion isn't logged. Compliance/governance decision.
+- **Saved-search email-alert worker** — `notify_email` opt-in persists user intent; the worker that actually sends is still pending Brevo DKIM/SPF/DMARC.
+
+### Speculative / low-impact (logged, not patched)
+
+- **TOCTOU on image-confirm route** — already known from previous sweep; idempotent write of same value, low impact.
+- **Stale pending-image rows** — uploads that fail mid-confirm leave `upload_status='pending'` rows. Cleanup cron deferred.
+- **JSON-LD missing `@id` on agent profile** — marginal SEO; entity disambiguation in Knowledge Graph.
+- **Customer Portal uses `createAdminClient()` instead of user-context for the subscriptions lookup** — code comment acknowledges it could use user-context; explicitness preferred. Not a bug.
+- **Founder-rate retry idempotency** — uncertain finding; needs deeper trace through the route-level `markEventProcessed` dedup interaction.
+
+### Verification
+
+typecheck clean · 132/132 unit tests · lint only pre-existing `_req` warnings.
+
+---
+
 ## 2026-05-01 — Security: open-redirect fix on /signin + /magic-link (sanitizeNext helper)
 
 Bug analysis sweep found an open-redirect vulnerability on the auth-bounce paths. `src/app/[locale]/signin/page.tsx:42` and `src/app/[locale]/magic-link/page.tsx:40` both did `redirect(next ?? `/${locale}`)` with no sanitization on the `?next=` query parameter. An attacker could craft a link like `https://aho.example.com/signin?next=https://evil.example.com` and bounce already-signed-in victims off-site immediately on page load, using the legitimate AHO domain to add credibility to the phishing chain.

@@ -25,7 +25,7 @@ export const runtime = 'edge';
  *
  * Response shape:
  *   - 200 { ok: true, id }
- *   - 400 { ok: false, errorCode: 'invalid_id' }
+ *   - 400 { ok: false, errorCode: 'invalid_id' | 'no_images' }
  *   - 401 { ok: false, errorCode: 'unauthenticated' }
  *   - 403 { ok: false, errorCode: 'listing_cap_exceeded' | 'forbidden' }
  *   - 500 { ok: false, errorCode }
@@ -48,6 +48,32 @@ export async function POST(
     return NextResponse.json(
       { ok: false, errorCode: 'unauthenticated' },
       { status: 401 },
+    );
+  }
+
+  // Require at least one confirmed image before publish. Without this, an
+  // agent can flip a draft to `active` with zero photos — the listing then
+  // shows up in search results, sitemap, and city landings with a broken
+  // gallery, hurting SEO and the user-trust signal that "AHO listings have
+  // photos". RLS already gates write permission to org members, so the
+  // count query under the user-context client will return the real count
+  // for listings the user can publish.
+  const { count: imageCount, error: countErr } = await supabase
+    .from('property_images')
+    .select('id', { count: 'exact', head: true })
+    .eq('property_id', id)
+    .eq('upload_status', 'confirmed');
+  if (countErr) {
+    console.error('[POST /api/listings/:id/publish] image count failed', countErr);
+    return NextResponse.json(
+      { ok: false, errorCode: 'db_error' },
+      { status: 500 },
+    );
+  }
+  if ((imageCount ?? 0) < 1) {
+    return NextResponse.json(
+      { ok: false, errorCode: 'no_images' },
+      { status: 400 },
     );
   }
 

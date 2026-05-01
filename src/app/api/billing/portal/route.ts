@@ -1,8 +1,20 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { z } from 'zod';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getStripeClient } from '@/lib/billing/stripe';
 import { publicEnv } from '@/lib/env';
+
+const PortalRequestSchema = z
+  .object({
+    /** Active locale at click time. Threaded into Stripe's `return_url`
+     *  so the user lands back in the locale they were browsing — without
+     *  this, ES users get bounced to `/dashboard` (which only resolves in
+     *  EN) instead of `/panel`. Defaults to 'en' for callers that haven't
+     *  been updated yet. */
+    locale: z.enum(['en', 'es']).optional(),
+  })
+  .strict();
 
 export const runtime = 'edge';
 
@@ -29,7 +41,20 @@ export const runtime = 'edge';
  * The `customer.subscription.updated` and `customer.subscription.deleted`
  * webhooks reflect any changes back into our DB.
  */
-export async function POST(_req: NextRequest) {
+export async function POST(req: NextRequest) {
+  // Optional JSON body { locale?: 'en' | 'es' }. We tolerate empty body for
+  // backwards compatibility with the original callers that POSTed nothing.
+  let locale: 'en' | 'es' = 'en';
+  try {
+    const text = await req.text();
+    if (text.trim().length > 0) {
+      const parsed = PortalRequestSchema.safeParse(JSON.parse(text));
+      if (parsed.success && parsed.data.locale) locale = parsed.data.locale;
+    }
+  } catch {
+    // Body was unparseable JSON — fall through with default locale.
+  }
+
   const supabase = await createServerSupabaseClient();
   const { data: userResult, error: userErr } = await supabase.auth.getUser();
   if (userErr || !userResult.user) {
@@ -77,9 +102,10 @@ export async function POST(_req: NextRequest) {
   const stripe = getStripeClient();
   const pub = publicEnv();
   try {
+    const dashboardSegment = locale === 'es' ? 'panel' : 'dashboard';
     const portal = await stripe.billingPortal.sessions.create({
       customer: sub.stripe_customer_id,
-      return_url: `${pub.NEXT_PUBLIC_SITE_URL}/dashboard`,
+      return_url: `${pub.NEXT_PUBLIC_SITE_URL}/${locale}/${dashboardSegment}`,
     });
     return NextResponse.json({ url: portal.url });
   } catch (e) {

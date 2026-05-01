@@ -65,18 +65,25 @@ export function buildSeoMeta({ property: p, locale }: BuildMetaArgs): SeoMeta {
   alternates.xDefault = urls.en ?? urls.es ?? canonical;
 
   // CF Images URLs follow `https://imagedelivery.net/{accountHash}/{imageId}/{variant}`.
-  // For SSR before Cloudflare Images is wired up (Cloudflare token blocked),
-  // we fall back to null and let the page show a no-image state.
+  // When `NEXT_PUBLIC_CF_IMAGES_HASH` isn't set (e.g. Cloudflare Images
+  // not yet provisioned, or running tests), we cannot build a real image
+  // URL — emit null/empty instead. The page-level `<head>` then omits
+  // og:image entirely rather than emitting a broken `imagedelivery.net/${cf_images_hash}/...`
+  // URL that would visibly fail in social-card debuggers.
+  const cfImagesHash = process.env.NEXT_PUBLIC_CF_IMAGES_HASH;
   const primaryImage = p.images.find((i) => i.isPrimary) ?? p.images[0];
-  const ogImage = primaryImage?.cfImageId
-    ? `https://imagedelivery.net/${process.env.NEXT_PUBLIC_CF_IMAGES_HASH ?? '${cf_images_hash}'}/${primaryImage.cfImageId}/og`
-    : null;
-  const imageUrls = p.images
-    .filter((i) => i.cfImageId)
-    .map(
-      (i) =>
-        `https://imagedelivery.net/${process.env.NEXT_PUBLIC_CF_IMAGES_HASH ?? '${cf_images_hash}'}/${i.cfImageId}/full`,
-    );
+  const ogImage =
+    cfImagesHash && primaryImage?.cfImageId
+      ? `https://imagedelivery.net/${cfImagesHash}/${primaryImage.cfImageId}/og`
+      : null;
+  const imageUrls = cfImagesHash
+    ? p.images
+        .filter((i) => i.cfImageId)
+        .map(
+          (i) =>
+            `https://imagedelivery.net/${cfImagesHash}/${i.cfImageId}/full`,
+        )
+    : [];
 
   return { title: seoTitle, description: seoDescription, canonical, alternates, ogImage, imageUrls };
 }

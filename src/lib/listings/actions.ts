@@ -10,6 +10,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 // resolver. We import the schema here for server-side validation; the
 // form imports the same schema directly from `./listing-schema`.
 import { CreateListingSchema } from './listing-schema';
+import { slugifyListing } from './slug';
 
 /**
  * Server actions for the listing form. Both `createListing` and `updateListing`
@@ -34,24 +35,6 @@ interface ActionResult {
 
 function buildLocationEwkt(lng: number, lat: number): string {
   return `SRID=4326;POINT(${lng} ${lat})`;
-}
-
-/**
- * Slug helper — keep in sync with the listing slug rules in HANDOFF §8.3:
- * `{title-words}-{city}-{country}`, lowercase ASCII, hyphenated, capped at 60.
- */
-function slugifyListing(title: string, city: string, country: string): string {
-  const base = `${title} ${city} ${country}`
-    .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 60);
-  return base || 'listing';
 }
 
 export async function createListing(input: unknown): Promise<ActionResult> {

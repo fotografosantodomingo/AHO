@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { CreateListingSchema } from '@/lib/listings/listing-schema';
+import { slugifyListing } from '@/lib/listings/slug';
 
 export const runtime = 'edge';
 
@@ -131,16 +132,3 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ ok: true, id: created.id as string }, { status: 201 });
 }
 
-function slugifyListing(title: string, city: string, country: string): string {
-  const base = `${title} ${city} ${country}`
-    .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 60);
-  return base || 'listing';
-}

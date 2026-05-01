@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 export function BillingPortalButton({ className }: { className?: string }) {
   const t = useTranslations('dashboard');
+  const locale = useLocale();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -12,7 +13,11 @@ export function BillingPortalButton({ className }: { className?: string }) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/billing/portal', { method: 'POST' });
+      const res = await fetch('/api/billing/portal', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ locale: locale === 'es' ? 'es' : 'en' }),
+      });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         setError(body.error ?? 'portal_failed');
