@@ -1,14 +1,37 @@
-# Supabase Auth email templates — DP-2d palette (paste-ready HTML)
+# Supabase Auth email templates — DP-2d palette
 
-Supabase Auth-managed emails (signup confirmation, magic link, password reset, change email) live **outside** this codebase — they're configured in the Supabase dashboard at:
+Supabase Auth-managed emails (signup confirmation, magic link, password reset, change email, invite) live **outside** the project's database — they're stored in project config and only the Supabase **Management API** (or the dashboard UI) can mutate them. Project keys (anon, service-role) only work against PostgREST / auth / storage at the project URL — not `api.supabase.com`.
+
+## Preferred path: `pnpm supabase:templates`
+
+Source of truth: [`scripts/lib/supabase-auth-templates.ts`](../scripts/lib/supabase-auth-templates.ts) — typed module that builds the 5 templates from a shared shell + per-template heading / body / CTA / helper. Edit there; one PR captures both the diff and the deploy.
+
+**Run:**
+
+```bash
+# One-time setup: generate a PAT
+#   https://supabase.com/dashboard/account/tokens
+#   → "Generate new token", name it "AHO automation"
+#   → copy the sbp_xxxx value
+
+# Add to .env.local:
+#   SUPABASE_ACCESS_TOKEN=sbp_xxxx
+
+# Sync:
+pnpm supabase:templates
+```
+
+The script PATCHes `https://api.supabase.com/v1/projects/{ref}/config/auth` with all 5 subjects + 5 HTML bodies in one call. Idempotent; rerun any time the templates module changes.
+
+## Fallback path: paste-ready HTML in the dashboard
+
+If a PAT isn't available, paste each template manually into:
 
 > **Supabase Dashboard → Authentication → Email Templates**
 
-The templates below match the DP-2d email design (`src/lib/email/templates/_layout.ts`): warm cream canvas, 4px forest-green accent strip on top of a white card, forest-green pill CTAs, warm helper text, soft-cream footer with social row.
+The HTML below mirrors the script-generated content. Subject lines and Supabase template variables (`{{ .ConfirmationURL }}`, `{{ .Token }}`, `{{ .SiteURL }}`, `{{ .Email }}`, `{{ .NewEmail }}`) MUST stay verbatim — Supabase substitutes them at send time.
 
-**How to apply:** for each template, paste the HTML into the corresponding "Message Body (HTML)" field, replacing whatever's there. Subject lines and Supabase template variables (`{{ .ConfirmationURL }}`, `{{ .Token }}`, `{{ .SiteURL }}`, `{{ .Email }}`, `{{ .NewEmail }}`) MUST stay verbatim — Supabase substitutes them at send time.
-
-After saving, you can test by triggering the corresponding flow:
+After saving, trigger each flow to verify:
 - **Confirm signup** → `/{locale}/signup`
 - **Magic link** → `/{locale}/magic-link`
 - **Reset password** → `/{locale}/forgot-password`
