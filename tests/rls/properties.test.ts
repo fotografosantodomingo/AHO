@@ -576,6 +576,101 @@ describe('RLS · audit_log · public-read of listing events (0014)', () => {
 });
 
 // ============================================================
+// audit_log — INSERT policy from migration 0013
+// ============================================================
+//
+// Pairs with `audit_log_self_insert`: authenticated users can INSERT only
+// rows where actor_id matches their own auth.uid(). Anon has no INSERT
+// policy at all. Phase 1B test-debt #1 from the strategic-doc audit —
+// previously the policy shipped without a paired RLS test (CLAUDE.md
+// hard rule #2).
+
+describe('RLS · audit_log · INSERT (audit_log_self_insert, 0013)', () => {
+  const insertedIds: string[] = [];
+
+  afterAll(async () => {
+    if (insertedIds.length > 0) {
+      await admin().from('audit_log').delete().in('id', insertedIds);
+    }
+  });
+
+  it('anonymous client cannot INSERT into audit_log', async () => {
+    const c = await clientFor('anon');
+    const { data, error } = await c
+      .from('audit_log')
+      .insert({
+        kind: 'listing.price_changed',
+        actor_id: null,
+        target_id: ctx.orgAActiveListingId,
+        payload: { from_cents: 100, to_cents: 200 },
+      })
+      .select('id');
+    // Either RLS rejects with an error OR returns an empty result set
+    // (Postgrest sometimes surfaces RLS denial as 0 rows + no error).
+    if (!error) {
+      expect(data?.length ?? 0).toBe(0);
+    } else {
+      expect(error).not.toBeNull();
+    }
+  });
+
+  it('authenticated user can INSERT a row when actor_id = their own auth.uid()', async () => {
+    const c = await clientFor('agent_a_owner');
+    const selfId = await fixtureUserId('agent_a_owner');
+    const { data, error } = await c
+      .from('audit_log')
+      .insert({
+        kind: 'listing.price_changed',
+        actor_id: selfId,
+        target_id: ctx.orgAActiveListingId,
+        payload: { from_cents: 100, to_cents: 200 },
+      })
+      .select('id')
+      .single();
+    expect(error).toBeNull();
+    expect(data?.id).toBeTruthy();
+    if (data?.id) insertedIds.push(data.id);
+  });
+
+  it('authenticated user CANNOT INSERT a row impersonating another actor_id', async () => {
+    const c = await clientFor('agent_a_owner');
+    const otherId = await fixtureUserId('agent_b_owner');
+    const { data, error } = await c
+      .from('audit_log')
+      .insert({
+        kind: 'listing.price_changed',
+        actor_id: otherId, // not auth.uid() — must be denied
+        target_id: ctx.orgAActiveListingId,
+        payload: { from_cents: 100, to_cents: 200 },
+      })
+      .select('id');
+    if (!error) {
+      expect(data?.length ?? 0).toBe(0);
+    } else {
+      expect(error).not.toBeNull();
+    }
+  });
+
+  it('authenticated user CANNOT INSERT with a NULL actor_id (only service-role does that)', async () => {
+    const c = await clientFor('agent_a_owner');
+    const { data, error } = await c
+      .from('audit_log')
+      .insert({
+        kind: 'listing.price_changed',
+        actor_id: null,
+        target_id: ctx.orgAActiveListingId,
+        payload: { from_cents: 100, to_cents: 200 },
+      })
+      .select('id');
+    if (!error) {
+      expect(data?.length ?? 0).toBe(0);
+    } else {
+      expect(error).not.toBeNull();
+    }
+  });
+});
+
+// ============================================================
 // Trigger · recompute_agent_stats (migration 0013)
 // ============================================================
 //

@@ -5,10 +5,18 @@ import { serverEnv } from '@/lib/env';
 /**
  * Lazy Stripe client. Stripe SDK is heavy; cache once per cold start.
  *
+ * Timeout: 4000 ms. Stripe webhook handlers must respond within ~10s
+ * total, and one slow `subscriptions.retrieve` call burns the budget
+ * if Stripe's API is degraded. 4s gives enough headroom for normal
+ * latency + retry + DB writes inside the same handler. Stripe SDK's
+ * default is 80s — way too long for an Edge webhook context.
+ *
  * The webhook signature verification uses `stripe.webhooks.constructEvent()`
- * which is exposed as `webhookEventFromBody()` below — separate from the API
+ * which is exposed as `verifyWebhookEvent()` below — separate from the API
  * client because constructEvent is a static-ish helper but wants the secret.
  */
+
+const STRIPE_API_TIMEOUT_MS = 4000;
 
 let cachedClient: Stripe | null = null;
 
@@ -18,7 +26,9 @@ export function getStripeClient(): Stripe {
   if (!env.STRIPE_SECRET_KEY) {
     throw new Error('STRIPE_SECRET_KEY is not set.');
   }
-  cachedClient = new Stripe(env.STRIPE_SECRET_KEY);
+  cachedClient = new Stripe(env.STRIPE_SECRET_KEY, {
+    timeout: STRIPE_API_TIMEOUT_MS,
+  });
   return cachedClient;
 }
 

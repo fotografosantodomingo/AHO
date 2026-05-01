@@ -78,84 +78,49 @@ export async function handleCheckoutSessionCompleted(
     );
   }
 
-  // Org name from session metadata. Slug is derived; collisions get a
-  // numeric suffix until unique.
+  // Org name from session metadata. Slug is derived from the name +
+  // collision-suffix loop; both happen inside the RPC now (was a JS
+  // loop with N round-trips and a race window under concurrent retry).
   const orgName = session.metadata?.aho_org_name ?? 'My Organization';
-  const orgSlug = await uniqueOrgSlug(supabase, slugifyOrgName(orgName));
 
-  // Materialize the org. Idempotent on stripe_subscription_id — if this
-  // event was redelivered after a partial earlier run, we re-find the
-  // existing org by following the subscription back.
-  const existingSub = await supabase
-    .from('subscriptions')
-    .select('id, org_id')
-    .eq('stripe_subscription_id', stripeSubscriptionId)
-    .maybeSingle();
-
-  let orgId: string;
-  if (existingSub.data) {
-    orgId = existingSub.data.org_id as string;
-  } else {
-    const orgInsert = await supabase
-      .from('organizations')
-      .insert({
-        name: orgName,
-        slug: orgSlug,
-        type: 'agent',
-        listing_cap: plan.listing_cap,
-        seats_total: plan.seats_included,
-      })
-      .select('id')
-      .single();
-    if (orgInsert.error) throw orgInsert.error;
-    orgId = orgInsert.data.id as string;
-  }
-
-  // Insert the owner membership. Idempotent — primary key is (org_id, user_id).
-  const memberInsert = await supabase
-    .from('organization_members')
-    .upsert(
-      {
-        org_id: orgId,
-        user_id: userId,
-        role: 'owner',
-        joined_at: new Date().toISOString(),
-      },
-      { onConflict: 'org_id,user_id' },
-    );
-  if (memberInsert.error) throw memberInsert.error;
-
-  // Insert / update the subscription row. The denormalization trigger on
-  // `subscriptions` (per `0007_denormalizations_and_latlng.sql`) will
-  // propagate `current_*` to `organizations` automatically.
-  const subUpsert = await supabase.from('subscriptions').upsert(
+  // Materialize the org + member + subscription atomically via the
+  // 0021 SECURITY DEFINER RPC. The RPC wraps all three writes in a
+  // single Postgres transaction — closes pre-live blocker #1 from
+  // the strategic-doc audit (no more partial-state-on-retry that
+  // produced duplicate orgs). Idempotent on stripe_subscription_id;
+  // re-runs return the existing org/sub ids without re-inserting,
+  // and refresh the mutable subscription fields. Slug uniqueness +
+  // collision-suffix loop now lives inside the RPC.
+  const subRaw = subscription as unknown as {
+    current_period_start: number;
+    current_period_end: number;
+  };
+  const { data: rpcRows, error: rpcErr } = await supabase.rpc(
+    'materialize_subscription_from_checkout',
     {
-      org_id: orgId,
-      user_id: null,
-      plan_id: plan.id,
-      stripe_customer_id: stripeCustomerId,
-      stripe_subscription_id: stripeSubscriptionId,
-      status: subscription.status,
-      current_period_start: new Date((subscription as unknown as { current_period_start: number }).current_period_start * 1000).toISOString(),
-      current_period_end: new Date((subscription as unknown as { current_period_end: number }).current_period_end * 1000).toISOString(),
-      cancel_at_period_end: subscription.cancel_at_period_end ?? false,
-      trial_end: subscription.trial_end
+      p_user_id: userId,
+      p_org_name: orgName,
+      p_slug_base: slugifyOrgName(orgName),
+      p_plan_id: plan.id,
+      p_listing_cap: plan.listing_cap,
+      p_seats_included: plan.seats_included,
+      p_stripe_customer_id: stripeCustomerId,
+      p_stripe_subscription_id: stripeSubscriptionId,
+      p_status: subscription.status,
+      p_current_period_start: new Date(subRaw.current_period_start * 1000).toISOString(),
+      p_current_period_end: new Date(subRaw.current_period_end * 1000).toISOString(),
+      p_cancel_at_period_end: subscription.cancel_at_period_end ?? false,
+      p_trial_end: subscription.trial_end
         ? new Date(subscription.trial_end * 1000).toISOString()
         : null,
     },
-    { onConflict: 'stripe_subscription_id' },
   );
-  if (subUpsert.error) throw subUpsert.error;
-
-  // Look up our subscription row's UUID for the founder-rate grant FK.
-  const { data: ourSub } = await supabase
-    .from('subscriptions')
-    .select('id')
-    .eq('stripe_subscription_id', stripeSubscriptionId)
-    .single();
-  if (!ourSub) {
-    throw new Error(`Subscription row missing right after upsert: ${stripeSubscriptionId}`);
+  if (rpcErr) throw rpcErr;
+  const rpcRow = Array.isArray(rpcRows) ? rpcRows[0] : rpcRows;
+  if (!rpcRow) {
+    throw new Error('materialize_subscription_from_checkout returned no rows');
   }
+  const ourSub = { id: rpcRow.subscription_id as string };
 
   // ============================================================
   // Founder-rate selection
@@ -214,32 +179,24 @@ async function tryClaimFounderRate({
     return;
   }
 
-  // Atomic claim. Returns the new claimed count, or null if at cap.
-  const { data: claimed, error: claimErr } = await supabase.rpc('claim_founder_rate_slot');
+  // Atomic claim + grant via the 0022 SECURITY DEFINER function. The
+  // counter increment and the grant INSERT happen in one transaction,
+  // so a grant-insert failure rolls back the counter increment too.
+  // Closes pre-live blocker #2 (the leaked-counter failure mode the
+  // strategic-doc audit flagged).
+  const { data: claimRows, error: claimErr } = await supabase.rpc(
+    'claim_founder_rate_slot_with_grant',
+    {
+      p_subscription_id: ourSubscriptionId,
+      p_user_id: userId,
+      p_original_price_id: founderPriceId,
+    },
+  );
   if (claimErr) throw claimErr;
-  if (claimed === null) {
-    // Cap reached. Customer stays on standard price; this is fine.
-    return;
-  }
-
-  // Order chosen for rollback safety:
-  //   1. Insert grant row (FK to our subscription; idempotent on
-  //      subscription_id unique constraint).
-  //   2. Update Stripe to founder price.
-  //   3. Update our subscription row's plan_id to founder.
-  // On Stripe failure: release_founder_rate_slot rolls back grant + counter.
-  // On grant insert failure: counter is leaked; cron sweep cleans up.
-
-  const { error: grantErr } = await supabase.from('founder_rate_grants').insert({
-    subscription_id: ourSubscriptionId,
-    user_id: userId,
-    original_price_id: founderPriceId,
-  });
-  if (grantErr) {
-    console.error(
-      '[founder-rate] grant row insert failed; counter is leaked until orphan sweep',
-      grantErr,
-    );
+  const claimRow = Array.isArray(claimRows) ? claimRows[0] : claimRows;
+  if (!claimRow || claimRow.grant_id == null) {
+    // Cap reached OR grant insert raced — customer stays on standard
+    // price; this is fine, no leak.
     return;
   }
 
@@ -270,24 +227,7 @@ async function tryClaimFounderRate({
     .eq('id', ourSubscriptionId);
 }
 
-/**
- * Generates a unique org slug by appending a numeric suffix on collision.
- * Tries up to 50 variants before giving up. Race-safe via the unique
- * constraint on `organizations.slug` — a concurrent insert will fail and
- * we retry.
- */
-async function uniqueOrgSlug(
-  supabase: ReturnType<typeof createAdminClient>,
-  baseSlug: string,
-): Promise<string> {
-  for (let i = 0; i < 50; i++) {
-    const candidate = i === 0 ? baseSlug : `${baseSlug}-${i + 1}`;
-    const { data } = await supabase
-      .from('organizations')
-      .select('id')
-      .eq('slug', candidate)
-      .maybeSingle();
-    if (!data) return candidate;
-  }
-  throw new Error(`Could not find a unique slug after 50 attempts for ${baseSlug}.`);
-}
+// Slug uniqueness moved into the materialize_subscription_from_checkout
+// RPC (migration 0021) so the slug pick + org insert happen inside the
+// same Postgres transaction. The previous JS implementation did N
+// round-trips and raced with concurrent webhook retries.

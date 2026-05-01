@@ -12,6 +12,66 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — Batch A4a (pre-live Stripe robustness)
+
+Closes the two pre-live blockers the strategic-doc Stripe-flow audit flagged, plus the top Phase 1B test-debt item, plus a webhook-handler timeout cap. Scope deliberately scoped just to safety — Agent Plus tier + Customer Portal + account-deletion will land in A4b.
+
+**1. Transactional checkout-session handler — pre-live blocker #1.**
+
+The previous `handleCheckoutSessionCompleted` did three sequential Supabase writes (org INSERT → org_member UPSERT → subscription UPSERT) with no transaction wrapper. Supabase JS issues each `.from(...)` call as its own auto-committed statement — the audit polite-fictioned otherwise. On a partial failure between inserts, Stripe retries; the retry's `existingSub` lookup misses (subscription wasn't written on the failed run), the slug-uniqueness loop picks a different suffix on the second attempt, and the user ends up with a duplicate organization.
+
+Fix: migration `0021_checkout_session_rpc.sql` introduces a `SECURITY DEFINER` RPC `materialize_subscription_from_checkout(...)` that wraps all three writes in one Postgres transaction. Idempotent on `stripe_subscription_id` (re-runs return the existing org+sub IDs and refresh the mutable subscription fields without re-inserting). Slug uniqueness loop moved into PL/pgSQL (was a JS round-trip-per-attempt loop). `pg_advisory_xact_lock(hashtext(stripe_subscription_id))` serializes concurrent retries for the same subscription; the second one falls through the post-lock dedup check.
+
+Handler updated: the three sequential calls collapsed to one `supabase.rpc('materialize_subscription_from_checkout', { ... })`. The obsolete `uniqueOrgSlug` JS helper deleted. ~50 lines removed from the handler.
+
+**2. Founder-rate atomic claim+grant — pre-live blocker #2.**
+
+The previous `tryClaimFounderRate` flow:
+  1. `supabase.rpc('claim_founder_rate_slot')` → counter += 1
+  2. `supabase.from('founder_rate_grants').insert(...)` → grant row written
+
+On any failure in step 2 (FK violation, unique-constraint race, network blip), the counter stayed incremented but no grant existed. The "first 50" cap eventually reaches 50 in the counter while only N < 50 actual founder grants were issued — silent loss of slots forever (no nightly reconciler).
+
+Fix: migration `0022_founder_rate_atomic_claim.sql` introduces `claim_founder_rate_slot_with_grant(p_subscription_id, p_user_id, p_original_price_id)`. The counter UPDATE + grant INSERT happen in a single function-level transaction; if the INSERT throws, the increment rolls back automatically. Idempotency: existing grant for the same subscription returns early without touching the counter. Service-role only (revoked from anon/authenticated).
+
+Handler updated: the two separate calls collapsed to one `supabase.rpc('claim_founder_rate_slot_with_grant', ...)`. Stripe price update + the `release_founder_rate_slot` rollback path on Stripe failure preserved unchanged.
+
+**3. Stripe API client timeout — 4 s.**
+
+The Stripe SDK default is 80 s. A degraded Stripe API in a webhook handler can park us past Cloudflare's edge response budget (~10 s) and trigger a 524 + a Stripe retry. `STRIPE_API_TIMEOUT_MS = 4000` capped in `src/lib/billing/stripe.ts`; gives headroom for a follow-on DB write within the same handler invocation.
+
+**4. `audit_log_self_insert` RLS test — Phase 1B test-debt #1.**
+
+`audit_log_self_insert` (migration 0013) shipped without a paired RLS test, in violation of CLAUDE.md hard rule #2. Added 4 cases to `tests/rls/properties.test.ts`:
+  - anon cannot INSERT (no INSERT policy granted to anon)
+  - authenticated user CAN insert when `actor_id = auth.uid()`
+  - authenticated user CANNOT impersonate another user's `actor_id`
+  - authenticated user CANNOT insert with `actor_id = null` (only service-role does that)
+
+All 4 pass. Full RLS suite: 128/128 (was 124/124 before this batch, +4 new cases).
+
+**Verify run.**
+- typecheck: clean
+- lint: only pre-existing 2 unused-arg warnings (no new ones)
+- unit: 91/91 (10 files)
+- RLS: 128/128 (6 files, ~50 s)
+- migrations 0021 + 0022 applied to live Supabase
+
+**What's next (A4b — separate session).**
+- Agent Plus tier ($49/mo, $490/yr) — Stripe products + plans-table seed + `/pricing` UI
+- Customer Portal verification (already wired; verify plan-change + cancel flows)
+- Account-deletion flow (GDPR floor)
+
+**Pending Phase 1B test-debt** (after A4b smoke-test):
+  - listing-cap concurrency RLS test (advisory-lock fast path)
+  - `protect_review_fields` per-status edge cases
+
+**Blockers / open questions**: none new. PO actions still on the v1 close-out list (Resend → Brevo done; R2, custom domain, soft-beta agents pending).
+
+**Next session should start with**: A4b — Agent Plus tier scaffolding.
+
+---
+
 ## 2026-05-01 — Batch A3 + critical fixes (auth / locale / UI / email / admin notifications / fixture hide)
 
 This batch combines the planned A3 scope (mega menu + currency converter on price tiles) with seven critical fixes the PO requested before the push:
