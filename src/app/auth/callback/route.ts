@@ -1,8 +1,9 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import type { EmailOtpType } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { sendEmail } from '@/lib/email/resend';
+import { sendEmail } from '@/lib/email/brevo';
 import { renderWelcomeEmail } from '@/lib/email/templates/welcome';
+import { renderAdminNewUserEmail } from '@/lib/email/templates/admin-new-user';
 import { publicEnv } from '@/lib/env';
 import { LOCALES, type Locale } from '@/i18n/config';
 
@@ -64,9 +65,12 @@ export async function GET(request: NextRequest) {
   // Constrain `next` to internal paths to avoid open-redirect.
   const safeNext = next.startsWith('/') && !next.startsWith('//') ? next : '/';
 
-  // Welcome-email fire-and-forget on signup confirmation. Wait for it before
-  // redirecting so the response stays consistent with the actual write —
-  // Resend send is fast (sub-second typically) and we're not on a hot path.
+  // On signup confirmation, fire two emails in parallel:
+  //   - Welcome to the user
+  //   - Admin notification to ADMIN_EMAIL (info@advertisehomes.online)
+  // Both are best-effort: a failure logs but does not block the redirect.
+  // The send is fast (single fetch to Brevo) so we await before redirecting
+  // for predictable observability — not on a hot path.
   if (isSignupConfirmation) {
     try {
       const { data: userResult } = await supabase.auth.getUser();
@@ -78,16 +82,48 @@ export async function GET(request: NextRequest) {
         const pricingUrl = `${pub.NEXT_PUBLIC_SITE_URL}/${inferredLocale}/${
           inferredLocale === 'es' ? 'precios' : 'pricing'
         }`;
-        const { subject, html } = renderWelcomeEmail({
+        const adminUsersUrl = `${pub.NEXT_PUBLIC_SITE_URL}/${inferredLocale}/admin/users`;
+
+        const welcome = renderWelcomeEmail({
           email: user.email,
           locale: inferredLocale,
           homeUrl,
           pricingUrl,
         });
-        await sendEmail({ to: user.email, subject, html });
+        const sends: Array<Promise<unknown>> = [
+          sendEmail({ to: user.email, subject: welcome.subject, html: welcome.html }),
+        ];
+
+        const adminEmail = process.env.ADMIN_EMAIL;
+        if (adminEmail) {
+          const meta = (user.user_metadata ?? {}) as {
+            marketing_opt_in?: boolean;
+            locale?: string;
+          };
+          const adminNotice = renderAdminNewUserEmail({
+            userEmail: user.email,
+            locale: inferredLocale,
+            marketingOptIn: meta.marketing_opt_in === true,
+            signedUpAt: new Date().toISOString(),
+            adminUsersUrl,
+          });
+          sends.push(
+            sendEmail({
+              to: adminEmail,
+              subject: adminNotice.subject,
+              html: adminNotice.html,
+            }),
+          );
+        } else {
+          console.warn(
+            '[auth/callback] ADMIN_EMAIL not set; skipping admin new-user notice',
+          );
+        }
+
+        await Promise.allSettled(sends);
       }
     } catch (e) {
-      console.error('[auth/callback] welcome email failed', e);
+      console.error('[auth/callback] post-confirmation emails failed', e);
     }
   }
 

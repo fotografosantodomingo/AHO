@@ -1,7 +1,7 @@
 import 'server-only';
 import type Stripe from 'stripe';
 import { getStripeClient } from '../stripe';
-import { sendEmail } from '@/lib/email/resend';
+import { sendEmail } from '@/lib/email/brevo';
 import { renderPaymentActionRequiredEmail } from '@/lib/email/templates/payment-action-required';
 import { formatPrice } from '@/lib/listings/seo';
 import { createAdminClient } from '@/lib/supabase/admin';

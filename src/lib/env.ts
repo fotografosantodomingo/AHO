@@ -28,6 +28,17 @@ const serverSchema = z.object({
   SUPABASE_POOLER_URL: z.string().optional(),
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  // Brevo (transactional emails sent FROM AHO — welcome, lead notifications,
+  // admin new-user notifications, 3DS-challenge). Note: Supabase auth emails
+  // (signup confirmation, password reset, magic link) go through Supabase's
+  // own SMTP config, NOT this key. Both must be wired separately.
+  BREVO_API_KEY: z.string().optional(),
+  BREVO_FROM_EMAIL: z.string().email().optional(),
+  BREVO_FROM_NAME: z.string().optional(),
+  /** Where admin notifications (new signups, etc.) get delivered. */
+  ADMIN_EMAIL: z.string().email().optional(),
+  // Resend was the previous email provider. Kept optional in the schema so
+  // legacy `.env.local` files don't fail validation; no code reads it.
   RESEND_API_KEY: z.string().optional(),
   CLOUDFLARE_API_TOKEN: z.string().optional(),
   CLOUDFLARE_ACCOUNT_ID: z.string().optional(),

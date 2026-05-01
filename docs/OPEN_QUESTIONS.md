@@ -8,7 +8,15 @@ Tracked here until decided. When resolved, move the answer to `DECISIONS.md` and
 
 ### Email + observability infrastructure
 
-- [ ] **Resend API key** for `mail.advertisehomes.online`. `RESEND_API_KEY=...` in `.env.local`. Plus DKIM / SPF / DMARC records (drafted in `docs/DNS.md`). The Resend wrapper at `src/lib/email/resend.ts` no-ops without the key, so welcome / lead-notification / 3DS-challenge / reset-password / saved-search-alert emails all wait on this. **Highest-leverage remaining unblock.**
+- [ ] **Brevo: verify the sending domain.** `BREVO_API_KEY` is in `.env.local` and Cloudflare Pages secrets (PO action 2026-04-30 — replaces Resend). The transactional wrapper at `src/lib/email/brevo.ts` is wired and no-ops without the key. Before emails actually deliver, the PO must verify the sending domain in Brevo: **Senders → Domains → Add `advertisehomes.online`** → add the DKIM CNAMEs + SPF TXT records Brevo prints to Cloudflare DNS for `advertisehomes.online`. Without verification, Brevo returns 401 / 400 with a domain-not-authorized error.
+- [ ] **Supabase Auth → SMTP relay through Brevo.** Critical for the SIGNUP CONFIRMATION + PASSWORD RESET + MAGIC LINK emails — those are sent by Supabase, NOT by our Brevo wrapper. Today they go through Supabase's default rate-limited service and frequently don't deliver. PO action: in **Supabase Dashboard → Project Settings → Auth → SMTP Settings**, enable Custom SMTP and set:
+  - Host: `smtp-relay.brevo.com`
+  - Port: `587`
+  - Username: the Brevo SMTP login (Senders → SMTP → SMTP login, e.g. `91xxxx@smtp-brevo.com`)
+  - Password: the Brevo SMTP password (separate from the API key — Brevo → SMTP → Generate a new SMTP key)
+  - Sender email: `noreply@advertisehomes.online`
+  - Sender name: `AHO`
+  - Then click "Send test email" to verify before saving. Without this, new signups don't receive the confirmation link and the auth flow is broken end-to-end.
 - [ ] **Sentry org + DSNs** for `aho-web` and `aho-workers`. Two DSNs in `.env.local`. Out of slice 1 per spec; non-blocking but hygienic to wire before paying agents land.
 - [ ] **PostHog cloud project + API key.** `NEXT_PUBLIC_POSTHOG_KEY=...` and `NEXT_PUBLIC_POSTHOG_HOST=...` in `.env.local`. Same posture as Sentry — out of slice 1.
 

@@ -36,11 +36,17 @@ export function SignUpForm() {
   async function onSubmit(values: SignUpInput) {
     setServerError(null);
     const supabase = getSupabaseBrowserClient();
+    // Post-confirmation landing: the user's localized dashboard. The
+    // dashboard layout itself bounces non-subscribers to /pricing, so:
+    //   - Subscribed agent → lands on dashboard (their listings)
+    //   - Free user → bounced to /pricing (the right next step)
+    // Either way we don't drop them on the marketing homepage.
+    const dashPath = `/${locale}/${locale === 'es' ? 'panel' : 'dashboard'}`;
     const { error } = await supabase.auth.signUp({
       email: values.email,
       password: values.password,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=/${locale}`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(dashPath)}`,
         data: {
           marketing_opt_in: values.marketingOptIn ?? false,
           locale,
@@ -129,12 +135,22 @@ export function SignUpForm() {
         <label htmlFor="acceptTerms" className="text-sm">
           {t.rich('acceptTerms', {
             termsLink: (chunks) => (
-              <a className="underline" href={`/${locale}/${locale === 'es' ? 'terminos' : 'terms'}`}>
+              <a
+                className="text-action underline-offset-2 hover:underline dark:text-action-dark"
+                href={`/${locale}/${locale === 'es' ? 'terminos' : 'terms'}`}
+                target="_blank"
+                rel="noopener"
+              >
                 {chunks}
               </a>
             ),
             privacyLink: (chunks) => (
-              <a className="underline" href={`/${locale}/${locale === 'es' ? 'privacidad' : 'privacy'}`}>
+              <a
+                className="text-action underline-offset-2 hover:underline dark:text-action-dark"
+                href={`/${locale}/${locale === 'es' ? 'privacidad' : 'privacy'}`}
+                target="_blank"
+                rel="noopener"
+              >
                 {chunks}
               </a>
             ),

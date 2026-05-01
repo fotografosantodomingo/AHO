@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { LeadCreateSchema } from '@/lib/leads/schemas';
-import { sendEmail } from '@/lib/email/resend';
+import { sendEmail } from '@/lib/email/brevo';
 import { renderLeadNotificationEmail } from '@/lib/email/templates/lead-notification';
 import { formatPrice } from '@/lib/listings/seo';
 import { publicEnv } from '@/lib/env';
