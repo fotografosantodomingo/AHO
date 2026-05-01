@@ -19,24 +19,33 @@ interface Props {
 }
 
 /**
- * Mobile drawer for the SiteHeader. DP-2b refresh:
+ * Mobile menu — full-screen overlay style.
  *
- *   - 44×44 hamburger button (≥ touch-target rule); icon swaps to X
- *     when the drawer is open.
- *   - Drawer mounts always; transforms from `translate-x-full` →
- *     `translate-x-0` on `open`, with a 320 ms cubic-bezier slide.
- *     `pointer-events-none` and `aria-hidden` gate it when closed so
- *     it doesn't intercept tab focus or pointer events.
- *   - Backdrop fades in over the same duration; clicking it closes.
- *   - Theme + locale toggles are no longer in the drawer — they live
- *     beside the AHO logo per the DP-2b PO directive. Drawer keeps
- *     the nav items, currency picker, and auth CTAs.
- *   - Auth section: when signed-out, two pill CTAs (Sign in + Sign up).
- *     When signed-in, a Dashboard link + Sign out — handled inline so
- *     the drawer doesn't depend on AuthMenu (which is a Server Component
- *     and can't be trivially nested inside this client component).
+ * Replaces the previous side-drawer pattern (PO-flagged 2026-05-01: drawer
+ * wasn't reliably popping on click; visual style felt cramped). New shape:
  *
- * Body scroll locks while open; Escape closes.
+ *   - Hamburger pill button (forest-green; high-contrast on both modes).
+ *   - Click → full viewport overlay fades + scales in. Covers everything.
+ *   - Centered, large, tappable nav links (text-xl).
+ *   - Auth CTAs as prominent pill buttons.
+ *   - Currency picker pinned to the bottom.
+ *   - Close: X button top-right, Escape key, or click on the corner X.
+ *
+ * Why full-screen vs. side-drawer:
+ *   1. Robustness — opacity + scale transitions are simpler than
+ *      `translate-x` + pointer-events gating; fewer edge cases where the
+ *      drawer fails to pop.
+ *   2. Touch targets — full-screen lets us size each nav link 48px+ high
+ *      with breathing room, the way modern mobile apps do.
+ *   3. Visual hierarchy — when the menu is open, the menu IS the page;
+ *      no peeking site content competing for attention.
+ *
+ * Accessibility:
+ *   - role="dialog" + aria-modal="true" on the overlay
+ *   - Escape closes
+ *   - Body scroll locks while open
+ *   - aria-expanded on the trigger
+ *   - aria-hidden on the overlay when closed (so it's invisible to AT)
  */
 export function MegaMenuClient({
   locale,
@@ -74,126 +83,119 @@ export function MegaMenuClient({
 
   return (
     <>
-      {/* Hamburger button. Bumped to a forest-green pill so it ALWAYS
-          reads against the white header (light mode) and the dark
-          forest header (dark mode) — neither contrast is ambiguous.
-          The previous neutral-bg hamburger blended into the header bg
-          on light mode (both white) and looked invisible to the PO. */}
+      {/* Hamburger trigger — forest-green pill so it's never invisible
+          against the header background in either mode. */}
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-label={open ? 'Close menu' : 'Open menu'}
+        onClick={() => setOpen(true)}
+        aria-label="Open menu"
         aria-expanded={open}
-        aria-controls="mobile-drawer"
+        aria-controls="mobile-menu-overlay"
         className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-action text-white shadow-lift transition-all hover:bg-action-active active:scale-95 md:hidden"
       >
-        {open ? (
-          <X aria-hidden="true" className="h-5 w-5" strokeWidth={2.25} />
-        ) : (
-          <Menu aria-hidden="true" className="h-5 w-5" strokeWidth={2.25} />
-        )}
+        <Menu aria-hidden="true" className="h-5 w-5" strokeWidth={2.25} />
       </button>
 
-      {/* Backdrop — always mounted; fades via opacity + pointer-events. */}
+      {/* Full-screen overlay. Always mounted; opacity + pointer-events
+          gate visibility. `pointer-events-none` when closed prevents
+          intercepting taps elsewhere on the page. */}
       <div
-        aria-hidden="true"
-        onClick={() => setOpen(false)}
-        className={`fixed inset-0 z-40 bg-black/60 transition-opacity duration-300 md:hidden ${
-          open ? 'opacity-100' : 'pointer-events-none opacity-0'
-        }`}
-      />
-
-      {/* Drawer — always mounted; transforms via translate-x.
-          DP-3: tokens auto-pivot now (`bg-surface` = white in light,
-          lifted dark forest in dark; `text-ink` = warm-black in light,
-          cream in dark). No more bilingual class chains or inline-style
-          backstops. */}
-      <div
-        id="mobile-drawer"
+        id="mobile-menu-overlay"
         role="dialog"
         aria-modal="true"
         aria-hidden={!open}
         aria-label="Site navigation"
-        className={`fixed top-0 right-0 bottom-0 z-50 flex w-[88%] max-w-sm flex-col gap-5 overflow-y-auto border-l-2 border-border-strong bg-surface p-6 text-ink shadow-2xl transition-transform duration-[320ms] ease-[cubic-bezier(0.4,0,0.2,1)] md:hidden ${
-          open ? 'translate-x-0' : 'pointer-events-none translate-x-full'
+        className={`fixed inset-0 z-50 flex flex-col bg-surface transition-opacity duration-200 ease-out md:hidden dark:bg-surface-deep ${
+          open ? 'opacity-100' : 'pointer-events-none opacity-0'
         }`}
       >
-        <div className="flex items-center justify-between border-b border-border pb-4">
+        {/* Top bar inside the overlay — wordmark left, X close right.
+            Same height as the site header so the close X visually
+            replaces the hamburger when transitioning. */}
+        <div className="flex items-center justify-between border-b border-border-strong/40 px-4 py-3">
           <p className="font-brand text-lg font-bold tracking-tight">AHO</p>
           <button
             type="button"
             onClick={() => setOpen(false)}
             aria-label="Close menu"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border-strong bg-surface text-ink transition-all hover:border-action active:scale-95 dark:bg-surface-deep dark:text-ink-inverse dark:hover:border-action-dark"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-action text-white shadow-lift transition-all hover:bg-action-active active:scale-95"
           >
             <X aria-hidden="true" className="h-5 w-5" strokeWidth={2.25} />
           </button>
         </div>
 
-        <nav aria-label="Primary mobile" className="flex flex-col">
-          {navItems.map((item) => (
-            <a
-              key={item.href + item.label}
-              href={item.href}
-              onClick={() => setOpen(false)}
-              className="-mx-2 flex items-center justify-between rounded-lg border-b border-border/50 px-2 py-3.5 text-base font-medium text-ink transition-colors hover:bg-surface-warm/60 hover:text-action dark:text-ink-inverse dark:hover:bg-surface-dark dark:hover:text-action-dark"
-            >
-              <span>{item.label}</span>
-              <span aria-hidden="true" className="text-helper">→</span>
-            </a>
-          ))}
+        {/* Nav links — centered, large, tappable. Each row is 56px tall
+            for comfortable thumb reach. The arrow on the right is a
+            touch-affordance signal (consistent with iOS list rows). */}
+        <nav
+          aria-label="Primary mobile"
+          className="flex-1 overflow-y-auto px-6 py-6"
+        >
+          <ul className="flex flex-col gap-1">
+            {navItems.map((item) => (
+              <li key={item.href + item.label}>
+                <a
+                  href={item.href}
+                  onClick={() => setOpen(false)}
+                  className="flex h-14 items-center justify-between rounded-xl px-4 text-lg font-medium text-ink transition-colors hover:bg-surface-warm/60 active:bg-surface-warm dark:text-ink-inverse dark:hover:bg-surface-dark/60 dark:active:bg-surface-dark"
+                >
+                  <span>{item.label}</span>
+                  <span aria-hidden="true" className="text-helper">→</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+
+          {/* Auth section — divider + prominent CTAs. */}
+          <div className="mt-6 flex flex-col gap-3 border-t border-border pt-6">
+            {isAuthed ? (
+              <>
+                <a
+                  href={dashboardHref}
+                  onClick={() => setOpen(false)}
+                  className="btn-primary h-14 w-full text-base"
+                >
+                  {t('dashboard')}
+                </a>
+                <a
+                  href={savedPropertiesHref}
+                  onClick={() => setOpen(false)}
+                  className="btn-secondary h-12 w-full"
+                >
+                  {t('savedProperties')}
+                </a>
+                <a
+                  href={savedSearchesHref}
+                  onClick={() => setOpen(false)}
+                  className="btn-secondary h-12 w-full"
+                >
+                  {t('savedSearches')}
+                </a>
+              </>
+            ) : (
+              <>
+                <a
+                  href={signUpHref}
+                  onClick={() => setOpen(false)}
+                  className="btn-primary h-14 w-full text-base"
+                >
+                  {tAuth('signUpCta')}
+                </a>
+                <a
+                  href={signInHref}
+                  onClick={() => setOpen(false)}
+                  className="btn-secondary h-12 w-full"
+                >
+                  {tAuth('signInCta')}
+                </a>
+              </>
+            )}
+          </div>
         </nav>
 
-        {/* Auth section — pill CTAs (signed-out) OR account links (signed-in). */}
-        <div className="flex flex-col gap-2 border-t border-border pt-4">
-          {isAuthed ? (
-            <>
-              <a
-                href={dashboardHref}
-                onClick={() => setOpen(false)}
-                className="btn-primary w-full"
-              >
-                {t('dashboard')}
-              </a>
-              <a
-                href={savedPropertiesHref}
-                onClick={() => setOpen(false)}
-                className="btn-secondary w-full"
-              >
-                {t('savedProperties')}
-              </a>
-              <a
-                href={savedSearchesHref}
-                onClick={() => setOpen(false)}
-                className="btn-secondary w-full"
-              >
-                {t('savedSearches')}
-              </a>
-            </>
-          ) : (
-            <>
-              <a
-                href={signUpHref}
-                onClick={() => setOpen(false)}
-                className="btn-primary w-full"
-              >
-                {tAuth('signUpCta')}
-              </a>
-              <a
-                href={signInHref}
-                onClick={() => setOpen(false)}
-                className="btn-secondary w-full"
-              >
-                {tAuth('signInCta')}
-              </a>
-            </>
-          )}
-        </div>
-
         {/* Currency picker pinned to the bottom — quick-access without
-            taking up nav real estate. Theme + locale moved out (now in
-            the top bar beside the logo). */}
-        <div className="mt-auto flex items-center justify-between gap-3 border-t border-border pt-4">
+            taking up nav real estate. */}
+        <div className="flex items-center justify-between gap-3 border-t border-border-strong/40 px-6 py-4">
           <span className="text-xs font-medium uppercase tracking-wider text-helper">
             {t('currency')}
           </span>

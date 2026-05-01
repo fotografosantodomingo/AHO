@@ -74,6 +74,15 @@ export async function POST(
     );
   }
 
+  // First-image-becomes-primary rule: if this is the first image for the
+  // property, mark it primary unless the caller explicitly sets isPrimary.
+  // Without this, listings render with no thumbnail because every search /
+  // listing-card query filters `.eq('is_primary', true)` — and nothing
+  // ever set it. PO directive 2026-05-01: "first photo uploaded is the
+  // main photo".
+  const isFirstImage = (count ?? 0) === 0;
+  const shouldBePrimary = parsed.data.isPrimary ?? isFirstImage;
+
   const env = serverEnv();
   if (!env.R2_BUCKET_PROPERTY_IMAGES) {
     return NextResponse.json(
@@ -93,7 +102,7 @@ export async function POST(
     alt_text_en: parsed.data.altTextEn ?? null,
     alt_text_es: parsed.data.altTextEs ?? null,
     position: parsed.data.position ?? cap.current,
-    is_primary: parsed.data.isPrimary ?? false,
+    is_primary: shouldBePrimary,
     upload_status: 'pending',
   });
   if (insertErr) {

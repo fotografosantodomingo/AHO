@@ -12,6 +12,39 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — Mobile UX pass: full-bleed gallery + first-photo-as-primary + redesigned mobile menu
+
+PO reported four issues from a customer perspective: (1) property gallery cropped on mobile, (2) listings have no thumbnail because no primary photo is set, (3) hamburger menu doesn't pop on tap, (4) verify payment-success redirect.
+
+**1. Property gallery — full-bleed on mobile.** [src/components/listings/property-gallery.tsx](src/components/listings/property-gallery.tsx)
+
+Previously: primary photo was constrained inside the page's `px-4` container, with `aspect-[4/3]` cropping visibly. Now: wrapper uses `-mx-4 md:mx-0` to break out of the parent container so the photo spans viewport edge-to-edge on mobile. Square corners on mobile (rounded corners against the viewport edge looked off); rounded on `md+`. Secondary thumbs are now a horizontal carousel with `snap-x snap-mandatory` for iOS-feel scrolling, also breaking out on mobile. Desktop layout unchanged (4-col grid, primary 2x2, four secondaries).
+
+**2. First-photo-uploaded becomes primary.** [src/app/api/properties/[id]/images/route.ts](src/app/api/properties/[id]/images/route.ts) + new migration [0028_backfill_image_primary.sql](src/db/migrations/0028_backfill_image_primary.sql)
+
+Root cause: the upload route defaulted `is_primary: false` and nothing else ever set it. Every search query / listing-card thumbnail join filters `WHERE is_primary = true` → no rows matched → listing cards rendered the placeholder state even when photos existed.
+
+Fix at the route level: when the count of existing images for a property is 0, the new image gets `is_primary = true`. Caller's explicit `isPrimary` still wins. The `idx_property_one_primary` partial-unique index from migration 0004 enforces the at-most-one invariant.
+
+Backfill migration 0028 promotes the lowest-`position` confirmed image per property to primary for every property currently missing one. Applied to production Supabase: 3 properties promoted (matches the count of real listings the PO has uploaded). Idempotent — re-running is a no-op.
+
+**3. Mobile menu — full-screen overlay redesign.** [src/components/mega-menu-client.tsx](src/components/mega-menu-client.tsx)
+
+Replaced the side-drawer pattern with a full-screen overlay that fades in over the page. Reasons:
+  - **Robustness:** opacity + `pointer-events-none` gating is simpler than `translate-x` + drawer transforms; fewer edge cases where the drawer didn't pop on tap (root cause of the PO-reported bug — the previous drawer's transition state could race the hamburger click on certain devices).
+  - **Touch ergonomics:** full-screen lets every nav row be 56px tall with breathing room; right-side drawer was cramping links to ~44px.
+  - **Visual hierarchy:** when the menu is open, the menu IS the page — no peeking content underneath competing for attention.
+
+Layout: top bar (AHO wordmark + X close button — also forest-green pill, same shape as the trigger so it visually replaces the hamburger when opened) → centered nav links with right-arrow affordances → divided auth section with prominent CTAs → currency picker pinned to the bottom. Esc closes; body scroll locks while open; `role="dialog"` + `aria-modal="true"` + `aria-hidden` when closed.
+
+**4. Payment-success redirect — verified correct, no change.**
+
+Stripe Checkout `success_url` points at `/{locale}/onboarding/welcome?session_id=...` (en) / `/inicio/bienvenida` (es). The welcome page polls every 2.5s via [WelcomePoller](src/components/billing/welcome-poller.tsx) until the `checkout.session.completed` webhook materializes the user's org membership row, then surfaces an "Open dashboard" CTA. This is the right pattern for SaaS onboarding — the user lands somewhere they own (their welcome page), confirms the subscription kicked in, and chooses when to enter the dashboard. Going straight to `/dashboard` would race the webhook and could land users on an empty state mid-provisioning.
+
+**Verification:** typecheck clean · 141/141 unit tests · lint only pre-existing `_req` warnings · migration 0028 applied to production.
+
+---
+
 ## 2026-05-01 — Customer-flow audit: full bug log + 4 verified fixes
 
 PO requested an end-to-end customer-perspective audit covering listing CRUD, dashboard, admin, pricing/packages, ranking, and "all other functions". Spawned 4 parallel Explore agents to cover (a) listing CRUD + dashboard, (b) pricing → subscription → plan-gating, (c) leads + analytics + buyer surfaces, (d) admin + ranking + SEO. Each finding verified against the actual code before classification. Approximately half the agent findings were false positives or already-intentional decisions.
