@@ -124,13 +124,21 @@ export default async function PropertyDetailPage({
   // if the agent's phone passes the digit-count sanity check.
   const contact = await fetchListingContact(property.id);
   const canonicalUrl = (typedLocale === 'es' ? urls.es : urls.en) ?? urls.en ?? urls.es ?? '';
+  // Prefer the agent's dedicated WhatsApp number if set; fall back to
+  // their primary phone. Keeps the contract simple for agents who use
+  // the same number for both.
+  const waPhone = contact?.agentWhatsappPhone ?? contact?.agentPhone;
   const whatsappLink = buildWhatsAppLink({
-    agentPhone: contact?.agentPhone,
+    agentPhone: waPhone,
     listingTitle: title,
     city: property.city,
     url: canonicalUrl,
     locale: typedLocale,
   });
+  // Tel link (single phone for click-to-call). E.164-ish — strip
+  // non-digits for the href but show the formatted version.
+  const telPhone = contact?.agentPhone;
+  const telHref = telPhone ? `tel:${telPhone.replace(/[^+0-9]/g, '')}` : null;
 
   return (
     <>
@@ -232,31 +240,147 @@ export default async function PropertyDetailPage({
           </section>
         )}
 
-        {/* Contact section — WhatsApp button + lead capture form. Only renders
-            when the listing is active+published (which is also when contact is
-            visible per HANDOFF §6.3 — anon sees the form, never the agent's
-            email/phone directly). */}
+        {/* Contact section — agent card (left) + lead form (right) on md+.
+            On mobile they stack. Only renders contact details when the
+            listing is active+published (gated by SECURITY DEFINER RPC).
+            WhatsApp link prefers the agent's dedicated WhatsApp number,
+            falls back to their main phone. */}
         <section
           aria-labelledby="contact-heading"
-          className="mt-12 grid gap-6 rounded-card border border-border bg-surface p-6 shadow-whisper dark:bg-surface-deep md:grid-cols-2"
+          className="mt-12 grid gap-6 rounded-card border border-border bg-surface p-6 shadow-whisper dark:bg-surface-deep md:grid-cols-[1fr_1.2fr]"
         >
-          <div>
+          <div className="space-y-4">
             <h2 id="contact-heading" className="font-brand text-xl font-bold">
               {t('contactAgent')}
             </h2>
-            {contact?.orgName && (
-              <p className="mt-1 text-sm text-helper">{contact.orgName}</p>
+
+            {/* Agent identity row — photo + name + org. */}
+            <div className="flex items-start gap-3">
+              {contact?.agentAvatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={contact.agentAvatarUrl}
+                  alt={contact.agentFullName ?? contact.orgName}
+                  className="h-14 w-14 rounded-full border border-border object-cover"
+                />
+              ) : (
+                <div
+                  aria-hidden="true"
+                  className="flex h-14 w-14 items-center justify-center rounded-full border border-border bg-surface-muted font-brand text-base font-semibold text-action dark:bg-surface-dark dark:text-action-dark"
+                >
+                  {(contact?.agentFullName ?? contact?.orgName ?? '·')
+                    .split(/\s+/)
+                    .slice(0, 2)
+                    .map((w) => w[0]?.toUpperCase() ?? '')
+                    .join('')}
+                </div>
+              )}
+              <div className="min-w-0">
+                {contact?.agentFullName && (
+                  <p className="font-brand text-base font-semibold tracking-tight">
+                    {contact.agentFullName}
+                  </p>
+                )}
+                {contact?.orgName && (
+                  <p className="text-sm text-helper">{contact.orgName}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Specialties + languages tags. */}
+            {((contact?.agentSpecialties?.length ?? 0) > 0 ||
+              (contact?.agentLanguagesSpoken?.length ?? 0) > 0) && (
+              <div className="space-y-2">
+                {(contact?.agentSpecialties?.length ?? 0) > 0 && (
+                  <ul className="flex flex-wrap gap-1.5">
+                    {contact!.agentSpecialties.map((s) => (
+                      <li
+                        key={`spec-${s}`}
+                        className="inline-flex items-center rounded-md bg-action/10 px-2 py-0.5 text-[11px] font-medium text-action dark:bg-action-dark/15 dark:text-action-dark"
+                      >
+                        {s.replace(/_/g, ' ')}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {(contact?.agentLanguagesSpoken?.length ?? 0) > 0 && (
+                  <p className="text-xs text-helper">
+                    {typedLocale === 'es' ? 'Idiomas' : 'Speaks'}:{' '}
+                    {contact!.agentLanguagesSpoken.join(' · ')}
+                  </p>
+                )}
+              </div>
             )}
-            {whatsappLink && (
-              <a
-                href={whatsappLink}
-                rel="noopener noreferrer"
-                target="_blank"
-                className="mt-4 inline-flex h-10 items-center rounded-lg border border-emerald-600 bg-emerald-50 px-4 text-sm font-medium text-emerald-900 shadow-whisper transition hover:bg-emerald-100 dark:border-emerald-500 dark:bg-emerald-950/40 dark:text-emerald-100 dark:hover:bg-emerald-950/60"
-              >
-                {t('chatOnWhatsapp')}
-              </a>
+
+            {/* Bio snippet. Long bios truncated visually but fully indexable. */}
+            {contact?.agentBio && (
+              <p className="line-clamp-4 text-sm leading-relaxed text-ink-muted dark:text-ink-inverse-muted">
+                {contact.agentBio}
+              </p>
             )}
+
+            {/* Contact CTAs. WhatsApp first (highest conversion in DR market),
+                then phone, then social links as small icon-style chips. */}
+            <div className="flex flex-wrap gap-2">
+              {whatsappLink && (
+                <a
+                  href={whatsappLink}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  className="inline-flex h-9 items-center rounded-lg border border-emerald-600 bg-emerald-50 px-3 text-sm font-medium text-emerald-900 shadow-whisper transition hover:bg-emerald-100 dark:border-emerald-500 dark:bg-emerald-950/40 dark:text-emerald-100 dark:hover:bg-emerald-950/60"
+                >
+                  {t('chatOnWhatsapp')}
+                </a>
+              )}
+              {telHref && (
+                <a
+                  href={telHref}
+                  className="inline-flex h-9 items-center rounded-lg border border-border-strong px-3 text-sm transition hover:bg-black/5 dark:hover:bg-white/5"
+                >
+                  {typedLocale === 'es' ? 'Llamar' : 'Call'}
+                </a>
+              )}
+              {contact?.agentWebsiteUrl && (
+                <a
+                  href={contact.agentWebsiteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  className="inline-flex h-9 items-center rounded-lg border border-border-strong/40 px-3 text-xs text-helper transition hover:bg-black/5 dark:hover:bg-white/5"
+                >
+                  Web ↗
+                </a>
+              )}
+              {contact?.agentFacebookUrl && (
+                <a
+                  href={contact.agentFacebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  className="inline-flex h-9 items-center rounded-lg border border-border-strong/40 px-3 text-xs text-helper transition hover:bg-black/5 dark:hover:bg-white/5"
+                >
+                  Facebook ↗
+                </a>
+              )}
+              {contact?.agentInstagramUrl && (
+                <a
+                  href={contact.agentInstagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  className="inline-flex h-9 items-center rounded-lg border border-border-strong/40 px-3 text-xs text-helper transition hover:bg-black/5 dark:hover:bg-white/5"
+                >
+                  Instagram ↗
+                </a>
+              )}
+              {contact?.agentLinkedinUrl && (
+                <a
+                  href={contact.agentLinkedinUrl}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  className="inline-flex h-9 items-center rounded-lg border border-border-strong/40 px-3 text-xs text-helper transition hover:bg-black/5 dark:hover:bg-white/5"
+                >
+                  LinkedIn ↗
+                </a>
+              )}
+            </div>
           </div>
           <ContactForm propertyId={property.id} />
         </section>

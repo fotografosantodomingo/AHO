@@ -66,6 +66,15 @@ export function parseSlugParam(slug: string): { slugPart: string; shortId: strin
 export interface ListingContact {
   agentFullName: string | null;
   agentPhone: string | null;
+  agentWhatsappPhone: string | null;
+  agentAvatarUrl: string | null;
+  agentBio: string | null;
+  agentWebsiteUrl: string | null;
+  agentFacebookUrl: string | null;
+  agentInstagramUrl: string | null;
+  agentLinkedinUrl: string | null;
+  agentSpecialties: string[];
+  agentLanguagesSpoken: string[];
   orgId: string;
   orgName: string;
 }
@@ -96,6 +105,15 @@ export async function fetchListingContact(
   return {
     agentFullName: row.agent_full_name ?? null,
     agentPhone: row.agent_phone ?? null,
+    agentWhatsappPhone: row.agent_whatsapp_phone ?? null,
+    agentAvatarUrl: row.agent_avatar_url ?? null,
+    agentBio: row.agent_bio ?? null,
+    agentWebsiteUrl: row.agent_website_url ?? null,
+    agentFacebookUrl: row.agent_facebook_url ?? null,
+    agentInstagramUrl: row.agent_instagram_url ?? null,
+    agentLinkedinUrl: row.agent_linkedin_url ?? null,
+    agentSpecialties: (row.agent_specialties as string[] | null) ?? [],
+    agentLanguagesSpoken: (row.agent_languages_spoken as string[] | null) ?? [],
     orgId: row.org_id,
     orgName: row.org_name,
   };

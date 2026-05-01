@@ -53,6 +53,16 @@ export const profiles = pgTable('profiles', {
   marketingOptIn: boolean('marketing_opt_in').notNull().default(false),
   isAdmin: boolean('is_admin').notNull().default(false),
   adminRole: text('admin_role'),
+  // Extended agent-profile fields (migration 0012). All optional with
+  // sensible defaults so existing rows aren't disturbed.
+  bio: text('bio'),
+  whatsappPhone: text('whatsapp_phone'),
+  websiteUrl: text('website_url'),
+  facebookUrl: text('facebook_url'),
+  instagramUrl: text('instagram_url'),
+  linkedinUrl: text('linkedin_url'),
+  specialties: text('specialties').array().notNull().default(sql`'{}'::text[]`),
+  languagesSpoken: text('languages_spoken').array().notNull().default(sql`'{}'::text[]`),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });

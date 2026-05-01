@@ -57,6 +57,7 @@ export default async function DashboardLayout({
   const savedSearchesPath = `/${locale}/${
     locale === 'es' ? 'busquedas-guardadas' : 'saved-searches'
   }`;
+  const profilePath = `/${locale}/${locale === 'es' ? 'panel/perfil' : 'dashboard/profile'}`;
 
   return (
     <div className="mx-auto grid max-w-6xl gap-6 px-6 py-8 md:grid-cols-[14rem_1fr] md:gap-8">
@@ -86,6 +87,12 @@ export default async function DashboardLayout({
             className="shrink-0 rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5 md:block"
           >
             {t('navSavedSearches')}
+          </a>
+          <a
+            href={profilePath}
+            className="shrink-0 rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5 md:block"
+          >
+            {t('navProfile')}
           </a>
           <BillingPortalButton />
         </nav>

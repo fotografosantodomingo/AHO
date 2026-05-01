@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { formatPrice } from '@/lib/listings/seo';
+import { DeleteListingButton } from '@/components/listings/delete-listing-button';
 
 export const runtime = 'edge';
 
@@ -236,6 +237,9 @@ export default async function DashboardListingsPage({
                 <th className="px-3 py-2 font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
                   {t('table.updated')}
                 </th>
+                <th className="px-3 py-2 text-right font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+                  {t('table.actions')}
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60">
@@ -266,6 +270,17 @@ export default async function DashboardListingsPage({
                     <td className="px-3 py-2 text-right tabular-nums">{row.image_count}</td>
                     <td className="px-3 py-2 text-helper">
                       {dateFormatter.format(new Date(row.updated_at))}
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      <span className="inline-flex items-center gap-1.5">
+                        <a
+                          href={editPathFor(row.id)}
+                          className="inline-flex h-7 items-center rounded-md border border-border-strong/40 px-2 text-xs transition hover:bg-black/5 dark:hover:bg-white/5"
+                        >
+                          {t('edit')}
+                        </a>
+                        <DeleteListingButton id={row.id} label={title} />
+                      </span>
                     </td>
                   </tr>
                 );

@@ -232,6 +232,7 @@
     "navListings": "My Listings",
     "navLeads": "Leads",
     "navSavedSearches": "Saved searches",
+    "navProfile": "Profile",
     "navBilling": "Billing",
     "manageBilling": "Manage billing",
     "listingsHeading": "My Listings",
@@ -260,8 +261,11 @@
       "city": "City",
       "price": "Price",
       "images": "Images",
-      "updated": "Updated"
+      "updated": "Updated",
+      "actions": "Actions"
     },
+    "edit": "Edit",
+    "delete": "Delete",
     "status": {
       "draft": "Draft",
       "active": "Active",
@@ -297,6 +301,42 @@
         "lost": "Lost"
       }
     }
+  },
+  "profileForm": {
+    "heading": "Your agent profile",
+    "subheading": "Buyers see this on your public agent page and on every property you list.",
+    "sectionIdentity": "Identity",
+    "sectionContact": "Contact",
+    "sectionExpertise": "Expertise",
+    "sectionLinks": "External links",
+    "fullName": "Full name",
+    "avatarUrl": "Profile photo URL",
+    "avatarHelp": "Direct link to a JPG/PNG. Square images work best.",
+    "bio": "About me",
+    "bioPlaceholder": "Briefly describe your experience, areas you cover, and what kind of buyer you serve best.",
+    "phone": "Phone (calls / SMS)",
+    "whatsappPhone": "WhatsApp number",
+    "whatsappHelp": "Optional. If different from the phone above; otherwise we use the phone for the WhatsApp button too.",
+    "city": "City",
+    "countryCode": "Country (2-letter ISO)",
+    "specialties": "Specialties",
+    "specialtiesHelp": "Pick from the suggestions or add your own. Click a tag to remove.",
+    "specialtyOptions": {
+      "first_time_buyers": "First-time buyers",
+      "luxury": "Luxury",
+      "relocation": "Relocation",
+      "investment": "Investment",
+      "short_term_rentals": "Short-term rentals",
+      "commercial": "Commercial",
+      "land": "Land",
+      "new_construction": "New construction"
+    },
+    "addCustomSpecialty": "Add your own…",
+    "languages": "Languages spoken",
+    "addCustomLanguage": "Add a language…",
+    "websiteUrl": "Personal website",
+    "saveChanges": "Save changes",
+    "saved": "Profile saved."
   },
   "imageUploader": {
     "heading": "Property photos",

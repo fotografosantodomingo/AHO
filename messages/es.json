@@ -232,6 +232,7 @@
     "navListings": "Mis anuncios",
     "navLeads": "Contactos",
     "navSavedSearches": "Búsquedas guardadas",
+    "navProfile": "Perfil",
     "navBilling": "Facturación",
     "manageBilling": "Administrar facturación",
     "listingsHeading": "Mis anuncios",
@@ -260,8 +261,11 @@
       "city": "Ciudad",
       "price": "Precio",
       "images": "Imágenes",
-      "updated": "Actualizado"
+      "updated": "Actualizado",
+      "actions": "Acciones"
     },
+    "edit": "Editar",
+    "delete": "Eliminar",
     "status": {
       "draft": "Borrador",
       "active": "Activo",
@@ -297,6 +301,42 @@
         "lost": "Perdido"
       }
     }
+  },
+  "profileForm": {
+    "heading": "Tu perfil de agente",
+    "subheading": "Los compradores lo ven en tu página pública de agente y en cada propiedad que publicas.",
+    "sectionIdentity": "Identidad",
+    "sectionContact": "Contacto",
+    "sectionExpertise": "Especialidades",
+    "sectionLinks": "Enlaces externos",
+    "fullName": "Nombre completo",
+    "avatarUrl": "URL de la foto de perfil",
+    "avatarHelp": "Enlace directo a un JPG/PNG. Las imágenes cuadradas se ven mejor.",
+    "bio": "Sobre mí",
+    "bioPlaceholder": "Describe brevemente tu experiencia, las zonas donde trabajas y a qué tipo de comprador atiendes mejor.",
+    "phone": "Teléfono (llamadas / SMS)",
+    "whatsappPhone": "Número de WhatsApp",
+    "whatsappHelp": "Opcional. Si es diferente del teléfono anterior; si no, usamos el teléfono también para WhatsApp.",
+    "city": "Ciudad",
+    "countryCode": "País (ISO de 2 letras)",
+    "specialties": "Especialidades",
+    "specialtiesHelp": "Elige de las sugerencias o añade las tuyas. Haz clic en una etiqueta para quitarla.",
+    "specialtyOptions": {
+      "first_time_buyers": "Compradores primerizos",
+      "luxury": "Lujo",
+      "relocation": "Reubicación",
+      "investment": "Inversión",
+      "short_term_rentals": "Alquileres temporales",
+      "commercial": "Comercial",
+      "land": "Terrenos",
+      "new_construction": "Obra nueva"
+    },
+    "addCustomSpecialty": "Añade la tuya…",
+    "languages": "Idiomas",
+    "addCustomLanguage": "Añade un idioma…",
+    "websiteUrl": "Sitio web personal",
+    "saveChanges": "Guardar cambios",
+    "saved": "Perfil guardado."
   },
   "imageUploader": {
     "heading": "Fotos del inmueble",

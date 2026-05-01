@@ -78,6 +78,10 @@ export const PATHNAMES = {
     en: '/dashboard/leads',
     es: '/panel/contactos',
   },
+  '/dashboard/profile': {
+    en: '/dashboard/profile',
+    es: '/panel/perfil',
+  },
   // Saved searches — top-level (NOT inside /dashboard) because they're a
   // buyer feature: anyone with an account can save filters, regardless of
   // whether they have an Agent subscription. Putting this under
