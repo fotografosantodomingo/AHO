@@ -39,6 +39,42 @@ Tracked here until decided. When resolved, move the answer to `DECISIONS.md` and
 
 ---
 
+## Security checklist — in place vs. pending
+
+Audit triggered by PO security checklist 2026-04-30. Mapping the list against current state:
+
+### Authentication
+- [x] Strong password policy: 8 chars + uppercase + number (`SignUpSchema`). Could tighten to 12 chars + HIBP check.
+- [ ] **MFA enforcement at signup.** Supabase supports TOTP; not yet enrolled in the signup flow. Spec calls for required MFA on admin accounts (HANDOFF §5.1) — currently optional. Action: add a post-signup MFA setup step, mandatory for `is_admin = true` profiles.
+- [ ] **HIBP / breach-list password check.** Have I Been Pwned k-anonymity API on the signup form. ~10 lines via fetch + SHA-1 prefix.
+- [x] Rate limiting on auth: Supabase Auth has built-in per-IP + per-email rate limits; Cloudflare also rate-limits at the edge.
+- [ ] **Progressive account lockout** after N failed signin attempts. Supabase rate-limits but doesn't lock — would need a `failed_signin_attempts` table + middleware check.
+- [ ] **CAPTCHA / Cloudflare Turnstile** on signup + signin. Spec §22 mentions Turnstile; not yet integrated.
+- [x] Generic error messages: Supabase Auth returns `Invalid login credentials` on bad password OR unknown email — no enumeration. Verified.
+
+### Session management
+- [x] Cryptographically random session tokens: Supabase uses 256-bit random tokens.
+- [x] HttpOnly cookie flag: `@supabase/ssr` sets HttpOnly on auth cookies by default.
+- [x] Secure cookie flag: set in HTTPS context (Cloudflare Pages enforces HTTPS).
+- [~] SameSite: defaults to `Lax` (not `Strict`). `Strict` would break magic-link / password-reset flows that arrive from external email clients. `Lax` is the documented safe default.
+- [x] Token rotation on signin: Supabase rotates the access + refresh token pair on every signin.
+- [~] Idle timeout: access-token TTL is 1 hour (Supabase default). Spec checklist asks for 15-30min — would need to override in Supabase project settings.
+- [~] Absolute re-auth: refresh-token TTL is 30 days. Spec checklist asks for 12-24h. Would need to override.
+- [x] Server-side session destruction on signout: `supabase.auth.signOut({ scope: 'global' })` revokes the refresh-token row in `auth.refresh_tokens` (this commit's signout button uses scope='global').
+
+### Advanced technical (this commit)
+- [x] HTTPS site-wide: Cloudflare auto.
+- [x] **HSTS:** `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload` (next.config.ts).
+- [x] **X-Content-Type-Options:** `nosniff`.
+- [x] **X-Frame-Options:** `DENY` + CSP `frame-ancestors 'none'` (belt-and-suspenders).
+- [x] **Content-Security-Policy:** allow-listed for self + js.stripe.com + unpkg (Leaflet CSS) + imagedelivery.net (Cloudflare Images) + *.tile.openstreetmap.org + *.supabase.co. `'unsafe-inline'` on script-src is required for the layout's theme-init script + Next.js's RSC bootstrap; CSP nonces are a future polish item.
+- [x] **Referrer-Policy:** `strict-origin-when-cross-origin`.
+- [x] **Permissions-Policy:** camera/microphone/geolocation blocked; payment scoped to Stripe only.
+- [~] WAF: Cloudflare's free-tier managed rules are active. Full WAF (custom rules, OWASP Top 10 ruleset) is paid-tier.
+- [ ] **`pnpm audit` in CI.** Trivial add: `corepack pnpm@9.12.3 audit --prod --audit-level=high` in `.github/workflows/ci.yml`. Fail the build on high+ vulnerabilities.
+
+---
+
 ## Engineering — discovered during execution
 
 - [ ] **Dedicated test Supabase project** (per `RISKS.md` R11). RLS test fixtures currently live in the production project. Decide: (a) provision a free-tier test project now, or (b) wait for Supabase database branching to stabilize. Recommend (a) for v1; (b) at v1.1. Until then, every public-facing surface filters `aho-test-org-*` org slugs + `aho-fixture-*` listing slugs (pattern documented in `CLAUDE.md` "Local-dev quirks"). Belt-and-suspenders is in place but a test project is the durable fix.

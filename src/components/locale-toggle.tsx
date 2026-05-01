@@ -1,32 +1,52 @@
 'use client';
 
 import { useLocale, useTranslations } from 'next-intl';
-import { useTransition } from 'react';
+import { useState } from 'react';
 import { Globe } from 'lucide-react';
 import { LOCALES, type Locale } from '@/i18n/config';
-import { usePathname, useRouter } from '@/i18n/routing';
+import { usePathname, getPathname } from '@/i18n/routing';
 
 /**
- * Locale switcher. Navigates to the same logical path under the new locale,
- * preserving search params. Path translations (e.g. `/properties` ↔
- * `/propiedades`) are handled by `next-intl/navigation` from the routing
- * config.
+ * Locale switcher.
+ *
+ * Hard navigation (window.location.assign) instead of `router.replace`.
+ * Reason: next-intl's typed router does a soft client-side nav that
+ * piggy-backs on Next's App Router RSC fetch. Supabase auth cookies
+ * travel with the fetch in principle, but the soft nav doesn't re-run
+ * middleware cleanly on every Next.js / @supabase/ssr version
+ * combination, and the user can land on the new locale's page with the
+ * server seeing them as signed-out (auth.getUser() returns null even
+ * though the cookies are still valid). A hard nav forces the browser to
+ * issue a fresh request → middleware refreshes the session → the new
+ * page sees them signed in.
+ *
+ * Path translations (e.g. /dashboard ↔ /panel) are handled by
+ * `getPathname({ href, locale })` from next-intl/routing.
  */
 export function LocaleToggle() {
   const t = useTranslations('locale');
   const locale = useLocale();
   const pathname = usePathname();
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
 
   function switchTo(next: Locale) {
     if (next === locale) return;
-    startTransition(() => {
-      // `pathname` is the canonical (locale-agnostic) path; router.replace
-      // re-resolves it under `next`.
-      // @ts-expect-error — typed-routes for dynamic [slug] not always inferred
-      router.replace(pathname, { locale: next });
-    });
+    setIsPending(true);
+    // Resolve the localized URL, then hard-nav. getPathname returns the
+    // /es/... or /en/... path with any path-translation applied.
+    let target: string;
+    try {
+      target = getPathname({
+        // @ts-expect-error — typed routes for dynamic [slug] aren't always inferred
+        href: pathname,
+        locale: next,
+      });
+    } catch {
+      // Fallback: just swap the locale prefix if the typed lookup fails
+      // (unknown route, e.g. an admin sub-page that isn't in PATHNAMES).
+      target = `/${next}${pathname}`;
+    }
+    window.location.assign(target);
   }
 
   return (

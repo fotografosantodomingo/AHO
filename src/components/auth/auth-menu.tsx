@@ -5,15 +5,22 @@ import type { Locale } from '@/i18n/config';
 
 /**
  * Server Component header menu — renders sign-in / sign-up links when the
- * user is signed out, or the user's email + sign-out button when signed in.
+ * user is signed out, or the dashboard / account links + sign-out when
+ * signed in.
  *
  * Reads the session from the server-side Supabase client. Pages that wrap
  * this in their layout get a free session refresh on every render (the
  * middleware also refreshes session cookies on every request, so the UI
  * stays accurate even on long-lived tabs).
+ *
+ * The `Dashboard` link always shows for signed-in users, regardless of
+ * subscription state. The dashboard layout routes appropriately:
+ *   - has org → see their listings
+ *   - no org → bounce to /pricing (correct upgrade funnel)
  */
 export async function AuthMenu({ locale }: { locale: Locale }) {
   const t = await getTranslations({ locale, namespace: 'auth' });
+  const tNav = await getTranslations({ locale, namespace: 'nav' });
   const tDashboard = await getTranslations({ locale, namespace: 'dashboard' });
   const supabase = await createServerSupabaseClient();
   const { data } = await supabase.auth.getUser();
@@ -38,16 +45,6 @@ export async function AuthMenu({ locale }: { locale: Locale }) {
     );
   }
 
-  // Org membership check — when an agent has an org, surface the Dashboard
-  // link in the header; otherwise show only the buyer-side links. RLS
-  // returns just the user's own memberships so this is cheap.
-  const { data: memberships } = await supabase
-    .from('organization_members')
-    .select('org_id')
-    .eq('user_id', user.id)
-    .limit(1);
-  const hasOrg = !!memberships && memberships.length > 0;
-
   const dashboardHref = `/${locale}/${locale === 'es' ? 'panel' : 'dashboard'}`;
   const savedSearchesHref = `/${locale}/${
     locale === 'es' ? 'busquedas-guardadas' : 'saved-searches'
@@ -55,15 +52,12 @@ export async function AuthMenu({ locale }: { locale: Locale }) {
 
   return (
     <div className="flex items-center gap-3 text-sm">
-      {/* Secondary links hidden below `sm:` — header gets cramped on narrow
-          viewports. Both surfaces are still reachable from the dashboard
-          sidebar (when hasOrg) or the AuthMenu's "Saved searches" link
-          on `sm+`. Mobile gets the essential: just Sign out. */}
-      {hasOrg && (
-        <a className="hidden hover:underline sm:inline" href={dashboardHref}>
-          {tDashboard('navListings')}
-        </a>
-      )}
+      {/* Always-visible Dashboard link. The dashboard layout itself routes
+          non-subscribers to /pricing — no need to gate the link by org
+          membership. Saved-searches stays as a parallel buyer-side link. */}
+      <a className="hover:underline" href={dashboardHref}>
+        {tNav('dashboard')}
+      </a>
       <a className="hidden hover:underline sm:inline" href={savedSearchesHref}>
         {tDashboard('navSavedSearches')}
       </a>
