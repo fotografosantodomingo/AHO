@@ -12,6 +12,66 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — BREVO_API_KEY bug fix: every transactional email had been silently 401'ing
+
+Caught while smoke-testing the newsletter form post-`BREVO_NEWSLETTER_LIST_ID=2` deploy. Newsletter `/api/newsletter` was returning Cloudflare-level 502 even after the env was wired. Direct probe of Brevo's REST API revealed the actual fault.
+
+**Root cause.** `BREVO_API_KEY` in `.env.local` (and in Cloudflare Pages production secrets) was set to a **base64-encoded JSON envelope** of the form:
+
+```
+eyJhcGlfa2V5IjoieGtleXNpYi1...IifQ==
+```
+
+which decodes to:
+
+```json
+{"api_key":"xkeysib-..."}
+```
+
+Brevo's REST API expects the **raw `xkeysib-...` value** as the `api-key` HTTP header. Sending the wrapped envelope returns:
+
+```
+HTTP 401 {"message":"Key not found","code":"unauthorized"}
+```
+
+**Blast radius.** Every Brevo REST call our codebase makes had been silently failing the entire time the wrapped key was deployed:
+  - `/api/newsletter` → Contacts API call (`POST /v3/contacts`)
+  - `lib/email/brevo.ts` → SMTP API call (`POST /v3/smtp/email`), wrapped by:
+    - Welcome email on signup confirm (`/auth/callback`)
+    - Lead notification email (`POST /api/leads`)
+    - Review verification email (`POST /api/reviews`)
+    - Review-published agent notification (`POST /api/admin/reviews/[id]`)
+    - Payment-action-required email (`invoice.payment_action_required` webhook)
+    - Admin new-user email (`/auth/callback`)
+    - Admin property-published email (`POST /api/listings/[id]/publish`)
+    - Admin payment-received email (`invoice.paid` webhook)
+
+The wrapper at `lib/email/brevo.ts` catches Brevo errors and returns `{ sent: false, error: ... }`; callers treat email failure as non-fatal and only log a warning. So nothing surfaced as an alert — the agents who signed up never got welcome emails, leads never reached agents, admin notifications never arrived.
+
+**Why the wrapper'd-key form existed.** Likely pasted from Supabase Auth's "SMTP relay using Brevo" config UI (which exposes the Brevo SMTP credentials in some other shape) — or copied from a Supabase secrets export that wraps API tokens this way. The unwrapping logic is:
+
+```bash
+echo "$WRAPPED_KEY" | base64 -d | python3 -c "import json,sys; print(json.load(sys.stdin)['api_key'])"
+```
+
+That extracted `xkeysib-...` is the value Brevo expects.
+
+**Fix.**
+  - Local: `BREVO_API_KEY` in `.env.local` replaced with the unwrapped `xkeysib-...` value.
+  - Production: pushed via `wrangler pages secret put BREVO_API_KEY --project-name=aho-web` (overwrote the prior wrapped form).
+  - Empty-commit redeploy `1d06a77` so the Pages Function picks up the new secret.
+
+**Smoke verification.**
+  - Direct Brevo `POST /v3/contacts` with raw key + listIds:[2] → `{"id":2}` HTTP 201 ✓
+  - Direct Brevo `POST /v3/smtp/email` with raw key → `{"messageId":"..."}` HTTP 201 ✓ (test message sent to `info@advertisehomes.online`)
+  - Production `POST /api/newsletter` after `1d06a77` deploy → `{"ok":true,"stored":true}` HTTP 200 ✓
+
+**What this un-breaks.** Every transactional email AHO sends will now actually arrive. PO action items deferred on "test welcome email", "verify lead notification arrived", "confirm admin notification on first paid signup" — all unblocked.
+
+**Note on Supabase Auth emails.** Supabase Auth's signup-confirm / magic-link / password-reset / change-email flows go through Supabase's SMTP relay (configured in Supabase Dashboard → Authentication → SMTP). That uses a separate Brevo SMTP credential, not the REST API; it likely was working all along. The 5 templates synced earlier this session render correctly when those flows fire.
+
+---
+
 ## 2026-05-01 — Ops session: Brevo newsletter + Supabase Auth templates + R2 confirmed live
 
 Three PO action items closed, no new code beyond a docs entry. Pure ops + smoke-probes.
