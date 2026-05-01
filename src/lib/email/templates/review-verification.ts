@@ -1,4 +1,4 @@
-import { emailLayout, escapeHtml } from './_layout';
+import { COLORS, buttonPrimary, emailLayout, escapeHtml } from './_layout';
 
 interface ReviewVerificationArgs {
   reviewerName: string;
@@ -43,15 +43,11 @@ export function renderReviewVerificationEmail(
     : `This link expires in ${args.expiresInHours} hours. After confirmation, your review goes to our team for a quick review before appearing publicly. If you didn't submit this review, you can safely ignore this email.`;
 
   const bodyHtml = `
-    <h1 style="margin:0 0 16px;font-size:22px;font-weight:600;letter-spacing:-0.01em;">${greeting}</h1>
-    <p style="margin:0 0 20px;color:#52525b;">${intro}</p>
-    <div style="margin:0 0 24px;">
-      <a href="${escapeHtml(
-        args.verifyUrl,
-      )}" style="display:inline-block;padding:10px 18px;background:#18181b;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:500;">${cta}</a>
-    </div>
-    <p style="margin:0;color:#71717a;font-size:13px;">${note}</p>
-    <p style="margin:16px 0 0;color:#a1a1aa;font-size:11px;word-break:break-all;">${escapeHtml(args.verifyUrl)}</p>`;
+    <h1 style="margin:0 0 16px;font-size:24px;font-weight:700;letter-spacing:-0.02em;color:${COLORS.ink};">${greeting}</h1>
+    <p style="margin:0 0 20px;color:${COLORS.inkMuted};">${intro}</p>
+    <div style="margin:0 0 24px;">${buttonPrimary(escapeHtml(args.verifyUrl), cta)}</div>
+    <p style="margin:0;color:${COLORS.helper};font-size:13px;">${note}</p>
+    <p style="margin:16px 0 0;color:${COLORS.helperSoft};font-size:11px;word-break:break-all;">${escapeHtml(args.verifyUrl)}</p>`;
 
   const html = emailLayout({
     preheader: isEs

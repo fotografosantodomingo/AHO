@@ -1,4 +1,4 @@
-import { emailLayout, escapeHtml } from './_layout';
+import { COLORS, buttonPrimary, emailLayout, escapeHtml } from './_layout';
 
 interface Args {
   recipientName: string | null;
@@ -39,12 +39,10 @@ export function renderPaymentActionRequiredEmail(args: Args): Rendered {
     : `If you don't complete this step, your subscription may be paused.`;
 
   const bodyHtml = `
-    <p style="margin:0 0 16px;">${greeting}</p>
-    <p style="margin:0 0 16px;color:#52525b;">${intro}</p>
-    <p style="margin:0 0 24px;">
-      <a href="${escapeHtml(args.hostedInvoiceUrl)}" style="display:inline-block;padding:10px 18px;background:#18181b;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:500;">${ctaText}</a>
-    </p>
-    <p style="margin:0;color:#71717a;font-size:13px;">${warning}</p>`;
+    <p style="margin:0 0 16px;color:${COLORS.ink};">${greeting}</p>
+    <p style="margin:0 0 20px;color:${COLORS.inkMuted};">${intro}</p>
+    <p style="margin:0 0 24px;">${buttonPrimary(escapeHtml(args.hostedInvoiceUrl), ctaText)}</p>
+    <p style="margin:0;color:${COLORS.helper};font-size:13px;">${warning}</p>`;
 
   const html = emailLayout({
     preheader: isEs

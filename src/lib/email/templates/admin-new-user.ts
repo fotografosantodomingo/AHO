@@ -1,4 +1,4 @@
-import { emailLayout, escapeHtml } from './_layout';
+import { COLORS, buttonPrimary, emailLayout, escapeHtml } from './_layout';
 
 interface AdminNewUserArgs {
   /** The newly-signed-up user's email. */
@@ -26,31 +26,29 @@ export function renderAdminNewUserEmail(args: AdminNewUserArgs): RenderedEmail {
   const subject = `[AHO] New user signed up — ${args.userEmail}`;
 
   const bodyHtml = `
-    <h1 style="margin:0 0 16px;font-size:20px;font-weight:600;">New user signed up</h1>
-    <p style="margin:0 0 12px;color:#52525b;">
+    <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;letter-spacing:-0.02em;color:${COLORS.ink};">New user signed up</h1>
+    <p style="margin:0 0 16px;color:${COLORS.inkMuted};">
       A new account just confirmed their email address on AHO.
     </p>
     <table cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px;border-collapse:collapse;font-size:14px;">
       <tr>
-        <td style="padding:6px 12px 6px 0;color:#71717a;">Email</td>
-        <td style="padding:6px 0;font-weight:500;">${escapeHtml(args.userEmail)}</td>
+        <td style="padding:6px 12px 6px 0;color:${COLORS.helper};">Email</td>
+        <td style="padding:6px 0;color:${COLORS.ink};font-weight:600;">${escapeHtml(args.userEmail)}</td>
       </tr>
       <tr>
-        <td style="padding:6px 12px 6px 0;color:#71717a;">Signup locale</td>
-        <td style="padding:6px 0;">${args.locale.toUpperCase()}</td>
+        <td style="padding:6px 12px 6px 0;color:${COLORS.helper};">Signup locale</td>
+        <td style="padding:6px 0;color:${COLORS.ink};">${args.locale.toUpperCase()}</td>
       </tr>
       <tr>
-        <td style="padding:6px 12px 6px 0;color:#71717a;">Marketing opt-in</td>
-        <td style="padding:6px 0;">${args.marketingOptIn ? 'Yes' : 'No'}</td>
+        <td style="padding:6px 12px 6px 0;color:${COLORS.helper};">Marketing opt-in</td>
+        <td style="padding:6px 0;color:${COLORS.ink};">${args.marketingOptIn ? 'Yes' : 'No'}</td>
       </tr>
       <tr>
-        <td style="padding:6px 12px 6px 0;color:#71717a;">Confirmed at</td>
-        <td style="padding:6px 0;">${escapeHtml(args.signedUpAt)}</td>
+        <td style="padding:6px 12px 6px 0;color:${COLORS.helper};">Confirmed at</td>
+        <td style="padding:6px 0;color:${COLORS.ink};">${escapeHtml(args.signedUpAt)}</td>
       </tr>
     </table>
-    <a href="${escapeHtml(
-      args.adminUsersUrl,
-    )}" style="display:inline-block;padding:10px 18px;background:#18181b;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:500;">View in /admin/users</a>`;
+    ${buttonPrimary(escapeHtml(args.adminUsersUrl), 'View in /admin/users')}`;
 
   const html = emailLayout({
     preheader: `New AHO user: ${args.userEmail}`,

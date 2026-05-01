@@ -1,4 +1,4 @@
-import { emailLayout, escapeHtml } from './_layout';
+import { COLORS, buttonPrimary, buttonSecondary, emailLayout, escapeHtml } from './_layout';
 
 interface WelcomeArgs {
   email: string;
@@ -33,16 +33,12 @@ export function renderWelcomeEmail(args: WelcomeArgs): RenderedEmail {
   const ctaSecondary = isEs ? 'Convertirse en agente' : 'Become an agent';
 
   const bodyHtml = `
-    <h1 style="margin:0 0 16px;font-size:22px;font-weight:600;letter-spacing:-0.01em;">${greeting}</h1>
-    <p style="margin:0 0 20px;color:#52525b;">${body}</p>
-    <p style="margin:0 0 24px;color:#52525b;">${agentNudge}</p>
+    <h1 style="margin:0 0 16px;font-size:24px;font-weight:700;letter-spacing:-0.02em;color:${COLORS.ink};">${greeting}</h1>
+    <p style="margin:0 0 18px;color:${COLORS.inkMuted};">${body}</p>
+    <p style="margin:0 0 24px;color:${COLORS.inkMuted};">${agentNudge}</p>
     <div>
-      <a href="${escapeHtml(
-        args.homeUrl,
-      )}" style="display:inline-block;padding:10px 18px;background:#18181b;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:500;">${ctaPrimary}</a>
-      <a href="${escapeHtml(
-        args.pricingUrl,
-      )}" style="display:inline-block;margin-left:8px;padding:10px 18px;border:1px solid #e4e4e7;color:#18181b;text-decoration:none;border-radius:6px;">${ctaSecondary}</a>
+      ${buttonPrimary(escapeHtml(args.homeUrl), ctaPrimary)}
+      ${buttonSecondary(escapeHtml(args.pricingUrl), ctaSecondary)}
     </div>`;
 
   const html = emailLayout({

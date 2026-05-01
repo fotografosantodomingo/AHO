@@ -12,6 +12,61 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — Batch DP-2d: email template redesign (forest accent + warm canvas)
+
+Closes the DP-2 visual pivot. Every transactional email now wears the same inspired-by-Starbucks identity as the website: warm cream canvas, forest-green accent strip + CTAs, warm helper text.
+
+**Leverage point: `src/lib/email/templates/_layout.ts`** — single shared wrapper that every template renders through. The redesign rewrites this one file with new tokens; the eight downstream templates inherit the canvas / footer / chrome via this wrapper, plus get their CTAs migrated to two new shared helpers (`buttonPrimary`, `buttonSecondary`).
+
+**New `_layout.ts` shape:**
+
+  - **`COLORS` map (exported):** mirrors the site `@theme` tokens — canvas (`#f4ede1`), card (`#ffffff`), warm border (`rgba(112,95,70,0.18)`), warm near-black ink (`#1a1612`), warm muted (`#3a342c`), warm helper (`#5e574d`), forest brand (`#1d5a3c`), soft-cream block (`#ebe1ce`). Inlined values (email CSS vars aren't reliably supported across clients).
+  - **Card chrome:** white surface, 12px radius (matches DP-2a card-base), warm tan low-alpha border. **Forest-green 4-px accent strip at the top** of the card — the inspired-by signature move, quiet and anchoring without shouting. Renders reliably across clients via `<td height="4">`.
+  - **Body letter-spacing:** `-0.01em` cascades on the body so Inter / system-sans reads compressed-confident, the way SoDoSans does in the source.
+  - **Brand mark:** bumped from 18px / 600 to 20px / 700, tighter `-0.02em` tracking, warm near-black.
+  - **Footer:** soft-cream bg (`#ebe1ce`) so it's a quiet warm step from the card surface, not a cool-gray separation. Three social links: Facebook · Instagram · LinkedIn (added LinkedIn to match the website footer). Support-email link uses the brand forest-green underline so the eye lands on it; nav-style separator dots stay warm-helper.
+  - **`buttonPrimary(href, label)`** — `display:inline-block` pill: forest fill, white text, 11/22 padding, `border-radius: 9999px` (full pill), `font-weight: 600`, `letter-spacing: -0.01em`. The marquee CTA shape used in welcome / verification / payment-action / admin notifications.
+  - **`buttonSecondary(href, label)`** — bordered cream pill: white surface, warm-tan border, ink text. Same pill shape; pairs with primary when a template offers two actions.
+  - **`softBlock(innerHtml)`** — warm-cream callout block (`bg: #ebe1ce` + warm border + 8px radius). Used for quoted content / "what to expect" notes / the lead-notification "message" block.
+
+**Eight templates refactored to the new palette + helpers:**
+
+  - `welcome.ts` — primary/secondary pill pair (Browse listings + Become an agent). Greeting H1 bumped to 24px / 700.
+  - `review-verification.ts` — single primary pill (Confirm my review). Plus warm helper-soft for the raw URL fallback line.
+  - `review-published.ts` — primary + secondary pills. Star block uses brass `#b8893a` (matches the site `--color-accent` premium token, distinct from Starbucks's `#cba258`). Background of the quoted review block: soft-cream `#ebe1ce` with warm border.
+  - `payment-action-required.ts` — single primary pill. Warm helper for the warning line.
+  - `admin-new-user.ts` — primary pill (View in /admin/users). Table headers warm-helper, values warm-ink.
+  - `admin-property-published.ts` — primary + secondary pill (View public + Open admin).
+  - `admin-payment-received.ts` — primary pill (View in Stripe). Amount value highlighted in **forest brand color** + bold — the moment that matters most in this email.
+  - `lead-notification.ts` — primary + secondary pill (Open inbox + View listing). Warm-helper labels in the contact-row table; warm-ink values; soft-cream `#ebe1ce` background for the message-quote block; warm-tan border under the property-context section. Also bumped the "contact email" `mailto:` link from cool teal `#0e7490` to forest brand `#1d5a3c` + bold, so the most-actionable line in the email reads as a brand-colored CTA.
+
+**What's NOT in this batch:**
+
+  - **Supabase Auth-managed emails** (signup confirmation, password reset, magic link) live in the Supabase Auth dashboard — not in the codebase. PO can apply the same forest-accent / warm-canvas design via the Supabase Auth → Email Templates UI when ready. Out-of-band template editing.
+  - **React Email migration** — still inline-styled HTML, deliberately. The cost/benefit of moving to RSC/JSX templates is real (better composability, programmatic preview) but the 8-template surface is small enough that the inline-styled wrapper stays the simplest answer for now.
+  - **Multi-template style drift detection** — no automated test that the eight templates use only `COLORS.*` values rather than re-introducing raw hex. Lint rule possible later; deferred.
+
+**Verify run.**
+
+  - typecheck clean, lint clean (pre-existing 2 warnings only)
+  - unit 91/91 (email-templates suite asserts content strings, not colors — color shifts don't break tests)
+  - email-content tests still validate XSS escaping, EN/ES localization, the "anonymous lead" and "no message" branches
+  - UI/email-only batch — no DB / RLS changes
+
+**What you'll see in the next email AHO sends:**
+
+  - Cream warm canvas background, 12-px-rounded white card with a 4-px forest-green strip at the top.
+  - "AHO" wordmark larger and bolder; warm near-black instead of cool slate.
+  - Body copy reads softer (warm secondary) and more compressed (-0.01em tracking).
+  - Every CTA is a forest-green pill with white text + a bordered cream pill secondary.
+  - Footer is a soft-cream band instead of cool-gray; "Need help? info@advertisehomes.online" rendered in forest-green underline; LinkedIn now in the social row alongside FB + IG.
+
+**DP-2 closed.** All four batches (DP-2a tokens → DP-2b header → DP-2c footer + sweep → DP-2d emails) live. Roadmap continues with the remaining post-DP-2 branches: ✓ favorites · ✓ recently-viewed · *next*: property analytics → promoted listings → social distribution (manual first) → agent storefront.
+
+**Next session should start with**: PO smokes the next email AHO sends (any signup → welcome template, or trigger a lead via /api/leads). If green → `feat/property-analytics` (Phase 3 of the 6-branch roadmap; foundation for promoted-listings + agent-side performance dashboards).
+
+---
+
 ## 2026-05-01 — feat/recently-viewed: tracking + "Recently viewed" rail
 
 Second branch off the post-DP-2 6-branch roadmap, after favorites. Tracks which listings a visitor has seen (anon or signed-in) and renders a rail on homepage + property detail.

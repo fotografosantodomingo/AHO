@@ -1,4 +1,4 @@
-import { emailLayout, escapeHtml } from './_layout';
+import { COLORS, buttonPrimary, buttonSecondary, emailLayout, escapeHtml } from './_layout';
 
 interface ReviewPublishedArgs {
   agentFirstName: string;
@@ -47,21 +47,17 @@ export function renderReviewPublishedEmail(
     : 'A quick, professional reply boosts trust with buyers who visit your profile.';
 
   const bodyHtml = `
-    <h1 style="margin:0 0 16px;font-size:22px;font-weight:600;letter-spacing:-0.01em;">${greeting}</h1>
-    <p style="margin:0 0 16px;color:#52525b;">${intro}</p>
-    <div style="margin:0 0 20px;padding:16px;border:1px solid #e4e4e7;border-radius:6px;background:#fafafa;">
-      <div style="font-size:18px;color:#f59e0b;letter-spacing:1px;">${stars}</div>
-      <p style="margin:8px 0 0;color:#3f3f46;line-height:1.55;">${escapeHtml(args.bodyExcerpt)}</p>
+    <h1 style="margin:0 0 16px;font-size:24px;font-weight:700;letter-spacing:-0.02em;color:${COLORS.ink};">${greeting}</h1>
+    <p style="margin:0 0 16px;color:${COLORS.inkMuted};">${intro}</p>
+    <div style="margin:0 0 20px;padding:16px;border:1px solid ${COLORS.cardBorder};border-radius:8px;background:${COLORS.bandSoft};">
+      <div style="font-size:18px;color:#b8893a;letter-spacing:1px;">${stars}</div>
+      <p style="margin:8px 0 0;color:${COLORS.ink};line-height:1.55;">${escapeHtml(args.bodyExcerpt)}</p>
     </div>
     <div style="margin:0 0 16px;">
-      <a href="${escapeHtml(
-        args.replyUrl,
-      )}" style="display:inline-block;padding:10px 18px;background:#18181b;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:500;">${ctaReply}</a>
-      <a href="${escapeHtml(
-        args.publicProfileUrl,
-      )}" style="display:inline-block;margin-left:8px;padding:10px 18px;border:1px solid #e4e4e7;color:#18181b;text-decoration:none;border-radius:6px;">${ctaProfile}</a>
+      ${buttonPrimary(escapeHtml(args.replyUrl), ctaReply)}
+      ${buttonSecondary(escapeHtml(args.publicProfileUrl), ctaProfile)}
     </div>
-    <p style="margin:0;color:#71717a;font-size:13px;">${tip}</p>`;
+    <p style="margin:0;color:${COLORS.helper};font-size:13px;">${tip}</p>`;
 
   const html = emailLayout({
     preheader: isEs
