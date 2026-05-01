@@ -13,6 +13,9 @@ import {
 } from '@/lib/billing/plan-gating';
 import { LockedSocialModule } from '@/components/social/locked-social-module';
 import { UnlockedSocialPlaceholder } from '@/components/social/unlocked-social-placeholder';
+import { ManualShareModule } from '@/components/listings/manual-share-module';
+import { getCountryName } from '@/lib/i18n/countries';
+import { publicEnv } from '@/lib/env';
 
 export const runtime = 'edge';
 
@@ -135,6 +138,29 @@ export default async function EditListingPage({
         city={listing.city}
         initialCount={listing.image_count}
       />
+
+      {/* Manual social share — Phase 3 of the social-distribution spec.
+          Available to all paid agents (regardless of tier) since this is
+          the manual stopgap that runs while Phase 4+ OAuth + auto-posting
+          waits on Meta + LinkedIn app review. Only renders once the
+          listing has a public URL — drafts without a slug have nothing
+          shareable yet. */}
+      {publicPath && (
+        <ManualShareModule
+          share={{
+            title,
+            city: listing.city,
+            countryDisplay: getCountryName(listing.country_code, typedLocale),
+            priceCents: Number(listing.price_cents),
+            currency: listing.currency,
+            bedrooms: listing.bedrooms,
+            bathrooms: listing.bathrooms != null ? Number(listing.bathrooms) : null,
+            areaSqm: listing.area_sqm != null ? Number(listing.area_sqm) : null,
+            baseUrl: `${publicEnv().NEXT_PUBLIC_SITE_URL}${publicPath}`,
+            locale: typedLocale,
+          }}
+        />
+      )}
 
       {/* Social Media Automation module — visible to all paid agents,
           interactive only on Pro Automation. Lower tiers see the

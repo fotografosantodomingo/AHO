@@ -12,6 +12,31 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — Path 1 batch 3 (Phase 3): Manual Social Share — copy-paste captions for all paid tiers
+
+Phase 3 of the social-distribution spec. The marquee feature degraded into a copy-paste stopgap: every paid agent (regardless of tier) gets pre-formatted captions for FB / IG / LinkedIn / WhatsApp on their property dashboard, with UTM-tagged AHO links and per-platform copy buttons. Bridges the gap until Phase 4+ OAuth ships behind app review.
+
+  - **`src/lib/social/share-templates.ts`** — pure-function caption generators per platform per locale. Edge-safe (no DB, no env, no fetch). Includes `withUtm()`, `specsLine()`, `citySlug()` helpers + 4 caption builders + `whatsappShareLink()` for the wa.me deep-link + `buildAllCaptions()` convenience aggregator.
+    - **UTM scheme:** `?utm_source={facebook|instagram|linkedin|whatsapp}&utm_medium=social&utm_campaign=agent_share`. The `dashboard/analytics` surface (already shipped in feat/property-analytics sub-batch B) will pick these up via standard URL-param tracking — no migration needed.
+    - **Per-platform tone:** FB = emoji + hashtags, IG = link-in-bio prompt + heavier hashtag block, LinkedIn = professional prose with `Location:` / `Price:` labels, WhatsApp = compact prose without hashtags.
+    - **Bilingual:** English + Spanish copy maintained in the same builders. Hashtags switch between `#realestate` / `#inmuebles`, etc. City hashtag is slugified (lowercase, no diacritics, no spaces) so "Cádiz" → `#cadiz`.
+
+  - **`src/components/listings/manual-share-module.tsx`** — Client Component card on the agent's property dashboard. Title + body + "Get share text" button → modal with 4 platform tabs. Each tab shows the read-only caption in a textarea (auto-select on focus) + Copy button (Clipboard API + 2s "Copied!" pill) + WhatsApp tab also gets an "Open in WhatsApp" button that uses the wa.me deep-link. Esc + overlay click both close.
+
+  - **Wired into** [src/app/[locale]/dashboard/properties/[id]/page.tsx](src/app/[locale]/dashboard/properties/[id]/page.tsx) — only renders when `publicPath` exists (drafts without a slug have nothing shareable yet). Sits above the existing Pro Automation locked/unlocked module so all paid agents see the manual share first, with the "Upgrade to Pro Automation" CTA still rendered below as the marketing nudge.
+
+  - **i18n:** new `manualShare.*` namespace in en + es covering eyebrow / heading / body / open button / modal heading / close / tablist label / caption label / copy + copied states / open WhatsApp + per-platform `tip.{facebook,instagram,linkedin,whatsapp}` short hints.
+
+  - **Tests:** new `tests/unit/share-templates.test.ts` — 17 tests covering UTM tagging on all four platforms, locale switching (hashtag swap, professional-tone-LinkedIn, link-in-bio prompt for IG), city hashtag slugification (incl. diacritics), specs-line formatting (zero-treated-as-missing), `whatsappShareLink` URI encoding, `buildAllCaptions` consistency, price formatting via Intl.
+
+**Verification:** typecheck clean · 108/108 unit tests (was 91; +17 new) · lint only pre-existing `_req` warnings.
+
+**Why now:** with Pro Automation purchasable since this morning and the homepage Phase 2 section selling the auto-share feature, agents on Agent / Plus tiers had no way to actually USE the social distribution story — the locked module was just an upsell. Phase 3 gives them a usable degraded version: AHO writes the copy, the agent pastes it. Pro Automation customers get the same module too, until Phase 4+ replaces it with auto-posting.
+
+**Next:** Phase 4 of social-distribution still parked behind Meta + LinkedIn app review approval. Other slices that don't require external review: webhook-replay fixture-Stripe-state harness for pre-live confidence, neighborhood overlays (needs polygon-data sourcing decision from PO), or a public-property-detail "Share" button (extending Phase 3 to buyer-side sharing — extends the same module to anonymous visitors, with a different UTM campaign tag).
+
+---
+
 ## 2026-05-01 — Path 1 batch 2 (Phase 2): Homepage Pro Automation sales section
 
 Phase 2 of the social-distribution spec — the homepage marketing module that sells the marquee feature. Doable without app review (it's pure UI), so it ships now while Phase 4 OAuth waits on Meta + LinkedIn approval.

@@ -954,6 +954,25 @@
       "rolloutHistory": "Post history with external links + status (Phase 7)"
     }
   },
+  "manualShare": {
+    "eyebrow": "Manual share",
+    "heading": "Share to your social channels",
+    "body": "Pre-formatted captions for Facebook, Instagram, LinkedIn and WhatsApp — copy and paste from your phone or laptop.",
+    "openButton": "Get share text",
+    "modalHeading": "Share this listing",
+    "close": "Close",
+    "tablistLabel": "Choose a platform",
+    "captionLabel": "Caption text",
+    "copyCaption": "Copy caption",
+    "copied": "Copied!",
+    "openWhatsApp": "Open in WhatsApp",
+    "tip": {
+      "facebook": "Paste this on your Page or in a Group. The link generates a rich preview when posted.",
+      "instagram": "Instagram doesn't make captions clickable — paste this in your post and put the URL in your bio.",
+      "linkedin": "Best as a personal post or shared on your company page.",
+      "whatsapp": "Tap \"Open in WhatsApp\" to pick a contact, or copy the text and send manually."
+    }
+  },
   "analytics": {
     "heading": "Performance",
     "subheading": "How buyers are engaging with your listings.",

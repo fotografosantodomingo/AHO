@@ -952,6 +952,25 @@
       "rolloutHistory": "Historial de publicaciones con enlaces externos + estado (Fase 7)"
     }
   },
+  "manualShare": {
+    "eyebrow": "Publicación manual",
+    "heading": "Comparte en tus redes sociales",
+    "body": "Subtítulos pre-formateados para Facebook, Instagram, LinkedIn y WhatsApp — copia y pega desde tu teléfono o laptop.",
+    "openButton": "Obtener texto",
+    "modalHeading": "Compartir este anuncio",
+    "close": "Cerrar",
+    "tablistLabel": "Elige una plataforma",
+    "captionLabel": "Texto del subtítulo",
+    "copyCaption": "Copiar texto",
+    "copied": "¡Copiado!",
+    "openWhatsApp": "Abrir en WhatsApp",
+    "tip": {
+      "facebook": "Pega esto en tu Página o en un Grupo. El enlace genera una vista previa enriquecida al publicar.",
+      "instagram": "Instagram no permite enlaces clicables en subtítulos — pega esto en tu publicación y pon la URL en tu bio.",
+      "linkedin": "Mejor como publicación personal o compartido en tu página de empresa.",
+      "whatsapp": "Toca \"Abrir en WhatsApp\" para elegir un contacto, o copia el texto y envíalo manualmente."
+    }
+  },
   "analytics": {
     "heading": "Rendimiento",
     "subheading": "Cómo los compradores interactúan con tus anuncios.",
