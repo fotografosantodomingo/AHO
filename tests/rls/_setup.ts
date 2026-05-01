@@ -33,13 +33,31 @@ if (!SUPABASE_URL || !ANON_KEY || !SERVICE_ROLE_KEY) {
   );
 }
 
-// Defensive guard — refuse to run against URLs that look like staging or prod.
-// Adjust the deny-list as our environments evolve.
-const DENY_HOSTS = ['staging.advertisehomes.online', 'www.advertisehomes.online'];
+// Defensive guard — refuse to run against URLs that look like prod.
+// Per CLAUDE.md "Local-dev quirks" + RISKS R11, until a dedicated test
+// Supabase project exists, fixtures share the production project. THE
+// HOSTS BELOW ARE A HARD STOP — running this harness against any of
+// them recreates fixture orgs / users / properties / subscriptions in
+// production, which is exactly what happened on 2026-05-01 (a
+// `aho-fixture-active-listing-santo-domingo-fixaa1` row leaked to a
+// PO-visible URL on the live site). The deny-list previously matched
+// only the public web hosts; the prod Supabase URL itself was MISSING.
+//
+// The current entry covers the production Supabase project ref
+// `lqujtquofsdsxtujvjtl` (per CLAUDE.md). When/if we add a separate
+// test project, this check will let those runs through naturally.
+const DENY_HOSTS = [
+  'lqujtquofsdsxtujvjtl.supabase.co',
+  'staging.advertisehomes.online',
+  'www.advertisehomes.online',
+  'advertisehomes.online',
+  'aho-web.pages.dev',
+];
 if (DENY_HOSTS.some((h) => SUPABASE_URL.includes(h))) {
   throw new Error(
     `Refusing to run RLS tests against ${SUPABASE_URL}. ` +
-      'Use a dedicated test Supabase project.',
+      'Use a dedicated test Supabase project — fixture writes against ' +
+      'production leak to user-visible surfaces (see PROGRESS.md 2026-05-01).',
   );
 }
 

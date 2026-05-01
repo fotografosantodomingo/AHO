@@ -3,6 +3,7 @@ import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { formatPrice } from '@/lib/listings/format';
 import { ArchiveButton } from '@/components/admin/archive-button';
+import { DeleteListingButton } from '@/components/admin/delete-listing-button';
 import { getCountryName } from '@/lib/i18n/countries';
 
 export const runtime = 'edge';
@@ -204,7 +205,10 @@ export default async function AdminListingsPage({
                       {dateFormatter.format(new Date(row.updated_at))}
                     </td>
                     <td className="px-3 py-2">
-                      <ArchiveButton propertyId={row.id} status={row.status} />
+                      <div className="flex items-center gap-2">
+                        <ArchiveButton propertyId={row.id} status={row.status} />
+                        <DeleteListingButton propertyId={row.id} title={title} />
+                      </div>
                     </td>
                   </tr>
                 );

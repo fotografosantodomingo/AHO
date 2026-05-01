@@ -12,6 +12,35 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — Fixture leak removed from prod + RLS-test deny-list tightened + admin hard-delete
+
+PO reported `https://advertisehomes.online/en/properties/aho-fixture-active-listing-santo-domingo-fixaa1` was rendering as a real property and they couldn't delete it from /admin. Three things fixed.
+
+**Root cause: RLS-test setup was writing fixtures into PRODUCTION Supabase.**
+
+The deny-list at `tests/rls/_setup.ts:38` only blocked two URLs (`staging.advertisehomes.online`, `www.advertisehomes.online`). The actual production Supabase URL `lqujtquofsdsxtujvjtl.supabase.co` was NOT on the list, so every `pnpm test:rls` run since slice-1 has been creating + upserting fixture orgs / users / properties / subscriptions in production. The `aho-fixture-active-listing-santo-domingo` row was the visible symptom; many less-visible test fixtures (`aho-test-org-a/b`, fixture subscriptions / leads / etc.) have been silently coexisting too — they're filtered from public surfaces by the `aho-test-org-` / `aho-fixture-` prefix patterns.
+
+**1. Production cleanup.** Deleted both fixture properties (`fixaa1` active + `fixad1` draft) directly from production via the service-role pooler. Two `property_images` rows cascaded automatically (FK `on delete cascade` from migration 0004). After: `select count(*) from properties where short_id in ('fixaa1', 'fixad1')` = 0.
+
+**2. RLS-test deny-list tightened.** `tests/rls/_setup.ts:38` now refuses to run against the production Supabase URL itself — plus the public web hosts plus `aho-web.pages.dev`. Future `pnpm test:rls` runs against prod-shaped URLs will throw at module load instead of silently writing. Comment includes the back-reference to today's incident so the next contributor understands why the deny-list is the way it is.
+
+**3. Admin hard-delete button.** New `src/components/admin/delete-listing-button.tsx` + wired into the `/admin` Listings table next to the existing Archive button. Calls `DELETE /api/listings/:id` (the API endpoint already existed and is RLS-gated to platform admins via `properties_admin_delete` from migration 0004 — but the `/admin` UI didn't expose it; only Archive). Two-step confirmation includes the listing title spelled out so admins can't muscle-memory through a wrong row. Distinct red styling vs the Archive button to signal "forever".
+
+**Why admin couldn't delete before:** the API endpoint + RLS policy worked; the UI just didn't have a button. Archive (reversible status flip) was the only admin action on listings.
+
+**Already-correct surfaces (verified):**
+  - **Sitemap** — already filters `aho-fixture-` listing slugs + `aho-test-org-` org slugs.
+  - **Search / city landing / agent profile / by-bbox API** — all filter the same prefixes (per CLAUDE.md "Local-dev quirks" R11).
+  - **Property detail page (`/properties/[slug]`)** — `fetchPropertyByShortId` filter at `queries.ts:184` returns null for `aho-fixture-` slug rows → page calls `notFound()` → renders the not-found template. Body shows "Page not found" but HTTP status stays 200 on next-on-pages edge runtime (a Next.js+Pages quirk that's a separate, smaller concern — Google reads this as a soft-404).
+
+**Verification:** typecheck clean · 141/141 unit tests · lint only pre-existing `_req` warnings · production DB confirmed empty of fixture properties · curl-fetch of the offending URL returns 200 with "Page not found" body content.
+
+**Open follow-ups (not patched here):**
+  - The `notFound()` → 404-status quirk on next-on-pages. Worth fixing for SEO health; needs investigation into how to force the status code on the not-found path under the Pages edge runtime.
+  - Other RLS-test fixture rows still in production (test orgs, users, subscriptions, founder grants, leads). They're hidden from public surfaces by the prefix filters but they ARE in the database. Cleaning them needs a coordinated decision about RLS-test infra (separate test Supabase project vs. ephemeral PR branches per CLAUDE.md).
+
+---
+
 ## 2026-05-01 — Mobile UX pass: full-bleed gallery + first-photo-as-primary + redesigned mobile menu
 
 PO reported four issues from a customer perspective: (1) property gallery cropped on mobile, (2) listings have no thumbnail because no primary photo is set, (3) hamburger menu doesn't pop on tap, (4) verify payment-success redirect.
