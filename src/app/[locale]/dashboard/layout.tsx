@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { BillingPortalButton } from '@/components/billing/billing-portal-button';
+import { DashboardMobileNav } from '@/components/dashboard/dashboard-mobile-nav';
 
 export const runtime = 'edge';
 
@@ -60,44 +61,62 @@ export default async function DashboardLayout({
   }`;
   const profilePath = `/${locale}/${locale === 'es' ? 'panel/perfil' : 'dashboard/profile'}`;
 
+  // Mobile nav items — same set as desktop sidebar, rendered through
+  // a native-select dropdown via <DashboardMobileNav>. Order kept
+  // identical to the sidebar for muscle memory.
+  const navItems = [
+    { href: propertiesPath, label: t('navListings') },
+    { href: leadsPath, label: t('navLeads') },
+    { href: reviewsPath, label: t('navReviews') },
+    { href: savedSearchesPath, label: t('navSavedSearches') },
+    { href: profilePath, label: t('navProfile') },
+  ];
+
   return (
     <div className="mx-auto grid max-w-6xl gap-6 px-6 py-8 md:grid-cols-[14rem_1fr] md:gap-8">
-      {/* Sidebar nav. On mobile (< md): horizontal scrollable row with no
-          right border (the divider would float at an awkward height when
-          the layout is stacked). On md+: fixed 14rem left column with a
-          right border separating from content. */}
-      <aside className="border-b border-border pb-3 md:border-b-0 md:border-r md:pb-0 md:pr-4">
+      {/* Mobile nav (< md): native-select dropdown — clean + compact +
+          accessible. Replaces the prior horizontal-scroll row which got
+          visually chaotic with 5+ items. Billing portal sits outside the
+          dropdown as a trailing CTA. Desktop sidebar (md+) is the
+          existing vertical column. */}
+      <DashboardMobileNav
+        items={navItems}
+        ariaLabel={t('navAriaLabel')}
+        trailing={<BillingPortalButton className="btn-secondary w-full" />}
+      />
+
+      <aside className="hidden border-r border-border pr-4 md:block">
         <nav
-          className="flex gap-1 overflow-x-auto text-sm md:flex-col md:space-y-1 md:overflow-x-visible"
-          aria-label="Dashboard sections"
+          className="flex flex-col space-y-1 text-sm"
+          aria-label={t('navAriaLabel')}
         >
           <a
             href={propertiesPath}
-            className="shrink-0 rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5 md:block"
+            className="rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5"
           >
             {t('navListings')}
           </a>
           <a
             href={leadsPath}
-            className="shrink-0 rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5 md:block"
+            className="rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5"
           >
             {t('navLeads')}
           </a>
           <a
             href={reviewsPath}
-            className="shrink-0 rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5 md:block"
+            className="rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5"
           >
             {t('navReviews')}
           </a>
           <a
             href={savedSearchesPath}
-            className="shrink-0 rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5 md:block"
+            className="rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5"
           >
             {t('navSavedSearches')}
           </a>
           <a
             href={profilePath}
-            className="shrink-0 rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5 md:block"
+            className="rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5"
           >
             {t('navProfile')}
           </a>

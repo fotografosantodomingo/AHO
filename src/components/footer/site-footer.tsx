@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/i18n/config';
 import { LocaleToggle } from '@/components/locale-toggle';
 import { NewsletterForm } from './newsletter-form';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 const SUPPORT_EMAIL = 'info@advertisehomes.online';
 const FACEBOOK_URL = 'https://facebook.com/advertisehomesonline';
@@ -35,6 +36,18 @@ interface Props {
  */
 export async function SiteFooter({ locale }: Props) {
   const t = await getTranslations({ locale, namespace: 'footer' });
+
+  // Resolve auth so the anon-only "Sign in / Register" CTA strip can
+  // hide itself for signed-in users. Server-component side; the footer
+  // already runs once per request via the layout.
+  let isAuthed = false;
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data } = await supabase.auth.getUser();
+    isAuthed = !!data.user;
+  } catch {
+    // Footer must not break the layout if Supabase hiccups.
+  }
 
   const buyHref = `/${locale}/${locale === 'es' ? 'buscar' : 'search'}`;
   const countriesHref = `/${locale}/${locale === 'es' ? 'paises' : 'countries'}`;
@@ -125,6 +138,34 @@ export async function SiteFooter({ locale }: Props) {
   return (
     <footer className="mt-24 bg-surface-dark text-ink-inverse">
       <div className="mx-auto max-w-6xl px-6 pt-12 pb-6 md:pt-16">
+        {/* Anon-only auth strip — pill CTAs for the high-intent moments
+            when a buyer scrolled all the way to the footer without
+            signing up yet. Hidden once authed (the visitor obviously
+            doesn't need them anymore). */}
+        {!isAuthed && (
+          <div className="mb-10 flex flex-col items-start gap-4 rounded-card border border-white/10 bg-white/5 p-5 sm:flex-row sm:items-center sm:justify-between md:mb-14">
+            <div>
+              <p className="font-brand text-base font-semibold text-ink-inverse md:text-lg">
+                {t('authStripHeading')}
+              </p>
+              <p className="mt-1 text-sm text-ink-inverse-muted">
+                {t('authStripBody')}
+              </p>
+            </div>
+            <div className="flex shrink-0 gap-2">
+              <a href={signupHref} className="btn-primary-inverse">
+                {t('authStripRegister')}
+              </a>
+              <a
+                href={signinHref}
+                className="inline-flex h-10 items-center justify-center rounded-full border border-white/20 px-6 text-sm font-medium text-ink-inverse transition hover:border-white/40 active:scale-95"
+              >
+                {t('authStripSignIn')}
+              </a>
+            </div>
+          </div>
+        )}
+
         {/* Mobile accordions — visible <md only. Each column is a <details>;
             no JS needed for the toggle. */}
         <div className="md:hidden">

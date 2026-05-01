@@ -165,6 +165,10 @@
     "sectionStayInTouch": "Stay in touch",
     "aboutBody": "AHO is a real-estate marketplace for real listings, real buyers, and real agents — worldwide.",
     "quickContact": "Have a question? Email us.",
+    "authStripHeading": "Get started in two minutes.",
+    "authStripBody": "Save listings, get email alerts, and reach agents directly.",
+    "authStripRegister": "Create account",
+    "authStripSignIn": "Sign in",
     "linkBrowseListings": "Browse listings",
     "linkBrowseByCountry": "Browse by country",
     "linkSavedSearches": "Saved searches",
@@ -503,6 +507,7 @@
     "backToPricing": "Back to pricing"
   },
   "dashboard": {
+    "navAriaLabel": "Dashboard sections",
     "navListings": "My Listings",
     "navLeads": "Leads",
     "navReviews": "Reviews",

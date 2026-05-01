@@ -68,7 +68,12 @@ export default async function SignInPage({ params, searchParams }: PageProps) {
           </p>
 
           <div className="mt-6">
-            <SignInForm next={next ?? `/${locale}`} />
+            <SignInForm
+              next={
+                next ??
+                `/${locale}/${locale === 'es' ? 'panel' : 'dashboard'}`
+              }
+            />
           </div>
 
           <div className="mt-6 flex flex-col items-start gap-2 border-t border-border pt-5 text-sm">

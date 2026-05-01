@@ -412,7 +412,7 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
           )}
         </Field>
 
-        <Field className={`grid gap-3 ${isRental ? 'grid-cols-3' : 'grid-cols-2'}`}>
+        <Field className={`grid gap-3 grid-cols-1 ${isRental ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}>
           <div>
             <label htmlFor="price_cents" className={labelClass}>
               {t('price')}
@@ -464,7 +464,7 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
       </Section>
 
       <Section heading={t('sectionDetails')}>
-        <Field className="grid grid-cols-3 gap-3">
+        <Field className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div>
             <label htmlFor="bedrooms" className={labelClass}>
               {t('bedrooms')}
@@ -559,7 +559,7 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
             className={inputClass}
           />
         </Field>
-        <Field className="grid grid-cols-2 gap-3">
+        <Field className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
             <label htmlFor="neighborhood" className={labelClass}>
               {t('neighborhood')}
@@ -581,7 +581,7 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
             )}
           </div>
         </Field>
-        <Field className="grid grid-cols-3 gap-3">
+        <Field className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div>
             <label htmlFor="state_region" className={labelClass}>
               {t('stateRegion')}
@@ -632,7 +632,7 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
         <Field>
           <p className="text-xs text-helper">{t('latLngHelp')}</p>
         </Field>
-        <Field className="grid grid-cols-2 gap-3">
+        <Field className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
             <label htmlFor="latitude" className={labelClass}>
               {t('latitude')}

@@ -165,6 +165,10 @@
     "sectionStayInTouch": "Mantente al día",
     "aboutBody": "AHO es un marketplace inmobiliario de anuncios reales, compradores reales y agentes reales — en todo el mundo.",
     "quickContact": "¿Una pregunta? Escríbenos.",
+    "authStripHeading": "Empieza en dos minutos.",
+    "authStripBody": "Guarda anuncios, recibe alertas por correo y contacta a los agentes directamente.",
+    "authStripRegister": "Crear cuenta",
+    "authStripSignIn": "Iniciar sesión",
     "linkBrowseListings": "Explorar anuncios",
     "linkBrowseByCountry": "Explorar por país",
     "linkSavedSearches": "Búsquedas guardadas",
@@ -503,6 +507,7 @@
     "backToPricing": "Volver a precios"
   },
   "dashboard": {
+    "navAriaLabel": "Secciones del panel",
     "navListings": "Mis anuncios",
     "navLeads": "Contactos",
     "navReviews": "Reseñas",

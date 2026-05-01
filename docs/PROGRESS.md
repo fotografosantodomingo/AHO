@@ -12,6 +12,73 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — Mobile / UX polish batch + custom-domain audit + Supabase email templates
+
+PO punch list addressing six items from the live deploy:
+
+**1. Custom domain audit** — `https://advertisehomes.online` is fully wired:
+  - apex 307→/en (locale-prefix middleware)
+  - /en, /es, /sitemap.xml, /robots.txt all 200
+  - Sitemap `<loc>` + hreflang alternates use the canonical domain
+  - Robots `Host:` + `Sitemap:` lines reference canonical
+  - Cloudflare TLS cert serving; `nodejs_compat` runtime active
+  - www.advertisehomes.online also responds (no www→apex redirect, but canonical tags dedupe for SEO — fine for v1; could add a Cloudflare page rule later)
+
+**2. Sign-in default redirect → dashboard.** `src/app/[locale]/signin/page.tsx` previously fell back to `/${locale}` (home) when no `?next=` query. Now defaults to `/${locale}/dashboard` (or `/panel` for ES). Users who arrive at signin with an explicit `next` query still get bounced to that path; users who arrive directly land on the dashboard after auth.
+
+**3. Footer auth strip (anon-only).** New "Get started in two minutes" callout above the 4-column footer grid. Forest-green Register pill (`.btn-primary-inverse`, cream surface + forest text — matches the design language for CTAs sitting on dark forest bands) + bordered Sign in pill. The block hides itself when the visitor is already signed in (footer Server Component reads auth state via Supabase). New `footer.authStrip*` i18n keys in both locales.
+
+**4. Dashboard mobile dropdown nav.** The dashboard sidebar previously rendered as a horizontal-scroll row on mobile — visually chaotic with 5 items, no clear "where am I" indicator. Replaced with a **native `<select>` dropdown** (DashboardMobileNav Client Component) that:
+  - Shows the current section as the select value (matched by exact path or prefix).
+  - Navigates via `router.push` on change, no full reload.
+  - 44 px height, full pill rounding, custom inline-SVG forest chevron — matches the LocaleToggle styling.
+  - Trailing `<BillingPortalButton>` rendered beneath as a `.btn-secondary` pill so it stays one-tap reachable.
+  - Hidden on md+; the existing vertical sidebar takes over.
+
+  New `dashboard.navAriaLabel` i18n key in both locales.
+
+**5. Listing form single-column on mobile.** `src/components/listings/listing-form.tsx` had four `Field` blocks using fixed `grid-cols-2` / `grid-cols-3` that didn't collapse on small viewports. Converted to `grid-cols-1 sm:grid-cols-{2|3}`:
+  - Pricing row (price + currency + period for rentals; price + currency for sales)
+  - Details row (bedrooms + bathrooms + area)
+  - Location row (neighborhood + display address toggle)
+  - Address row (state + city + country)
+  - Lat/lng row (latitude + longitude)
+
+  Amenity chip grid (`grid-cols-2 md:grid-cols-4`) left as-is — 2-col compact chips work fine on the smallest mobile viewport. Edit-listing-form was already responsive (audited).
+
+**6. Mobile drawer background — belt-and-braces robustness.** PO reported the drawer reading as transparent. The Tailwind `bg-surface dark:bg-surface-deep` chain was correct in theory, but on some Cloudflare-Pages-edge-rendered viewports it apparently wasn't landing solid. Tightened to:
+  - Explicit `bg-white dark:bg-[#0a1812]` raw color values (not relying on @theme cascade)
+  - Plus an inline `style={{ backgroundColor: 'var(--color-surface)' }}` backstop
+  - Bumped border to `border-l-2` (was `border-l`) so the seam reads under low-contrast conditions
+  - Added explicit `text-ink dark:text-ink-inverse` so the body text is also unambiguously legible
+
+**7. Supabase Auth email templates** — `docs/SUPABASE_AUTH_EMAIL_TEMPLATES.md` written with paste-ready HTML for the four Supabase-managed templates (Confirm Signup, Magic Link, Reset Password, Change Email Address). Same DP-2d palette as the in-codebase emails: warm cream canvas, 4-px forest-green accent strip on top of a white card, forest-green pill CTAs, soft-cream footer with FB / IG / LinkedIn social row.
+
+  **Why docs/ paste-ready vs. programmatic push:** the `.env.local` has the service-role key (database admin) but no Supabase Management API personal-access-token (which is what would let us PUT email templates via the Auth admin API). Without that PAT, the dashboard UI is the only practical path. Doc is structured for fast paste — one Subject + one HTML block per template, with the tiny line-by-line diffs against the shared shell so the maintainer doesn't need to re-design four times.
+
+**Verify run.**
+  - typecheck clean, lint clean (pre-existing 2 warnings only)
+  - unit 91/91
+  - UI/CSS-only batch — no DB / RLS changes
+  - Live deploy smoke after push
+
+**What you'll see when this hits live:**
+  - Sign in via /signin (no `next` param) → land on `/dashboard` (was: `/`)
+  - Footer (when signed out): a forest-cream auth strip above the 4 columns with Register + Sign in pills; hides when signed in
+  - Mobile dashboard: a native dropdown lists the 5 sections + Billing as a trailing pill
+  - Mobile listing-form: single column on smallest viewports, expands to 2-3 columns on sm+
+  - Mobile drawer: solid white bg in light, solid #0a1812 (dark forest) in dark — readable in both modes
+  - Supabase Auth emails (signup confirm / magic link / password reset): UNCHANGED until you paste the templates from docs/SUPABASE_AUTH_EMAIL_TEMPLATES.md into the Supabase dashboard
+
+**Pending PO actions:**
+  - Paste Supabase Auth templates from the new docs file (4 templates)
+  - `BREVO_NEWSLETTER_LIST_ID` env var (newsletter form gracefully no-ops until set)
+  - The remaining v1 close-out actions: R2 (image upload UI), soft-beta agents (first real listings)
+
+**Next session should start with**: PO smokes the 5 mobile/UX changes, then either `feat/property-analytics` (next on the post-DP-2 roadmap) OR `feat/promoted-listings` (the marketing flagship if soft-beta agents land first).
+
+---
+
 ## 2026-05-01 — Batch DP-2d: email template redesign (forest accent + warm canvas)
 
 Closes the DP-2 visual pivot. Every transactional email now wears the same inspired-by-Starbucks identity as the website: warm cream canvas, forest-green accent strip + CTAs, warm helper text.
