@@ -12,6 +12,69 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-01 — Batch A1: reviews system (schema + verification flow + agent profile + dashboard + admin moderation)
+
+First execution batch of the v1-completion plan. Reviews are agent-targeted (not listing-targeted), email-token verified, admin-moderated, with agent reply + report/flag system. Wires into the existing `/agents/[slug]` page where the AggregateRating JSON-LD placeholder was already conditional.
+
+### What shipped
+
+**Schema (migration 0016)** — `reviews` + `review_reports` tables with full RLS, the `protect_review_fields()` BEFORE-UPDATE trigger for column-level scope (matches the pattern from 0002's `protect_profile_admin_fields`), the `verify_review_token(text)` SECURITY DEFINER RPC for atomic token verification, and the `aggregate_rating_for_agent(uuid)` helper for JSON-LD count+avg. Self-review prevented at the DB level via CHECK constraint. 50-char minimum body, 5-2000 char agent reply window, 1–5 star scale, locale locked at submission for email language.
+
+**API routes (5 new)** —
+- `POST /api/reviews` (anon-callable; generates 32-char hex token, sends verification email via Brevo wrapper, no-ops gracefully when key missing)
+- `POST /api/reviews/verify` (calls the SECURITY DEFINER RPC)
+- `POST /api/reviews/[id]/reply` (target agent only, RLS-gated)
+- `POST /api/reviews/[id]/report` (anyone, with idempotency dedup for signed-in users)
+- `POST /api/admin/reviews/[id]` (admin moderate: approve / reject / hide / unhide; on approve sends notification email to the agent in their preferred language)
+
+**UI (4 new pages + 4 new components)** —
+- `/reviews/verify/[token]` — public landing page that POSTs the token on mount and renders success/expired/invalid states
+- `/dashboard/reviews` — agent's review inbox with inline reply UI; status badges; reply persists via PATCH
+- `/admin/reviews` — moderation queue with action buttons, open-report counts, agent name link
+- `<ReviewsSection>` on `/agents/[slug]` — public reviews list + write-review CTA + report-review modal; AggregateRating + Review JSON-LD nodes added (only when count > 0, per the audit-flagged invalid-when-empty rule)
+
+**Email templates (2 new, EN + ES per template)** —
+- Review verification email with click-through link + 7-day expiry note
+- Agent notification email when a review is approved + published, with stars in subject line and reply CTA
+
+**i18n** — 47 new keys per locale under `reviews.*` covering write form, verify states, agent reply, report modal, dashboard statuses, admin moderation. Plus `dashboard.navReviews` for the new nav link.
+
+**PATHNAMES** — added `/reviews/verify/[token]` (es: `/resenas/verificar/[token]`), `/dashboard/reviews` (es: `/panel/resenas`), `/admin/reviews` (unlocalized).
+
+**Schema mirror** — Drizzle types added for `reviews` + `review_reports` + status/locale/reason/reportStatus enum unions. `PublicAgentProfile` extended with `userId` so the reviews wiring can target the agent.
+
+### Verification
+
+- `pnpm typecheck` clean
+- `pnpm lint` clean (only pre-existing `_req` warning)
+- `pnpm test:unit` 64/64 passing (53 prior + 11 new across `reviews-token` and `reviews-emails`)
+- `pnpm build` (next-on-pages) green; new routes show up: `/api/reviews`, `/api/reviews/verify`, `/api/reviews/[id]/reply`, `/api/reviews/[id]/report`, `/api/admin/reviews/[id]`, `/[locale]/reviews/verify/[token]`, `/[locale]/dashboard/reviews`, `/[locale]/admin/reviews`
+- `pnpm test:rls` not run from this seat — needs the live Supabase to have migration 0016 applied first (deploy step)
+
+### Worldwide-shaped design notes
+
+- Star scale 1–5 is universal; locale-locked at submission so verification email + agent notification go in the right language regardless of the agent's preferred locale
+- Reviews are on agents (persistent identity), not listings (ephemeral)
+- Self-review blocked at DB level (CHECK), not just route — works regardless of route bypass
+- `AggregateRating` JSON-LD is omitted when `count = 0` per schema.org validity rules (Google flags it as invalid otherwise)
+- Defamation/takedown is policy-handled (admin moderation queue + report-review form) — legal copy lives in Batch A9 (Compliance baseline)
+- No Turnstile on the review form for v1 — the email-verification gate is the primary spam filter; Turnstile lands in Batch A6 alongside the lead-form work for consistency
+
+### Blockers / open questions
+
+- Migration 0016 needs `pnpm db:migrate` applied before reviews work end-to-end
+- The agent-notification email path depends on Brevo being configured (no-ops gracefully without)
+- Reviews data is invisible to anon visitors with broken `profiles` anon-read (the privacy audit's open question — see RISKS R-A in the strategic doc)
+
+### Next session should start with
+
+1. `pnpm db:migrate` (applies 0016)
+2. `pnpm test:rls` (runs the new reviews suite + the existing 4 trigger tests + audit_log + properties)
+3. Smoke-test: write a review on a real agent profile, click verify link in inbox, approve in /admin/reviews, confirm it appears on the agent profile + AggregateRating JSON-LD shows in the page source
+4. If green → Batch A2 (Property page rebuild + edit-listing PATCH endpoint folded in)
+
+---
+
 ## 2026-05-01 — Phase 1B: country helper + search redesign + price history + avatar upload
 
 Picks up from Phase 1A (`8770964`, mark-as-sold + agent stats + audit_log). Same scope the user laid out in their "1A first, smoke-test live, then 1B" reply. Smoke test gate not yet reported by PO; Phase 1B work landed in parallel and waits behind the same deploy.

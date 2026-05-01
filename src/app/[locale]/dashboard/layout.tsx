@@ -54,6 +54,7 @@ export default async function DashboardLayout({
   const t = await getTranslations({ locale, namespace: 'dashboard' });
   const propertiesPath = `/${locale}/${locale === 'es' ? 'panel/propiedades' : 'dashboard/properties'}`;
   const leadsPath = `/${locale}/${locale === 'es' ? 'panel/contactos' : 'dashboard/leads'}`;
+  const reviewsPath = `/${locale}/${locale === 'es' ? 'panel/resenas' : 'dashboard/reviews'}`;
   const savedSearchesPath = `/${locale}/${
     locale === 'es' ? 'busquedas-guardadas' : 'saved-searches'
   }`;
@@ -81,6 +82,12 @@ export default async function DashboardLayout({
             className="shrink-0 rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5 md:block"
           >
             {t('navLeads')}
+          </a>
+          <a
+            href={reviewsPath}
+            className="shrink-0 rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5 md:block"
+          >
+            {t('navReviews')}
           </a>
           <a
             href={savedSearchesPath}

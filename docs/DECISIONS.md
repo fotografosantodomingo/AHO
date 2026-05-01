@@ -12,6 +12,27 @@ One entry per significant choice. Newest on top. Format:
 
 ---
 
+## 2026-05-01 — Reviews are agent-targeted with email-token verification and admin moderation (Batch A1)
+**Decision:** Reviews target the agent's `profiles.id`, not individual listings or organizations. Verification is email-token (32-char hex, 7-day TTL, single-use atomic flip via SECURITY DEFINER `verify_review_token`). Moderation is mandatory: every review passes through `pending_moderation` before going public. Star scale 1–5 required; body 50–5000 chars; agent reply 10–2000 chars (single per review, public). Self-review blocked at DB-CHECK level. AggregateRating JSON-LD is rendered ONLY when `count > 0` (schema.org rejects empty aggregates). Reports go to admin queue without auto-hiding the review (auto-hide invites brigading; admin makes the call).
+**Why:**
+- **Agent-targeted** because agents persist across listings; listings disappear when sold. Buyers searching "real estate agent in {city}" land on `/agents/[slug]` — that's where the trust signal needs to live.
+- **Email-token** as the v1 verification mechanism per the strategic-doc default. Transaction-lookup verification waits for v1.1 (needs a `transactions` table that doesn't exist yet).
+- **Admin moderation gate** because at v1 scale we'd rather pay support cost than ship reviews that could expose the platform to defamation claims.
+- **Locale-locked at submission** — review locale is captured at write time so the verification email and the agent-notification email both go in the language the reviewer wrote in. Cross-locale fallback would require runtime translation, which is out of scope.
+- **No Turnstile in v1** — the email-token gate already kills 99% of script abuse; Turnstile would add friction in markets where Cloudflare is sometimes throttled. Reconsider in Batch A6 (lead-form work) where Turnstile is the primary anti-abuse layer.
+**Alternatives considered:**
+- Listing-level reviews — rejected; spam risk + listings disappear after sold.
+- Auto-publish-after-verification (no admin queue) — rejected; defamation exposure.
+- Owned reviews vs. embed Trustpilot/Google — chose owned for v1; lock-in benefit + can layer external embeds later.
+- Auto-hide on N reports — rejected for v1; brigading mitigation needs more thought; keep human in the loop.
+**Reconsider if:** (a) admin moderation queue volume becomes unmanageable (>50/day) — auto-publish trusted reviewers (verified-via-transaction in v1.1), (b) defamation suits actually arrive in any market — tighten policy + add right-of-reply automation, (c) we want reviewer identity verification beyond email-token (e.g., Stripe Identity) for premium agent badges.
+**Build implications:**
+- `audit_log` is NOT used for reviews — they get their own table because the access pattern (anon-read by agent_id, count + avg aggregates) doesn't fit `audit_log`'s shape.
+- `review_reports` is parallel to `audit_log` but separate — different anti-abuse posture (anyone can report, dedup at route, admin processes manually).
+- AggregateRating omission is a contract pinned by visual review — no automated test of "count=0 → no JSON-LD" because it's a server-render conditional. Reconsider if we add a JSON-LD validation step.
+
+---
+
 ## 2026-05-01 — Audit-log payload contract: public-safe lifecycle facts only
 **Decision:** `audit_log.payload` for ANY kind is restricted to public-safe lifecycle facts only. Specifically excluded everywhere: `closing_notes` (private agent deal notes, max 2000 chars) and `prior_status` (lifecycle transitions: `draft`/`pending`/`coming_soon`). The rule is enforced at the writer side via `lib/audit/audit-payload.ts` builders; new audit writers MUST go through a builder, not assemble a payload inline. Migration `0015` retroactively scrubbed any rows written between Phase 1A deploy and the patch (idempotent jsonb minus-operator). Pinned by 6 unit tests in `tests/unit/audit-payload.test.ts`.
 **Why:** 0014's anon-read policy makes `payload` content publicly readable for `kind in (listing.marked_sold, listing.marked_rented, listing.price_changed)`. The original Phase 1A writer included `closing_notes` and `prior_status` — both fields the PO explicitly identified as private. Tightening the policy is the wrong fix (the public-read policy is needed for the price-history block); tightening the payload is the right fix.

@@ -4,8 +4,10 @@ import { notFound } from 'next/navigation';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { fetchAgentProfile } from '@/lib/listings/search';
+import { fetchPublishedReviewsForAgent } from '@/lib/reviews/queries';
 import { ListingCard } from '@/components/listings/listing-card';
 import { DotGrid, HeroGlow } from '@/components/ui/dot-grid';
+import { ReviewsSection } from '@/components/reviews/reviews-section';
 import { publicEnv } from '@/lib/env';
 import { getCountryName } from '@/lib/i18n/countries';
 
@@ -98,6 +100,12 @@ export default async function AgentProfilePage({
 
   const t = await getTranslations({ locale, namespace: 'agentProfile' });
 
+  // Reviews — only fetch when we have an agent userId. The section
+  // renders a "no reviews yet" empty state when count is 0.
+  const reviewsData = result.agent
+    ? await fetchPublishedReviewsForAgent({ agentId: result.agent.userId, limit: 20 })
+    : { reviews: [], aggregate: { count: 0, avg: 0 } };
+
   const description =
     (typedLocale === 'es' ? result.org.descriptionEs : result.org.descriptionEn) ??
     result.org.descriptionEn ??
@@ -120,7 +128,7 @@ export default async function AgentProfilePage({
   const profileUrl = `${site}/${locale}/${
     typedLocale === 'es' ? 'agentes' : 'agents'
   }/${slug}`;
-  const jsonLd = {
+  const jsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': result.org.type === 'agent' ? 'RealEstateAgent' : 'Organization',
     name: result.org.name,
@@ -142,6 +150,32 @@ export default async function AgentProfilePage({
         }
       : {}),
   };
+
+  // AggregateRating JSON-LD — REQUIRED by schema.org to omit when count
+  // is 0 (otherwise Google flags it as invalid). Per the privacy/JSON-LD
+  // audit: conditional rendering is the documented rule.
+  if (reviewsData.aggregate.count > 0) {
+    jsonLd.aggregateRating = {
+      '@type': 'AggregateRating',
+      ratingValue: reviewsData.aggregate.avg,
+      reviewCount: reviewsData.aggregate.count,
+      bestRating: 5,
+      worstRating: 1,
+    };
+    // Embed up to 5 most recent reviews as Review nodes for richer SERP.
+    jsonLd.review = reviewsData.reviews.slice(0, 5).map((r) => ({
+      '@type': 'Review',
+      reviewRating: {
+        '@type': 'Rating',
+        ratingValue: r.rating,
+        bestRating: 5,
+        worstRating: 1,
+      },
+      author: { '@type': 'Person', name: r.reviewerName || 'Reviewer' },
+      reviewBody: r.body,
+      datePublished: r.createdAt,
+    }));
+  }
 
   // Initials fallback for the logo placeholder. Two-character max.
   const initials = result.org.name
@@ -412,6 +446,18 @@ export default async function AgentProfilePage({
               </table>
             </div>
           </section>
+        )}
+
+        {/* Reviews — agent-targeted; rendered only when we have an agent
+            user_id (org with no owner row is a fixture edge case). The
+            section itself handles the empty state honestly. */}
+        {result.agent && (
+          <ReviewsSection
+            agentId={result.agent.userId}
+            reviews={reviewsData.reviews}
+            aggregateCount={reviewsData.aggregate.count}
+            aggregateAvg={reviewsData.aggregate.avg}
+          />
         )}
         </div>
       </main>

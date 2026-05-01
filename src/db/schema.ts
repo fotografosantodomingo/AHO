@@ -541,3 +541,104 @@ export const auditLog = pgTable('audit_log', {
 export type AuditLogRow = typeof auditLog.$inferSelect;
 export type NewAuditLogRow = typeof auditLog.$inferInsert;
 
+// ----------------------------------------------------------------
+// Reviews + review_reports (migration 0016).
+// Agent-targeted reviews with email-token verification and admin
+// moderation. See 0016_reviews.sql for the workflow + RLS details.
+// ----------------------------------------------------------------
+
+export const reviews = pgTable(
+  'reviews',
+  {
+    id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+    agentId: uuid('agent_id')
+      .notNull()
+      .references(() => profiles.id, { onDelete: 'cascade' }),
+    reviewerUserId: uuid('reviewer_user_id').references(() => profiles.id, {
+      onDelete: 'set null',
+    }),
+    reviewerEmail: citext('reviewer_email'),
+    reviewerName: text('reviewer_name'),
+    propertyId: uuid('property_id').references(() => properties.id, {
+      onDelete: 'set null',
+    }),
+    rating: integer('rating').notNull(),
+    body: text('body').notNull(),
+    locale: text('locale').notNull().default('en'),
+    status: text('status').notNull().default('pending_verification'),
+    verificationToken: text('verification_token'),
+    verificationTokenExpiresAt: timestamp('verification_token_expires_at', {
+      withTimezone: true,
+    }),
+    verifiedAt: timestamp('verified_at', { withTimezone: true }),
+    agentReply: text('agent_reply'),
+    agentRepliedAt: timestamp('agent_replied_at', { withTimezone: true }),
+    moderatedAt: timestamp('moderated_at', { withTimezone: true }),
+    moderatedBy: uuid('moderated_by').references(() => profiles.id, {
+      onDelete: 'set null',
+    }),
+    moderationNotes: text('moderation_notes'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    idxAgentPublished: index('idx_reviews_agent_published').on(t.agentId, t.createdAt),
+  }),
+);
+
+export type Review = typeof reviews.$inferSelect;
+export type NewReview = typeof reviews.$inferInsert;
+
+export const REVIEW_STATUSES = [
+  'pending_verification',
+  'pending_moderation',
+  'published',
+  'rejected',
+  'hidden',
+] as const;
+export type ReviewStatus = (typeof REVIEW_STATUSES)[number];
+
+export const REVIEW_LOCALES = ['en', 'es'] as const;
+export type ReviewLocale = (typeof REVIEW_LOCALES)[number];
+
+export const reviewReports = pgTable(
+  'review_reports',
+  {
+    id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+    reviewId: uuid('review_id')
+      .notNull()
+      .references(() => reviews.id, { onDelete: 'cascade' }),
+    reporterUserId: uuid('reporter_user_id').references(() => profiles.id, {
+      onDelete: 'set null',
+    }),
+    reporterEmail: citext('reporter_email'),
+    reason: text('reason').notNull(),
+    notes: text('notes'),
+    status: text('status').notNull().default('open'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    reviewedAt: timestamp('reviewed_at', { withTimezone: true }),
+    reviewedBy: uuid('reviewed_by').references(() => profiles.id, {
+      onDelete: 'set null',
+    }),
+  },
+  (t) => ({
+    idxReview: index('idx_review_reports_review').on(t.reviewId),
+  }),
+);
+
+export type ReviewReport = typeof reviewReports.$inferSelect;
+export type NewReviewReport = typeof reviewReports.$inferInsert;
+
+export const REVIEW_REPORT_REASONS = [
+  'spam',
+  'fake',
+  'defamatory',
+  'inappropriate',
+  'duplicate',
+  'other',
+] as const;
+export type ReviewReportReason = (typeof REVIEW_REPORT_REASONS)[number];
+
+export const REVIEW_REPORT_STATUSES = ['open', 'reviewed', 'dismissed'] as const;
+export type ReviewReportStatus = (typeof REVIEW_REPORT_STATUSES)[number];
+

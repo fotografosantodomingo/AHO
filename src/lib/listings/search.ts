@@ -361,6 +361,9 @@ interface AgentProfile {
  * only returns them for active+published listings).
  */
 export interface PublicAgentProfile {
+  /** profiles.id of the org owner. Used by reviews / leads / contact
+   *  flows that target the agent (not the org). */
+  userId: string;
   fullName: string | null;
   avatarUrl: string | null;
   bio: string | null;
@@ -492,8 +495,10 @@ export async function fetchAgentProfile(
   };
   const ownerProfileRaw = ownerRow?.profiles as OwnerProfile | OwnerProfile[] | null | undefined;
   const ownerProfile = Array.isArray(ownerProfileRaw) ? ownerProfileRaw[0] ?? null : ownerProfileRaw ?? null;
-  const agent: PublicAgentProfile | null = ownerProfile
+  const ownerUserId = ownerRow?.user_id as string | null | undefined;
+  const agent: PublicAgentProfile | null = ownerProfile && ownerUserId
     ? {
+        userId: ownerUserId,
         fullName: ownerProfile.full_name,
         avatarUrl: ownerProfile.avatar_url,
         bio: ownerProfile.bio,

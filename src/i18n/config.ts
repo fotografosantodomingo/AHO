@@ -132,4 +132,16 @@ export const PATHNAMES = {
   // Admin moderation surface — same path in both locales (internal tool;
   // platform admins are us, not localized). robots noindex enforced inline.
   '/admin': '/admin',
+  // Public review-verification landing page (clicked from email link).
+  '/reviews/verify/[token]': {
+    en: '/reviews/verify/[token]',
+    es: '/resenas/verificar/[token]',
+  },
+  // Agent's own review inbox + reply UI.
+  '/dashboard/reviews': {
+    en: '/dashboard/reviews',
+    es: '/panel/resenas',
+  },
+  // Admin moderation queue (internal — not localized).
+  '/admin/reviews': '/admin/reviews',
 } as const;
