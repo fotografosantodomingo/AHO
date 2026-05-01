@@ -1,20 +1,22 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
-// Schema imported from a non-server module — actions.ts has 'use server'
-// which strips non-function exports from the client bundle.
 import {
   CreateListingSchema,
   type CreateListingInput,
 } from '@/lib/listings/listing-schema';
-import { createListing, publishListing } from '@/lib/listings/actions';
 import { buildCountryOptions } from '@/lib/listings/countries-iso';
 import { AMENITY_KEYS, type AmenityKey } from '@/lib/listings/amenities';
 import { uploadOneFile } from '@/lib/listings/client-upload';
+
+// localStorage key for the draft auto-save. Versioned so future schema
+// changes can invalidate stale drafts without orphaning them in user
+// browsers (bump v1 → v2).
+const DRAFT_STORAGE_KEY = 'aho:listing-draft:v1';
 
 const MAX_STAGED_IMAGES = 30;
 const MAX_FILE_BYTES = 25 * 1024 * 1024;
@@ -146,9 +148,26 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
     ? Math.round(Number(initialValues.price_cents) / 100)
     : undefined;
 
+  // localStorage draft restore on mount. If a previous attempt crashed
+  // mid-submit (or the user navigated away without saving), the values
+  // they typed are still here. We only restore for the new-listing flow
+  // (no initialValues) — edit forms have their own DB-backed values.
+  const restoredDraft = useMemo<Partial<CreateListingInput> | null>(() => {
+    if (typeof window === 'undefined' || initialValues) return null;
+    try {
+      const raw = window.localStorage.getItem(DRAFT_STORAGE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as Partial<CreateListingInput>;
+      return parsed;
+    } catch {
+      return null;
+    }
+  }, [initialValues]);
+
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<CreateListingInput>({
     resolver: zodResolver(CreateListingSchema),
@@ -158,14 +177,53 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
       currency: 'USD',
       display_address: true,
       ...initialValues,
+      ...(restoredDraft ?? {}),
     },
   });
 
-  // Internal submit handler. `intent` controls whether to flip the new
-  // property to `active` after photos finish uploading.
+  // Auto-save form values to localStorage on every change. Debounced
+  // implicitly by React batching; we don't need a setTimeout. Only saves
+  // for the new-listing flow (edit form has DB-backed source of truth).
+  const watched = watch();
+  useEffect(() => {
+    if (typeof window === 'undefined' || initialValues) return;
+    if (phase !== 'idle') return; // don't save while submitting
+    try {
+      window.localStorage.setItem(
+        DRAFT_STORAGE_KEY,
+        JSON.stringify({ ...watched, amenities: [...amenities] }),
+      );
+    } catch {
+      // localStorage can throw (quota / private browsing). Silently skip.
+    }
+  }, [watched, amenities, initialValues, phase]);
+
+  function clearDraftStorage() {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function discardDraft() {
+    clearDraftStorage();
+    window.location.reload();
+  }
+
+  /**
+   * Submit pipeline. We POST to plain API routes rather than calling
+   * Server Actions directly: Server Actions on
+   * `@cloudflare/next-on-pages` had reliability issues (Origin-detection
+   * mismatches behind the Pages CDN → 404 + RSC errors). API routes
+   * are first-class on next-on-pages.
+   *
+   * `intent` controls whether to flip the new property to `active`
+   * after photos finish uploading.
+   */
   async function submit(values: CreateListingInput, intent: 'draft' | 'publish') {
     setServerError(null);
-    // Convert whole-units price back to cents for the DB column.
     const priceCents = Math.round(Number(values.price_cents) * 100);
     if (!Number.isFinite(priceCents) || priceCents <= 0) {
       setServerError('priceRequired');
@@ -178,20 +236,36 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
       amenities: [...amenities],
     };
 
+    // Step 1: create the draft.
     setPhase('creating');
-    const result = await createListing(enriched);
-    if (!result.ok) {
+    let propertyId: string;
+    try {
+      const res = await fetch('/api/listings', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(enriched),
+      });
+      const body = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        id?: string;
+        errorCode?: string;
+      };
+      if (!res.ok || !body.ok || !body.id) {
+        setPhase('idle');
+        setServerError(body.errorCode ?? `http_${res.status}`);
+        return;
+      }
+      propertyId = body.id;
+    } catch (e) {
       setPhase('idle');
-      setServerError(result.errorCode ?? 'create_failed');
+      setServerError(e instanceof Error ? e.message : 'network_error');
       return;
     }
-    const propertyId = result.id!;
 
-    // Upload staged photos, if any. Sequential to keep R2 / RLS-insert
-    // behavior predictable; small N (cap 30).
+    // Step 2: upload staged photos, if any. Sequential to keep R2 / RLS-
+    // insert behavior predictable; small N (cap 30).
     if (stagedFiles.length > 0) {
       setPhase('uploading');
-      // Alt text for SEO + a11y. {title} — {city} — {n}.
       const altBase = (enriched.title_en || enriched.title_es || 'listing').trim();
       let allOk = true;
       for (let i = 0; i < stagedFiles.length; i++) {
@@ -210,28 +284,45 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
         if (!r.ok) allOk = false;
       }
       if (!allOk && intent === 'publish') {
-        // Some uploads failed; refuse to publish a half-uploaded listing.
         setPhase('idle');
         setServerError('partial_upload_publish_blocked');
-        // The draft is still created; user can fix on the edit page.
+        clearDraftStorage();
         router.push(`${successRedirectBase}/${propertyId}`);
         return;
       }
     }
 
+    // Step 3: publish if requested.
     if (intent === 'publish') {
       setPhase('publishing');
-      const pubResult = await publishListing(propertyId);
-      if (!pubResult.ok) {
+      try {
+        const res = await fetch(`/api/listings/${propertyId}/publish`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+        });
+        const body = (await res.json().catch(() => ({}))) as {
+          ok?: boolean;
+          errorCode?: string;
+        };
+        if (!res.ok || !body.ok) {
+          setPhase('idle');
+          setServerError(body.errorCode ?? `http_${res.status}`);
+          clearDraftStorage();
+          router.push(`${successRedirectBase}/${propertyId}`);
+          return;
+        }
+      } catch (e) {
         setPhase('idle');
-        setServerError(pubResult.errorCode ?? 'publish_failed');
-        // Land on edit page anyway — the draft + photos are saved.
+        setServerError(e instanceof Error ? e.message : 'network_error');
+        clearDraftStorage();
         router.push(`${successRedirectBase}/${propertyId}`);
         return;
       }
     }
 
+    // Success — clear local draft and navigate.
     setPhase('idle');
+    clearDraftStorage();
     router.push(`${successRedirectBase}/${propertyId}`);
     router.refresh();
   }
@@ -247,6 +338,28 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
 
   return (
     <form onSubmit={submitAsDraft} className="space-y-8" noValidate>
+      {restoredDraft && (
+        <div
+          role="status"
+          className="flex items-start justify-between gap-3 rounded-card border border-border bg-action/5 px-4 py-3 text-sm dark:bg-action-dark/10"
+        >
+          <p className="text-ink-muted dark:text-ink-inverse-muted">
+            <strong className="text-ink dark:text-ink-inverse">
+              {locale === 'es' ? 'Borrador restaurado' : 'Draft restored'}
+            </strong>{' '}
+            {locale === 'es'
+              ? '— tus datos del intento anterior se cargaron automáticamente.'
+              : '— your data from a previous attempt was restored automatically.'}
+          </p>
+          <button
+            type="button"
+            onClick={discardDraft}
+            className="shrink-0 rounded-md border border-border-strong/40 px-2 py-0.5 text-xs transition hover:bg-black/5 dark:hover:bg-white/5"
+          >
+            {locale === 'es' ? 'Descartar' : 'Discard'}
+          </button>
+        </div>
+      )}
       <Section heading={t('sectionBasics')}>
         <Field>
           <label htmlFor="transaction_type" className={labelClass}>
@@ -687,9 +800,60 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
       {serverError && (
         <div
           role="alert"
-          className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-950/30 dark:text-red-200"
+          className="flex items-start justify-between gap-3 rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-950/30 dark:text-red-200"
         >
-          {serverError}
+          <div className="space-y-1">
+            <p className="font-medium">
+              {locale === 'es' ? 'No se pudo guardar' : "Couldn't save"}
+            </p>
+            <p>
+              {serverError === 'no_org'
+                ? locale === 'es'
+                  ? 'Necesitas una suscripción de Agente para publicar.'
+                  : 'You need an Agent subscription to publish listings.'
+                : serverError === 'forbidden_or_at_cap'
+                ? locale === 'es'
+                  ? 'Has alcanzado el límite de tu plan.'
+                  : 'You have reached your plan limit.'
+                : serverError === 'listing_cap_exceeded'
+                ? locale === 'es'
+                  ? 'Has alcanzado el límite de tu plan — archiva uno o sube de plan.'
+                  : 'Plan limit reached — archive a listing or upgrade.'
+                : serverError === 'partial_upload_publish_blocked'
+                ? locale === 'es'
+                  ? 'Algunas fotos fallaron al subir. Tu borrador se guardó; revísalo en la página de edición.'
+                  : 'Some photos failed to upload. Your draft was saved; review it on the edit page.'
+                : serverError === 'unauthenticated'
+                ? locale === 'es'
+                  ? 'Tu sesión expiró. Inicia sesión de nuevo.'
+                  : 'Your session expired. Please sign in again.'
+                : serverError === 'priceRequired'
+                ? locale === 'es'
+                  ? 'El precio es obligatorio.'
+                  : 'Price is required.'
+                : serverError === 'invalid_input'
+                ? locale === 'es'
+                  ? 'Algunos campos no son válidos. Revísalos arriba.'
+                  : 'Some fields are invalid. Check them above.'
+                : serverError === 'network_error'
+                ? locale === 'es'
+                  ? 'Error de red — comprueba tu conexión y vuelve a intentar.'
+                  : 'Network error — check your connection and try again.'
+                : `${locale === 'es' ? 'Detalles técnicos' : 'Technical details'}: ${serverError}`}
+            </p>
+            <p className="text-xs opacity-80">
+              {locale === 'es'
+                ? 'Tus datos están guardados localmente — pulsar de nuevo no los pierde.'
+                : 'Your data is saved locally — clicking again will not lose it.'}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setServerError(null)}
+            className="shrink-0 rounded-md border border-red-300 px-2 py-0.5 text-xs hover:bg-red-100 dark:border-red-800 dark:hover:bg-red-900/30"
+          >
+            {locale === 'es' ? 'Cerrar' : 'Dismiss'}
+          </button>
         </div>
       )}
 
