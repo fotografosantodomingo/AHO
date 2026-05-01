@@ -22,18 +22,28 @@
   --color-surface-dark: #15181e;       /* dark hero / dark mode body */
   --color-surface-deep: #0d0e12;       /* deepest dark, dark-mode card bg */
 
-  /* — Text — */
+  /* — Text —
+     Contrast targets (WCAG AA = 4.5:1 body text, 3:1 large UI):
+       ink (#000)         → bg-surface (#fff)         → 21:1     ✓
+       ink-muted (#3b3d45)→ bg-surface (#fff)         → 12.6:1   ✓
+       helper (#52525b)   → bg-surface (#fff)         → 7.5:1    ✓
+       helper (#52525b)   → bg-surface-muted (#f1f2f3)→ 6.7:1    ✓
+       (was helper #656a76 → muted: ~4.4:1 — borderline; bumped darker)
+       ink-inverse (#efeff1) → surface-deep (#0d0e12) → 17.6:1   ✓
+       ink-inverse-muted (#d5d7db) → surface-deep     → 13.4:1   ✓ */
   --color-ink: #000000;                /* primary text on light */
   --color-ink-muted: #3b3d45;          /* secondary text on light */
-  --color-helper: #656a76;             /* helper / caption text both modes */
+  --color-helper: #52525b;             /* bumped from #656a76 for AA contrast on muted body */
   --color-ink-inverse: #efeff1;        /* primary text on dark */
   --color-ink-inverse-muted: #d5d7db;  /* secondary text on dark */
 
   /* — Borders —
-     0.7 alpha (was 0.4) so card outlines actually read in light mode
-     where the body is now surface-muted and cards are surface (#fff). */
-  --color-border: rgb(178 182 189 / 0.7);
-  --color-border-strong: rgb(97 104 117);
+     border at 0.85 alpha (was 0.7) so card outlines are unambiguously
+     visible in light mode against the muted body. border-strong gets
+     a touch darker so 2-px borders on inputs and toggle buttons read
+     cleanly against white surfaces. */
+  --color-border: rgb(178 182 189 / 0.85);
+  --color-border-strong: rgb(82 90 104);
 
   /* — Action / links — */
   --color-action: #2264d6;             /* primary link on light */

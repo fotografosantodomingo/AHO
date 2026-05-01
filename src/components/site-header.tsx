@@ -78,7 +78,7 @@ export async function SiteHeader({ locale }: Props) {
   ];
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-surface/85 backdrop-blur-sm dark:bg-surface-deep/85">
+    <header className="sticky top-0 z-30 border-b border-border-strong/60 bg-surface/95 backdrop-blur-sm dark:bg-surface-deep/95">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3">
         {/* Brand */}
         <a

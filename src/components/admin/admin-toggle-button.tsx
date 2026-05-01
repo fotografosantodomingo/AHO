@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { setUserAdmin } from '@/lib/admin/actions';
+import { useRouter } from 'next/navigation';
 
 interface AdminToggleButtonProps {
   userId: string;
@@ -26,6 +26,7 @@ export function AdminToggleButton({
   email,
   isSelf,
 }: AdminToggleButtonProps) {
+  const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -57,8 +58,24 @@ export function AdminToggleButton({
         if (!confirm(confirmMsg)) return;
         startTransition(async () => {
           setError(null);
-          const r = await setUserAdmin(userId, !isAdmin);
-          if (!r.ok) setError(r.error ?? `${action}_failed`);
+          try {
+            const res = await fetch(`/api/admin/users/${userId}/toggle-admin`, {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify({ makeAdmin: !isAdmin }),
+            });
+            const data = (await res.json().catch(() => ({}))) as {
+              ok?: boolean;
+              errorCode?: string;
+            };
+            if (!res.ok || !data.ok) {
+              setError(data.errorCode ?? `${action}_failed`);
+              return;
+            }
+            router.refresh();
+          } catch (e) {
+            setError(e instanceof Error ? e.message : `${action}_failed`);
+          }
         });
       }}
       className={`inline-flex h-7 items-center rounded-lg border px-2 text-xs transition disabled:opacity-50 ${tone}`}
