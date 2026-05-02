@@ -21,6 +21,24 @@ const intlMiddleware = createIntlMiddleware(routing);
  * and locale rewriting on webhook URLs would break the contract.
  */
 export async function middleware(req: NextRequest) {
+  // Defensive: reject literal bracket characters in the path. They can
+  // only appear if a client constructed a URL from an unresolved route
+  // template like `/es/propiedades/[slug]` — usually because of a
+  // stale-cached client bundle from before today's locale-toggle fix.
+  // next-intl's middleware throws when it tries to route bracket-
+  // containing paths against the `pathnames` config, which surfaces as
+  // a Cloudflare-level "Internal Server Error" plaintext (the worker
+  // can't unwind cleanly enough to render Next's 404 template). Return
+  // a clean 404 here instead. Logged 2026-05-02 after PO hit
+  // `/es/propiedades/[slug]` from a stale client.
+  const rawPath = req.nextUrl.pathname;
+  if (rawPath.includes('[') || rawPath.includes(']')) {
+    return new NextResponse('Not Found', {
+      status: 404,
+      headers: { 'content-type': 'text/plain;charset=UTF-8' },
+    });
+  }
+
   // 1. next-intl first.
   const intlRes = intlMiddleware(req);
 
