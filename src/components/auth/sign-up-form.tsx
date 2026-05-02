@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
@@ -8,7 +8,11 @@ import { useLocale } from 'next-intl';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { SignUpSchema, type SignUpInput } from '@/lib/auth/schemas';
 import { isPasswordPwned } from '@/lib/auth/hibp';
-import { TurnstileWidget, isTurnstileConfigured } from './turnstile-widget';
+import {
+  TurnstileWidget,
+  isTurnstileConfigured,
+  type TurnstileWidgetHandle,
+} from './turnstile-widget';
 
 const inputClass =
   'mt-1 block w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm shadow-whisper outline-hidden focus:ring-3 focus:ring-action dark:bg-surface-deep dark:focus:ring-action-dark';
@@ -28,6 +32,7 @@ export function SignUpForm() {
   const [pwnedError, setPwnedError] = useState<boolean>(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const turnstileRequired = isTurnstileConfigured();
+  const turnstileRef = useRef<TurnstileWidgetHandle | null>(null);
 
   const onCaptchaToken = useCallback((token: string) => setCaptchaToken(token), []);
   const onCaptchaExpire = useCallback(() => setCaptchaToken(null), []);
@@ -79,6 +84,9 @@ export function SignUpForm() {
     });
     if (error) {
       setServerError(error.message);
+      // Reset Turnstile after each failed submit (one-shot tokens).
+      setCaptchaToken(null);
+      turnstileRef.current?.reset();
       return;
     }
     setSubmittedEmail(values.email);
@@ -200,7 +208,11 @@ export function SignUpForm() {
         </label>
       </div>
 
-      <TurnstileWidget onToken={onCaptchaToken} onExpire={onCaptchaExpire} />
+      <TurnstileWidget
+        ref={turnstileRef}
+        onToken={onCaptchaToken}
+        onExpire={onCaptchaExpire}
+      />
 
       {serverError && (
         <div

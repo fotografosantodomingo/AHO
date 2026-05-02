@@ -1,6 +1,13 @@
 'use client';
 
-import { useEffect, useId, useRef, useState } from 'react';
+import {
+  forwardRef,
+  useEffect,
+  useId,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 
 /**
  * Cloudflare Turnstile widget — invisible-or-managed bot challenge.
@@ -73,7 +80,9 @@ function loadTurnstileScript(): Promise<void> {
 }
 
 interface TurnstileWidgetProps {
-  /** Called with the verification token. Token is single-use; resets after submit. */
+  /** Called with the verification token. Token is single-use; the form
+   *  must call `.reset()` after each submit attempt (success or fail)
+   *  so a fresh token is issued before the next submit. */
   onToken: (token: string) => void;
   /** Called when the user fails the challenge or it errors. */
   onError?: () => void;
@@ -83,16 +92,41 @@ interface TurnstileWidgetProps {
   theme?: 'light' | 'dark' | 'auto';
 }
 
-export function TurnstileWidget({
-  onToken,
-  onError,
-  onExpire,
-  theme = 'auto',
-}: TurnstileWidgetProps) {
+export interface TurnstileWidgetHandle {
+  /** Force the widget to discard the current token and issue a new one.
+   *  Required after every submit attempt — Turnstile tokens are
+   *  one-shot; resubmitting the same one returns
+   *  `invalid-input-response`. PO-reported 2026-05-02. */
+  reset: () => void;
+}
+
+export const TurnstileWidget = forwardRef<
+  TurnstileWidgetHandle,
+  TurnstileWidgetProps
+>(function TurnstileWidget(
+  { onToken, onError, onExpire, theme = 'auto' },
+  ref,
+) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const widgetIdRef = useRef<string | null>(null);
   const id = useId();
   const [error, setError] = useState<string | null>(null);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      reset: () => {
+        if (widgetIdRef.current && window.turnstile) {
+          try {
+            window.turnstile.reset(widgetIdRef.current);
+          } catch {
+            // ignore — widget may have unmounted between submit + reset
+          }
+        }
+      },
+    }),
+    [],
+  );
 
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
@@ -144,7 +178,7 @@ export function TurnstileWidget({
       )}
     </div>
   );
-}
+});
 
 /** Helper for forms: returns true iff Turnstile is configured and required. */
 export function isTurnstileConfigured(): boolean {

@@ -1,13 +1,17 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { SignInSchema, type SignInInput } from '@/lib/auth/schemas';
-import { TurnstileWidget, isTurnstileConfigured } from './turnstile-widget';
+import {
+  TurnstileWidget,
+  isTurnstileConfigured,
+  type TurnstileWidgetHandle,
+} from './turnstile-widget';
 
 const inputClass =
   'mt-1 block w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm shadow-whisper outline-hidden focus:ring-3 focus:ring-action dark:bg-surface-deep dark:focus:ring-action-dark';
@@ -23,6 +27,7 @@ export function SignInForm({ next = '/' }: SignInFormProps) {
   const [serverError, setServerError] = useState<string | null>(null);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const turnstileRequired = isTurnstileConfigured();
+  const turnstileRef = useRef<TurnstileWidgetHandle | null>(null);
 
   const onCaptchaToken = useCallback((token: string) => setCaptchaToken(token), []);
   const onCaptchaExpire = useCallback(() => setCaptchaToken(null), []);
@@ -48,6 +53,13 @@ export function SignInForm({ next = '/' }: SignInFormProps) {
     });
     if (error) {
       setServerError(error.message);
+      // Turnstile tokens are one-shot — Cloudflare rejects re-submission of
+      // the same token with `invalid-input-response`. After a failed attempt
+      // (wrong password, account locked, etc.) the user typically wants to
+      // retry; reset the widget so it issues a fresh token before the next
+      // submit. Bug logged 2026-05-02.
+      setCaptchaToken(null);
+      turnstileRef.current?.reset();
       return;
     }
     router.push(next);
@@ -98,7 +110,11 @@ export function SignInForm({ next = '/' }: SignInFormProps) {
         )}
       </div>
 
-      <TurnstileWidget onToken={onCaptchaToken} onExpire={onCaptchaExpire} />
+      <TurnstileWidget
+        ref={turnstileRef}
+        onToken={onCaptchaToken}
+        onExpire={onCaptchaExpire}
+      />
 
       {serverError && (
         <div
