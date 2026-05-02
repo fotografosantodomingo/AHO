@@ -32,7 +32,14 @@ export async function middleware(req: NextRequest) {
   // a clean 404 here instead. Logged 2026-05-02 after PO hit
   // `/es/propiedades/[slug]` from a stale client.
   const rawPath = req.nextUrl.pathname;
-  if (rawPath.includes('[') || rawPath.includes(']')) {
+  // Brackets can appear in either the decoded form `[`/`]` or the URL-
+  // encoded form `%5B`/`%5D` depending on how the client constructed
+  // the URL and how Next.js's NextURL normalizes it. Reject both.
+  if (
+    rawPath.includes('[') ||
+    rawPath.includes(']') ||
+    /%5[bd]/i.test(rawPath)
+  ) {
     return new NextResponse('Not Found', {
       status: 404,
       headers: { 'content-type': 'text/plain;charset=UTF-8' },
