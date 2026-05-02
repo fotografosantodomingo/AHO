@@ -152,66 +152,41 @@ export function PropertyGallery({
   return (
     // Break out of the parent container's px-4 on mobile so the gallery
     // is true edge-to-edge. md+ falls back to inside-container layout.
-    <div className="-mx-4 md:mx-0">
-      {/* ── Mobile (< md): single primary at natural ratio + carousel ── */}
-      <figure className="md:hidden">
-        <div className="bg-surface-muted dark:bg-surface-dark">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={primaryUrl}
-            alt={altOf(primary, 1)}
-            className="block h-auto w-full"
-            loading="eager"
-            decoding="async"
-          />
-        </div>
-        <figcaption className="px-4 py-2 text-xs leading-relaxed text-helper">
-          {primaryCaption}
-        </figcaption>
+    <figure className="-mx-4 md:mx-0">
+      {/* ── Primary photo ──
+          Mobile: full-bleed, natural aspect (h-auto). Image height is
+          driven by the image's intrinsic dimensions — a 16:9 panorama is
+          short and wide, a 3:4 portrait is tall and narrow. No crop, no
+          letterbox; just the image at its true ratio.
+          Desktop (md+): same image, capped at max-h-[600px] so a tall
+          portrait doesn't dominate the viewport. The container uses
+          flex centering so a too-narrow portrait sits centered with bg
+          letterbox bands; a wide landscape fills the width up to its
+          natural height. Either way: object-contain = no crop. */}
+      <div className="flex w-full justify-center bg-surface-muted dark:bg-surface-dark md:rounded-card md:overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={primaryUrl}
+          alt={altOf(primary, 1)}
+          className="block h-auto max-h-[80vh] w-auto max-w-full md:max-h-[600px]"
+          loading="eager"
+          decoding="async"
+        />
+      </div>
 
-        {secondaries.length > 0 && (
-          <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 pb-2">
-            {secondaries.map((img, idx) => {
-              const url = buildImageUrl({
-                cfImageId: img.cfImageId,
-                r2Key: img.r2Key,
-                variant: 'card',
-              });
-              if (!url) return null;
-              return (
-                <div
-                  key={img.cfImageId ?? img.r2Key}
-                  className="flex h-40 shrink-0 basis-[80%] snap-start items-center justify-center overflow-hidden rounded-card bg-surface-muted sm:basis-[60%] dark:bg-surface-dark"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={url}
-                    alt={altOf(img, idx + 2)}
-                    className="block h-full w-auto max-w-full object-contain"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </figure>
+      <figcaption className="px-4 py-2 text-xs leading-relaxed text-helper md:mt-3 md:px-0 md:text-sm">
+        {primaryCaption}
+      </figcaption>
 
-      {/* ── Desktop (md+): 2x2 grid with primary spanning + thumbs ── */}
-      <figure className="hidden md:block">
-        <div className="grid grid-cols-4 grid-rows-2 gap-2">
-          <div className="flex items-center justify-center overflow-hidden rounded-card bg-surface-muted col-span-2 row-span-2 dark:bg-surface-dark">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={primaryUrl}
-              alt={altOf(primary, 1)}
-              className="block h-full w-full object-contain"
-              loading="eager"
-              decoding="async"
-            />
-          </div>
-
+      {/* ── Secondary thumbs ──
+          Single horizontal row on every breakpoint. Mobile snap-scrolls;
+          desktop fits 4 evenly. Each thumb cell is a fixed-height box
+          (h-32 mobile, h-40 desktop) — gives the row a consistent visual
+          rhythm — but the image inside uses object-contain so the WHOLE
+          photo is visible (with subtle bg letterbox if its natural ratio
+          differs from the cell). */}
+      {secondaries.length > 0 && (
+        <div className="mt-2 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 pb-2 md:mt-3 md:grid md:grid-cols-4 md:overflow-x-visible md:px-0 md:pb-0">
           {secondaries.map((img, idx) => {
             const url = buildImageUrl({
               cfImageId: img.cfImageId,
@@ -222,13 +197,13 @@ export function PropertyGallery({
             return (
               <div
                 key={img.cfImageId ?? img.r2Key}
-                className="flex items-center justify-center overflow-hidden rounded-card bg-surface-muted dark:bg-surface-dark"
+                className="flex h-32 shrink-0 basis-[60%] snap-start items-center justify-center overflow-hidden rounded-card bg-surface-muted sm:basis-[45%] md:h-40 md:basis-auto dark:bg-surface-dark"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={url}
                   alt={altOf(img, idx + 2)}
-                  className="block h-full w-full object-contain"
+                  className="block max-h-full max-w-full"
                   loading="lazy"
                   decoding="async"
                 />
@@ -236,10 +211,7 @@ export function PropertyGallery({
             );
           })}
         </div>
-        <figcaption className="mt-3 text-sm leading-relaxed text-helper">
-          {primaryCaption}
-        </figcaption>
-      </figure>
-    </div>
+      )}
+    </figure>
   );
 }
