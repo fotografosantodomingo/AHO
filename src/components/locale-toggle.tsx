@@ -53,10 +53,26 @@ export function LocaleToggle({ variant = 'header' }: Props = {}) {
     if (next === locale) return;
     setIsPending(true);
 
+    // Read the REAL browser URL (resolved, with locale prefix) instead
+    // of next-intl's usePathname(). With `pathnames` config set, next-
+    // intl's usePathname() returns the route TEMPLATE — for a request
+    // to `/en/properties/abc-xyz123`, usePathname() returns
+    // `/properties/[slug]` (literal brackets), which then propagates
+    // through `getPathname({href})` and we end up navigating to
+    // `/es/propiedades/[slug]`. Bug fixed 2026-05-02 after PO hit
+    // "Internal Server Error" trying to switch locale on a property
+    // page. The Client Component runs in the browser so reading
+    // window.location is safe.
+    const browserPath = window.location.pathname; // e.g. /en/properties/abc-xyz123
+    const localePrefix = `/${locale}`;
+    const localeless = browserPath.startsWith(localePrefix)
+      ? browserPath.slice(localePrefix.length) || '/'
+      : browserPath; // e.g. /properties/abc-xyz123
+
     // Property-page special case: preserve the {slug-shortId} tail and
     // swap the path segment. Destination page resolves canonical for
     // the target locale.
-    const propertyMatch = pathname.match(/^\/(properties|propiedades)\/(.+)$/);
+    const propertyMatch = localeless.match(/^\/(properties|propiedades)\/(.+)$/);
     const segment = propertyMatch?.[1];
     const slugAndShortId = propertyMatch?.[2];
     if (
@@ -71,8 +87,11 @@ export function LocaleToggle({ variant = 'header' }: Props = {}) {
       return;
     }
 
-    // Default path: try typed lookup; fall back to prefix-swap; final
-    // fallback to locale home.
+    // Default path: typed-route lookup uses the next-intl pathname
+    // (which IS the typed-route template like `/dashboard` or
+    // `/saved-searches`), since getPathname() expects a typed-route key.
+    // Falls back to prefix-swap on the real browser URL, then to locale
+    // home.
     let target: string | undefined;
     try {
       target = getPathname({
@@ -83,13 +102,19 @@ export function LocaleToggle({ variant = 'header' }: Props = {}) {
     } catch {
       target = undefined;
     }
-    if (!target || typeof target !== 'string') {
-      target = `/${next}${pathname.startsWith('/') ? pathname : `/${pathname}`}`;
+    if (!target || typeof target !== 'string' || target.includes('[')) {
+      // `[` check guards against templates leaking through (e.g.
+      // `/propiedades/[slug]`); we'd rather land on the locale home
+      // than navigate to a literal placeholder URL.
+      target = `/${next}${localeless.startsWith('/') ? localeless : `/${localeless}`}`;
     }
     if (!target.startsWith(`/${next}`)) {
       target = `/${next}`;
     }
-    window.location.assign(target);
+    if (target.includes('[')) {
+      target = `/${next}`;
+    }
+    window.location.assign(target + window.location.search + window.location.hash);
   }
 
   // Variant styling. Header uses cream surface + warm-tan border + forest
