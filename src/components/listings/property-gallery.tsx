@@ -1,3 +1,8 @@
+'use client';
+
+import { useCallback, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { buildImageUrl } from '@/lib/listings/image-url';
 import {
   buildPhotoAlt,
@@ -29,34 +34,38 @@ interface Props {
 }
 
 /**
- * Property detail page gallery. Two contracts:
+ * Property detail page gallery — Client Component.
  *
- *   1. **No-crop policy** (PO 2026-05-02). Primary image preserves its
- *      original aspect ratio — `object-contain` + a subtle muted bg
- *      fills any letterbox bands when the image ratio doesn't match the
- *      container. Mobile renders the primary at natural aspect via
- *      `aspect-auto` (image dictates the height), so a tall portrait
- *      shows in full and a wide panorama shows in full — no crop in
- *      either direction. Desktop uses `object-contain` inside the grid
- *      cell so the primary stays balanced with the secondary thumbs.
+ * Three contracts (per PO directives 2026-05-02):
  *
- *   2. **SEO-rich alt + caption.** Every <img> gets an alt that
- *      combines the listing title + property-type label + transaction
- *      phrase ("for sale" / "en venta" / etc.) + city + country. The
- *      primary photo also has a visible <figcaption> ("leyenda") so the
- *      same description appears to humans, not just to screen readers
- *      and Google Image Search. See `lib/listings/photo-seo.ts`.
+ *   1. **No-crop AND no-bands.** Photos render at their exact uploaded
+ *      dimensions, framed by NOTHING. No `object-cover` (would crop), no
+ *      `object-contain` inside a fixed cell (would letterbox into the
+ *      muted background). Each image is just an `<img>` element with
+ *      `w-auto h-auto` and viewport caps; the image's intrinsic ratio
+ *      drives the layout 1:1.
  *
- * Mobile (< md): primary photo is FULL-BLEED — breaks out of the page
- *   container with `-mx-4` so it spans viewport edge-to-edge. Square
- *   corners on mobile, rounded on md+. Below the primary: figcaption +
- *   horizontal carousel of secondary thumbs (also `object-contain`,
- *   fixed-height container so the row stays consistent).
- * Desktop (md+): 4-column 2-row grid; primary spans cols 1-2 rows 1-2;
- *   four secondaries fill cols 3-4 in 2x2.
+ *   2. **Click-to-zoom lightbox.** Tap any photo → fullscreen overlay
+ *      portal'd into <body>, image centered at viewport size, prev /
+ *      next arrows + photo counter + close button. ESC + arrow keys
+ *      work too. Closing returns to the listing page in place.
  *
- * Renders a token-styled empty placeholder if there are no confirmed
- * images yet — no fake stock photos per CLAUDE.md hard rule #8.
+ *   3. **SEO-rich alt + visible caption ("leyenda").** Every <img> alt
+ *      combines title + property type + transaction phrase + city +
+ *      country. The primary photo also has a visible <figcaption>
+ *      below the gallery — the same description for human readers.
+ *      See `lib/listings/photo-seo.ts`.
+ *
+ * Layout:
+ *   Mobile (< md): primary at viewport-width, natural height; caption;
+ *     horizontal scroll-snap row of thumbs at fixed h-32, varying widths.
+ *   Desktop (md+): primary centered with max-h-[600px] cap; caption;
+ *     thumbs row at fixed h-40, varying widths, fits naturally.
+ *
+ * Why Client Component: the lightbox needs interactive state + portal.
+ * Server-rendered first paint still emits the gallery HTML (Next.js SSRs
+ * Client Components), so SEO alt text + figcaption are in the document
+ * source for crawlers exactly as before.
  */
 export function PropertyGallery({
   images,
@@ -67,8 +76,6 @@ export function PropertyGallery({
   city,
   countryDisplay,
 }: Props) {
-  // Renderable images: have either a cf_image_id (CF Images path) or an
-  // r2_key (R2 public URL fallback). Filter out rows missing both.
   const sorted = [...images]
     .filter((img) => img.cfImageId || img.r2Key)
     .sort((a, b) => {
@@ -76,6 +83,38 @@ export function PropertyGallery({
       if (b.isPrimary && !a.isPrimary) return 1;
       return a.position - b.position;
     });
+
+  const total = sorted.length;
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  // Body scroll lock + ESC + arrow keys while lightbox is open.
+  useEffect(() => {
+    if (lightboxIdx === null) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setLightboxIdx(null);
+      else if (e.key === 'ArrowRight') {
+        setLightboxIdx((i) => (i === null ? null : (i + 1) % total));
+      } else if (e.key === 'ArrowLeft') {
+        setLightboxIdx((i) => (i === null ? null : (i - 1 + total) % total));
+      }
+    }
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [lightboxIdx, total]);
+
+  const next = useCallback(() => {
+    setLightboxIdx((i) => (i === null ? null : (i + 1) % total));
+  }, [total]);
+  const prev = useCallback(() => {
+    setLightboxIdx((i) => (i === null ? null : (i - 1 + total) % total));
+  }, [total]);
 
   if (sorted.length === 0) {
     return (
@@ -95,13 +134,10 @@ export function PropertyGallery({
   }
 
   const primary = sorted[0]!;
-  const secondaries = sorted.slice(1, 5);
-  const total = sorted.length;
+  const secondaries = sorted.slice(1);
 
-  // SEO-friendly alt text for every photo. Caller-supplied alt_text_en/es
-  // (the agent's per-image override, almost never set today) takes
-  // precedence over the auto-built version; this lets a single hand-
-  // crafted caption beat the template when it exists.
+  // SEO-friendly alt text per photo. Caller-supplied alt_text override
+  // takes precedence when set.
   const altOf = (img: ImageItem, position: number): string => {
     const explicit =
       (locale === 'es' ? img.altTextEs : img.altTextEn) ??
@@ -120,8 +156,6 @@ export function PropertyGallery({
     });
   };
 
-  // Visible caption on the primary. Same SEO content but without the
-  // "Photo 2 of 8" suffix (only one shown; suffix would be visual noise).
   const primaryCaption = buildPhotoCaption({
     title,
     transactionType,
@@ -149,69 +183,215 @@ export function PropertyGallery({
     );
   }
 
+  // Pre-resolve all image URLs for the lightbox + thumb row. We use the
+  // `public` variant for the primary + lightbox; `card` variant for thumbs.
+  const allUrls = sorted
+    .map((img) =>
+      buildImageUrl({
+        cfImageId: img.cfImageId,
+        r2Key: img.r2Key,
+        variant: 'public',
+      }),
+    )
+    .filter((u): u is string => u !== null);
+
   return (
-    // Break out of the parent container's px-4 on mobile so the gallery
-    // is true edge-to-edge. md+ falls back to inside-container layout.
-    <figure className="-mx-4 md:mx-0">
-      {/* ── Primary photo ──
-          Mobile: full-bleed, natural aspect (h-auto). Image height is
-          driven by the image's intrinsic dimensions — a 16:9 panorama is
-          short and wide, a 3:4 portrait is tall and narrow. No crop, no
-          letterbox; just the image at its true ratio.
-          Desktop (md+): same image, capped at max-h-[600px] so a tall
-          portrait doesn't dominate the viewport. The container uses
-          flex centering so a too-narrow portrait sits centered with bg
-          letterbox bands; a wide landscape fills the width up to its
-          natural height. Either way: object-contain = no crop. */}
-      <div className="flex w-full justify-center bg-surface-muted dark:bg-surface-dark md:rounded-card md:overflow-hidden">
+    <>
+      {/* Break out of the parent container's px-4 on mobile so the
+          gallery is true edge-to-edge. md+ stays inside container. */}
+      <figure className="-mx-4 md:mx-0">
+        {/* Primary photo — clickable to open lightbox. No surrounding
+            cell / bg / letterbox. Image renders at its uploaded ratio. */}
+        <button
+          type="button"
+          onClick={() => setLightboxIdx(0)}
+          aria-label={locale === 'es' ? 'Ampliar foto' : 'Open photo'}
+          className="block w-full md:flex md:justify-center"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={primaryUrl}
+            alt={altOf(primary, 1)}
+            className="block h-auto w-full max-w-full cursor-zoom-in md:h-auto md:w-auto md:max-h-[600px] md:rounded-card"
+            loading="eager"
+            decoding="async"
+          />
+        </button>
+
+        <figcaption className="px-4 py-2 text-xs leading-relaxed text-helper md:mt-3 md:px-0 md:text-sm">
+          {primaryCaption}
+        </figcaption>
+
+        {/* Thumbnail row — fixed height, varying width per image's
+            natural ratio. Horizontal scroll on mobile (snap), fits
+            naturally on desktop. */}
+        {secondaries.length > 0 && (
+          <div className="mt-2 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 pb-2 md:mt-3 md:px-0 md:pb-0">
+            {secondaries.map((img, idx) => {
+              const url = buildImageUrl({
+                cfImageId: img.cfImageId,
+                r2Key: img.r2Key,
+                variant: 'card',
+              });
+              if (!url) return null;
+              const realIndex = idx + 1; // 0 is primary
+              return (
+                <button
+                  key={img.cfImageId ?? img.r2Key}
+                  type="button"
+                  onClick={() => setLightboxIdx(realIndex)}
+                  aria-label={
+                    locale === 'es' ? 'Ampliar foto' : 'Open photo'
+                  }
+                  className="shrink-0 snap-start"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={url}
+                    alt={altOf(img, realIndex + 1)}
+                    className="block h-32 w-auto cursor-zoom-in rounded-card md:h-40"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </figure>
+
+      {/* Lightbox overlay — portal'd into <body> to escape any parent
+          containing block. Same pattern as the mobile menu fix. */}
+      {mounted &&
+        lightboxIdx !== null &&
+        createPortal(
+          <Lightbox
+            urls={allUrls}
+            index={lightboxIdx}
+            altOf={(idx) => altOf(sorted[idx]!, idx + 1)}
+            caption={primaryCaption}
+            locale={locale}
+            onClose={() => setLightboxIdx(null)}
+            onPrev={prev}
+            onNext={next}
+          />,
+          document.body,
+        )}
+    </>
+  );
+}
+
+interface LightboxProps {
+  urls: string[];
+  index: number;
+  altOf: (idx: number) => string;
+  caption: string;
+  locale: Locale;
+  onClose: () => void;
+  onPrev: () => void;
+  onNext: () => void;
+}
+
+function Lightbox({
+  urls,
+  index,
+  altOf,
+  caption,
+  locale,
+  onClose,
+  onPrev,
+  onNext,
+}: LightboxProps) {
+  const total = urls.length;
+  const url = urls[index];
+  if (!url) return null;
+  const counterLabel =
+    locale === 'es'
+      ? `Foto ${index + 1} de ${total}`
+      : `Photo ${index + 1} of ${total}`;
+  const closeLabel = locale === 'es' ? 'Volver al anuncio' : 'Back to listing';
+  const prevLabel = locale === 'es' ? 'Anterior' : 'Previous';
+  const nextLabel = locale === 'es' ? 'Siguiente' : 'Next';
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={closeLabel}
+      onClick={onClose}
+      className="fixed inset-0 z-[70] flex flex-col bg-black/95 text-white"
+    >
+      {/* Top bar: counter + close. */}
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="flex shrink-0 items-center justify-between border-b border-white/10 px-4 py-3 md:px-6"
+      >
+        <span className="text-sm font-medium tabular-nums text-white/80">
+          {counterLabel}
+        </span>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={closeLabel}
+          className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium transition hover:bg-white/20 active:scale-95"
+        >
+          <X aria-hidden="true" className="h-4 w-4" strokeWidth={2.25} />
+          <span>{closeLabel}</span>
+        </button>
+      </div>
+
+      {/* Image canvas — flex-1 fills remaining height; image is
+          max-h-full max-w-full so it scales to fit the viewport without
+          ever cropping. Click on the image area (not the image itself)
+          falls through to the overlay's onClick → closes. */}
+      <div className="relative flex flex-1 items-center justify-center overflow-hidden p-4 md:p-8">
+        {/* Prev button — left edge, vertically centered. */}
+        {total > 1 && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onPrev();
+            }}
+            aria-label={prevLabel}
+            className="absolute left-2 top-1/2 z-[1] inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 active:scale-95 md:left-4 md:h-14 md:w-14"
+          >
+            <ChevronLeft aria-hidden="true" className="h-6 w-6" strokeWidth={2.25} />
+          </button>
+        )}
+
+        {/* Next button — right edge. */}
+        {total > 1 && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onNext();
+            }}
+            aria-label={nextLabel}
+            className="absolute right-2 top-1/2 z-[1] inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 active:scale-95 md:right-4 md:h-14 md:w-14"
+          >
+            <ChevronRight aria-hidden="true" className="h-6 w-6" strokeWidth={2.25} />
+          </button>
+        )}
+
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={primaryUrl}
-          alt={altOf(primary, 1)}
-          className="block h-auto max-h-[80vh] w-auto max-w-full md:max-h-[600px]"
-          loading="eager"
+          src={url}
+          alt={altOf(index)}
+          onClick={(e) => e.stopPropagation()}
+          className="block max-h-full max-w-full select-none"
           decoding="async"
         />
       </div>
 
-      <figcaption className="px-4 py-2 text-xs leading-relaxed text-helper md:mt-3 md:px-0 md:text-sm">
-        {primaryCaption}
-      </figcaption>
-
-      {/* ── Secondary thumbs ──
-          Single horizontal row on every breakpoint. Mobile snap-scrolls;
-          desktop fits 4 evenly. Each thumb cell is a fixed-height box
-          (h-32 mobile, h-40 desktop) — gives the row a consistent visual
-          rhythm — but the image inside uses object-contain so the WHOLE
-          photo is visible (with subtle bg letterbox if its natural ratio
-          differs from the cell). */}
-      {secondaries.length > 0 && (
-        <div className="mt-2 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 pb-2 md:mt-3 md:grid md:grid-cols-4 md:overflow-x-visible md:px-0 md:pb-0">
-          {secondaries.map((img, idx) => {
-            const url = buildImageUrl({
-              cfImageId: img.cfImageId,
-              r2Key: img.r2Key,
-              variant: 'card',
-            });
-            if (!url) return null;
-            return (
-              <div
-                key={img.cfImageId ?? img.r2Key}
-                className="flex h-32 shrink-0 basis-[60%] snap-start items-center justify-center overflow-hidden rounded-card bg-surface-muted sm:basis-[45%] md:h-40 md:basis-auto dark:bg-surface-dark"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={url}
-                  alt={altOf(img, idx + 2)}
-                  className="block max-h-full max-w-full"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </figure>
+      {/* Bottom caption — same SEO description, smaller in lightbox. */}
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="shrink-0 border-t border-white/10 px-4 py-3 text-center text-xs leading-relaxed text-white/70 md:px-6 md:text-sm"
+      >
+        {caption}
+      </div>
+    </div>
   );
 }
