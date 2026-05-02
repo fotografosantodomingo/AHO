@@ -260,7 +260,11 @@ export default async function PropertyDetailPage({
           <PropertyGallery
             images={property.images}
             locale={typedLocale}
-            fallbackAlt={title}
+            title={title}
+            transactionType={property.transactionType}
+            propertyType={property.propertyType}
+            city={property.city}
+            countryDisplay={getCountryName(property.countryCode, typedLocale)}
           />
         </TrackGalleryOpen>
 

@@ -1,4 +1,9 @@
 import { buildImageUrl } from '@/lib/listings/image-url';
+import {
+  buildPhotoAlt,
+  buildPhotoCaption,
+  type TransactionType,
+} from '@/lib/listings/photo-seo';
 import type { Locale } from '@/i18n/config';
 
 interface ImageItem {
@@ -13,32 +18,55 @@ interface ImageItem {
 interface Props {
   images: ImageItem[];
   locale: Locale;
-  fallbackAlt: string;
+  /** Listing title in the active locale (page already resolves with EN→ES fallback). */
+  title: string;
+  /** Used by the SEO alt-text builder + figcaption. */
+  transactionType: TransactionType;
+  propertyType: string;
+  city: string;
+  /** Localized country name from `getCountryName(countryCode, locale)`. */
+  countryDisplay: string;
 }
 
 /**
- * Property detail page hero gallery.
+ * Property detail page gallery. Two contracts:
+ *
+ *   1. **No-crop policy** (PO 2026-05-02). Primary image preserves its
+ *      original aspect ratio — `object-contain` + a subtle muted bg
+ *      fills any letterbox bands when the image ratio doesn't match the
+ *      container. Mobile renders the primary at natural aspect via
+ *      `aspect-auto` (image dictates the height), so a tall portrait
+ *      shows in full and a wide panorama shows in full — no crop in
+ *      either direction. Desktop uses `object-contain` inside the grid
+ *      cell so the primary stays balanced with the secondary thumbs.
+ *
+ *   2. **SEO-rich alt + caption.** Every <img> gets an alt that
+ *      combines the listing title + property-type label + transaction
+ *      phrase ("for sale" / "en venta" / etc.) + city + country. The
+ *      primary photo also has a visible <figcaption> ("leyenda") so the
+ *      same description appears to humans, not just to screen readers
+ *      and Google Image Search. See `lib/listings/photo-seo.ts`.
  *
  * Mobile (< md): primary photo is FULL-BLEED — breaks out of the page
  *   container with `-mx-4` so it spans viewport edge-to-edge. Square
- *   corners on mobile (no rounded-card; would clash with the viewport
- *   edge), rounded on md+. Aspect 4:3. Secondary thumbs are a horizontal
- *   carousel below, also breaking out of the container.
- * Desktop (md+): 4-column grid with `gap-2` + `rounded-card` corners;
- *   primary spans cols 1-2 rows 1-2, up to four secondary thumbs fill
- *   cols 3-4 in a 2x2.
- *
- * Why full-bleed on mobile: a property's photos are the single most
- * persuasive piece of content on the page; constraining them inside the
- * 16px page padding wastes ~5% of horizontal real estate on small screens
- * and crops the image visibly. PO directive 2026-05-01.
+ *   corners on mobile, rounded on md+. Below the primary: figcaption +
+ *   horizontal carousel of secondary thumbs (also `object-contain`,
+ *   fixed-height container so the row stays consistent).
+ * Desktop (md+): 4-column 2-row grid; primary spans cols 1-2 rows 1-2;
+ *   four secondaries fill cols 3-4 in 2x2.
  *
  * Renders a token-styled empty placeholder if there are no confirmed
- * images yet (early days; no Cloudflare Images uploaded). No fake stock
- * photos per CLAUDE.md hard rule #8 — the empty state reads as honest
- * emptiness.
+ * images yet — no fake stock photos per CLAUDE.md hard rule #8.
  */
-export function PropertyGallery({ images, locale, fallbackAlt }: Props) {
+export function PropertyGallery({
+  images,
+  locale,
+  title,
+  transactionType,
+  propertyType,
+  city,
+  countryDisplay,
+}: Props) {
   // Renderable images: have either a cf_image_id (CF Images path) or an
   // r2_key (R2 public URL fallback). Filter out rows missing both.
   const sorted = [...images]
@@ -68,12 +96,40 @@ export function PropertyGallery({ images, locale, fallbackAlt }: Props) {
 
   const primary = sorted[0]!;
   const secondaries = sorted.slice(1, 5);
+  const total = sorted.length;
 
-  const altOf = (img: ImageItem) =>
-    (locale === 'es' ? img.altTextEs : img.altTextEn) ??
-    img.altTextEn ??
-    img.altTextEs ??
-    fallbackAlt;
+  // SEO-friendly alt text for every photo. Caller-supplied alt_text_en/es
+  // (the agent's per-image override, almost never set today) takes
+  // precedence over the auto-built version; this lets a single hand-
+  // crafted caption beat the template when it exists.
+  const altOf = (img: ImageItem, position: number): string => {
+    const explicit =
+      (locale === 'es' ? img.altTextEs : img.altTextEn) ??
+      img.altTextEn ??
+      img.altTextEs;
+    if (explicit && explicit.trim().length > 0) return explicit;
+    return buildPhotoAlt({
+      title,
+      transactionType,
+      propertyType,
+      city,
+      countryDisplay,
+      position,
+      total,
+      locale,
+    });
+  };
+
+  // Visible caption on the primary. Same SEO content but without the
+  // "Photo 2 of 8" suffix (only one shown; suffix would be visual noise).
+  const primaryCaption = buildPhotoCaption({
+    title,
+    transactionType,
+    propertyType,
+    city,
+    countryDisplay,
+    locale,
+  });
 
   const primaryUrl = buildImageUrl({
     cfImageId: primary.cfImageId,
@@ -95,29 +151,27 @@ export function PropertyGallery({ images, locale, fallbackAlt }: Props) {
 
   return (
     // Break out of the parent container's px-4 on mobile so the gallery
-    // is true edge-to-edge. md+ falls back to inside-container layout
-    // (page already has its own max-width + padding rules at md+).
+    // is true edge-to-edge. md+ falls back to inside-container layout.
     <div className="-mx-4 md:mx-0">
-      <div className="grid grid-cols-1 gap-2 md:grid-cols-4 md:grid-rows-2">
-        {/* Primary photo */}
-        <div className="overflow-hidden md:col-span-2 md:row-span-2 md:rounded-card">
-          <div className="aspect-[4/3] w-full md:h-full">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={primaryUrl}
-              alt={altOf(primary)}
-              className="h-full w-full object-cover"
-              loading="eager"
-              decoding="async"
-            />
-          </div>
+      {/* ── Mobile (< md): single primary at natural ratio + carousel ── */}
+      <figure className="md:hidden">
+        <div className="bg-surface-muted dark:bg-surface-dark">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={primaryUrl}
+            alt={altOf(primary, 1)}
+            className="block h-auto w-full"
+            loading="eager"
+            decoding="async"
+          />
         </div>
+        <figcaption className="px-4 py-2 text-xs leading-relaxed text-helper">
+          {primaryCaption}
+        </figcaption>
 
-        {/* Secondary thumbs — horizontal carousel on mobile (snap-on-x for
-            iOS-feel scrolling), grid contents on md+. */}
         {secondaries.length > 0 && (
-          <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 md:contents md:overflow-x-visible md:px-0">
-            {secondaries.map((img) => {
+          <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 pb-2">
+            {secondaries.map((img, idx) => {
               const url = buildImageUrl({
                 cfImageId: img.cfImageId,
                 r2Key: img.r2Key,
@@ -127,13 +181,13 @@ export function PropertyGallery({ images, locale, fallbackAlt }: Props) {
               return (
                 <div
                   key={img.cfImageId ?? img.r2Key}
-                  className="aspect-[4/3] shrink-0 basis-[80%] snap-start overflow-hidden rounded-card sm:basis-[60%] md:aspect-auto md:basis-auto md:snap-align-none"
+                  className="flex h-40 shrink-0 basis-[80%] snap-start items-center justify-center overflow-hidden rounded-card bg-surface-muted sm:basis-[60%] dark:bg-surface-dark"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={url}
-                    alt={altOf(img)}
-                    className="h-full w-full object-cover"
+                    alt={altOf(img, idx + 2)}
+                    className="block h-full w-auto max-w-full object-contain"
                     loading="lazy"
                     decoding="async"
                   />
@@ -142,7 +196,50 @@ export function PropertyGallery({ images, locale, fallbackAlt }: Props) {
             })}
           </div>
         )}
-      </div>
+      </figure>
+
+      {/* ── Desktop (md+): 2x2 grid with primary spanning + thumbs ── */}
+      <figure className="hidden md:block">
+        <div className="grid grid-cols-4 grid-rows-2 gap-2">
+          <div className="flex items-center justify-center overflow-hidden rounded-card bg-surface-muted col-span-2 row-span-2 dark:bg-surface-dark">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={primaryUrl}
+              alt={altOf(primary, 1)}
+              className="block h-full w-full object-contain"
+              loading="eager"
+              decoding="async"
+            />
+          </div>
+
+          {secondaries.map((img, idx) => {
+            const url = buildImageUrl({
+              cfImageId: img.cfImageId,
+              r2Key: img.r2Key,
+              variant: 'card',
+            });
+            if (!url) return null;
+            return (
+              <div
+                key={img.cfImageId ?? img.r2Key}
+                className="flex items-center justify-center overflow-hidden rounded-card bg-surface-muted dark:bg-surface-dark"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={url}
+                  alt={altOf(img, idx + 2)}
+                  className="block h-full w-full object-contain"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            );
+          })}
+        </div>
+        <figcaption className="mt-3 text-sm leading-relaxed text-helper">
+          {primaryCaption}
+        </figcaption>
+      </figure>
     </div>
   );
 }
