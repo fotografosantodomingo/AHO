@@ -15,6 +15,13 @@ const FormSchema = z.object({
   email: z.string().trim().email({ message: 'emailInvalid' }).max(200),
   phone: z.string().trim().max(40).optional().or(z.literal('')),
   message: z.string().trim().min(1, { message: 'messageRequired' }).max(4000),
+  /**
+   * Honeypot. A hidden field with the common-bait name `website` —
+   * real users never see or fill it; most spam bots auto-fill every
+   * field they discover. Server enforces empty-string-or-omitted via
+   * `LeadCreateSchema.website` (max(0) rejection).
+   */
+  website: z.string().optional(),
 });
 type FormValues = z.infer<typeof FormSchema>;
 
@@ -54,6 +61,10 @@ export function ContactForm({ propertyId }: ContactFormProps) {
         contact_phone: values.phone || undefined,
         message: values.message,
         language: locale,
+        // Honeypot — real users always send empty string; bots that
+        // auto-fill every field will get rejected server-side via the
+        // schema's `website: max(0)` rule.
+        website: values.website ?? '',
       }),
     });
     if (!res.ok) {
@@ -82,6 +93,25 @@ export function ContactForm({ propertyId }: ContactFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" noValidate>
+      {/* Honeypot. Hidden from real users via `aria-hidden` + the
+          `sr-only`-equivalent positioning + `tabindex={-1}` so it's
+          unreachable via Tab. Spam bots that scrape the DOM and fill
+          every input get caught — server schema rejects any non-empty
+          value as 400. Field name `website` is a common bait, well-
+          worn enough that bots specifically target it. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-[-9999px] top-[-9999px] h-0 w-0 overflow-hidden opacity-0"
+      >
+        <label htmlFor="contact-website">Website</label>
+        <input
+          id="contact-website"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          {...register('website')}
+        />
+      </div>
       <div>
         <label htmlFor="contact-name" className="block text-sm font-medium">
           {t('name')}

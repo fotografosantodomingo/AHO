@@ -19,6 +19,20 @@ export const LeadCreateSchema = z
     contact_phone: z.string().trim().max(40).optional(),
     message: z.string().trim().max(4000).optional(),
     language: z.enum(['en', 'es']).optional(),
+    /**
+     * Honeypot field — the contact form renders a hidden input named
+     * `website` outside the visible flow. Real users never see it; most
+     * bots auto-fill every field they find. If anything other than an
+     * empty string lands here, reject the submission.
+     *
+     * `.optional()` so the legitimate WhatsApp / phone-click paths
+     * (which post directly without rendering the form) don't break.
+     * The visible contact form always sends `website: ''`.
+     */
+    website: z
+      .string()
+      .max(0, { message: 'honeypot_filled' })
+      .optional(),
   })
   .superRefine((v, ctx) => {
     if (v.source === 'form') {
