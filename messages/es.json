@@ -829,7 +829,8 @@
       "emailRequired": "Proporciona un correo válido para que el agente pueda responder.",
       "emailInvalid": "Ingresa un correo electrónico válido.",
       "messageRequired": "Un mensaje breve ayuda al agente a responder.",
-      "send_failed": "No pudimos enviar tu mensaje. Inténtalo de nuevo o usa WhatsApp."
+      "send_failed": "No pudimos enviar tu mensaje. Inténtalo de nuevo o usa WhatsApp.",
+      "rate_limited": "Has enviado varios mensajes ya. Espera un poco antes de enviar otro, o contacta al agente por WhatsApp."
     }
   },
   "auth": {

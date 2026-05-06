@@ -9,6 +9,7 @@ import { recordPropertyEvent } from '@/lib/listings/events';
 import { ANON_COOKIE_NAME } from '@/lib/listings/recent-views';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { verifyTurnstileToken } from '@/lib/auth/turnstile-verify';
+import { checkRateLimit, LEAD_FORM_RATE_LIMIT } from '@/lib/rate-limit/kv';
 
 export const runtime = 'edge';
 
@@ -36,7 +37,12 @@ export const runtime = 'edge';
  *      (whatsapp_click, phone_click, email_click) are NOT spammable form
  *      submissions and bypass the captcha — they're outbound-click
  *      analytics events.
- *   3. KV-backed per-IP rate limit (10/hour) — TODO; needs KV namespace.
+ *   3. KV-backed per-IP rate limit — 10 form submits per hour per client
+ *      IP (`cf-connecting-ip`). Implemented in `src/lib/rate-limit/kv.ts`;
+ *      degrades open in environments without the KV binding (tests,
+ *      local). Same source-gating as Turnstile: only `form` is limited.
+ *      Tracking-click sources don't bottleneck the dialer pattern of a
+ *      legitimate buyer pinging multiple listings.
  */
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
@@ -49,14 +55,28 @@ export async function POST(req: NextRequest) {
   }
   const data = parsed.data;
 
-  // Captcha gate — only on the spammable form source. Tracking clicks
-  // (whatsapp/phone/email) skip; they post no user content, just record
-  // a click event.
+  // Captcha + rate-limit gate — only on the spammable form source.
+  // Tracking clicks (whatsapp/phone/email) skip; they post no user
+  // content, just record a click event.
   if (data.source === 'form') {
     const remoteIp =
       req.headers.get('cf-connecting-ip') ??
       req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
       null;
+
+    // Rate limit before Turnstile verify — saves a siteverify call when
+    // the IP is already past its quota.
+    const rl = await checkRateLimit(remoteIp ?? 'unknown', LEAD_FORM_RATE_LIMIT);
+    if (!rl.allowed && !('skipped' in rl)) {
+      return NextResponse.json(
+        { error: 'rate_limited' },
+        {
+          status: 429,
+          headers: { 'retry-after': String(rl.retryAfterSeconds) },
+        },
+      );
+    }
+
     const verify = await verifyTurnstileToken(data.captcha_token, remoteIp);
     if ('valid' in verify && !verify.valid) {
       return NextResponse.json(

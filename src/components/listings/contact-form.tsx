@@ -85,7 +85,10 @@ export function ContactForm({ propertyId }: ContactFormProps) {
       }),
     });
     if (!res.ok) {
-      setServerError('send_failed');
+      // 429 = KV rate limiter; surface honestly so the user knows it's
+      // not a glitch — a generic "send_failed" looks broken when the
+      // real signal is "you're sending too fast, slow down."
+      setServerError(res.status === 429 ? 'rate_limited' : 'send_failed');
       // Reset widget so a retry gets a fresh token (Turnstile tokens
       // are one-shot — same fix as the auth forms in commit 604738a).
       setCaptchaToken(null);
@@ -173,7 +176,9 @@ export function ContactForm({ propertyId }: ContactFormProps) {
       />
       {serverError && (
         <div role="alert" className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-950/30 dark:text-red-200">
-          {t(`errors.${serverError}` as 'errors.send_failed')}
+          {t(
+            `errors.${serverError}` as 'errors.send_failed' | 'errors.rate_limited',
+          )}
         </div>
       )}
       <button

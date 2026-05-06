@@ -12,6 +12,17 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-06 — Lead form anti-abuse complete: KV rate limit + Turnstile diagnostic
+- **What shipped:**
+  - **KV-backed per-IP rate limit on `/api/leads`** (10 form submits / hour). Created the `aho_rate_limit` namespace (id `2df4492330a443cc8d43a21a53c8fff7`), bound it via `wrangler.toml`, and wrote `src/lib/rate-limit/kv.ts` — a fixed-window counter that uses KV TTL for cleanup, ctx.waitUntil for guaranteed flush of the increment, and degrades open in non-CF envs (tests, local). Wired into `src/app/api/leads/route.ts` ahead of the Turnstile siteverify (saves a CF call when the IP is past quota). Added 7 unit tests covering allow/block/window-rollover/per-namespace/per-identifier isolation/skip-when-no-binding/waitUntil-when-available — all pass.
+  - **429 surfaced honestly in the contact form.** Added EN/ES `errors.rate_limited` strings; contact form now distinguishes 429 from generic `send_failed` so users know it's a quota, not a glitch. Closes the lead form's third anti-abuse layer (honeypot + Turnstile + rate limit — comments updated in the route doc-block).
+  - **Turnstile widget surfaces error codes.** Earlier in session, while debugging a "Bot challenge failed" report from PO, found the widget was discarding the error code Turnstile passes to `error-callback`. Now the message shows `(<code>)` and console.warns it, so future failures can be diagnosed without dev intervention. (PO's actual issue: Phantom wallet's `inpage.js` injecting into the Turnstile iframe, throwing inside the challenge → `600010`. Confirmed client-side; no code fix needed beyond the diagnostic.)
+- **What changed since last session:** Same calendar day; this entry succeeds the mid-session continuation.
+- **Blockers / open questions:** None new. PO-action-blocked items unchanged: custom-domain DNS, soft-beta agent recruitment, 21st.dev key rotation. RLS tests still need `.env.local` sourcing to run locally (pre-existing); `billing-founder-window.test.ts` has a date-drift bug (test asserts window-closed at `2024-01-01`, today is `2026-05-06`, but `process.env` set inside the test apparently leaks/caches — pre-existing, not from this session).
+- **Next session should start with:** Pick the next slice-3 polish item. Top candidates: (a) saved-search email-alert worker (CF cron + diff against last_notified_at + Brevo notify) — biggest user-facing value but ~3 hr lift; (b) Stripe webhook fixture-state harness for the 5 deferred replay cases — pre-live confidence; (c) live-bbox map polish (loading skeletons already in, list-view sync to bbox still pending). Recommend (a) first since saved-searches are user-visible and currently inert beyond storage.
+
+---
+
 ## 2026-05-01 — Fixture leak removed from prod + RLS-test deny-list tightened + admin hard-delete
 
 PO reported `https://advertisehomes.online/en/properties/aho-fixture-active-listing-santo-domingo-fixaa1` was rendering as a real property and they couldn't delete it from /admin. Three things fixed.

@@ -831,7 +831,8 @@
       "emailRequired": "Please provide a valid email so the agent can reply.",
       "emailInvalid": "Enter a valid email address.",
       "messageRequired": "A short message helps the agent respond.",
-      "send_failed": "Couldn't send your message. Please try again or use WhatsApp."
+      "send_failed": "Couldn't send your message. Please try again or use WhatsApp.",
+      "rate_limited": "You've sent several messages already. Please wait a bit before sending another, or contact the agent on WhatsApp."
     }
   },
   "auth": {

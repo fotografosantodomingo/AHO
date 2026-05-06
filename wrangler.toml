@@ -11,3 +11,10 @@ pages_build_output_dir = ".vercel/output/static"
 # Edge runtime needs for our deps (Stripe SDK, Supabase JS, Resend, AWS SDK
 # v3 for R2 presigning). Without it, `Buffer`, `process.nextTick`, and a
 # handful of other globals would be missing at runtime.
+
+# KV bindings — accessed via getOptionalRequestContext() from
+# @cloudflare/next-on-pages. Absent in non-CF environments (tests/local),
+# which is why the rate-limit helper degrades gracefully.
+[[kv_namespaces]]
+binding = "aho_rate_limit"
+id = "2df4492330a443cc8d43a21a53c8fff7"
