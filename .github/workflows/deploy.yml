@@ -55,6 +55,20 @@ jobs:
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
           NEXT_PUBLIC_R2_PUBLIC_URL: ${{ secrets.NEXT_PUBLIC_R2_PUBLIC_URL }}
 
+      # Trim non-runtime build artifacts before wrangler uploads. The
+      # `nop-build-log.json` is ~1.6 MiB of next-on-pages diagnostic
+      # JSON that gets emitted into `_worker.js/` but isn't read by the
+      # runtime — Cloudflare's Worker size-limit (3 MiB compressed on
+      # the free tier) counts everything in the worker dir, so dropping
+      # this file alone can swing several hundred KiB compressed.
+      # Logged 2026-05-06 after the cbe6ec6 deploy failed with
+      # "Your Worker exceeded the size limit of 3 MiB".
+      - name: Trim non-runtime build artifacts
+        run: |
+          rm -f .vercel/output/static/_worker.js/nop-build-log.json
+          echo "Trimmed worker bundle:"
+          du -sh .vercel/output/static/_worker.js || true
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
