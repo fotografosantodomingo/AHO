@@ -38,7 +38,7 @@ declare global {
         options: {
           sitekey: string;
           callback?: (token: string) => void;
-          'error-callback'?: () => void;
+          'error-callback'?: (code?: string) => void;
           'expired-callback'?: () => void;
           theme?: 'light' | 'dark' | 'auto';
           size?: 'normal' | 'compact' | 'invisible';
@@ -139,8 +139,13 @@ export const TurnstileWidget = forwardRef<
         widgetIdRef.current = window.turnstile.render(containerRef.current, {
           sitekey: siteKey,
           callback: onToken,
-          'error-callback': () => {
-            setError('challenge_failed');
+          'error-callback': (code) => {
+            // Turnstile passes an error code string (e.g. '110200' = domain
+            // not allowed, '300xxx' = challenge failed, '600010' = bad
+            // sitekey). Log + surface so we can actually diagnose vs. a
+            // generic "try again".
+            console.warn('[turnstile] error-callback', code);
+            setError(code || 'challenge_failed');
             onError?.();
           },
           'expired-callback': onExpire,
@@ -173,7 +178,7 @@ export const TurnstileWidget = forwardRef<
         <p role="alert" className="mt-1 text-xs text-red-600">
           {error === 'challenge_load_failed'
             ? 'Could not load the bot-challenge. Try refreshing.'
-            : 'Bot challenge failed. Try again.'}
+            : `Bot challenge failed (${error}). Try again.`}
         </p>
       )}
     </div>
