@@ -1008,6 +1008,16 @@
     "visitor": {
       "auth": "registrado",
       "anon": "visitante"
+    },
+    "drilldown": {
+      "backToAll": "← Todos los anuncios",
+      "headingPrefix": "Rendimiento —",
+      "notFoundHeading": "Anuncio no encontrado",
+      "notFoundBody": "Este anuncio puede haber sido eliminado, archivado, o no tienes acceso a él.",
+      "viewPublic": "Ver anuncio público",
+      "viewListingActivityHeading": "Toda la actividad de este anuncio",
+      "noActivity": "Aún no hay actividad registrada.",
+      "noActivityHint": "Cuando los visitantes vean, guarden o contacten sobre este anuncio, verás cada evento aquí."
     }
   }
 }

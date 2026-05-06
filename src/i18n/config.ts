@@ -82,6 +82,10 @@ export const PATHNAMES = {
     en: '/dashboard/analytics',
     es: '/panel/estadisticas',
   },
+  '/dashboard/analytics/[id]': {
+    en: '/dashboard/analytics/[id]',
+    es: '/panel/estadisticas/[id]',
+  },
   '/dashboard/social': {
     en: '/dashboard/social',
     es: '/panel/social',

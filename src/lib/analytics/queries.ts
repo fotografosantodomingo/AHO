@@ -138,6 +138,42 @@ export async function getOrgAnalytics(
   return aggregateOrgEvents((data ?? []) as Row[]);
 }
 
+/**
+ * Same shape as `getOrgAnalytics` but scoped to a single property. Used
+ * by `/dashboard/analytics/[id]` (the per-listing drill-down page).
+ *
+ * RLS gating: the user-context client + `property_events_org_select`
+ * policy already restricts events to the agent's own org. Adding
+ * `property_id` as a filter narrows the rows further; if the agent
+ * passes a property_id they can't see (different org), the query
+ * returns zero rows and the page renders an empty state.
+ */
+export async function getPropertyAnalytics(
+  supabase: SupabaseClient,
+  propertyId: string,
+  since: Date,
+): Promise<OrgAnalyticsSummary> {
+  const { data, error } = await supabase
+    .from('property_events')
+    .select('event_type, user_id, anonymous_id')
+    .eq('property_id', propertyId)
+    .gte('created_at', since.toISOString())
+    .limit(50000);
+  if (error) {
+    console.warn('[analytics] property summary fetch failed', error);
+    return {
+      total: 0,
+      byType: {},
+      uniqueVisitors: 0,
+      viewingVisitors: 0,
+      leadingVisitors: 0,
+      conversionRate: null,
+    };
+  }
+  type Row = { event_type: string; user_id: string | null; anonymous_id: string | null };
+  return aggregateOrgEvents((data ?? []) as Row[]);
+}
+
 export interface TopListingRow {
   propertyId: string;
   shortId: string;
@@ -296,6 +332,66 @@ export interface ActivityRow {
   source: string | null;
   visitorType: 'auth' | 'anon';
   createdAt: string;
+}
+
+/**
+ * Most-recent N events for a single property, with title joined.
+ * Powers the activity feed on `/dashboard/analytics/[id]`.
+ */
+export async function getPropertyRecentActivity(
+  supabase: SupabaseClient,
+  propertyId: string,
+  locale: 'en' | 'es',
+  limit = 50,
+): Promise<ActivityRow[]> {
+  const { data, error } = await supabase
+    .from('property_events')
+    .select(
+      `
+      id, property_id, event_type, source, user_id, anonymous_id, created_at,
+      property:properties!inner ( id, short_id, title_en, title_es )
+      `,
+    )
+    .eq('property_id', propertyId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) {
+    console.warn('[analytics] property activity fetch failed', error);
+    return [];
+  }
+  type Row = {
+    id: string;
+    property_id: string;
+    event_type: string;
+    source: string | null;
+    user_id: string | null;
+    anonymous_id: string | null;
+    created_at: string;
+    property: {
+      id: string;
+      short_id: string;
+      title_en: string | null;
+      title_es: string | null;
+    } | null;
+  };
+  const rows = (data ?? []) as unknown as Row[];
+  return rows
+    .filter((r) => !!r.property)
+    .map((r): ActivityRow => {
+      const p = r.property!;
+      const title =
+        (locale === 'es' ? p.title_es : p.title_en) ?? p.title_en ?? p.title_es ?? '—';
+      return {
+        id: r.id,
+        propertyId: r.property_id,
+        propertyTitle: title,
+        shortId: p.short_id,
+        eventType: r.event_type as PropertyEventType,
+        source: r.source,
+        visitorType: r.user_id ? 'auth' : 'anon',
+        createdAt: r.created_at,
+      };
+    });
 }
 
 /**

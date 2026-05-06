@@ -1010,6 +1010,16 @@
     "visitor": {
       "auth": "signed-in",
       "anon": "visitor"
+    },
+    "drilldown": {
+      "backToAll": "← All listings",
+      "headingPrefix": "Performance —",
+      "notFoundHeading": "Listing not found",
+      "notFoundBody": "This listing may have been deleted, archived, or you don't have access to it.",
+      "viewPublic": "View public listing",
+      "viewListingActivityHeading": "All activity for this listing",
+      "noActivity": "No activity recorded yet.",
+      "noActivityHint": "When visitors view, save, or contact about this listing, you'll see each event here."
     }
   }
 }

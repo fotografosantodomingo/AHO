@@ -8,6 +8,7 @@ import {
   getTopListingsByEngagement,
 } from '@/lib/analytics/queries';
 import { EmptyState } from '@/components/ui/empty-state';
+import { StatTile, formatRelativeTime } from '@/components/analytics/stat-tile';
 import Link from 'next/link';
 
 export const runtime = 'edge';
@@ -165,18 +166,27 @@ export default async function AnalyticsPage({
                   </thead>
                   <tbody className="divide-y divide-border/60">
                     {topListings.map((row) => {
-                      // Per-VISITOR conversion rate (one visitor with N views
-                      // and M leads = M ≥ 1 → counts once toward the
-                      // numerator). Was raw `leads / views` which under-
-                      // reported actual conversion. Bug fixed 2026-05-06.
                       const conv = row.conversionRate;
+                      const drillSegment =
+                        typedLocale === 'es'
+                          ? 'panel/estadisticas'
+                          : 'dashboard/analytics';
+                      const drillHref = `/${typedLocale}/${drillSegment}/${row.propertyId}`;
                       return (
-                        <tr key={row.propertyId}>
+                        <tr
+                          key={row.propertyId}
+                          className="transition hover:bg-surface-warm/40 dark:hover:bg-surface-dark/40"
+                        >
                           <td className="max-w-[240px] truncate px-3 py-2 font-medium">
-                            {row.title}
-                            <span className="ml-2 text-xs text-helper">
-                              {row.shortId}
-                            </span>
+                            <Link
+                              href={drillHref}
+                              className="hover:text-action dark:hover:text-action-dark"
+                            >
+                              {row.title}
+                              <span className="ml-2 text-xs text-helper">
+                                {row.shortId}
+                              </span>
+                            </Link>
                           </td>
                           <td className="hidden px-3 py-2 text-helper md:table-cell">
                             {row.city}
@@ -241,56 +251,4 @@ export default async function AnalyticsPage({
       )}
     </main>
   );
-}
-
-function StatTile({
-  label,
-  primary,
-  secondary,
-  secondaryLabel,
-}: {
-  label: string;
-  primary: number | string;
-  secondary: number | string | null;
-  secondaryLabel: string;
-}) {
-  return (
-    <div className="rounded-card border border-border bg-surface p-4 shadow-whisper">
-      <p className="text-xs font-medium uppercase tracking-wider text-helper">
-        {label}
-      </p>
-      <p className="mt-1 font-brand text-2xl font-semibold tracking-tight tabular-nums md:text-[28px]">
-        {primary}
-      </p>
-      {secondary != null && (
-        <p className="mt-1 text-xs text-helper">
-          {secondary} <span className="text-helper/70">{secondaryLabel}</span>
-        </p>
-      )}
-      {secondary == null && (
-        <p className="mt-1 text-xs text-helper">{secondaryLabel}</p>
-      )}
-    </div>
-  );
-}
-
-/**
- * Mini relative-time formatter: "2m ago" / "5h ago" / "3d ago" /
- * "Mar 12". Avoids dragging in date-fns/dayjs for one tiny use.
- */
-function formatRelativeTime(iso: string, locale: 'en' | 'es'): string {
-  const t = new Date(iso).getTime();
-  const now = Date.now();
-  const diff = Math.max(0, now - t);
-  const m = Math.floor(diff / 60000);
-  if (m < 1) return locale === 'es' ? 'ahora' : 'just now';
-  if (m < 60) return locale === 'es' ? `hace ${m}m` : `${m}m ago`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return locale === 'es' ? `hace ${h}h` : `${h}h ago`;
-  const d = Math.floor(h / 24);
-  if (d < 7) return locale === 'es' ? `hace ${d}d` : `${d}d ago`;
-  return new Intl.DateTimeFormat(locale === 'es' ? 'es-DO' : 'en-US', {
-    month: 'short',
-    day: 'numeric',
-  }).format(new Date(iso));
 }
