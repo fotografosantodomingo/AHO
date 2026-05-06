@@ -12,6 +12,17 @@ One entry per significant choice. Newest on top. Format:
 
 ---
 
+## 2026-05-06 — Cloudflare Workers Paid plan ($5/mo)
+**Decision:** Upgrade the Cloudflare account `5a389e6eea7a4e92999c5f1612eafbcc` to Workers Paid ($5/month flat).
+**Why:** Free-tier Workers/Pages caps the deployed Worker bundle at 3 MiB compressed. Today's deploys (5bd4baa drill-down, cbe6ec6 honeypot, 4cb5d77 trim attempt) all failed with: "Your Worker exceeded the size limit of 3 MiB. Please upgrade to a paid plan to deploy Workers up to 10 MiB." Build pipeline is healthy — typecheck/lint/tests/pages:build all clean. The bundle is genuinely past 3 MiB compressed; trimming `nop-build-log.json` (1.6 MiB uncompressed) wasn't enough headroom. PO explicitly approved the upgrade in chat, satisfying CLAUDE.md hard rule #9 ("Any operation that creates billable resources… requires explicit confirmation in chat before execution").
+**Alternatives considered:**
+  - Bundle-slim path: 2-4 hours of work to lazy-load Leaflet (`/search`), audit deps, code-split per route. Realistic shave: 200-500 KiB compressed. Might fit under 3 MiB once but every future commit re-creates the cliff. Bad ROI vs $5/mo + ongoing eng overhead from bundle-budget CI enforcement.
+  - Stay-blocked path: stop accepting deploys until we slim. Loses days of working code (drill-down, honeypot, conversion-rate fix, locale-aware redirect) that's already on `origin/main` but not live. Worse than $5/mo.
+**Reconsider if:** Cloudflare changes Pages-Functions size limits (the historical trend is the limits go UP, not down — last bump was free-tier from 1 MiB → 3 MiB in 2024). Or if monthly Workers spend grows materially past the $5 base + per-request usage and we want to renegotiate.
+**Operational note:** The free-tier $0 month-1 ramp-down is generous. The $5/mo Workers Paid charge is FLAT for the included usage envelope (10M requests/mo, 30s CPU, 10 MiB worker size). For the foreseeable future AHO sits well inside the included envelope — projected actual cost is the $5 floor.
+
+---
+
 ## 2026-05-01 — Visual direction pivot: HashiCorp → Starbucks-inspired ("Inspired by", not 1:1)
 **Decision:** Reverse the 2026-04-29 "AHO uses HashiCorp visual language" decision. AHO's new visual direction is a **Starbucks-inspired** warm/premium aesthetic — cream-warm canvas, forest-green primary, pill CTAs, 12px card radius, tight letter-spacing — but **NOT a 1:1 Starbucks clone**. Specifically:
   - Distinct token values from Starbucks's published palette (e.g. our forest green is `#1d5a3c`, not Starbucks `#006241`; our cream surface is `#f4ede1`, not Starbucks `#f2f0eb`).
