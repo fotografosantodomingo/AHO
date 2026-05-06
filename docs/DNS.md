@@ -35,7 +35,7 @@ Brevo authenticated the **apex** `advertisehomes.online` directly (rather than a
 
 ### What the Brevo wrapper sends
 
-`src/lib/email/brevo.ts` defaults to `noreply@advertisehomes.online` (the apex) — matches the authenticated domain. Override via `BREVO_FROM_EMAIL` / `BREVO_FROM_NAME` env vars if needed.
+`src/lib/email/brevo.ts` defaults to `info@advertisehomes.online` (the apex, monitored mailbox) — matches the authenticated domain. PO directive 2026-05-06: send FROM the monitored mailbox so user replies (questions, issues) reach a human instead of bouncing off `noreply@`. Override via `BREVO_FROM_EMAIL` / `BREVO_FROM_NAME` env vars if needed.
 
 ### Still pending — Supabase Auth → SMTP relay
 
@@ -43,7 +43,7 @@ Supabase sends signup-confirmation, password-reset, and magic-link emails direct
   - Host: `smtp-relay.brevo.com`
   - Port: `587`
   - Username + password: a Brevo SMTP key (separate from the transactional API key)
-  - From: `noreply@advertisehomes.online`
+  - From: `info@advertisehomes.online`
 
 Until that's set, Supabase falls back to its built-in SMTP provider (`@noreply.supabase.co`) which is rate-limited and lacks AHO branding.
 

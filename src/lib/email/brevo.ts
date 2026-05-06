@@ -26,14 +26,16 @@ import 'server-only';
  *      go out. See docs/OPEN_QUESTIONS.md "Brevo + Supabase SMTP".
  *
  * Default sender:
- *   `AHO <noreply@advertisehomes.online>` — override via `BREVO_FROM_EMAIL`
- *   and `BREVO_FROM_NAME`.
+ *   `AHO <info@advertisehomes.online>` — override via `BREVO_FROM_EMAIL`
+ *   and `BREVO_FROM_NAME`. Per PO directive 2026-05-06: send FROM the
+ *   monitored mailbox so legitimate user replies (questions, issues)
+ *   reach a human instead of bouncing off a `noreply@` address.
  */
 
 const API_URL = 'https://api.brevo.com/v3/smtp/email';
 
 const DEFAULT_FROM_NAME = 'AHO';
-const DEFAULT_FROM_EMAIL = 'noreply@advertisehomes.online';
+const DEFAULT_FROM_EMAIL = 'info@advertisehomes.online';
 
 export interface SendEmailArgs {
   to: string;
