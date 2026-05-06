@@ -127,6 +127,16 @@ export async function setUserAdmin(
   // is_admin/admin_role changes from the service role. The admin
   // client bypasses RLS + the trigger.
   const supabase = createAdminClient();
+
+  // Snapshot prior state for the audit log (best-effort; the update
+  // proceeds even if this fetch fails — at worst the audit row records
+  // null priorIsAdmin / priorAdminRole).
+  const { data: prior } = await supabase
+    .from('profiles')
+    .select('is_admin, admin_role, email')
+    .eq('id', userId)
+    .maybeSingle();
+
   const { error } = await supabase
     .from('profiles')
     .update({
@@ -137,6 +147,31 @@ export async function setUserAdmin(
   if (error) {
     console.error('[setUserAdmin]', error);
     return { ok: false, error: error.message };
+  }
+
+  // Audit log: admin promotion / demotion is a high-trust action that
+  // must leave a paper trail for compliance + post-incident forensics.
+  // PO-noted gap 2026-05-01 (customer-flow audit). Best-effort: failures
+  // log but don't unwind the role change — the role change is the user-
+  // visible outcome, the audit row is for governance review.
+  try {
+    const auditErr = await supabase.from('audit_log').insert({
+      kind: makeAdmin ? 'admin.user.promoted' : 'admin.user.demoted',
+      actor_id: userResult.user.id,
+      target_id: userId,
+      payload: {
+        target_email: prior?.email ?? null,
+        prior_is_admin: prior?.is_admin ?? null,
+        prior_admin_role: prior?.admin_role ?? null,
+        next_is_admin: makeAdmin,
+        next_admin_role: makeAdmin ? 'admin' : null,
+      },
+    });
+    if (auditErr.error) {
+      console.warn('[setUserAdmin] audit_log insert failed', auditErr.error);
+    }
+  } catch (e) {
+    console.warn('[setUserAdmin] audit_log threw', e);
   }
 
   revalidatePath('/[locale]/admin/users', 'page');
