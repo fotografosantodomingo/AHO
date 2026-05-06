@@ -48,7 +48,10 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: `${site}/sitemap.xml`,
+    // Multiple sitemap entries are honored by Google + Bing per the
+    // sitemaps.org spec. We list both: the standard sitemap (URLs only)
+    // and the image sitemap (property URLs with <image:image> children).
+    sitemap: [`${site}/sitemap.xml`, `${site}/sitemap-images.xml`],
     host: site,
   };
 }

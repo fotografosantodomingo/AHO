@@ -6,6 +6,7 @@ import { renderWelcomeEmail } from '@/lib/email/templates/welcome';
 import { renderAdminNewUserEmail } from '@/lib/email/templates/admin-new-user';
 import { publicEnv } from '@/lib/env';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { ANON_COOKIE_NAME } from '@/lib/listings/recent-views';
 
 export const runtime = 'edge';
 
@@ -78,6 +79,27 @@ export async function GET(request: NextRequest) {
 
   // Constrain `next` to internal paths to avoid open-redirect.
   const safeNext = next.startsWith('/') && !next.startsWith('//') ? next : '/';
+
+  // Merge anonymous-view history into the now-authenticated user's
+  // history. If the visitor had been browsing as anon and looked at a
+  // few properties, the `aho_anon_id` cookie holds those views; without
+  // this step the user signs in and the "Recently viewed" rail goes
+  // empty. See migration 0030 for conflict-handling semantics. Best-
+  // effort: failures log but never block the redirect.
+  try {
+    const anonId = request.cookies.get(ANON_COOKIE_NAME)?.value;
+    if (anonId) {
+      const { data: userResult } = await supabase.auth.getUser();
+      if (userResult.user?.id) {
+        await supabase.rpc('merge_anon_recent_views', {
+          p_user_id: userResult.user.id,
+          p_anonymous_id: anonId,
+        });
+      }
+    }
+  } catch (e) {
+    console.warn('[auth/callback] merge_anon_recent_views failed', e);
+  }
 
   // On signup confirmation, fire two emails in parallel:
   //   - Welcome to the user

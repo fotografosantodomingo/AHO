@@ -58,6 +58,22 @@ export async function POST(
     return NextResponse.json({ error: 'not_found' }, { status: 404 });
   }
 
+  // Passive sweep of stale pending rows BEFORE the cap check. Without
+  // this, an agent who's bounced a few uploads off transient network
+  // errors carries dead pending rows that count toward the 30-image cap,
+  // eventually locking out new uploads with nothing visible to delete.
+  // Delete pending rows >60min old for this property (they'll never
+  // confirm now — the R2 presigned URL expires at 5min). See
+  // migration 0029. Errors are logged but never block the upload.
+  try {
+    await supabase.rpc('sweep_stale_pending_images', {
+      p_property_id: propertyId,
+      p_older_than_minutes: 60,
+    });
+  } catch (e) {
+    console.warn('[images POST] pending-sweep failed', e);
+  }
+
   // Cap check — count current images (any status) for this property.
   const { count, error: countErr } = await supabase
     .from('property_images')
