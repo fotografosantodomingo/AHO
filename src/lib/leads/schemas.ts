@@ -33,6 +33,15 @@ export const LeadCreateSchema = z
       .string()
       .max(0, { message: 'honeypot_filled' })
       .optional(),
+    /**
+     * Cloudflare Turnstile token — verified server-side via siteverify.
+     * Required when source='form' AND the server has TURNSTILE_SECRET_KEY
+     * configured (production). Other sources (whatsapp_click, phone_click,
+     * email_click) bypass: those are user-initiated outbound clicks, not
+     * spammable form submissions. Schema marks it `optional()` so the
+     * non-form paths still parse; the route enforces presence per source.
+     */
+    captcha_token: z.string().min(1).max(2048).optional(),
   })
   .superRefine((v, ctx) => {
     if (v.source === 'form') {

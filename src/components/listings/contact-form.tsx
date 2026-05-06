@@ -1,10 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocale, useTranslations } from 'next-intl';
 import { z } from 'zod';
+import {
+  TurnstileWidget,
+  isTurnstileConfigured,
+  type TurnstileWidgetHandle,
+} from '@/components/auth/turnstile-widget';
 
 interface ContactFormProps {
   propertyId: string;
@@ -39,6 +44,14 @@ export function ContactForm({ propertyId }: ContactFormProps) {
   const locale = useLocale();
   const [serverError, setServerError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const turnstileRequired = isTurnstileConfigured();
+  const turnstileRef = useRef<TurnstileWidgetHandle | null>(null);
+  const onCaptchaToken = useCallback(
+    (token: string) => setCaptchaToken(token),
+    [],
+  );
+  const onCaptchaExpire = useCallback(() => setCaptchaToken(null), []);
 
   const {
     register,
@@ -65,10 +78,18 @@ export function ContactForm({ propertyId }: ContactFormProps) {
         // auto-fill every field will get rejected server-side via the
         // schema's `website: max(0)` rule.
         website: values.website ?? '',
+        // Turnstile token — server verifies via Cloudflare siteverify
+        // (src/lib/auth/turnstile-verify.ts). Single-use; reset widget
+        // on any error so retries carry a fresh token.
+        ...(captchaToken ? { captcha_token: captchaToken } : {}),
       }),
     });
     if (!res.ok) {
       setServerError('send_failed');
+      // Reset widget so a retry gets a fresh token (Turnstile tokens
+      // are one-shot — same fix as the auth forms in commit 604738a).
+      setCaptchaToken(null);
+      turnstileRef.current?.reset();
       return;
     }
     setSubmitted(true);
@@ -145,6 +166,11 @@ export function ContactForm({ propertyId }: ContactFormProps) {
         />
         {err('message') && <p className="mt-1 text-sm text-red-600">{err('message')}</p>}
       </div>
+      <TurnstileWidget
+        ref={turnstileRef}
+        onToken={onCaptchaToken}
+        onExpire={onCaptchaExpire}
+      />
       {serverError && (
         <div role="alert" className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-950/30 dark:text-red-200">
           {t(`errors.${serverError}` as 'errors.send_failed')}
@@ -152,7 +178,7 @@ export function ContactForm({ propertyId }: ContactFormProps) {
       )}
       <button
         type="submit"
-        disabled={isSubmitting}
+        disabled={isSubmitting || (turnstileRequired && !captchaToken)}
         className="btn-primary px-4 disabled:opacity-50"
       >
         {isSubmitting ? t('sending') : t('send')}

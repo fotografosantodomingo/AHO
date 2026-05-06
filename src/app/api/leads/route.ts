@@ -8,6 +8,7 @@ import { publicEnv } from '@/lib/env';
 import { recordPropertyEvent } from '@/lib/listings/events';
 import { ANON_COOKIE_NAME } from '@/lib/listings/recent-views';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { verifyTurnstileToken } from '@/lib/auth/turnstile-verify';
 
 export const runtime = 'edge';
 
@@ -25,10 +26,17 @@ export const runtime = 'edge';
  * BREVO_API_KEY isn't set the wrapper logs and no-ops — the lead is still
  * created and visible in the dashboard inbox.
  *
- * Anti-abuse — TODO before public launch:
- *   - Cloudflare Turnstile site-verification on the request
- *   - KV-backed per-IP rate limit (10/hour, per HANDOFF §21.4)
- *   - Honeypot field check
+ * Anti-abuse layers (in order):
+ *   1. Honeypot — schema rejects non-empty `website` field (commit cbe6ec6).
+ *   2. Cloudflare Turnstile — server-side siteverify on the captcha token
+ *      issued by the widget on the contact form. Same shared Turnstile
+ *      site key + secret as Supabase Auth's captcha (PO 2026-05-06).
+ *      Required for `source='form'` when TURNSTILE_SECRET_KEY is set;
+ *      skipped silently in local dev when unset. Tracking-style sources
+ *      (whatsapp_click, phone_click, email_click) are NOT spammable form
+ *      submissions and bypass the captcha — they're outbound-click
+ *      analytics events.
+ *   3. KV-backed per-IP rate limit (10/hour) — TODO; needs KV namespace.
  */
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
@@ -40,6 +48,25 @@ export async function POST(req: NextRequest) {
     );
   }
   const data = parsed.data;
+
+  // Captcha gate — only on the spammable form source. Tracking clicks
+  // (whatsapp/phone/email) skip; they post no user content, just record
+  // a click event.
+  if (data.source === 'form') {
+    const remoteIp =
+      req.headers.get('cf-connecting-ip') ??
+      req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+      null;
+    const verify = await verifyTurnstileToken(data.captcha_token, remoteIp);
+    if ('valid' in verify && !verify.valid) {
+      return NextResponse.json(
+        { error: 'captcha_failed', code: verify.error },
+        { status: 400 },
+      );
+    }
+    // verify.skipped (TURNSTILE_SECRET_KEY unset, dev/preview) → fall
+    // through; honeypot still gates spam-bot submissions.
+  }
 
   const supabase = createAdminClient();
 
