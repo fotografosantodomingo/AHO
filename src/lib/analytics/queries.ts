@@ -27,14 +27,84 @@ export function daysAgo(n: number): Date {
   return d;
 }
 
+/** Per-event-type Set of visitor keys. Pure-function helper output. */
+export interface AggregatedVisitorBuckets {
+  byType: Partial<Record<PropertyEventType, number>>;
+  uniqueVisitors: number;
+  viewingVisitors: number;
+  leadingVisitors: number;
+  conversionRate: number | null;
+  total: number;
+}
+
+/**
+ * Pure aggregator: takes a list of event rows (event_type + visitor
+ * identity) and returns deduplicated visitor counts + per-event-type
+ * counts + per-visitor conversion rate. Extracted from
+ * `getOrgAnalytics` so the aggregation logic is unit-testable without
+ * a Supabase mock.
+ *
+ * Visitor key: `u:{user_id}` if signed in, else `a:{anonymous_id}`.
+ * Events without either are counted in `byType` but excluded from the
+ * visitor sets (anonymous untrackable view).
+ */
+export function aggregateOrgEvents(
+  rows: ReadonlyArray<{
+    event_type: string;
+    user_id: string | null;
+    anonymous_id: string | null;
+  }>,
+): AggregatedVisitorBuckets {
+  const byType: Partial<Record<PropertyEventType, number>> = {};
+  const visitorKeys = new Set<string>();
+  const viewingVisitorKeys = new Set<string>();
+  const leadingVisitorKeys = new Set<string>();
+  for (const r of rows) {
+    const t = r.event_type as PropertyEventType;
+    byType[t] = (byType[t] ?? 0) + 1;
+    const key = r.user_id
+      ? `u:${r.user_id}`
+      : r.anonymous_id
+        ? `a:${r.anonymous_id}`
+        : null;
+    if (key) {
+      visitorKeys.add(key);
+      if (t === 'property_view') viewingVisitorKeys.add(key);
+      else if (t === 'lead_form_submit') leadingVisitorKeys.add(key);
+    }
+  }
+  const conversionRate =
+    viewingVisitorKeys.size > 0
+      ? leadingVisitorKeys.size / viewingVisitorKeys.size
+      : null;
+  return {
+    byType,
+    uniqueVisitors: visitorKeys.size,
+    viewingVisitors: viewingVisitorKeys.size,
+    leadingVisitors: leadingVisitorKeys.size,
+    conversionRate,
+    total: rows.length,
+  };
+}
+
 interface OrgAnalyticsSummary {
   /** Total events in the window. */
   total: number;
   /** Per-event-type count: { property_view: 152, lead_form_submit: 8, ... }. */
   byType: Partial<Record<PropertyEventType, number>>;
-  /** Distinct visitors (user_id OR anonymous_id) in the window. */
+  /** Distinct visitors (user_id OR anonymous_id) in the window across all events. */
   uniqueVisitors: number;
-  /** Conversion = leads / views (0..1; null if zero views). */
+  /** Distinct visitors who triggered ≥1 property_view in the window. */
+  viewingVisitors: number;
+  /** Distinct visitors who submitted ≥1 lead in the window. */
+  leadingVisitors: number;
+  /**
+   * Conversion = visitors-who-leadgen / visitors-who-viewed (0..1; null
+   * if zero visitors viewed). Per-VISITOR rate, not per-EVENT — a single
+   * visitor with 10 views and 1 lead is 100%, not 10%.
+   * Bug fixed 2026-05-06: previously computed `leads / views` from raw
+   * event counts, which heavily under-reported real conversion.
+   */
   conversionRate: number | null;
 }
 
@@ -54,31 +124,18 @@ export async function getOrgAnalytics(
     .limit(50000);
   if (error) {
     console.warn('[analytics] org summary fetch failed', error);
-    return { total: 0, byType: {}, uniqueVisitors: 0, conversionRate: null };
+    return {
+      total: 0,
+      byType: {},
+      uniqueVisitors: 0,
+      viewingVisitors: 0,
+      leadingVisitors: 0,
+      conversionRate: null,
+    };
   }
 
   type Row = { event_type: string; user_id: string | null; anonymous_id: string | null };
-  const rows = (data ?? []) as Row[];
-
-  const byType: Partial<Record<PropertyEventType, number>> = {};
-  const visitorKeys = new Set<string>();
-  for (const r of rows) {
-    const t = r.event_type as PropertyEventType;
-    byType[t] = (byType[t] ?? 0) + 1;
-    const key = r.user_id ? `u:${r.user_id}` : r.anonymous_id ? `a:${r.anonymous_id}` : null;
-    if (key) visitorKeys.add(key);
-  }
-
-  const views = byType.property_view ?? 0;
-  const leads = byType.lead_form_submit ?? 0;
-  const conversionRate = views > 0 ? leads / views : null;
-
-  return {
-    total: rows.length,
-    byType,
-    uniqueVisitors: visitorKeys.size,
-    conversionRate,
-  };
+  return aggregateOrgEvents((data ?? []) as Row[]);
 }
 
 export interface TopListingRow {
@@ -87,17 +144,30 @@ export interface TopListingRow {
   title: string;
   city: string;
   status: string;
+  /** Total view events on this listing in the window. */
   views: number;
+  /** Distinct visitors who viewed this listing (dedup via user_id OR anonymous_id). */
+  uniqueViewers: number;
+  /** Total lead-form submissions on this listing. */
   leads: number;
+  /** Distinct visitors who submitted ≥1 lead on this listing. */
+  uniqueLeaders: number;
+  /** Total favorite-add events on this listing. */
   favorites: number;
+  /**
+   * Per-listing conversion = uniqueLeaders / uniqueViewers (0..1; null
+   * if no visitors viewed). Per-VISITOR rate — see OrgAnalyticsSummary.
+   */
+  conversionRate: number | null;
   /** views / total visible-property-views in window (0..1). */
   shareOfViews: number;
 }
 
 /**
  * Top listings by view count for an org, with lead + favorite counts
- * for each. Filters out archived/sold/draft properties from the
- * ranking (analytics is for currently-active inventory).
+ * + per-listing per-visitor conversion rate. Filters out archived /
+ * sold / draft properties from the ranking (analytics is for
+ * currently-active inventory).
  */
 export async function getTopListingsByEngagement(
   supabase: SupabaseClient,
@@ -106,10 +176,12 @@ export async function getTopListingsByEngagement(
   locale: 'en' | 'es',
   limit = 10,
 ): Promise<TopListingRow[]> {
-  // 1. Pull events for the window.
+  // 1. Pull events for the window. Include visitor identity so we can
+  // dedup per-visitor counts (one viewer with 10 views is one
+  // uniqueViewer, not ten).
   const { data: eventRows, error: eventErr } = await supabase
     .from('property_events')
-    .select('property_id, event_type')
+    .select('property_id, event_type, user_id, anonymous_id')
     .eq('org_id', orgId)
     .gte('created_at', since.toISOString())
     .limit(50000);
@@ -118,18 +190,40 @@ export async function getTopListingsByEngagement(
     return [];
   }
 
-  type EventRow = { property_id: string; event_type: string };
+  type EventRow = {
+    property_id: string;
+    event_type: string;
+    user_id: string | null;
+    anonymous_id: string | null;
+  };
   const events = (eventRows ?? []) as EventRow[];
 
-  // 2. Aggregate per property.
-  type Agg = { views: number; leads: number; favorites: number };
+  // 2. Aggregate per property: raw event counts + distinct-visitor
+  // sets per event type (for dedupped conversion).
+  type Agg = {
+    views: number;
+    leads: number;
+    favorites: number;
+    viewerKeys: Set<string>;
+    leaderKeys: Set<string>;
+  };
   const byProperty = new Map<string, Agg>();
   for (const e of events) {
-    const a = byProperty.get(e.property_id) ?? { views: 0, leads: 0, favorites: 0 };
-    if (e.event_type === 'property_view') a.views += 1;
-    else if (e.event_type === 'lead_form_submit') a.leads += 1;
-    else if (e.event_type === 'favorite_add') a.favorites += 1;
-    byProperty.set(e.property_id, a);
+    let a = byProperty.get(e.property_id);
+    if (!a) {
+      a = { views: 0, leads: 0, favorites: 0, viewerKeys: new Set(), leaderKeys: new Set() };
+      byProperty.set(e.property_id, a);
+    }
+    const key = e.user_id ? `u:${e.user_id}` : e.anonymous_id ? `a:${e.anonymous_id}` : null;
+    if (e.event_type === 'property_view') {
+      a.views += 1;
+      if (key) a.viewerKeys.add(key);
+    } else if (e.event_type === 'lead_form_submit') {
+      a.leads += 1;
+      if (key) a.leaderKeys.add(key);
+    } else if (e.event_type === 'favorite_add') {
+      a.favorites += 1;
+    }
   }
   if (byProperty.size === 0) return [];
 
@@ -173,6 +267,8 @@ export async function getTopListingsByEngagement(
         p.title_en ??
         p.title_es ??
         '—';
+      const uniqueViewers = agg.viewerKeys.size;
+      const uniqueLeaders = agg.leaderKeys.size;
       return {
         propertyId: p.id,
         shortId: p.short_id,
@@ -180,8 +276,11 @@ export async function getTopListingsByEngagement(
         city: p.city,
         status: p.status,
         views: agg.views,
+        uniqueViewers,
         leads: agg.leads,
+        uniqueLeaders,
         favorites: agg.favorites,
+        conversionRate: uniqueViewers > 0 ? uniqueLeaders / uniqueViewers : null,
         shareOfViews: totalViews > 0 ? agg.views / totalViews : 0,
       };
     })

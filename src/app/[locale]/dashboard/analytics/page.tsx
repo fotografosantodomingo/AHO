@@ -165,7 +165,11 @@ export default async function AnalyticsPage({
                   </thead>
                   <tbody className="divide-y divide-border/60">
                     {topListings.map((row) => {
-                      const conv = row.views > 0 ? row.leads / row.views : null;
+                      // Per-VISITOR conversion rate (one visitor with N views
+                      // and M leads = M ≥ 1 → counts once toward the
+                      // numerator). Was raw `leads / views` which under-
+                      // reported actual conversion. Bug fixed 2026-05-06.
+                      const conv = row.conversionRate;
                       return (
                         <tr key={row.propertyId}>
                           <td className="max-w-[240px] truncate px-3 py-2 font-medium">
