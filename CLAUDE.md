@@ -88,7 +88,6 @@ Slice 2 surfaces all live; slice-3 polish in progress (live-bbox map shipped; lo
 
 | Pending PO action | Unlocks |
 |---|---|
-| Brevo DKIM / SPF / DMARC for `mail.advertisehomes.online` | Welcome / lead-notification / 3DS-challenge / reset-password emails actually send (today the Brevo API key is set but the sending domain isn't authenticated, so deliverability is poor). Saved-search email-alert worker. |
 | Custom domain DNS (`advertisehomes.online` → Cloudflare Pages) | Production-grade URL. Sitemap + canonical URLs auto-pivot via `NEXT_PUBLIC_SITE_URL`. |
 | Soft-beta agent recruitment (3–5 in DR) | First real listings; everything downstream of "real-only data" rule starts to pay off. |
 | 21st.dev API key rotation (leaked in chat 2026-04-30) | UI/UX polish phase via `ui-ux-pro-max` skill (see `DECISIONS.md` "2026-04-30 — UI/UX polish phase"). |

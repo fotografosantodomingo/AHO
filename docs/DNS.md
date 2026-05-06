@@ -18,41 +18,38 @@ The exact apex / staging targets come from Cloudflare Pages once the project is 
 
 ---
 
-## Email — Brevo
+## Email — Brevo (LIVE as of 2026-05-05)
 
-Replace placeholders with the exact values Brevo's "Senders & Domains → Domains" dashboard provides when you add `mail.advertisehomes.online` (and optionally `tx.advertisehomes.online`) as authenticated sending domains. Brevo will display the required SPF + DKIM records inline once the domain is added.
+Brevo authenticated the **apex** `advertisehomes.online` directly (rather than a `mail.` subdomain). Records are live and Brevo's dashboard reports all four matching. First successful test send: `<202605061157.27580665178@smtp-relay.mailin.fr>` to `homekrypto@gmail.com`.
 
-### `mail.advertisehomes.online` (transactional outbound — auth, password reset, lead notifications, etc.)
+### Records as actually deployed
 
-| Type | Name | Content | TTL | Purpose |
-|---|---|---|---|---|
-| TXT | `mail` | `v=spf1 include:spf.brevo.com ~all` | Auto | SPF |
-| CNAME | `mail._domainkey.mail` | (DKIM target from Brevo dashboard, typically `mail.dkim.brevo.com` or similar) | Auto | DKIM |
-| TXT | `_brevo.mail` | (Brevo domain-verification TXT from dashboard) | Auto | One-time domain ownership verification |
+| Type | Name | Content | Status |
+|---|---|---|---|
+| TXT | `@` | `brevo-code:7978ba39b25b2ae5c3ced5175654eee0` | ✓ One-time domain-ownership verification |
+| CNAME | `brevo1._domainkey` | `b1.advertisehomes-online.dkim.brevo.com` | ✓ DKIM key 1 |
+| CNAME | `brevo2._domainkey` | `b2.advertisehomes-online.dkim.brevo.com` | ✓ DKIM key 2 |
+| TXT | `_dmarc` | `v=DMARC1; p=none; rua=mailto:rua@dmarc.brevo.com` | ✓ DMARC at `p=none` (Brevo's default — collects reports without quarantining; ramp to `quarantine` then `reject` once warm-up complete) |
 
-### `tx.advertisehomes.online` (optional — separate sender for high-priority transactional, isolating reputation)
+**Note on SPF:** Brevo's modern "Authenticated Domains" flow uses DKIM as the primary auth signal and doesn't strictly require an SPF record on the apex. If we later add other senders on the same apex (e.g. Google Workspace, Zoho) we may need a combined SPF: `v=spf1 include:spf.brevo.com include:_spf.google.com ~all`. For now Brevo-only sends are signed by DKIM and pass DMARC alignment.
 
-| Type | Name | Content | TTL | Purpose |
-|---|---|---|---|---|
-| TXT | `tx` | `v=spf1 include:spf.brevo.com ~all` | Auto | SPF |
-| CNAME | `mail._domainkey.tx` | (DKIM target from Brevo dashboard) | Auto | DKIM |
-| TXT | `_brevo.tx` | (Brevo domain-verification TXT from dashboard) | Auto | One-time domain ownership verification |
+### What the Brevo wrapper sends
 
-### Domain-wide DMARC
+`src/lib/email/brevo.ts` defaults to `noreply@advertisehomes.online` (the apex) — matches the authenticated domain. Override via `BREVO_FROM_EMAIL` / `BREVO_FROM_NAME` env vars if needed.
 
-| Type | Name | Content | TTL | Purpose |
-|---|---|---|---|---|
-| TXT | `_dmarc` | `v=DMARC1; p=quarantine; rua=mailto:dmarc@advertisehomes.online; ruf=mailto:dmarc@advertisehomes.online; fo=1; pct=100` | Auto | DMARC. Start at `quarantine`; ramp to `reject` after 30 days of clean reports. |
+### Still pending — Supabase Auth → SMTP relay
 
-`dmarc@advertisehomes.online` must exist before the DMARC record goes live (forward to the PO's address — Brevo doesn't provide inbound on the sending domain).
+Supabase sends signup-confirmation, password-reset, and magic-link emails directly (NOT through our `brevo.ts` wrapper). To route those through Brevo too, configure Supabase Auth → Project Settings → SMTP with:
+  - Host: `smtp-relay.brevo.com`
+  - Port: `587`
+  - Username + password: a Brevo SMTP key (separate from the transactional API key)
+  - From: `noreply@advertisehomes.online`
+
+Until that's set, Supabase falls back to its built-in SMTP provider (`@noreply.supabase.co`) which is rate-limited and lacks AHO branding.
 
 ### Inbound (lead-reply relay) — deferred
 
-Inbound parsing on `inbound.advertisehomes.online` is out of scope for v1; lead replies route through the agent's own email client. If we need an inbound parser later we'll either:
-  - use a separate provider with mature inbound (Postmark, SendGrid Inbound Parse), or
-  - run our own MX → Cloudflare Worker pipeline.
-
-Either way, the `mail.` and `tx.` records above are independent of inbound, so this defers cleanly.
+Inbound parsing on `inbound.advertisehomes.online` is out of scope for v1; lead replies route through the agent's own email client. If we need an inbound parser later we'll either use a separate provider (Postmark Inbound, SendGrid Inbound Parse) or run our own MX → Cloudflare Worker pipeline.
 
 ---
 
