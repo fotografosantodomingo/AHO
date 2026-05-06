@@ -7,6 +7,7 @@ import { renderAdminNewUserEmail } from '@/lib/email/templates/admin-new-user';
 import { publicEnv } from '@/lib/env';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { ANON_COOKIE_NAME } from '@/lib/listings/recent-views';
+import { translatePathForLocale } from '@/lib/auth/translate-path';
 
 export const runtime = 'edge';
 
@@ -163,7 +164,14 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  return NextResponse.redirect(new URL(safeNext, request.url));
+  // Translate the redirect path to the user's preferred locale if it
+  // differs from the path's embedded locale. Email templates currently
+  // hardcode `next=/en/...` for all five flow types (see
+  // `scripts/patch-supabase-email-links.ts`); this re-localizes after
+  // auth succeeds so a Spanish user who clicks a recovery link lands on
+  // `/es/restablecer-contrasena` instead of `/en/reset-password`.
+  const localizedNext = await translateForUserLocale(supabase, safeNext);
+  return NextResponse.redirect(new URL(localizedNext, request.url));
 }
 
 /**
@@ -175,4 +183,25 @@ function inferLocaleFromPath(path: string): Locale {
   const m = path.match(/^\/([a-z]{2})(?:\/|$)/);
   if (m && LOCALES.includes(m[1] as Locale)) return m[1] as Locale;
   return 'en';
+}
+
+/**
+ * Re-localize a redirect path to match the authenticated user's
+ * `user_metadata.locale`. Best-effort + fail-soft: any error returns
+ * the input unchanged; the redirect always succeeds.
+ */
+async function translateForUserLocale(
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
+  safeNext: string,
+): Promise<string> {
+  try {
+    const { data } = await supabase.auth.getUser();
+    const userLocale = data.user?.user_metadata?.locale as
+      | Locale
+      | undefined;
+    if (userLocale !== 'en' && userLocale !== 'es') return safeNext;
+    return translatePathForLocale(safeNext, userLocale);
+  } catch {
+    return safeNext;
+  }
 }
