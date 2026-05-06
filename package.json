@@ -31,6 +31,7 @@
     "stripe:replay": "tsx scripts/stripe-webhook-replay.ts",
     "db:seed": "tsx scripts/seed-plans.ts",
     "supabase:templates": "tsx scripts/sync-supabase-email-templates.ts",
+    "supabase:email-links": "tsx scripts/patch-supabase-email-links.ts",
     "prepare": "echo 'no prepare step yet'"
   },
   "dependencies": {
