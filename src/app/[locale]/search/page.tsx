@@ -167,6 +167,16 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
         prevHref={prevHref}
         nextHref={nextHref}
         resultsCountTemplate={t('resultsCount_other', { count: result.listings.length })}
+        // Pre-resolved "in this area" template — the literal {count}
+        // placeholder is preserved client-side so the count stays live
+        // as the user pans. Plural form: `_other` covers all counts;
+        // the `_one` variant is selected client-side via the count value
+        // when needed (count === 1) — but `_other` with count=1 reads
+        // fine in EN/ES and we can ship both as separate strings later
+        // if a stricter language requires it.
+        resultsCountInAreaTemplate={t('resultsCountInArea_other', {
+          count: result.listings.length,
+        })}
         noResultsLabel={t('noResults')}
         noResultsHintLabel={t('noResultsHint')}
         prevPageLabel={t('previousPage')}

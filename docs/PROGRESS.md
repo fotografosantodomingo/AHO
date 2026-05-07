@@ -12,6 +12,94 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-07 — Search polish: bbox URL persistence + "in this area" copy
+- **Frame:** Marker-clustering and list-view sync to bbox both already
+  shipped on `main` (commits `e3ade0a` + `a36fc8b`, ~1 week ago). Two
+  follow-up polish items still open from the original architecture
+  decision: shareable URL state for the panned-map view, and
+  bbox-specific result-count copy. This session ships both.
+- **What shipped:**
+  - **Bbox URL persistence** via `history.replaceState`, NOT
+    `next/router`. The /search page is a Server Component for the LCP
+    win — using router.replace would re-trigger the server query on
+    every map pan. `replaceState` updates the URL silently, no React
+    tree rerender. Format: `?bbox=swLat,swLng,neLat,neLng,zoom` —
+    five comma-joined numbers. Five not four because zoom controls the
+    `include_no_coords` flag at low zooms (country-overview mode).
+    On mount, if the URL has `?bbox=...`, the same `handleBoundsChange`
+    code path the user pan uses fires immediately, dropping the visitor
+    straight into the panned view. Map mounts pre-fitted to the bbox
+    so there's no world-view flash on entry.
+  - **Distinct result-count copy when bbox-active.** Was: "20 listings"
+    same string regardless of mode. Now: "20 listings in this area"
+    (EN) / "20 anuncios en esta zona" (ES) when bbox is filtering;
+    "20 listings" / "20 anuncios" when not. New i18n keys
+    `search.resultsCountInArea_one` / `_other`. Helper
+    `countTemplate()` picks the right string and falls back to the
+    wider count if the in-area variant isn't supplied (defensive for
+    older callers).
+  - **`bbox-url.ts` library** — `encodeBbox()` / `parseBbox()` with
+    strict validation: rejects out-of-range lat/lng/zoom, inverted
+    corners, NaN, wrong arity. Lat/lng rounded to 5 decimals (~1.1m
+    precision, far below pan resolution) so consecutive moveend fires
+    on essentially the same view produce identical URLs.
+  - **Unit tests** at `tests/unit/bbox-url.test.ts` — 16 cases covering
+    encode round-trip, validation rejection paths, parse error paths.
+- **Architectural choice:** URL params via `history.replaceState`.
+  Considered Zustand and React context; both add a state-management
+  surface for what's really just "remember the map view across page
+  reloads / shares." URL is the most user-visible affordance (you can
+  copy/paste the URL into a chat) and naturally survives page reloads,
+  back-button navigation across other pages, and bookmark stars. The
+  one thing URL params can't do is preserve state across filter
+  changes that ARE part of the URL (e.g. user changes city dropdown →
+  page navigates → bbox is recomputed by the new filters' centroid),
+  but that's the right behavior anyway: changing filters should reset
+  the map view.
+- **Files touched:**
+  - `src/lib/listings/bbox-url.ts` (new) — encode/parse helpers
+  - `src/components/listings/search-results-view.tsx` — URL sync
+    on/off, mount-time URL restore, `countTemplate()` helper, new
+    `resultsCountInAreaTemplate` prop
+  - `src/components/listings/map-view.tsx` — forward `initialBbox` prop
+  - `src/components/listings/property-map.tsx` — accept `initialBbox`,
+    fit-on-mount, pre-set `fittedRef` so auto-fit-to-pins doesn't
+    override the user's shared view
+  - `src/app/[locale]/search/page.tsx` — pass new `resultsCountInAreaTemplate`
+  - `messages/en.json`, `messages/es.json` — `resultsCountInArea_*` keys
+  - `tests/unit/bbox-url.test.ts` (new) — 16 cases
+- **Verified:** TypeScript / lint / test:unit *not* run locally — the
+  agent harness sandbox blocks `pnpm install` and `ln -s` to symlink
+  the parent worktree's `node_modules`. Code reviewed manually for
+  type correctness; CI on push to `main` is the verification gate.
+- **Trade-offs accepted:**
+  - URL-restore in LIST view fires the bbox fetch but the LIST view
+    doesn't render a map — so the visitor sees the bbox-filtered list
+    without ever seeing the bbox visually. They can toggle to map view
+    via the existing `?view=map` param to see the map. (Could be
+    polished further: when `?bbox=...` is present, default to map
+    view; deferred — opinionated default would surprise users who
+    bookmarked the LIST view URL with a bbox they panned into in a
+    previous map session.)
+  - When entering via `?view=map&bbox=...`, there's a brief render
+    window where the map fits to the URL bbox but the pins still come
+    from the server-rendered (full-filter) initial listings — most off
+    the visible viewport. The bbox fetch resolves quickly (60s edge
+    cache) and the pins update. Acceptable; could be smoothed by
+    suppressing pin render until the bbox fetch resolves, but that
+    introduces a "no pins yet" empty state that's worse than a brief
+    blip.
+- **What changed since last session:** Same calendar day. This entry
+  succeeds the Sprint-2 C+D entry below.
+- **Next session should start with:** typecheck/lint/test verification
+  (the harness sandbox blocked local runs this session — push to
+  `main` and check GH Actions). Or pick the next slice-3 polish item:
+  fixture-Stripe-state harness (5 deferred webhook-replay cases),
+  neighborhood overlays (PO decision needed on polygon-data source),
+  or the saved-search email-alert worker (CF cron + Brevo notify).
+
+---
+
 ## 2026-05-07 — Sprint 2 C+D: photo migration on URL/voice import + PWA scaffold
 - **Frame:** Continuation of the Sprint-1 closure session. Picked the two
   Sprint-2 items that don't need PO action — server-side photo migration

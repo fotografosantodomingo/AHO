@@ -204,6 +204,8 @@
     "clearFilters": "Clear",
     "resultsCount_one": "1 listing",
     "resultsCount_other": "{count} listings",
+    "resultsCountInArea_one": "1 listing in this area",
+    "resultsCountInArea_other": "{count} listings in this area",
     "noResults": "No listings match these filters.",
     "noResultsHint": "Try widening the price range or removing filters.",
     "previousPage": "Previous",

@@ -3,6 +3,7 @@
 import { PropertyMap } from './property-map';
 import type { SearchListing } from '@/lib/listings/search';
 import type { Locale } from '@/i18n/config';
+import type { BboxView } from '@/lib/listings/bbox-url';
 
 /**
  * Thin re-export that forwards props to PropertyMap. Stable import path
@@ -18,23 +19,29 @@ import type { Locale } from '@/i18n/config';
 interface MapViewProps {
   listings: SearchListing[];
   locale: Locale;
-  onBoundsChange?: (bounds: {
-    swLat: number;
-    swLng: number;
-    neLat: number;
-    neLng: number;
-    zoom: number;
-  }) => void;
+  onBoundsChange?: (bounds: BboxView) => void;
   fetching?: boolean;
+  /** When provided, fit the map to this bbox on initial render instead
+   *  of starting at the world view. Used to restore a `?bbox=...`
+   *  shared-link view without an animation jitter through the world
+   *  view first. Null/undefined → world view as before. */
+  initialBbox?: BboxView | null;
 }
 
-export function MapView({ listings, locale, onBoundsChange, fetching }: MapViewProps) {
+export function MapView({
+  listings,
+  locale,
+  onBoundsChange,
+  fetching,
+  initialBbox,
+}: MapViewProps) {
   return (
     <PropertyMap
       listings={listings}
       locale={locale}
       onBoundsChange={onBoundsChange}
       fetching={fetching}
+      initialBbox={initialBbox}
     />
   );
 }
