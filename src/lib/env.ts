@@ -30,6 +30,11 @@ const publicSchema = z.object({
   // property-gallery as a fallback when no Cloudflare Images variant
   // ID exists. Format: https://pub-<hash>.r2.dev (no trailing slash).
   NEXT_PUBLIC_R2_PUBLIC_URL: z.string().url().optional(),
+  // Cloudflare Images account hash. Public — appears in every
+  // `imagedelivery.net/<hash>/<id>/<variant>` URL we render. Activated
+  // and provisioned 2026-05-07; before that, every property image fell
+  // back to R2 originals (R12 in RISKS.md, now resolved).
+  NEXT_PUBLIC_CF_IMAGES_HASH: z.string().optional(),
 });
 
 const serverSchema = z.object({
@@ -81,6 +86,7 @@ export function publicEnv(): PublicEnv {
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
     NEXT_PUBLIC_R2_PUBLIC_URL: process.env.NEXT_PUBLIC_R2_PUBLIC_URL,
+    NEXT_PUBLIC_CF_IMAGES_HASH: process.env.NEXT_PUBLIC_CF_IMAGES_HASH,
   });
   if (!parsed.success) {
     throw new Error(

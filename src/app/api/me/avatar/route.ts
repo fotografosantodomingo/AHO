@@ -1,5 +1,4 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { publicEnv, serverEnv } from '@/lib/env';
 
@@ -8,10 +7,16 @@ export const runtime = 'edge';
 /**
  * POST /api/me/avatar
  *
- * Multipart upload of a profile photo for the signed-in user. Direct
- * server-side PUT to R2 (avatar files are small enough — ≤2 MB — to fit
- * in an edge-runtime request body without justifying the presigned-URL
- * dance the property-image flow uses).
+ * Multipart upload of a profile photo for the signed-in user.
+ *
+ * Storage path (since 2026-05-07): direct upload to Cloudflare Images.
+ * The avatar_url stored on profiles points at
+ * `imagedelivery.net/<hash>/<image_id>/thumbnail` — small (200×200
+ * cover, ~10 KiB), exactly what the 80×80 hero on the agent profile
+ * page paints. No R2 round-trip; CF Images is the source of truth for
+ * avatars going forward. Property images still write to R2 first
+ * because they have larger originals + multiple variant needs (see
+ * /api/properties/[id]/images for that pipeline).
  *
  * Constraints:
  *   - Auth required (anon → 401)
@@ -19,27 +24,23 @@ export const runtime = 'edge';
  *     UI should also gate but this is the trust boundary
  *   - contentType ∈ { image/jpeg, image/png, image/webp } — server-side
  *     allowlist; client-side accept attribute is UX, not security
- *   - Object key: `avatars/{userId}/{timestamp}-{random}.{ext}` so each
- *     upload gets a unique URL (cache-busts old image URLs that may
- *     still be referenced from cached SSR pages)
  *
- * Side effect: updates `profiles.avatar_url` to the new public URL.
- * Old avatar objects become orphans in R2 (cleanup is a separate
- * concern — the previous URL stops being referenced once the row
- * updates).
+ * Side effect: updates `profiles.avatar_url` to the new CF Images URL.
+ * Old CF Images entries from prior uploads become orphans (no
+ * automatic cleanup; the URL stops being referenced once the row
+ * updates). Cleanup pass is a separate concern.
  *
- * DELETE /api/me/avatar removes the avatar_url (no R2 deletion — see
- * orphan note above).
+ * DELETE /api/me/avatar removes the avatar_url (no CF Images delete
+ * — see orphan note above).
  */
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
 const MAX_BYTES = 2_000_000;
 
-function extFor(contentType: string): string {
-  if (contentType === 'image/jpeg') return 'jpg';
-  if (contentType === 'image/png') return 'png';
-  if (contentType === 'image/webp') return 'webp';
-  return 'bin';
+interface CfUploadResponse {
+  success: boolean;
+  errors?: Array<{ message: string }>;
+  result?: { id: string };
 }
 
 export async function POST(req: NextRequest) {
@@ -54,16 +55,17 @@ export async function POST(req: NextRequest) {
   const userId = userResult.user.id;
 
   const env = serverEnv();
-  if (!env.R2_BUCKET_PROPERTY_IMAGES || !env.R2_ENDPOINT || !env.R2_ACCESS_KEY_ID || !env.R2_SECRET_ACCESS_KEY) {
-    return NextResponse.json(
-      { ok: false, errorCode: 'r2_not_configured' },
-      { status: 503 },
-    );
-  }
   const pub = publicEnv();
-  if (!pub.NEXT_PUBLIC_R2_PUBLIC_URL) {
+  // Cloudflare Images runtime requirements. Without these the route
+  // can't write the avatar; we 503 instead of silently falling back so
+  // the agent gets actionable feedback.
+  if (
+    !env.CLOUDFLARE_API_TOKEN ||
+    !env.CLOUDFLARE_ACCOUNT_ID ||
+    !pub.NEXT_PUBLIC_CF_IMAGES_HASH
+  ) {
     return NextResponse.json(
-      { ok: false, errorCode: 'r2_public_url_missing' },
+      { ok: false, errorCode: 'cf_images_not_configured' },
       { status: 503 },
     );
   }
@@ -101,45 +103,38 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const ext = extFor(contentType);
-  const key = `avatars/${userId}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
+  // POST to CF Images. The v1 API expects multipart/form-data with the
+  // file under `file`; we attach a metadata blob with `kind: avatar`
+  // and the user_id so we can audit/clean up later if needed.
+  const cfFd = new FormData();
+  cfFd.append('file', file, file.name || `avatar-${userId}.jpg`);
+  cfFd.append(
+    'metadata',
+    JSON.stringify({ kind: 'avatar', user_id: userId, uploaded_at: new Date().toISOString() }),
+  );
+  cfFd.append('requireSignedURLs', 'false');
 
-  const client = new S3Client({
-    endpoint: env.R2_ENDPOINT,
-    region: 'auto',
-    credentials: {
-      accessKeyId: env.R2_ACCESS_KEY_ID,
-      secretAccessKey: env.R2_SECRET_ACCESS_KEY,
+  const cfRes = await fetch(
+    `https://api.cloudflare.com/client/v4/accounts/${env.CLOUDFLARE_ACCOUNT_ID}/images/v1`,
+    {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${env.CLOUDFLARE_API_TOKEN}` },
+      body: cfFd,
     },
-    forcePathStyle: true,
-  });
-
-  const bytes = new Uint8Array(await file.arrayBuffer());
-  try {
-    await client.send(
-      new PutObjectCommand({
-        Bucket: env.R2_BUCKET_PROPERTY_IMAGES,
-        Key: key,
-        Body: bytes,
-        ContentType: contentType,
-        // Avatars are public — the bucket is fronted by a public URL.
-        // Cache for a long time; the timestamped key cache-busts on
-        // each new upload.
-        CacheControl: 'public, max-age=31536000, immutable',
-      }),
-    );
-  } catch (e) {
+  );
+  const cfJson = (await cfRes.json()) as CfUploadResponse;
+  if (!cfRes.ok || !cfJson.success || !cfJson.result?.id) {
+    const detail = cfJson.errors?.map((e) => e.message).join(' | ') ?? `HTTP ${cfRes.status}`;
     return NextResponse.json(
-      {
-        ok: false,
-        errorCode: 'r2_put_failed',
-        details: e instanceof Error ? e.message : String(e),
-      },
+      { ok: false, errorCode: 'cf_images_upload_failed', details: detail },
       { status: 502 },
     );
   }
 
-  const avatarUrl = `${pub.NEXT_PUBLIC_R2_PUBLIC_URL.replace(/\/$/, '')}/${key}`;
+  // Use the `thumbnail` variant (200×200 cover) as the avatar URL —
+  // exactly the size the 80×80 hero + 56×56 listing-page card paint
+  // at any DPR up to 2.5×, with no over-serving. ~10 KiB on the wire.
+  const avatarUrl = `https://imagedelivery.net/${pub.NEXT_PUBLIC_CF_IMAGES_HASH}/${cfJson.result.id}/thumbnail`;
 
   const { error: updateErr } = await supabase
     .from('profiles')
