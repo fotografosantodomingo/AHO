@@ -7,8 +7,10 @@ import type { CreateListingInput } from '@/lib/listings/listing-schema';
 
 interface ImportedFacts {
   detectedLanguage: string | null;
-  title: string | null;
-  description: string | null;
+  titleEn: string | null;
+  titleEs: string | null;
+  descriptionEn: string | null;
+  descriptionEs: string | null;
   transactionType: 'sale' | 'rent' | 'short_term' | null;
   propertyType: string | null;
   priceCents: number | null;
@@ -198,10 +200,13 @@ export function ImportFromUrlPanel({ successRedirectBase }: Props) {
 
 /**
  * Convert ImportedFacts → CreateListingInput-shaped defaults RHF
- * accepts. Two slightly tricky mappings:
- *   - The single `title` and `description` go into BOTH the EN and
- *     ES slots so the form's TitleAtLeastOneLanguage refinement
- *     passes; the agent edits per locale on the form.
+ * accepts. Notes:
+ *   - titleEn / titleEs / descriptionEn / descriptionEs come pre-
+ *     translated from the engine (Claude does the language pivot in
+ *     the same call as fact extraction). PO bug 2026-05-07: before
+ *     this fix we put the source text (e.g. Polish) into both EN
+ *     and ES slots, leaving the form with two identical Polish
+ *     blocks — useless for AHO's bilingual front end.
  *   - Free-text `amenities` are filtered to AHO's enumerated set;
  *     anything else is dropped (the Zod schema rejects rogue keys).
  *   - currency normalized to ISO 4217 uppercase.
@@ -216,10 +221,10 @@ function factsToFormDefaults(facts: ImportedFacts): Partial<CreateListingInput> 
   }
 
   return {
-    title_en: facts.title ?? null,
-    title_es: facts.title ?? null,
-    description_en: facts.description ?? null,
-    description_es: facts.description ?? null,
+    title_en: facts.titleEn ?? null,
+    title_es: facts.titleEs ?? null,
+    description_en: facts.descriptionEn ?? null,
+    description_es: facts.descriptionEs ?? null,
     transaction_type: facts.transactionType ?? 'sale',
     property_type: (facts.propertyType ?? 'apartment').toLowerCase(),
     price_cents: facts.priceCents ?? undefined,

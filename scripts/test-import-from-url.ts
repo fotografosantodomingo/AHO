@@ -24,8 +24,13 @@ async function main(): Promise<void> {
     try {
       const facts = await importFromUrl({ url });
       const ms = Date.now() - start;
-      console.log(`(${ms}ms)`);
-      console.log(JSON.stringify(facts, null, 2));
+      console.log(`(${ms}ms · detected: ${facts.detectedLanguage})`);
+      console.log(`titleEn:  ${facts.titleEn}`);
+      console.log(`titleEs:  ${facts.titleEs}`);
+      console.log(`descrEn:  ${(facts.descriptionEn ?? '').slice(0, 200)}`);
+      console.log(`descrEs:  ${(facts.descriptionEs ?? '').slice(0, 200)}`);
+      console.log(`facts:    ${facts.city}, ${facts.countryCode} · ${facts.priceCents != null ? `${facts.priceCents / 100} ${facts.currency}` : 'no price'} · ${facts.bedrooms ?? '?'}bd / ${facts.areaSqm ?? '?'}m²`);
+      console.log(`photos:   ${facts.photoUrls.length} found`);
     } catch (e) {
       console.error(`✗ ${e instanceof Error ? e.message : e}`);
     }

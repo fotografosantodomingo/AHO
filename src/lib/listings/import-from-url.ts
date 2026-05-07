@@ -44,10 +44,17 @@ export interface ImportedFacts {
    *  AHO's content locales (en/es) when filling the actual form. */
   detectedLanguage: string | null;
 
-  /** Title — usually the page's <h1> or schema.org headline. */
-  title: string | null;
-  /** A 200-500 char description, cleaned up. */
-  description: string | null;
+  /** Title in English. If source is non-EN, Claude translates with
+   *  real-estate-marketing quality (not literal translation). If
+   *  source IS English, this is the cleaned-up source title. */
+  titleEn: string | null;
+  /** Title in Spanish. Same translation policy as titleEn. */
+  titleEs: string | null;
+  /** Description in English. 200-500 chars, cleaned of portal
+   *  boilerplate. Translated from source when needed. */
+  descriptionEn: string | null;
+  /** Description in Spanish. Same policy as descriptionEn. */
+  descriptionEs: string | null;
 
   transactionType: ImportTransactionType | null;
   /** Property type as a free-text string the model picked from the
@@ -257,12 +264,19 @@ function condense(html: string): string {
     : joined;
 }
 
-const SYSTEM_PROMPT = `You are a real-estate listing-import parser. Given the page content of a property listing from a portal (otodom, idealista, Zillow, rightmove, etc.) or any agency website, extract the property's facts and return them as a single JSON object matching this exact shape:
+const SYSTEM_PROMPT = `You are a real-estate listing-import parser AND a senior bilingual real-estate copywriter (English + Spanish). Given the page content of a property listing from a portal (otodom, idealista, Zillow, rightmove, etc.) or any agency website, you do TWO things in one pass:
+
+  (a) Extract the property's structured facts as JSON.
+  (b) Provide titles + descriptions in BOTH English and Spanish (AHO's two content locales). When the source is in another language (Polish, German, French, Italian, Portuguese, etc.) you TRANSLATE — but with real-estate-marketing quality, not literal Google-Translate output. The English version reads like an American/UK marketer wrote it; the Spanish version reads like a LATAM/Spain marketer wrote it. Preserve facts, units, and proper-noun place names verbatim (e.g. "Legionowo", "PKP Legionowo Piaski") — never translate place names, transit station names, or street names.
+
+Return a single JSON object matching this exact shape:
 
 {
   "detectedLanguage": "<ISO 639-1 of the page, e.g. 'pl' / 'es' / 'en'>",
-  "title": "<the listing's title — clean it up if obviously truncated>",
-  "description": "<200-500 chars of the meaningful description; trim portal boilerplate>",
+  "titleEn": "<title in English; clean and concise>",
+  "titleEs": "<title in Spanish; clean and concise>",
+  "descriptionEn": "<200-500 chars of the meaningful description, in English; trim portal boilerplate>",
+  "descriptionEs": "<200-500 chars of the meaningful description, in Spanish; trim portal boilerplate>",
   "transactionType": "sale" | "rent" | "short_term" | null,
   "propertyType": "<apartment / house / villa / land / commercial / studio / penthouse / etc.>",
   "priceCents": <integer cents — convert from whatever currency unit the page uses; null if range/'price on request'>,
@@ -272,7 +286,7 @@ const SYSTEM_PROMPT = `You are a real-estate listing-import parser. Given the pa
   "bathrooms": <integer or null>,
   "areaSqm": <number or null — convert sq ft to m² if the source uses imperial>,
   "yearBuilt": <4-digit integer or null>,
-  "city": "<city name>",
+  "city": "<city name in its native form, e.g. 'Legionowo' not 'Legion-town'>",
   "countryCode": "<ISO 3166-1 alpha-2, e.g. 'PL' / 'ES'>",
   "neighborhood": "<district / quarter / null>",
   "postalCode": "<postal/ZIP code or null>",
@@ -282,13 +296,15 @@ const SYSTEM_PROMPT = `You are a real-estate listing-import parser. Given the pa
 
 Output rules:
 1. Respond with ONLY the JSON object. No prose. No code-fence markers.
-2. Use null for any field the source doesn't surface — DO NOT guess.
+2. Use null for any field the source doesn't surface — DO NOT guess facts. (For titleEn / titleEs / descriptionEn / descriptionEs the language pair must always be filled — translate when needed.)
 3. priceCents is an integer in cents (e.g. €350,000 → 35000000, $1.25M → 125000000).
-4. If the source uses imperial units (sq ft, ft²), convert to m² (1 sq ft = 0.0929 m²).
+4. If the source uses imperial units (sq ft, ft²), convert to m² (1 sq ft = 0.0929 m²). Inside the descriptions, mention metric (m²) — even in titleEn / descriptionEn, since AHO is a global platform.
 5. transactionType inference: "Na sprzedaż" / "Sale" / "For sale" → "sale"; "Wynajem" / "Rent" / "For rent" → "rent"; "Krótkoterminowy" / "Short-term" → "short_term".
-6. If photoUrls are relative paths, leave them out — they're not useful without the source's full URL context.
-7. Filter out portal boilerplate from description (cookie banners, "Contact agent", "View 50 more listings" etc.).
-8. Strip the agent's contact info from description — phone numbers, emails, agency names — keep only the property pitch.`;
+6. If photoUrls are relative paths, leave them out.
+7. Filter out portal boilerplate from descriptions (cookie banners, "Contact agent", "View 50 more listings" etc.).
+8. Strip the agent's contact info from descriptions — phone numbers, emails, agency names — keep only the property pitch.
+9. NEVER translate proper nouns: city names, neighborhood names, transit / school / landmark names. "Szkoła Podstawowa nr 4" stays "Szkoła Podstawowa nr 4" in English (with brief gloss like "Primary School #4" in parentheses if helpful), and "PKP Legionowo Piaski" stays as-is. Same in Spanish.
+10. Never invent yield numbers, ROI percentages, or future-projection claims. If the source surfaces them, repeat verbatim. If not, omit — the agent can add positioning hints later.`;
 
 export async function importFromUrl(args: {
   url: string;
@@ -375,8 +391,10 @@ export async function importFromUrl(args: {
 
   return {
     detectedLanguage: extracted.detectedLanguage ?? null,
-    title: extracted.title ?? null,
-    description: extracted.description ?? null,
+    titleEn: extracted.titleEn ?? null,
+    titleEs: extracted.titleEs ?? null,
+    descriptionEn: extracted.descriptionEn ?? null,
+    descriptionEs: extracted.descriptionEs ?? null,
     transactionType: (extracted.transactionType as ImportedFacts['transactionType']) ?? null,
     propertyType: extracted.propertyType ?? null,
     priceCents: typeof extracted.priceCents === 'number' ? extracted.priceCents : null,
