@@ -674,20 +674,49 @@ export async function fetchAgentProfile(
   }));
 
   // FAQs — public read gated by RLS migration 0032 (only when the org
-  // has at least one active+published listing). Filter per active locale:
-  // a row missing the locale's Q+A pair is dropped.
+  // has at least one active+published listing). Resolution per locale:
+  // active locale's Q+A pair, with EN fallback when the row doesn't
+  // have the active locale filled (PO directive 2026-05-07: "if Polish
+  // version doesn't exist, show the default English version"). Rows
+  // with no EN AND no active locale are dropped — that should be
+  // impossible because the check constraint requires at least one
+  // locale pair, but we guard anyway.
   const { data: faqRows } = await supabase
     .from('agent_faqs')
-    .select('id, question_en, question_es, answer_en, answer_es, sort_order')
+    .select(
+      'id, sort_order, ' +
+        'question_en, answer_en, question_es, answer_es, ' +
+        'question_pl, answer_pl, question_pt, answer_pt, ' +
+        'question_de, answer_de, question_fr, answer_fr, ' +
+        'question_it, answer_it',
+    )
     .eq('org_id', orgRow.id)
     .order('sort_order', { ascending: true })
     .order('created_at', { ascending: true });
 
+  /**
+   * Resolves the (question, answer) pair for an FAQ row in the active
+   * locale, with EN fallback. Returns null when neither active-locale
+   * nor EN pair is present — shouldn't happen given the at-least-one
+   * check constraint, but a typed null lets the caller drop the row.
+   */
+  function pickFaq(
+    r: Record<string, unknown>,
+  ): { question: string; answer: string } | null {
+    const locale = args.locale;
+    const localeQ = r[`question_${locale}`] as string | null | undefined;
+    const localeA = r[`answer_${locale}`] as string | null | undefined;
+    if (localeQ && localeA) return { question: localeQ, answer: localeA };
+    const enQ = r['question_en'] as string | null | undefined;
+    const enA = r['answer_en'] as string | null | undefined;
+    if (enQ && enA) return { question: enQ, answer: enA };
+    return null;
+  }
+
   const faqs: PublicAgentFaq[] = [];
-  for (const r of faqRows ?? []) {
-    const q = args.locale === 'es' ? r.question_es : r.question_en;
-    const a = args.locale === 'es' ? r.answer_es : r.answer_en;
-    if (q && a) faqs.push({ id: r.id as string, question: q, answer: a });
+  for (const r of (faqRows as unknown as Array<Record<string, unknown>>) ?? []) {
+    const picked = pickFaq(r);
+    if (picked) faqs.push({ id: r.id as string, ...picked });
   }
 
   // Areas served — distinct (city, country_code) across active + sold

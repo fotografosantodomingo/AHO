@@ -380,11 +380,21 @@ export default async function AgentProfilePage({
               {orgTypeLabel}
             </p>
             <div className="mt-4 flex flex-wrap items-center gap-5">
-              {result.org.logoUrl ? (
+              {/* Hero photo: prefer the org logo when set, else the agent's
+                  own profile avatar. For solo agents (most of AHO) the
+                  organization is them — they upload a profile photo via
+                  /dashboard/profile, never bother to upload a separate org
+                  logo, and end up with an initials placeholder. Falling
+                  back to agent.avatarUrl gives them what they expected. */}
+              {(result.org.logoUrl || result.agent?.avatarUrl) ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={result.org.logoUrl}
-                  alt={`${result.org.name} logo`}
+                  src={result.org.logoUrl ?? result.agent!.avatarUrl!}
+                  alt={
+                    result.org.logoUrl
+                      ? `${result.org.name} logo`
+                      : result.agent?.fullName ?? result.org.name
+                  }
                   width={80}
                   height={80}
                   className="h-20 w-20 rounded-card border border-border bg-surface object-cover shadow-whisper dark:bg-surface-dark"

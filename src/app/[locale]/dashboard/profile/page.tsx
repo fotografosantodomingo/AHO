@@ -94,7 +94,13 @@ export default async function ProfilePage({
   const { data: faqRows } = orgId
     ? await supabase
         .from('agent_faqs')
-        .select('id, question_en, question_es, answer_en, answer_es, sort_order')
+        .select(
+          'id, sort_order, ' +
+            'question_en, answer_en, question_es, answer_es, ' +
+            'question_pl, answer_pl, question_pt, answer_pt, ' +
+            'question_de, answer_de, question_fr, answer_fr, ' +
+            'question_it, answer_it',
+        )
         .eq('org_id', orgId)
         .order('sort_order', { ascending: true })
         .order('created_at', { ascending: true })
@@ -141,14 +147,26 @@ export default async function ProfilePage({
           <FaqEditor
             orgId={orgId}
             locale={locale as Locale}
-            initialFaqs={(faqRows ?? []).map((r) => ({
-              id: r.id as string,
-              questionEn: (r.question_en as string | null) ?? '',
-              questionEs: (r.question_es as string | null) ?? '',
-              answerEn: (r.answer_en as string | null) ?? '',
-              answerEs: (r.answer_es as string | null) ?? '',
-              sortOrder: r.sort_order as number,
-            }))}
+            initialFaqs={((faqRows as unknown as Array<Record<string, unknown>>) ?? []).map(
+              (r) => ({
+                id: r.id as string,
+                questionEn: (r.question_en as string | null) ?? '',
+                questionEs: (r.question_es as string | null) ?? '',
+                questionPl: (r.question_pl as string | null) ?? '',
+                questionPt: (r.question_pt as string | null) ?? '',
+                questionDe: (r.question_de as string | null) ?? '',
+                questionFr: (r.question_fr as string | null) ?? '',
+                questionIt: (r.question_it as string | null) ?? '',
+                answerEn: (r.answer_en as string | null) ?? '',
+                answerEs: (r.answer_es as string | null) ?? '',
+                answerPl: (r.answer_pl as string | null) ?? '',
+                answerPt: (r.answer_pt as string | null) ?? '',
+                answerDe: (r.answer_de as string | null) ?? '',
+                answerFr: (r.answer_fr as string | null) ?? '',
+                answerIt: (r.answer_it as string | null) ?? '',
+                sortOrder: r.sort_order as number,
+              }),
+            )}
           />
         </section>
       )}
