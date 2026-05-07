@@ -67,11 +67,17 @@ export async function POST(req: NextRequest) {
   }
   // Some browsers leave content-type empty on MediaRecorder Blobs —
   // accept those too; Whisper sniffs the format from the bytes.
-  if (file.type && !ALLOWED_TYPES.includes(file.type.toLowerCase())) {
-    return NextResponse.json(
-      { error: 'unsupported_audio_type', got: file.type },
-      { status: 415 },
-    );
+  // Normalize to the base mime — MediaRecorder usually emits
+  // `audio/webm;codecs=opus`, `audio/mp4;codecs="mp4a.40.2"`, etc.
+  // We only check the part before the semicolon.
+  if (file.type) {
+    const baseType = file.type.split(';')[0]?.trim().toLowerCase() ?? '';
+    if (baseType && !ALLOWED_TYPES.includes(baseType)) {
+      return NextResponse.json(
+        { error: 'unsupported_audio_type', got: file.type },
+        { status: 415 },
+      );
+    }
   }
 
   const localeHint = form.get('locale');
