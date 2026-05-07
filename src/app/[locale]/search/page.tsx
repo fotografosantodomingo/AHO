@@ -12,6 +12,7 @@ import { SaveSearchButton } from '@/components/saved-searches/save-search-button
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { precomputeApproxLabels } from '@/lib/currency/server';
 import { getUserFavoriteIds } from '@/lib/listings/favorites';
+import { getCountriesIndex } from '@/lib/listings/countries';
 
 export const runtime = 'edge';
 
@@ -45,7 +46,12 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
   const sp = await searchParams;
   const filters = parseFilters(sp);
   const t = await getTranslations({ locale, namespace: 'search' });
-  const result = await searchListings(filters, typedLocale);
+  // Run search + country options in parallel — the country dropdown
+  // needs the same fixture-filtered set as /countries.
+  const [result, countriesIndex] = await Promise.all([
+    searchListings(filters, typedLocale),
+    getCountriesIndex(typedLocale),
+  ]);
 
   // Approx-converted price labels for each visible listing. One rate
   // fetch per page render. Bbox-driven updates degrade to source-only
@@ -120,7 +126,14 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
         />
       </header>
 
-      <SearchFilters locale={typedLocale} filters={filters} />
+      <SearchFilters
+        locale={typedLocale}
+        filters={filters}
+        countryOptions={countriesIndex.map((c) => ({
+          code: c.countryCode,
+          name: c.displayName,
+        }))}
+      />
 
       <nav aria-label="View toggle" className="flex gap-1">
         <a

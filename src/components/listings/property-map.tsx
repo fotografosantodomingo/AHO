@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Map as LeafletMap } from 'leaflet';
 import type { SearchListing } from '@/lib/listings/search';
 import type { Locale } from '@/i18n/config';
+import { countryCentroid } from '@/lib/listings/country-centroids';
 
 /**
  * Leaflet-backed map view. The parent owns the listings (the map is a
@@ -72,14 +73,12 @@ function ensureLeafletCss(): void {
 }
 
 /**
- * Re-skin the leaflet.markercluster default theme to match AHO's design
- * tokens. The default is a green / yellow / red gradient by count which
- * looks alarming and doesn't match the HashiCorp single-accent palette.
- *
- * Override colors to monochromatic action-blue (`--color-action`,
- * `--color-action-dark`, `--color-action-active` from globals.css) with
- * a subtle outer ring at 0.4 opacity. Same three count thresholds the
- * plugin uses by default (small <10, medium <100, large 100+).
+ * Re-skin the leaflet.markercluster default theme to match the green pin
+ * palette. The default is a green / yellow / red gradient by count which
+ * looks alarming and clashes with our pins. Use Tailwind emerald shades
+ * (500/600/700) so cluster bubbles stay visually coherent with the
+ * surveyed-pin fill (#059669). Same three count thresholds the plugin
+ * uses by default (small <10, medium <100, large 100+).
  */
 function ensureClusterThemeOverride(): void {
   if (typeof document === 'undefined') return;
@@ -88,13 +87,14 @@ function ensureClusterThemeOverride(): void {
   const style = document.createElement('style');
   style.id = id;
   style.textContent = `
-.marker-cluster-small { background-color: rgb(34 100 214 / 0.4); }
-.marker-cluster-small div { background-color: rgb(34 100 214); color: #efeff1; }
-.marker-cluster-medium { background-color: rgb(16 96 255 / 0.4); }
-.marker-cluster-medium div { background-color: rgb(16 96 255); color: #efeff1; }
-.marker-cluster-large { background-color: rgb(43 137 255 / 0.4); }
-.marker-cluster-large div { background-color: rgb(43 137 255); color: #efeff1; }
+.marker-cluster-small { background-color: rgb(16 185 129 / 0.4); }
+.marker-cluster-small div { background-color: rgb(16 185 129); color: #ffffff; }
+.marker-cluster-medium { background-color: rgb(5 150 105 / 0.4); }
+.marker-cluster-medium div { background-color: rgb(5 150 105); color: #ffffff; }
+.marker-cluster-large { background-color: rgb(4 120 87 / 0.4); }
+.marker-cluster-large div { background-color: rgb(4 120 87); color: #ffffff; }
 .marker-cluster div { font-family: var(--font-system, system-ui), sans-serif; font-weight: 600; }
+.aho-pin { background: transparent; border: 0; }
 `;
   document.head.appendChild(style);
 }
@@ -115,10 +115,47 @@ export function PropertyMap({
   const onBoundsChangeRef = useRef(onBoundsChange);
   onBoundsChangeRef.current = onBoundsChange;
 
-  const pinned = useMemo(
-    () => listings.filter((l) => l.latitude != null && l.longitude != null),
-    [listings],
-  );
+  /**
+   * Pinned listings — pair (listing, [lat, lng], precise?). Listings with
+   * a real lat/lng win; ones without fall back to the country centroid so
+   * the map isn't empty when agents haven't entered exact coordinates
+   * yet. Precise pins use a darker shade so the user can tell at a glance
+   * which markers are surveyed vs. approximated.
+   */
+  const pinned = useMemo<
+    Array<{ listing: SearchListing; lat: number; lng: number; precise: boolean }>
+  >(() => {
+    const out: Array<{
+      listing: SearchListing;
+      lat: number;
+      lng: number;
+      precise: boolean;
+    }> = [];
+    for (const l of listings) {
+      if (l.latitude != null && l.longitude != null) {
+        out.push({ listing: l, lat: l.latitude, lng: l.longitude, precise: true });
+        continue;
+      }
+      const centroid = countryCentroid(l.countryCode);
+      if (centroid) {
+        // Tiny deterministic jitter so listings sharing a country don't
+        // stack into a single un-clickable marker. ~0.05deg ≈ 5km — enough
+        // to fan out, small enough that they stay over the country.
+        const jitter = (seed: string) => {
+          let h = 0;
+          for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) | 0;
+          return ((h % 1000) / 1000 - 0.5) * 0.1;
+        };
+        out.push({
+          listing: l,
+          lat: centroid[0] + jitter(l.id),
+          lng: centroid[1] + jitter(l.id + 'lng'),
+          precise: false,
+        });
+      }
+    }
+    return out;
+  }, [listings]);
 
   // Initialize Leaflet on mount.
   useEffect(() => {
@@ -216,16 +253,23 @@ export function PropertyMap({
       });
 
       const pathSegment = locale === 'es' ? 'propiedades' : 'properties';
-      for (const l of pinned) {
-        if (l.latitude == null || l.longitude == null) continue;
+      // Pass the whole leaflet module — `divIcon` is on the namespace
+      // export. The runtime L (from `Lmod.default`) is the same object,
+      // but the type lookup goes via the module not the default.
+      const greenIconPrecise = makeGreenIcon(Lmod, true);
+      const greenIconApprox = makeGreenIcon(Lmod, false);
+      for (const p of pinned) {
+        const l = p.listing;
         const slug = locale === 'es' ? l.slugEs ?? l.slugEn : l.slugEn ?? l.slugEs;
         const href = slug ? `/${locale}/${pathSegment}/${slug}-${l.shortId}` : null;
         const title =
           (locale === 'es' ? l.titleEs : l.titleEn) ?? l.titleEn ?? l.titleEs ?? '—';
         const popupHtml = href
-          ? `<a href="${escapeHtml(href)}" style="font-weight:600;text-decoration:underline;color:inherit;">${escapeHtml(title)}</a><br/><span style="color:#656a76;font-size:12px;">${escapeHtml(l.city)}, ${escapeHtml(l.countryCode)}</span>`
+          ? `<a href="${escapeHtml(href)}" style="font-weight:600;text-decoration:underline;color:inherit;">${escapeHtml(title)}</a><br/><span style="color:#656a76;font-size:12px;">${escapeHtml(l.city)}, ${escapeHtml(l.countryCode)}${p.precise ? '' : ' · approx'}</span>`
           : `<strong>${escapeHtml(title)}</strong>`;
-        const marker = L.marker([l.latitude, l.longitude]).bindPopup(popupHtml);
+        const marker = L.marker([p.lat, p.lng], {
+          icon: p.precise ? greenIconPrecise : greenIconApprox,
+        }).bindPopup(popupHtml);
         cluster.addLayer(marker);
       }
 
@@ -252,13 +296,11 @@ export function PropertyMap({
       const L = Lmod.default;
       if (pinned.length === 1) {
         const only = pinned[0];
-        if (only?.latitude != null && only.longitude != null) {
-          map.setView([only.latitude, only.longitude], 13);
+        if (only) {
+          map.setView([only.lat, only.lng], only.precise ? 13 : 6);
         }
       } else {
-        const bounds = L.latLngBounds(
-          pinned.map((m) => [m.latitude as number, m.longitude as number]),
-        );
+        const bounds = L.latLngBounds(pinned.map((m) => [m.lat, m.lng]));
         map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
       }
       fittedRef.current = true;
@@ -298,4 +340,28 @@ function escapeHtml(s: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+/**
+ * Inline-SVG green pin via Leaflet's divIcon. Two styles:
+ *   - precise: solid emerald-600 (#059669) — surveyed lat/lng
+ *   - approx:  emerald-500 with a dashed outline — country centroid
+ *     fallback. Different enough that a careful viewer can tell, but
+ *     not noisy enough to distract on a sea of pins.
+ *
+ * Uses divIcon (not a remote PNG) so we don't depend on Leaflet's
+ * default marker assets which break under bundlers.
+ */
+function makeGreenIcon(L: typeof import('leaflet'), precise: boolean) {
+  const fill = '#059669';
+  const stroke = precise ? '#065f46' : '#10b981';
+  const strokeDasharray = precise ? '' : 'stroke-dasharray:2 2;';
+  const html = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 32" width="24" height="32" style="filter:drop-shadow(0 1px 1.5px rgb(0 0 0 / 0.35))"><path d="M12 0C5.4 0 0 5.4 0 12c0 7.7 9.6 18.5 11.1 20.1.5.5 1.3.5 1.8 0C14.4 30.5 24 19.7 24 12 24 5.4 18.6 0 12 0Z" fill="${fill}" stroke="${stroke}" style="stroke-width:1.5;${strokeDasharray}"/><circle cx="12" cy="12" r="4" fill="#ffffff"/></svg>`;
+  return L.divIcon({
+    html,
+    className: 'aho-pin',
+    iconSize: [24, 32],
+    iconAnchor: [12, 32],
+    popupAnchor: [0, -28],
+  });
 }

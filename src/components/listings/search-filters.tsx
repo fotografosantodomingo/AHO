@@ -1,10 +1,20 @@
 import { getTranslations } from 'next-intl/server';
 import type { SearchFilters as Filters } from '@/lib/listings/search';
 import type { Locale } from '@/i18n/config';
+import { getCountryName } from '@/lib/i18n/countries';
 
 interface Props {
   locale: Locale;
   filters: Filters;
+  /**
+   * Countries with at least one active+published listing — used to
+   * populate the country dropdown with localized full names. The page
+   * pre-filters via getCountriesIndex so we don't render a wall of
+   * countries that would return zero results. The currently-selected
+   * country is force-merged in below in case it sits outside this set
+   * (e.g., user typed a country code that no longer has listings).
+   */
+  countryOptions: Array<{ code: string; name: string }>;
 }
 
 /**
@@ -16,10 +26,25 @@ interface Props {
  * filters preserves locale routing (e.g., on `/es/buscar` the form submits to
  * `/es/buscar?...`, not `/search?...`).
  */
-export async function SearchFilters({ locale, filters }: Props) {
+export async function SearchFilters({ locale, filters, countryOptions }: Props) {
   const t = await getTranslations({ locale, namespace: 'search' });
   const tProperty = await getTranslations({ locale, namespace: 'property' });
   const action = `/${locale}/${locale === 'es' ? 'buscar' : 'search'}`;
+
+  // Force-include the selected country if it's not in the index — keeps
+  // the URL value rendering selected instead of silently flipping to
+  // "Any" when the user lands from a sparse-country external link.
+  const selectedCode = filters.country?.toUpperCase();
+  const hasSelected = selectedCode
+    ? countryOptions.some((c) => c.code.toUpperCase() === selectedCode)
+    : true;
+  const mergedCountries =
+    selectedCode && !hasSelected
+      ? [
+          ...countryOptions,
+          { code: selectedCode, name: getCountryName(selectedCode, locale) },
+        ].sort((a, b) => a.name.localeCompare(b.name))
+      : countryOptions;
 
   // Count of non-default filter values, used to show a subtle "X filters
   // active" pill and to gate visibility of the Clear button. Page param
@@ -76,17 +101,19 @@ export async function SearchFilters({ locale, filters }: Props) {
         >
           {t('countryLabel')}
         </label>
-        <input
+        <select
           id="search-country"
           name="country"
-          type="text"
-          inputMode="text"
-          maxLength={2}
-          autoCapitalize="characters"
-          placeholder={t('countryPlaceholder')}
-          defaultValue={filters.country ?? ''}
-          className={`${inputClass} uppercase`}
-        />
+          defaultValue={selectedCode ?? ''}
+          className={inputClass}
+        >
+          <option value="">{t('countryAny')}</option>
+          {mergedCountries.map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.name}
+            </option>
+          ))}
+        </select>
       </Field>
 
       <Field>

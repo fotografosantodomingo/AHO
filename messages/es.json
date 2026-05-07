@@ -171,7 +171,7 @@
     "queryPlaceholder": "Playa, garaje, piscina…",
     "cityLabel": "Ciudad",
     "countryLabel": "País",
-    "countryPlaceholder": "ISO (DO, ES, …)",
+    "countryAny": "Cualquier país",
     "transactionLabel": "Tipo",
     "transactionAny": "Venta o alquiler",
     "minPrice": "Precio mínimo",

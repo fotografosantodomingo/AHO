@@ -173,7 +173,7 @@
     "queryPlaceholder": "Beach, garage, pool…",
     "cityLabel": "City",
     "countryLabel": "Country",
-    "countryPlaceholder": "ISO (US, MX, …)",
+    "countryAny": "Any country",
     "transactionLabel": "Type",
     "transactionAny": "Sale or rent",
     "minPrice": "Min price",
