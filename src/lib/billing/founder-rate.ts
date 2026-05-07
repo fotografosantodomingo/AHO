@@ -23,14 +23,23 @@ export function isFounderRateOpen(now: Date = new Date()): boolean {
  * monthly billing, founder window open). Annual plans are deliberately
  * excluded; the founder rate is a "lifetime $19/mo" promise that doesn't
  * map cleanly to annual billing.
+ *
+ * The `now` parameter mirrors `isFounderRateOpen` — pass an explicit
+ * timestamp from tests to make the result deterministic regardless of
+ * how `process.env.AHO_FOUNDER_RATE_WINDOW_END` is currently set, which
+ * the singleFork test pool occasionally races on between describe
+ * blocks. Production callers continue to use the default (real `now`).
  */
-export function isFounderEligible(plan: {
-  tier: string;
-  billing_period: string;
-}): boolean {
+export function isFounderEligible(
+  plan: {
+    tier: string;
+    billing_period: string;
+  },
+  now: Date = new Date(),
+): boolean {
   return (
     plan.tier === 'agent' &&
     plan.billing_period === 'monthly' &&
-    isFounderRateOpen()
+    isFounderRateOpen(now)
   );
 }

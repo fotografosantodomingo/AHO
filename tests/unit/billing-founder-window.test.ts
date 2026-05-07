@@ -36,26 +36,48 @@ describe('isFounderRateOpen', () => {
 });
 
 describe('isFounderEligible', () => {
+  // Pass an explicit `now` to every assertion so the test does not rely
+  // on the timing of process.env mutations from sibling describe blocks
+  // — the vitest singleFork pool reuses the same process across files,
+  // and we'd rather make the test deterministic than fight env races.
+  const inWindow = new Date('2026-04-29T00:00:00Z');
+  const afterWindow = new Date('2026-04-29T00:00:00Z');
+
   beforeEach(() => {
     process.env.AHO_FOUNDER_RATE_WINDOW_END = '2030-01-01T00:00:00Z';
   });
 
   it('matches agent + monthly within the window', () => {
-    expect(isFounderEligible({ tier: 'agent', billing_period: 'monthly' })).toBe(true);
+    expect(
+      isFounderEligible({ tier: 'agent', billing_period: 'monthly' }, inWindow),
+    ).toBe(true);
   });
 
   it('rejects annual plans', () => {
-    expect(isFounderEligible({ tier: 'agent', billing_period: 'annual' })).toBe(false);
+    expect(
+      isFounderEligible({ tier: 'agent', billing_period: 'annual' }, inWindow),
+    ).toBe(false);
   });
 
   it('rejects non-agent tiers', () => {
-    expect(isFounderEligible({ tier: 'agency', billing_period: 'monthly' })).toBe(false);
-    expect(isFounderEligible({ tier: 'expert', billing_period: 'monthly' })).toBe(false);
-    expect(isFounderEligible({ tier: 'premium', billing_period: 'monthly' })).toBe(false);
+    expect(
+      isFounderEligible({ tier: 'agency', billing_period: 'monthly' }, inWindow),
+    ).toBe(false);
+    expect(
+      isFounderEligible({ tier: 'expert', billing_period: 'monthly' }, inWindow),
+    ).toBe(false);
+    expect(
+      isFounderEligible({ tier: 'premium', billing_period: 'monthly' }, inWindow),
+    ).toBe(false);
   });
 
   it('rejects when the window is closed', () => {
     process.env.AHO_FOUNDER_RATE_WINDOW_END = '2024-01-01T00:00:00Z';
-    expect(isFounderEligible({ tier: 'agent', billing_period: 'monthly' })).toBe(false);
+    expect(
+      isFounderEligible(
+        { tier: 'agent', billing_period: 'monthly' },
+        afterWindow,
+      ),
+    ).toBe(false);
   });
 });
