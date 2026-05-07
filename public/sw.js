@@ -1,35 +1,50 @@
-// AHO Service Worker — v1 (installability + minimal navigation fallback).
+// AHO Service Worker — v2 (installability + offline navigation fallback).
 //
-// v1 goal: get the "Install AHO" prompt on Chrome / Edge / Samsung
-// Internet so an agent can add the dashboard to their home screen and
-// reach the voice-import flow in one tap. No precaching or aggressive
-// runtime caching yet — those can fight Cloudflare's CDN cache and
-// silently break auth flows if not tuned carefully.
+// v1 goal: Chrome / Edge / Samsung Internet "Install AHO" prompt for the
+//   on-the-move agent → reach voice-import in one tap.
+// v2 (this file): when the installed PWA is opened with no signal,
+//   serve a friendly offline page instead of Chrome's "No internet"
+//   error dino. Strictly navigation-only — every other request still
+//   goes straight to the network.
 //
-// Future (out of scope for v1):
-//   - Precache the dashboard shell + icons + manifest at install time.
-//   - Background sync queue: if a voice recording fails to POST while
-//     offline, persist the Blob in IndexedDB and submit on reconnect.
-//   - Push notifications for new lead emails.
+// Why we DO NOT runtime-cache anything else:
+//   - Auth flows, Stripe, Supabase realtime all need fresh-from-origin
+//     responses. Stale-while-revalidate has bricked production PWAs
+//     for full weeks before.
+//   - Cloudflare's CDN already does the right caching for static
+//     `_next/static` chunks; layering a SW cache on top would just
+//     fight the CDN.
 //
-// Bump VERSION to force every existing SW to update on next page load.
-// Old caches get purged on `activate` below.
+// Bump VERSION to force every existing SW to update on next page load
+// — the activate handler purges old caches on the next activation.
 
-const VERSION = 'aho-sw-v1';
+const VERSION = 'aho-sw-v2';
+const OFFLINE_URL = '/offline.html';
+const PRECACHE_URLS = [OFFLINE_URL, '/icon-pwa.svg', '/manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
-  // skipWaiting so users get the new SW on first refresh, not after the
-  // last tab closes. We're not pre-caching anything so there's no race.
-  self.skipWaiting();
+  event.waitUntil(
+    (async () => {
+      // Precache the offline shell + brand assets so the navigation
+      // fallback works first time, even before the user has visited
+      // any page on the deployed origin while online (e.g. they
+      // installed the app and immediately went underground).
+      const cache = await caches.open(VERSION);
+      await cache.addAll(PRECACHE_URLS);
+      // Activate immediately on first install. We're not pre-caching
+      // anything dynamic so there's no race with in-flight requests.
+      await self.skipWaiting();
+    })(),
+  );
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {
-      // Clean up stale caches from previous SW versions. Important now
-      // because future versions WILL precache; setting up the cleanup
-      // routine ahead of time means rolling out v2 doesn't ship dead
-      // entries.
+      // Purge any old VERSION caches. Important now because future SW
+      // versions WILL precache more aggressively; setting up the
+      // cleanup routine ahead of time means rolling out v3 doesn't
+      // ship dead entries that compete with the new ones.
       const keys = await caches.keys();
       await Promise.all(keys.filter((k) => k !== VERSION).map((k) => caches.delete(k)));
       await self.clients.claim();
@@ -37,12 +52,39 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Pass-through fetch handler. Its mere presence (per Chrome's
-// installability rules) is what flips the dashboard from "registered SW"
-// to "installable PWA" — even with no caching logic. We deliberately do
-// NOT intercept any responses here: the auth flow + Stripe + Supabase
-// realtime depend on fresh-from-origin requests, and incorrect SW
-// caching has bricked production sites for entire weeks.
-self.addEventListener('fetch', () => {
-  // intentionally empty — let the browser handle every request.
+self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  // Only intercept top-level navigations (the user typed/tapped a URL
+  // or refreshed the tab). Sub-resources, API calls, RSC payloads,
+  // image fetches all fall through to the network — they'd surface
+  // their own errors which the page can render, and the navigation
+  // shell has already loaded by the time they fire.
+  if (req.mode !== 'navigate') return;
+
+  // GET-only. Form posts (e.g. auth POSTs) must always reach the
+  // server; serving an offline page in their place would silently
+  // swallow user input.
+  if (req.method !== 'GET') return;
+
+  event.respondWith(
+    (async () => {
+      try {
+        // Always try the network first. Cloudflare's CDN handles its
+        // own caching upstream of us; we only intervene on outright
+        // failure (browser offline, DNS failure, TCP reset, etc.).
+        const networkRes = await fetch(req);
+        return networkRes;
+      } catch (_err) {
+        const cache = await caches.open(VERSION);
+        const cached = await cache.match(OFFLINE_URL);
+        return (
+          cached ??
+          new Response('You are offline.', {
+            status: 503,
+            headers: { 'content-type': 'text/plain;charset=UTF-8' },
+          })
+        );
+      }
+    })(),
+  );
 });

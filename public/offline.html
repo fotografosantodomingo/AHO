@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Offline · AHO</title>
+<meta name="theme-color" content="#1d5a3c" />
+<style>
+  :root { color-scheme: light dark; }
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #fbf8f1;
+    color: #15181e;
+    font-family: system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    html, body { background: #15181e; color: #efeff1; }
+    .card { background: #1c1f25; border-color: rgba(255,255,255,.08); }
+    .helper { color: #9aa0ad; }
+    .pill { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.08); }
+    .btn-primary { background: #2da965; color: #0a0a0a; }
+    .btn-primary:hover { background: #38c074; }
+  }
+  body { display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .card {
+    width: 100%;
+    max-width: 480px;
+    border: 1px solid rgba(0,0,0,.08);
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 32px 28px;
+    box-shadow: 0 1px 0 rgba(0,0,0,.03), 0 24px 48px -24px rgba(15,23,42,.10);
+  }
+  .mark {
+    display: inline-flex;
+    width: 48px; height: 48px;
+    align-items: center; justify-content: center;
+    background: #1d5a3c; color: #fbf8f1;
+    border-radius: 12px;
+    font-size: 28px; font-weight: 700;
+    letter-spacing: -0.04em;
+    margin-bottom: 20px;
+  }
+  h1 {
+    margin: 0 0 8px;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  p { margin: 0 0 12px; line-height: 1.5; font-size: 15px; }
+  .helper { color: #5b6371; font-size: 14px; }
+  .pill {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(0,0,0,.04);
+    border: 1px solid rgba(0,0,0,.06);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .actions { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+  .btn {
+    border: 1px solid rgba(0,0,0,.12);
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .btn-primary {
+    background: #1d5a3c;
+    color: #fbf8f1;
+    border-color: transparent;
+  }
+  .btn-primary:hover { background: #245f43; }
+</style>
+</head>
+<body>
+  <main class="card" role="main">
+    <span class="mark" aria-hidden="true">A</span>
+    <span class="pill">Offline</span>
+    <h1 style="margin-top:10px">You&rsquo;re offline.</h1>
+    <p>AHO needs an internet connection to load listings, save edits, and run voice import.</p>
+    <p class="helper">Reconnect to Wi-Fi or cellular, then tap <strong>Try again</strong>.</p>
+    <div class="actions">
+      <button class="btn btn-primary" onclick="location.reload()">Try again</button>
+      <a class="btn" href="/">Home</a>
+    </div>
+  </main>
+  <script>
+    // Auto-retry once the browser reports we're back online.
+    window.addEventListener('online', () => location.reload());
+  </script>
+</body>
+</html>
