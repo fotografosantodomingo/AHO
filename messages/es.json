@@ -16,6 +16,8 @@
     "sell": "Vender",
     "findAgent": "Buscar agente",
     "help": "Ayuda",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
     "savedSearches": "Búsquedas guardadas",
     "savedProperties": "Inmuebles guardados",
     "currency": "Moneda"
@@ -275,6 +277,14 @@
     "de": "Deutsch",
     "fr": "Français",
     "it": "Italiano"
+  },
+  "gallery": {
+    "noPhotos": "Sin fotos aún",
+    "openPhoto": "Ampliar foto",
+    "backToListing": "Volver al anuncio",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "photoCounter": "Foto {position} de {total}"
   },
   "property": {
     "translationPending": "Traducción al inglés pendiente — mostrando contenido en español.",

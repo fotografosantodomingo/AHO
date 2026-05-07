@@ -18,7 +18,9 @@
     "help": "Pomoc",
     "savedSearches": "Zapisane wyszukiwania",
     "savedProperties": "Ulubione",
-    "currency": "Waluta"
+    "currency": "Waluta",
+    "openMenu": "Otwórz menu",
+    "closeMenu": "Zamknij menu"
   },
   "currencyPicker": {
     "label": "Wybierz walutę"
@@ -115,6 +117,189 @@
     "de": "Deutsch",
     "fr": "Français",
     "it": "Italiano"
+  },
+  "priceTile": {
+    "approximateInLabel": "Około {value} w wybranej walucie"
+  },
+  "card": {
+    "viewListing": "Zobacz ofertę"
+  },
+  "favorite": {
+    "save": "Zapisz",
+    "saved": "Zapisane",
+    "signInToSave": "Zaloguj się, aby zapisać"
+  },
+  "savedProperties": {
+    "heading": "Zapisane oferty",
+    "subheading": "Oferty zapisane na później. Damy Ci znać, jeśli coś się zmieni.",
+    "emptyHeading": "Brak zapisanych ofert",
+    "emptyBody": "Gdy znajdziesz miejsce, które Ci się spodoba, kliknij serce na ofercie, by je tu zapisać.",
+    "emptyCta": "Przeglądaj oferty"
+  },
+  "recentlyViewed": {
+    "heading": "Ostatnio oglądane"
+  },
+  "gallery": {
+    "noPhotos": "Brak zdjęć",
+    "openPhoto": "Powiększ zdjęcie",
+    "backToListing": "Powrót do ogłoszenia",
+    "previous": "Poprzednie",
+    "next": "Następne",
+    "photoCounter": "Zdjęcie {position} z {total}"
+  },
+  "property": {
+    "translationPending": "Tłumaczenie polskie w toku — wyświetlamy oryginalną treść.",
+    "bedrooms_one": "{count} sypialnia",
+    "bedrooms_other": "{count} sypialnie",
+    "bedrooms_few": "{count} sypialnie",
+    "bedrooms_many": "{count} sypialni",
+    "bathrooms_one": "{count} łazienka",
+    "bathrooms_other": "{count} łazienki",
+    "bathrooms_few": "{count} łazienki",
+    "bathrooms_many": "{count} łazienek",
+    "areaSqm": "{value} m²",
+    "transactionType": {
+      "sale": "Na sprzedaż",
+      "rent": "Na wynajem",
+      "short_term": "Najem krótkoterminowy"
+    },
+    "pricePeriod": {
+      "total": "",
+      "monthly": "/ miesiąc",
+      "weekly": "/ tydzień",
+      "nightly": "/ noc"
+    },
+    "contactAgent": "Skontaktuj się z agentem",
+    "chatOnWhatsapp": "Napisz na WhatsApp",
+    "signUpToContact": "Zarejestruj się, aby skontaktować się z agentem",
+    "priceHistoryHeading": "Historia ceny",
+    "priceHistoryListed": "Wystawiono",
+    "priceHistoryReduced": "Zmiana ceny",
+    "priceHistorySold": "Sprzedano",
+    "priceHistoryRented": "Wynajęto",
+    "priceHistoryConfidential": "Cena finalizacji niejawna",
+    "factsHeading": "Cechy nieruchomości",
+    "factsSectionInterior": "Wnętrze",
+    "factsSectionProperty": "Nieruchomość",
+    "factsSectionConstruction": "Budowa",
+    "factsSectionUtilities": "Media",
+    "factsSectionCommunity": "Otoczenie",
+    "factsSectionLocation": "Lokalizacja",
+    "factsSectionFinancial": "Finanse",
+    "factsBool": {
+      "yes": "Tak",
+      "no": "Nie"
+    },
+    "factsField": {
+      "bedrooms": "Sypialnie",
+      "bathrooms": "Łazienki",
+      "area": "Powierzchnia",
+      "lotSize": "Powierzchnia działki",
+      "yearBuilt": "Rok budowy",
+      "propertyType": "Typ nieruchomości",
+      "stories": "Liczba pięter",
+      "basement": "Piwnica",
+      "petPolicy": "Zwierzęta",
+      "lastRenovationYear": "Ostatni remont",
+      "exteriorMaterial": "Elewacja",
+      "roofType": "Dach",
+      "water": "Woda",
+      "sewer": "Kanalizacja",
+      "solar": "Energia słoneczna",
+      "communityFee": "Opłata wspólnoty",
+      "communityFeePeriod": "Okres opłaty",
+      "gated": "Osiedle zamknięte",
+      "securitySystem": "Alarm",
+      "communityAmenities": "Udogodnienia osiedla",
+      "neighborhood": "Dzielnica",
+      "cityRegion": "Miasto / region",
+      "schoolDistrict": "Rejon szkolny",
+      "distanceToBeach": "Odległość od plaży",
+      "publicTransit": "Komunikacja miejska w pobliżu",
+      "propertyTaxAnnual": "Podatek roczny",
+      "listingTerms": "Akceptowane formy",
+      "parkingSpaces": "Miejsca parkingowe",
+      "parkingType": "Rodzaj parkingu",
+      "heating": "Ogrzewanie",
+      "cooling": "Klimatyzacja",
+      "flooring": "Podłogi",
+      "laundryInUnit": "Pralka w mieszkaniu",
+      "furnished": "Umeblowane",
+      "balcony": "Balkon",
+      "terrace": "Taras",
+      "amenities": "Udogodnienia"
+    },
+    "featuresEnum": {
+      "parkingType": {
+        "garage": "Garaż",
+        "carport": "Wiata",
+        "street": "Na ulicy",
+        "lot": "Parking",
+        "none": "Brak"
+      },
+      "heatingFuel": {
+        "electric": "Elektryczne",
+        "gas": "Gazowe",
+        "oil": "Olejowe",
+        "solar": "Solarne",
+        "wood": "Drewno",
+        "none": "Brak"
+      },
+      "cooling": {
+        "central": "Centralna",
+        "split": "Split",
+        "window": "Okienna",
+        "evaporative": "Wyparna",
+        "none": "Brak"
+      },
+      "water": {
+        "public": "Wodociąg",
+        "well": "Studnia",
+        "cistern": "Zbiornik",
+        "truck": "Dowóz cysterną"
+      },
+      "sewer": {
+        "public": "Kanalizacja miejska",
+        "septic": "Szambo",
+        "none": "Brak"
+      },
+      "hoaFeePeriod": {
+        "monthly": "miesiąc",
+        "annual": "rok"
+      },
+      "petPolicy": {
+        "allowed": "Dozwolone",
+        "restricted": "Ograniczone",
+        "none": "Niedozwolone"
+      },
+      "listingTerm": {
+        "cash": "Gotówka",
+        "mortgage": "Kredyt hipoteczny",
+        "owner_financing": "Finansowanie sprzedawcy",
+        "lease_to_own": "Najem z opcją wykupu",
+        "trade": "Wymiana"
+      }
+    },
+    "similarHomesHeading": "Podobne oferty w okolicy"
+  },
+  "contact": {
+    "heading": "Skontaktuj się z agentem",
+    "name": "Twoje imię",
+    "email": "Twój email",
+    "phone": "Telefon (opcjonalnie)",
+    "message": "Wiadomość",
+    "messagePlaceholder": "Cześć, jestem zainteresowany tą nieruchomością…",
+    "send": "Wyślij wiadomość",
+    "sending": "Wysyłanie…",
+    "sent": "Dzięki — Twoja wiadomość została wysłana. Agent się odezwie.",
+    "errors": {
+      "nameRequired": "Podaj swoje imię.",
+      "emailRequired": "Podaj prawidłowy email, by agent mógł odpowiedzieć.",
+      "emailInvalid": "Podaj prawidłowy adres email.",
+      "messageRequired": "Krótka wiadomość pomoże agentowi odpowiedzieć.",
+      "send_failed": "Nie udało się wysłać wiadomości. Spróbuj ponownie lub użyj WhatsApp.",
+      "rate_limited": "Wysłałeś już kilka wiadomości. Poczekaj chwilę przed wysłaniem kolejnej lub skontaktuj się przez WhatsApp."
+    }
   },
   "forAgents": {
     "meta": {

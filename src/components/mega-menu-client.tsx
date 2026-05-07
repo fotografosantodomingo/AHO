@@ -120,7 +120,7 @@ export function MegaMenuClient({
         <button
           type="button"
           onClick={() => setOpen(false)}
-          aria-label="Close menu"
+          aria-label={t('closeMenu')}
           className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-action text-white shadow-lift transition-all hover:bg-action-active active:scale-95"
         >
           <X aria-hidden="true" className="h-5 w-5" strokeWidth={2.25} />
@@ -212,7 +212,7 @@ export function MegaMenuClient({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="Open menu"
+        aria-label={t('openMenu')}
         aria-expanded={open}
         aria-controls="mobile-menu-overlay"
         className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-action text-white shadow-lift transition-all hover:bg-action-active active:scale-95 md:hidden"

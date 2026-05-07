@@ -18,7 +18,9 @@
     "help": "Aiuto",
     "savedSearches": "Ricerche salvate",
     "savedProperties": "Preferiti",
-    "currency": "Valuta"
+    "currency": "Valuta",
+    "openMenu": "Apri menu",
+    "closeMenu": "Chiudi menu"
   },
   "currencyPicker": {
     "label": "Valuta visualizzata"
@@ -115,6 +117,107 @@
     "de": "Deutsch",
     "fr": "Français",
     "it": "Italiano"
+  },
+  "priceTile": {
+    "approximateInLabel": "Circa {value} nella valuta selezionata"
+  },
+  "card": {
+    "viewListing": "Vedi annuncio"
+  },
+  "favorite": {
+    "save": "Salva",
+    "saved": "Salvato",
+    "signInToSave": "Accedi per salvare"
+  },
+  "savedProperties": {
+    "heading": "Annunci salvati",
+    "subheading": "Gli annunci che hai salvato per dopo. Ti avvisiamo se qualcosa cambia.",
+    "emptyHeading": "Nessun annuncio salvato",
+    "emptyBody": "Quando trovi un immobile che ti piace, tocca il cuore sull'annuncio per salvarlo qui.",
+    "emptyCta": "Esplora annunci"
+  },
+  "recentlyViewed": {
+    "heading": "Visualizzati di recente"
+  },
+  "gallery": {
+    "noPhotos": "Ancora nessuna foto",
+    "openPhoto": "Ingrandisci foto",
+    "backToListing": "Torna all'annuncio",
+    "previous": "Precedente",
+    "next": "Successiva",
+    "photoCounter": "Foto {position} di {total}"
+  },
+  "property": {
+    "translationPending": "Traduzione italiana in corso — visualizzazione del contenuto originale.",
+    "bedrooms_one": "{count} camera",
+    "bedrooms_other": "{count} camere",
+    "bathrooms_one": "{count} bagno",
+    "bathrooms_other": "{count} bagni",
+    "areaSqm": "{value} m²",
+    "transactionType": { "sale": "In vendita", "rent": "In affitto", "short_term": "Affitto breve" },
+    "pricePeriod": { "total": "", "monthly": "/ mese", "weekly": "/ settimana", "nightly": "/ notte" },
+    "contactAgent": "Contatta l'agente",
+    "chatOnWhatsapp": "Scrivi su WhatsApp",
+    "signUpToContact": "Registrati per contattare l'agente",
+    "priceHistoryHeading": "Storico prezzi",
+    "priceHistoryListed": "Pubblicato",
+    "priceHistoryReduced": "Prezzo modificato",
+    "priceHistorySold": "Venduto",
+    "priceHistoryRented": "Affittato",
+    "priceHistoryConfidential": "Prezzo di chiusura non divulgato",
+    "factsHeading": "Caratteristiche",
+    "factsSectionInterior": "Interni",
+    "factsSectionProperty": "Immobile",
+    "factsSectionConstruction": "Costruzione",
+    "factsSectionUtilities": "Utenze",
+    "factsSectionCommunity": "Condominio",
+    "factsSectionLocation": "Posizione",
+    "factsSectionFinancial": "Aspetti finanziari",
+    "factsBool": { "yes": "Sì", "no": "No" },
+    "factsField": {
+      "bedrooms": "Camere", "bathrooms": "Bagni", "area": "Superficie", "lotSize": "Superficie del terreno",
+      "yearBuilt": "Anno di costruzione", "propertyType": "Tipo immobile", "stories": "Piani", "basement": "Cantina",
+      "petPolicy": "Animali", "lastRenovationYear": "Ultima ristrutturazione", "exteriorMaterial": "Facciata",
+      "roofType": "Tetto", "water": "Acqua", "sewer": "Fognatura", "solar": "Energia solare",
+      "communityFee": "Spese condominiali", "communityFeePeriod": "Periodo", "gated": "Residenza recintata",
+      "securitySystem": "Allarme", "communityAmenities": "Servizi condominiali",
+      "neighborhood": "Quartiere", "cityRegion": "Città / regione", "schoolDistrict": "Distretto scolastico",
+      "distanceToBeach": "Distanza dal mare", "publicTransit": "Trasporti pubblici vicini",
+      "propertyTaxAnnual": "IMU annuale", "listingTerms": "Modalità accettate",
+      "parkingSpaces": "Posti auto", "parkingType": "Tipo parcheggio", "heating": "Riscaldamento",
+      "cooling": "Aria condizionata", "flooring": "Pavimenti", "laundryInUnit": "Lavanderia interna",
+      "furnished": "Arredato", "balcony": "Balcone", "terrace": "Terrazza", "amenities": "Comfort"
+    },
+    "featuresEnum": {
+      "parkingType": { "garage": "Garage", "carport": "Tettoia", "street": "Strada", "lot": "Parcheggio", "none": "Nessuno" },
+      "heatingFuel": { "electric": "Elettrico", "gas": "Gas", "oil": "Gasolio", "solar": "Solare", "wood": "Legna", "none": "Nessuno" },
+      "cooling": { "central": "Centralizzata", "split": "Split", "window": "Finestra", "evaporative": "Evaporativa", "none": "Nessuna" },
+      "water": { "public": "Acquedotto", "well": "Pozzo", "cistern": "Cisterna", "truck": "Autobotte" },
+      "sewer": { "public": "Fognatura pubblica", "septic": "Fossa biologica", "none": "Nessuna" },
+      "hoaFeePeriod": { "monthly": "mese", "annual": "anno" },
+      "petPolicy": { "allowed": "Ammessi", "restricted": "Limitati", "none": "Non ammessi" },
+      "listingTerm": { "cash": "Contanti", "mortgage": "Mutuo", "owner_financing": "Finanziamento del venditore", "lease_to_own": "Affitto con riscatto", "trade": "Permuta" }
+    },
+    "similarHomesHeading": "Immobili simili nelle vicinanze"
+  },
+  "contact": {
+    "heading": "Contatta l'agente",
+    "name": "Il tuo nome",
+    "email": "La tua email",
+    "phone": "Telefono (facoltativo)",
+    "message": "Messaggio",
+    "messagePlaceholder": "Salve, sono interessato a questo immobile…",
+    "send": "Invia messaggio",
+    "sending": "Invio in corso…",
+    "sent": "Grazie — il tuo messaggio è stato inviato. L'agente ti contatterà.",
+    "errors": {
+      "nameRequired": "Indica il tuo nome.",
+      "emailRequired": "Fornisci un'email valida per consentire la risposta dell'agente.",
+      "emailInvalid": "Inserisci un'email valida.",
+      "messageRequired": "Un breve messaggio aiuta l'agente a rispondere.",
+      "send_failed": "Impossibile inviare il messaggio. Riprova o usa WhatsApp.",
+      "rate_limited": "Hai già inviato diversi messaggi. Attendi un momento prima di inviarne un altro, o contatta l'agente su WhatsApp."
+    }
   },
   "forAgents": {
     "meta": {

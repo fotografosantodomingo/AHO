@@ -18,7 +18,9 @@
     "help": "Help",
     "savedSearches": "Saved searches",
     "savedProperties": "Saved properties",
-    "currency": "Currency"
+    "currency": "Currency",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "currencyPicker": {
     "label": "Display currency"
@@ -277,6 +279,14 @@
     "de": "Deutsch",
     "fr": "Français",
     "it": "Italiano"
+  },
+  "gallery": {
+    "noPhotos": "No photos yet",
+    "openPhoto": "Open photo",
+    "backToListing": "Back to listing",
+    "previous": "Previous",
+    "next": "Next",
+    "photoCounter": "Photo {position} of {total}"
   },
   "property": {
     "translationPending": "Spanish translation pending — showing English content.",

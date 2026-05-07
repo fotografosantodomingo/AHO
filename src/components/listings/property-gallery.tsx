@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { buildImageUrl } from '@/lib/listings/image-url';
 import {
   buildPhotoAlt,
@@ -76,6 +77,7 @@ export function PropertyGallery({
   city,
   countryDisplay,
 }: Props) {
+  const t = useTranslations('gallery');
   const sorted = [...images]
     .filter((img) => img.cfImageId || img.r2Key)
     .sort((a, b) => {
@@ -127,7 +129,7 @@ export function PropertyGallery({
         }}
       >
         <span className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
-          {locale === 'es' ? 'Sin fotos aún' : 'No photos yet'}
+          {t('noPhotos')}
         </span>
       </div>
     );
@@ -177,7 +179,7 @@ export function PropertyGallery({
         className="flex aspect-[16/9] w-full items-center justify-center border border-dashed border-border-strong/40 bg-surface shadow-whisper md:rounded-card dark:bg-surface-deep"
       >
         <span className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
-          {locale === 'es' ? 'Sin fotos aún' : 'No photos yet'}
+          {t('noPhotos')}
         </span>
       </div>
     );
@@ -205,7 +207,7 @@ export function PropertyGallery({
         <button
           type="button"
           onClick={() => setLightboxIdx(0)}
-          aria-label={locale === 'es' ? 'Ampliar foto' : 'Open photo'}
+          aria-label={t('openPhoto')}
           className="block w-full md:flex md:justify-center"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -240,9 +242,7 @@ export function PropertyGallery({
                   key={img.cfImageId ?? img.r2Key}
                   type="button"
                   onClick={() => setLightboxIdx(realIndex)}
-                  aria-label={
-                    locale === 'es' ? 'Ampliar foto' : 'Open photo'
-                  }
+                  aria-label={t('openPhoto')}
                   className="shrink-0 snap-start"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -270,7 +270,6 @@ export function PropertyGallery({
             index={lightboxIdx}
             altOf={(idx) => altOf(sorted[idx]!, idx + 1)}
             caption={primaryCaption}
-            locale={locale}
             onClose={() => setLightboxIdx(null)}
             onPrev={prev}
             onNext={next}
@@ -286,7 +285,6 @@ interface LightboxProps {
   index: number;
   altOf: (idx: number) => string;
   caption: string;
-  locale: Locale;
   onClose: () => void;
   onPrev: () => void;
   onNext: () => void;
@@ -297,21 +295,18 @@ function Lightbox({
   index,
   altOf,
   caption,
-  locale,
   onClose,
   onPrev,
   onNext,
 }: LightboxProps) {
+  const t = useTranslations('gallery');
   const total = urls.length;
   const url = urls[index];
   if (!url) return null;
-  const counterLabel =
-    locale === 'es'
-      ? `Foto ${index + 1} de ${total}`
-      : `Photo ${index + 1} of ${total}`;
-  const closeLabel = locale === 'es' ? 'Volver al anuncio' : 'Back to listing';
-  const prevLabel = locale === 'es' ? 'Anterior' : 'Previous';
-  const nextLabel = locale === 'es' ? 'Siguiente' : 'Next';
+  const counterLabel = t('photoCounter', { position: index + 1, total });
+  const closeLabel = t('backToListing');
+  const prevLabel = t('previous');
+  const nextLabel = t('next');
 
   return (
     <div
