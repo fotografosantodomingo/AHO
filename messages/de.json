@@ -71,6 +71,13 @@
     "proSocialFeat3Body": "UTM-getaggte Links zeigen, welche Plattform welchen Lead gebracht hat — direkt im Dashboard.",
     "proSocialCta": "Pro Automation Preise ansehen"
   },
+  "pricing": {
+    "subscribe": "Abonnieren",
+    "signInToSubscribe": "Anmelden, um zu abonnieren",
+    "redirecting": "Weiterleitung zur Bezahlung…",
+    "subscribeError": "Bezahlung konnte nicht gestartet werden. Bitte erneut versuchen.",
+    "orgNamePrompt": "Wie heißt Ihr Unternehmen oder Ihr Maklername?"
+  },
   "footer": {
     "privacy": "Datenschutz",
     "terms": "AGB",

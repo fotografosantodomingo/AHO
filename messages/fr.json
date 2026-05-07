@@ -71,6 +71,13 @@
     "proSocialFeat3Body": "Liens UTM-taggués qui montrent quelle plateforme a apporté chaque contact — directement dans votre tableau de bord.",
     "proSocialCta": "Voir les tarifs Pro Automation"
   },
+  "pricing": {
+    "subscribe": "S'abonner",
+    "signInToSubscribe": "Connectez-vous pour vous abonner",
+    "redirecting": "Redirection vers le paiement…",
+    "subscribeError": "Impossible de démarrer le paiement. Réessayez.",
+    "orgNamePrompt": "Quel est le nom de votre société ou votre nom en tant qu'agent ?"
+  },
   "footer": {
     "privacy": "Confidentialité",
     "terms": "Conditions",
