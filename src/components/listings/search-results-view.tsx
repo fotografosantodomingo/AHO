@@ -98,6 +98,7 @@ export function SearchResultsView({
     swLng: number;
     neLat: number;
     neLng: number;
+    zoom: number;
   }) {
     const params = new URLSearchParams({
       sw_lat: String(bounds.swLat),
@@ -112,6 +113,12 @@ export function SearchResultsView({
     if (filters.minPrice != null) params.set('min_price', String(filters.minPrice));
     if (filters.maxPrice != null) params.set('max_price', String(filters.maxPrice));
     if (filters.bedsMin != null) params.set('beds_min', String(filters.bedsMin));
+    // Country-overview mode at low zoom — include listings without
+    // precise lat/lng so agents who haven't entered exact coordinates
+    // are still represented (plotted via country centroid by the map).
+    // Threshold 6 ≈ "country fits in viewport". At zoom 7+ we want
+    // city-precise pins only.
+    if (bounds.zoom < 6) params.set('include_no_coords', '1');
 
     const seq = ++requestSeq.current;
     setFetching(true);
@@ -149,7 +156,29 @@ export function SearchResultsView({
         </div>
       )}
 
-      {listings.length === 0 ? (
+      {/* In map view we ALWAYS keep the map mounted, even with 0 listings.
+          Unmounting the map on empty result sets caused the "map appears
+          for a fraction of a second and disappears" bug — fitBounds() on
+          the initial pin fired a moveend → bbox fetch returned 0 (because
+          the listing had no precise lat/lng) → setListings([]) → React
+          rendered the empty-state branch → map unmounted. The empty-state
+          message is shown over the map in that case. */}
+      {view === 'map' ? (
+        <>
+          <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+            {listings.length === 0
+              ? noResultsLabel
+              : resultsCountTemplate.replace('{count}', String(listings.length)) +
+                (!bboxActive && initialHasMore ? '+' : '')}
+          </p>
+          <MapView
+            listings={listings}
+            locale={locale}
+            onBoundsChange={handleBoundsChange}
+            fetching={fetching}
+          />
+        </>
+      ) : listings.length === 0 ? (
         <div className="rounded-card border border-dashed border-border-strong/60 p-10 text-center text-sm text-ink-muted dark:text-ink-inverse-muted">
           <p>{noResultsLabel}</p>
           <p className="mt-2 text-xs text-helper">{noResultsHintLabel}</p>
@@ -160,31 +189,21 @@ export function SearchResultsView({
             {resultsCountTemplate.replace('{count}', String(listings.length))}
             {!bboxActive && initialHasMore ? '+' : ''}
           </p>
-
-          {view === 'map' ? (
-            <MapView
-              listings={listings}
-              locale={locale}
-              onBoundsChange={handleBoundsChange}
-              fetching={fetching}
-            />
-          ) : (
-            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {listings.map((l) => (
-                <li key={l.id}>
-                  <ListingCard
-                    listing={l}
-                    locale={locale}
-                    approxPriceLabel={
-                      bboxActive ? null : initialApproxLabels?.[l.id] ?? null
-                    }
-                    favorited={favoriteSet.has(l.id)}
-                    isAuthed={isAuthed}
-                  />
-                </li>
-              ))}
-            </ul>
-          )}
+          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {listings.map((l) => (
+              <li key={l.id}>
+                <ListingCard
+                  listing={l}
+                  locale={locale}
+                  approxPriceLabel={
+                    bboxActive ? null : initialApproxLabels?.[l.id] ?? null
+                  }
+                  favorited={favoriteSet.has(l.id)}
+                  isAuthed={isAuthed}
+                />
+              </li>
+            ))}
+          </ul>
         </>
       )}
 

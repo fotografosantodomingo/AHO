@@ -23,6 +23,7 @@ interface MapViewProps {
     swLng: number;
     neLat: number;
     neLng: number;
+    zoom: number;
   }) => void;
   fetching?: boolean;
 }

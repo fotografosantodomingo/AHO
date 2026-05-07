@@ -63,6 +63,17 @@ const QuerySchema = z.object({
   min_price: z.coerce.number().int().nonnegative().optional(),
   max_price: z.coerce.number().int().nonnegative().optional(),
   beds_min: z.coerce.number().int().min(0).max(20).optional(),
+  /**
+   * When `1`, include listings whose latitude / longitude is null.
+   * The frontend turns this on at low zoom levels (country-overview
+   * mode), where the map plots no-coord listings via country centroid.
+   * Without this flag, agents who haven't entered precise coordinates
+   * are invisible on the map — which causes the "map appears then
+   * disappears" bug when the only matching listing has no coords.
+   * Higher zooms keep the precise-coords-only filter so we don't smear
+   * country-centroid pins over a city-level view.
+   */
+  include_no_coords: z.coerce.number().int().min(0).max(1).optional(),
 });
 
 export async function GET(req: NextRequest) {
@@ -80,6 +91,7 @@ export async function GET(req: NextRequest) {
     min_price: sp.get('min_price') ?? undefined,
     max_price: sp.get('max_price') ?? undefined,
     beds_min: sp.get('beds_min') ?? undefined,
+    include_no_coords: sp.get('include_no_coords') ?? undefined,
   });
   if (!parsed.success) {
     return NextResponse.json(
@@ -97,20 +109,62 @@ export async function GET(req: NextRequest) {
   }
 
   const supabase = await createServerSupabaseClient();
-  let query = supabase
+  const includeNoCoords = parsed.data.include_no_coords === 1;
+  // Build the query in a single chain; the conditional `.or()` branch
+  // requires casting through PostgrestFilterBuilder<...> to keep the
+  // inferred type from exceeding TS's recursion depth (TS2589) once
+  // additional .eq/.gte/.lte filters are appended below. The cast
+  // narrows back to the row shape, preserving the typed result.
+  type Row = {
+    id: string;
+    short_id: string;
+    slug_en: string | null;
+    slug_es: string | null;
+    title_en: string | null;
+    title_es: string | null;
+    transaction_type: string;
+    property_type: string;
+    price_cents: number | string;
+    currency: string;
+    price_period: string | null;
+    bedrooms: number | null;
+    bathrooms: number | string | null;
+    area_sqm: number | string | null;
+    neighborhood: string | null;
+    city: string;
+    country_code: string;
+    image_count: number;
+    featured_until: string | null;
+    published_at: string | null;
+    latitude: number | string | null;
+    longitude: number | string | null;
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let query: any = supabase
     .from('properties')
     .select(
       'id, short_id, slug_en, slug_es, title_en, title_es, transaction_type, property_type, price_cents, currency, price_period, bedrooms, bathrooms, area_sqm, neighborhood, city, country_code, image_count, featured_until, published_at, latitude, longitude, organizations!inner(slug)',
     )
     .eq('status', 'active')
     .not('published_at', 'is', null)
-    .not('latitude', 'is', null)
-    .not('longitude', 'is', null)
-    .gte('latitude', sw_lat)
-    .lte('latitude', ne_lat)
-    .gte('longitude', sw_lng)
-    .lte('longitude', ne_lng)
     .not('organizations.slug', 'like', 'aho-test-org-%');
+
+  if (includeNoCoords) {
+    // Country-overview mode: in-bbox listings UNION no-coords listings.
+    // PostgREST `.or()` with a sub-AND uses `and(...)` for the AND group;
+    // we match (lat in bbox AND lng in bbox) OR (lat IS NULL).
+    query = query.or(
+      `and(latitude.gte.${sw_lat},latitude.lte.${ne_lat},longitude.gte.${sw_lng},longitude.lte.${ne_lng}),latitude.is.null`,
+    );
+  } else {
+    query = query
+      .not('latitude', 'is', null)
+      .not('longitude', 'is', null)
+      .gte('latitude', sw_lat)
+      .lte('latitude', ne_lat)
+      .gte('longitude', sw_lng)
+      .lte('longitude', ne_lng);
+  }
 
   // Apply optional filter params identically to searchListings, so map +
   // list see the same rows for the same filter state.
@@ -133,10 +187,10 @@ export async function GET(req: NextRequest) {
     query = query.textSearch('title_en', parsed.data.q, { type: 'plain' });
   }
 
-  const { data, error } = await query
+  const { data, error } = (await query
     .order('featured_until', { ascending: false, nullsFirst: false })
     .order('published_at', { ascending: false, nullsFirst: false })
-    .limit(200);
+    .limit(200)) as { data: Row[] | null; error: unknown };
 
   if (error) {
     console.error('[by-bbox]', error);

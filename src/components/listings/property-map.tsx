@@ -35,6 +35,11 @@ interface PropertyMapProps {
     swLng: number;
     neLat: number;
     neLng: number;
+    /** Current zoom level. The parent uses this to decide whether to
+     *  query the country-overview endpoint variant (low zoom: include
+     *  listings without precise lat/lng, plotted via centroid) vs. the
+     *  precise-only variant (high zoom: real coordinates only). */
+    zoom: number;
   }) => void;
   /**
    * Render an "Updating" chip in the top-right while the parent's
@@ -192,6 +197,16 @@ export function PropertyMap({
   useEffect(() => {
     let cancelled = false;
     let map: LeafletMap | null = null;
+    const containerEl = mapEl.current;
+    // Native event listeners gate "real user interaction". Leaflet's
+    // own `dragstart` / `zoomstart` events fire on PROGRAMMATIC camera
+    // moves too (notably the auto-fitBounds() after seeded pins arrive)
+    // — using them as the gate caused the "map disappears immediately
+    // after mount" bug. Native pointerdown / wheel / keydown only fire
+    // when the user actually touches the map.
+    const markInteracted = () => {
+      userInteractedRef.current = true;
+    };
 
     void (async () => {
       ensureLeafletCss();
@@ -212,13 +227,17 @@ export function PropertyMap({
       setReady(true);
 
       // Bbox callback on pan/zoom — debounced 400ms. Gated on actual
-      // user interaction (dragstart / zoomstart) so the initial setView
-      // and the auto-fitBounds over seeded pins don't trigger a fetch.
-      const markInteracted = () => {
-        userInteractedRef.current = true;
-      };
-      map.on('dragstart', markInteracted);
-      map.on('zoomstart', markInteracted);
+      // user interaction via NATIVE input events on the container so
+      // programmatic camera moves (initial setView, auto-fitBounds over
+      // seeded pins, "Reset to all results") don't trigger a fetch and
+      // re-render the parent into an empty state.
+      if (containerEl) {
+        containerEl.addEventListener('pointerdown', markInteracted, {
+          passive: true,
+        });
+        containerEl.addEventListener('wheel', markInteracted, { passive: true });
+        containerEl.addEventListener('keydown', markInteracted);
+      }
       const onMoveEnd = () => {
         if (!userInteractedRef.current) return;
         const m = mapRef.current;
@@ -233,6 +252,7 @@ export function PropertyMap({
             swLng: sw.lng,
             neLat: ne.lat,
             neLng: ne.lng,
+            zoom: m.getZoom(),
           });
         }, 400);
       };
@@ -242,6 +262,11 @@ export function PropertyMap({
     return () => {
       cancelled = true;
       if (fetchTimeout.current) clearTimeout(fetchTimeout.current);
+      if (containerEl) {
+        containerEl.removeEventListener('pointerdown', markInteracted);
+        containerEl.removeEventListener('wheel', markInteracted);
+        containerEl.removeEventListener('keydown', markInteracted);
+      }
       if (map) map.remove();
       mapRef.current = null;
     };
