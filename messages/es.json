@@ -202,6 +202,8 @@
     "clearFilters": "Limpiar",
     "resultsCount_one": "1 anuncio",
     "resultsCount_other": "{count} anuncios",
+    "resultsCountInArea_one": "1 anuncio en esta zona",
+    "resultsCountInArea_other": "{count} anuncios en esta zona",
     "noResults": "Ningún anuncio coincide con estos filtros.",
     "noResultsHint": "Prueba ampliar el rango de precio o quitar filtros.",
     "previousPage": "Anterior",

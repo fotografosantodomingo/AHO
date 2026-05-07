@@ -5,6 +5,7 @@ import type { Map as LeafletMap } from 'leaflet';
 import type { SearchListing } from '@/lib/listings/search';
 import type { Locale } from '@/i18n/config';
 import { countryCentroid } from '@/lib/listings/country-centroids';
+import type { BboxView } from '@/lib/listings/bbox-url';
 
 /**
  * Leaflet-backed map view. The parent owns the listings (the map is a
@@ -26,26 +27,28 @@ interface PropertyMapProps {
   listings: SearchListing[];
   locale: Locale;
   /**
-   * Called (debounced 400ms after `moveend`) with the new bounds.
-   * The parent typically refetches and feeds back via `listings`.
-   * Optional — when omitted, the map is read-only (no callback).
+   * Called (debounced 400ms after `moveend`) with the new bounds. The
+   * `zoom` field on the BboxView lets the parent pick the country-
+   * overview endpoint variant (low zoom: include listings without
+   * precise lat/lng, plotted via centroid) vs. the precise-only variant
+   * (high zoom: real coordinates only). The parent typically refetches
+   * and feeds back via `listings`. Optional — when omitted, the map is
+   * read-only (no callback).
    */
-  onBoundsChange?: (bounds: {
-    swLat: number;
-    swLng: number;
-    neLat: number;
-    neLng: number;
-    /** Current zoom level. The parent uses this to decide whether to
-     *  query the country-overview endpoint variant (low zoom: include
-     *  listings without precise lat/lng, plotted via centroid) vs. the
-     *  precise-only variant (high zoom: real coordinates only). */
-    zoom: number;
-  }) => void;
+  onBoundsChange?: (bounds: BboxView) => void;
   /**
    * Render an "Updating" chip in the top-right while the parent's
    * fetch is in-flight. Optional; defaults to off.
    */
   fetching?: boolean;
+  /**
+   * When provided on first render, fit the map to this bbox instead of
+   * starting at the world view. Used to restore a shared `?bbox=...`
+   * link without animating through the world view. Read once on mount
+   * (subsequent changes are ignored — the map is now driven by the
+   * user). Null / undefined → standard world-view start.
+   */
+  initialBbox?: BboxView | null;
 }
 
 // Default world-ish view. Was previously Santo Domingo at zoom 5 — fine
@@ -113,6 +116,7 @@ export function PropertyMap({
   locale,
   onBoundsChange,
   fetching,
+  initialBbox,
 }: PropertyMapProps) {
   const mapEl = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<LeafletMap | null>(null);
@@ -123,6 +127,15 @@ export function PropertyMap({
   // re-render.
   const onBoundsChangeRef = useRef(onBoundsChange);
   onBoundsChangeRef.current = onBoundsChange;
+  // Snapshot the initial bbox on mount. The init effect runs once (deps
+  // [] below) so it'd capture the prop anyway, but a ref keeps that
+  // intent obvious — this is "first paint only," not a tracked input.
+  const initialBboxRef = useRef<BboxView | null>(initialBbox ?? null);
+  // Tracks whether the post-mount fit-to-pins has run. Declared up here
+  // (rather than next to its useEffect below) because the init effect
+  // also writes it — when the parent supplied an initialBbox, the user's
+  // shared view wins over the auto-fit-to-pins.
+  const fittedRef = useRef(false);
   /**
    * Tracks whether the user has actually interacted with the map
    * (dragged or zoomed), as opposed to programmatic camera moves like
@@ -214,10 +227,27 @@ export function PropertyMap({
       const L = Lmod.default;
       if (cancelled || !mapEl.current) return;
 
-      map = L.map(mapEl.current, { zoomControl: true }).setView(
-        DEFAULT_CENTER,
-        DEFAULT_ZOOM,
-      );
+      map = L.map(mapEl.current, { zoomControl: true });
+      // If the parent passed an initial bbox (URL-restored shared
+      // view), fit to it BEFORE attaching the tileLayer. This avoids
+      // the brief world-view paint that fitBounds would otherwise
+      // overwrite — visible to the user as a flash of the world map
+      // before snapping into the shared view.
+      const seedBbox = initialBboxRef.current;
+      if (seedBbox) {
+        map.fitBounds(
+          L.latLngBounds(
+            [seedBbox.swLat, seedBbox.swLng],
+            [seedBbox.neLat, seedBbox.neLng],
+          ),
+          { animate: false, padding: [0, 0] },
+        );
+        // Mark the auto-fit-to-pins as already done so we don't yank
+        // the user away from their shared view when pins arrive.
+        fittedRef.current = true;
+      } else {
+        map.setView(DEFAULT_CENTER, DEFAULT_ZOOM);
+      }
       L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution:
@@ -347,8 +377,9 @@ export function PropertyMap({
 
   // Initial fit-to-bounds for the seeded markers — only the first time
   // we have markers + the map is ready. After the user pans, we don't
-  // auto-fit (would yank them around mid-browse).
-  const fittedRef = useRef(false);
+  // auto-fit (would yank them around mid-browse). The `fittedRef` is
+  // declared at the top of the component so the init effect can pre-set
+  // it when an initialBbox is supplied (URL-restored shared view).
   useEffect(() => {
     if (!ready || fittedRef.current) return;
     const map = mapRef.current;
