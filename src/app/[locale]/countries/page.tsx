@@ -2,8 +2,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
-import { getCountriesIndex } from '@/lib/listings/countries';
+import { getCountriesIndex, getGlobalSearchIndex } from '@/lib/listings/countries';
 import { DotGrid } from '@/components/ui/dot-grid';
+import { CountryCityCombobox } from '@/components/listings/country-city-combobox';
 import { publicEnv } from '@/lib/env';
 
 export const runtime = 'edge';
@@ -63,7 +64,13 @@ export default async function CountriesPage({
   setRequestLocale(typedLocale);
 
   const t = await getTranslations({ locale, namespace: 'countries' });
-  const rows = await getCountriesIndex(typedLocale);
+  // Run both queries in parallel — they touch the same source table but
+  // are different shapes (grouped vs flat). Edge runtime makes the cost
+  // negligible, and parallelism halves wall-clock vs sequential awaits.
+  const [rows, searchIndex] = await Promise.all([
+    getCountriesIndex(typedLocale),
+    getGlobalSearchIndex(typedLocale),
+  ]);
 
   const countryHref = (cc: string) =>
     `/${locale}/${typedLocale === 'es' ? 'inmuebles-en' : 'properties-in'}/${cc.toLowerCase()}`;
@@ -84,6 +91,20 @@ export default async function CountriesPage({
           <p className="mt-4 max-w-2xl text-base text-ink-muted dark:text-ink-inverse-muted">
             {t('subheading')}
           </p>
+          {searchIndex.length > 0 && (
+            <div className="mt-6 max-w-xl">
+              <CountryCityCombobox
+                entries={searchIndex}
+                placeholder={t('searchPlaceholder')}
+                ariaLabel={t('searchAriaLabel')}
+                noResultsLabel={t('searchNoResults')}
+                countriesGroupLabel={t('searchGroupCountries')}
+                citiesGroupLabel={t('searchGroupCities')}
+                listingsCountSingular={t('listingsCount_one')}
+                listingsCountPlural={t('listingsCount_other')}
+              />
+            </div>
+          )}
         </div>
       </section>
 
