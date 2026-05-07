@@ -74,8 +74,15 @@ Live document. Update as risks materialize, are mitigated, or close. Status valu
 
 ---
 
-## R12 — Cloudflare Images inactive; every property page serves R2 originals
-**Status:** active blocker (perf + ad-pipeline)
-**Risk:** `property_images.cf_image_id` is null on every row because Cloudflare Images is not yet provisioned on the account. `buildImageUrl()` therefore always falls back to direct R2 `images.advertisehomes.online/...` reads of the originals at upload resolution. Observed on `/pl/properties/wwww-siemianowice-pl-cQF9BN` (Lighthouse 2026-05-07): page total 34.5 MB, image-delivery savings 33.5 MB, LCP 28.9 s, Performance score 42 — all gated by image weight. This caps Performance on every listing page, in every locale, regardless of code-side fixes. Secondary effect: the Lighthouse `meta-description` audit fails on slow listings even though the tag is in the served HTML, because the MetaElements gather snapshots after `load` and Chrome times out before the head's audit context settles. Tertiary effect: the planned Pro Automation pipeline (paste-link → multi-channel ads) needs platform-specific variants (FB feed 1200×630, IG square 1080², IG Reel 1080×1920, etc.) — without CF Images we'd have to build a parallel resize service.
-**Mitigation:** (a) Activate Cloudflare Images on the account (PO; account upgrade if free-tier exceeded). (b) Define variant set: `public`, `card`, `thumbnail`, `og`, `fb_feed`, `ig_square`, `ig_reel`. (c) Write `scripts/backfill-r2-to-cf-images.ts` to walk every `property_images` row, upload the R2 original, write the returned id back to `cf_image_id`. (d) Update the upload pipeline so new images go through CF Images at write time, not just R2. After this lands, expect listing-page Perf to jump from ~42 → ~85+ on this same property and `meta-description` to start passing automatically.
-**Owner:** PO (CF account) + dev (backfill + pipeline)
+## R12 — Cloudflare Images activation + R2→CFI backfill (RESOLVED 2026-05-07)
+**Status:** resolved
+**Risk:** `property_images.cf_image_id` was null on every row because Cloudflare Images was not yet provisioned. `buildImageUrl()` fell back to R2 originals at upload resolution. Observed on `/pl/properties/wwww-siemianowice-pl-cQF9BN`: 34.5 MB page weight, 33.5 MB image-delivery waste, LCP 28.9 s, Performance score 42. Capped every listing page across every locale.
+**Resolution (2026-05-07):**
+1. PO activated Cloudflare Images on the account; supplied account hash `Sl-ceWby0IYMRC5pXgwVxg`.
+2. PO created an API token with `Cloudflare Images: Edit` scope (alongside the existing Pages + R2 + Workers scopes).
+3. `scripts/setup-cf-images-variants.ts` provisioned 8 variants: `public` (1366×768 scale-down), `card` (600×400 cover), `thumbnail` (200×200 cover), `og` (1200×630 cover), `full` (1920² scale-down), `fbfeed` (1200×630 cover), `igsquare` (1080² cover), `igreel` (1080×1920 cover). CF Images rejects both `_` and `-` in variant ids — only alphanumeric, hence `fbfeed` not `fb-feed` for the ad-pipeline names.
+4. `scripts/backfill-r2-to-cf-images.ts` walked every `property_images` row, uploaded the R2 original to CF Images, wrote `cf_image_id` back. Idempotent + paged + paced 5 req/sec. First run: 7/7 PL property photos uploaded successfully.
+5. `.github/workflows/deploy.yml` now bakes `NEXT_PUBLIC_CF_IMAGES_HASH` into the build; the post-backfill deploy serves `imagedelivery.net/<hash>/<id>/<variant>` URLs from `buildImageUrl()`.
+**Result on `/pl/property` Lighthouse:** Perf 42 → **73**; total bytes 34.5 MB → **1.9 MB** (-95%); LCP 28.9 s → 7.3 s; TBT 2.29 s → 170 ms; A11y/BP held at 100. Remaining LCP gap (target Perf 90+) is now addressable via preload + srcset on the primary image, not infrastructure.
+**Follow-ups:** (a) the upload pipeline still writes to R2 only — new uploads fall back to R2 until they're backfilled; the upload route should push directly to CF Images at write time. Tracked separately. (b) `meta-description` Lighthouse audit still fails on this URL despite the tag being in the HTML; not a CF Images issue, looks like a Lighthouse quirk on dynamic pages. Tracked separately.
+**Owner:** PO + dev (resolved)

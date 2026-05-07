@@ -49,9 +49,10 @@ const VARIANTS: VariantConfig[] = [
   { id: 'thumbnail', width: 200, height: 200, fit: 'cover', metadata: 'none', neverRequireSignedURLs: true },
   { id: 'og', width: 1200, height: 630, fit: 'cover', metadata: 'none', neverRequireSignedURLs: true },
   { id: 'full', width: 1920, height: 1920, fit: 'scale-down', metadata: 'none', neverRequireSignedURLs: true },
-  { id: 'fb_feed', width: 1200, height: 630, fit: 'cover', metadata: 'none', neverRequireSignedURLs: true },
-  { id: 'ig_square', width: 1080, height: 1080, fit: 'cover', metadata: 'none', neverRequireSignedURLs: true },
-  { id: 'ig_reel', width: 1080, height: 1920, fit: 'cover', metadata: 'none', neverRequireSignedURLs: true },
+  // CF Images rejects both `_` and `-` in variant ids — only alphanumeric.
+  { id: 'fbfeed', width: 1200, height: 630, fit: 'cover', metadata: 'none', neverRequireSignedURLs: true },
+  { id: 'igsquare', width: 1080, height: 1080, fit: 'cover', metadata: 'none', neverRequireSignedURLs: true },
+  { id: 'igreel', width: 1080, height: 1920, fit: 'cover', metadata: 'none', neverRequireSignedURLs: true },
 ];
 
 const ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
