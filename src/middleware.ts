@@ -100,6 +100,6 @@ export const config = {
     //   - SEO metadata routes (sitemap.xml, robots.txt) — they live at the
     //     site root and must NOT get a locale prefix; otherwise crawlers see
     //     a 307 to `/en/sitemap.xml` and ignore the canonical URL.
-    '/((?!_next/static|_next/image|favicon\\.ico|sitemap\\.xml|sitemap-images\\.xml|robots\\.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico)$|api/|auth/callback).*)',
+    '/((?!_next/static|_next/image|favicon\\.ico|icon|apple-icon|sitemap\\.xml|sitemap-images\\.xml|robots\\.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico)$|api/|auth/callback).*)',
   ],
 };
