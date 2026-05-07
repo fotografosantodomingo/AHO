@@ -116,10 +116,16 @@ html.dark {
   --color-border: rgb(244 237 225 / 0.10);
   --color-border-strong: rgb(244 237 225 / 0.28);
 
-  /* Brand greens — slightly brighter in dark for contrast against forest body. */
-  --color-action: #3a8b5d;
-  --color-action-dark: #3a8b5d;        /* equals action; legacy alias */
-  --color-action-active: #4ca070;
+  /* Brand greens — split semantics in dark mode for WCAG 4.5:1 contrast:
+     - `--color-action` darker (matches light-mode forest) so white text
+       on `bg-action` buttons crosses the 4.5:1 threshold (was #3a8b5d
+       which yielded only 4.17:1 with white per Lighthouse 2026-05-07).
+     - `--color-action-dark` lighter, used as the "text on dark surface"
+       variant via `dark:text-action-dark`. Crosses 4.5:1 against both
+       `bg-surface-band` and `bg-surface-deep`. */
+  --color-action: #1d5a3c;
+  --color-action-dark: #5cb585;
+  --color-action-active: #236a47;
 
   /* Shadows shift to warm-on-dark; the prior 6% sepia is invisible
      on a dark surface, so push to a ring-lift instead. */

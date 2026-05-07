@@ -99,7 +99,14 @@ export function MegaMenuClient({
       id="mobile-menu-overlay"
       role="dialog"
       aria-modal="true"
+      // `inert` (not just aria-hidden) when closed — Lighthouse
+      // 'aria-hidden-focus' fails when an aria-hidden=true element
+      // contains focusable descendants, because screen-reader users
+      // can still tab into hidden content. `inert` removes the
+      // descendants from the tab order AND the accessibility tree
+      // in one shot. Older browsers fall back to aria-hidden.
       aria-hidden={!open}
+      inert={!open}
       aria-label="Site navigation"
       className={`fixed inset-0 z-[60] flex flex-col bg-surface transition-opacity duration-200 ease-out md:hidden dark:bg-surface-deep ${
         open ? 'opacity-100' : 'pointer-events-none opacity-0'
