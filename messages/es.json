@@ -487,6 +487,10 @@
     "emptyBody": "{name} no tiene anuncios activos en AHO en este momento.",
     "browseAllCta": "Explorar anuncios mundiales",
     "websiteCta": "Visitar sitio web",
+    "whatsappCta": "Escribir por WhatsApp",
+    "bioHeading": "Sobre mí",
+    "areasServedHeading": "Zonas que atiendo",
+    "faqHeading": "Preguntas frecuentes",
     "statsLabel": "Métricas de ventas",
     "statSales12mo": "Ventas últimos 12 meses",
     "statTotalSales": "Ventas totales",
@@ -575,6 +579,7 @@
     "navLeads": "Contactos",
     "navReviews": "Reseñas",
     "navSavedSearches": "Búsquedas guardadas",
+    "navFaqs": "Preguntas frecuentes",
     "navProfile": "Perfil",
     "navBilling": "Facturación",
     "manageBilling": "Administrar facturación",
@@ -644,6 +649,29 @@
         "lost": "Perdido"
       }
     }
+  },
+  "dashboardFaqs": {
+    "heading": "Preguntas frecuentes",
+    "subheading": "Responde las preguntas comunes que hacen los compradores. Cada FAQ aparece en tu perfil público y está estructurada para los fragmentos enriquecidos de Google. Puedes publicar en inglés, español o ambos — deja el otro idioma en blanco si prefieres.",
+    "publishedTo": "Publicado en",
+    "addFaq": "Añadir FAQ",
+    "save": "Guardar cambios",
+    "saving": "Guardando…",
+    "publish": "Publicar FAQ",
+    "delete": "Eliminar",
+    "savedHint": "Guardado",
+    "emptyHint": "Aún no hay FAQs. Añade la primera abajo — sugerencias: zonas que atiendes, idiomas que hablas, tiempo de respuesta, trabajo con compradores extranjeros, documentos requeridos para la compra.",
+    "questionEn": "Pregunta (inglés)",
+    "questionEs": "Pregunta (español)",
+    "answerEn": "Respuesta (inglés)",
+    "answerEs": "Respuesta (español)",
+    "placeholderQuestionEn": "What areas do you cover?",
+    "placeholderQuestionEs": "¿Qué zonas atiendes?",
+    "placeholderAnswerEn": "I work primarily in Santo Domingo and Punta Cana, with select listings in…",
+    "placeholderAnswerEs": "Trabajo principalmente en Santo Domingo y Punta Cana, con propiedades seleccionadas en…",
+    "errorPartial": "Completa la pregunta y la respuesta de ese idioma, o deja ambos en blanco.",
+    "errorEmpty": "Añade al menos un idioma (inglés o español) antes de guardar.",
+    "errorSaveFailed": "No pudimos guardar la FAQ. Inténtalo de nuevo o recarga la página."
   },
   "editListing": {
     "sectionCore": "Título y descripción",

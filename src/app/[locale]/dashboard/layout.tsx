@@ -62,6 +62,7 @@ export default async function DashboardLayout({
     locale === 'es' ? 'busquedas-guardadas' : 'saved-searches'
   }`;
   const profilePath = `/${locale}/${locale === 'es' ? 'panel/perfil' : 'dashboard/profile'}`;
+  const faqsPath = `/${locale}/${locale === 'es' ? 'panel/faqs' : 'dashboard/faqs'}`;
 
   // Mobile nav items — same set as desktop sidebar, rendered through
   // a native-select dropdown via <DashboardMobileNav>. Order kept
@@ -73,6 +74,7 @@ export default async function DashboardLayout({
     { href: leadsPath, label: t('navLeads') },
     { href: reviewsPath, label: t('navReviews') },
     { href: savedSearchesPath, label: t('navSavedSearches') },
+    { href: faqsPath, label: t('navFaqs') },
     { href: profilePath, label: t('navProfile') },
   ];
 
@@ -129,6 +131,12 @@ export default async function DashboardLayout({
             className="rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5"
           >
             {t('navSavedSearches')}
+          </a>
+          <a
+            href={faqsPath}
+            className="rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5"
+          >
+            {t('navFaqs')}
           </a>
           <a
             href={profilePath}

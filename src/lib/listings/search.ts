@@ -373,12 +373,28 @@ export interface PublicAgentProfile {
   facebookUrl: string | null;
   instagramUrl: string | null;
   linkedinUrl: string | null;
+  /** WhatsApp number — safe to expose because click-to-chat links
+   *  don't reveal it in scrapeable plaintext (the URL is wa.me/{e164}).
+   *  Plain phone + email remain gated behind get_listing_contact RPC
+   *  per the original privacy model. */
+  whatsappPhone: string | null;
   /** Cached stats — recomputed by trigger on every status flip. */
   statsTotalSales: number;
   statsSales12mo: number;
   statsPriceMinCents: number | null;
   statsPriceMaxCents: number | null;
   statsAvgPriceCents: number | null;
+}
+
+/**
+ * Public FAQ entry — surfaced on the agent profile page and emitted
+ * as FAQPage JSON-LD. Per locale; rows that don't have the locale's
+ * Q+A pair are filtered out so we don't render half-translated FAQs.
+ */
+export interface PublicAgentFaq {
+  id: string;
+  question: string;
+  answer: string;
 }
 
 export interface SoldListing extends SearchListing {
@@ -398,6 +414,15 @@ interface AgentProfileResult {
   /** Listings with status = sold or rented (for the Sold table + Recent
    *  Sales carousel). Sorted by sold_date desc. */
   soldListings: SoldListing[];
+  /** Per-locale FAQs already filtered for the requested language —
+   *  rows missing a complete Q+A pair in the active locale are
+   *  dropped. Caller renders verbatim + emits FAQPage JSON-LD. */
+  faqs: PublicAgentFaq[];
+  /** Distinct (city, country_code) tuples across the agent's active +
+   *  sold listings. Used for the `areaServed` JSON-LD array and a
+   *  human-readable "Areas served" badge row in the profile. Sorted
+   *  by listing count desc. */
+  areasServed: Array<{ city: string; countryCode: string; count: number }>;
   totalShown: number;
   hasMore: boolean;
 }
@@ -429,6 +454,8 @@ export async function fetchAgentProfile(
       agent: null,
       listings: [],
       soldListings: [],
+      faqs: [],
+      areasServed: [],
       totalShown: 0,
       hasMore: false,
     };
@@ -448,6 +475,8 @@ export async function fetchAgentProfile(
       agent: null,
       listings: [],
       soldListings: [],
+      faqs: [],
+      areasServed: [],
       totalShown: 0,
       hasMore: false,
     };
@@ -471,7 +500,7 @@ export async function fetchAgentProfile(
   // multi-agent will switch this to all members.
   const { data: ownerRow } = await supabase
     .from('organization_members')
-    .select('user_id, profiles!inner(full_name, avatar_url, bio, specialties, languages_spoken, website_url, facebook_url, instagram_url, linkedin_url, stats_total_sales, stats_sales_12mo, stats_price_min_cents, stats_price_max_cents, stats_avg_price_cents)')
+    .select('user_id, profiles!inner(full_name, avatar_url, bio, specialties, languages_spoken, website_url, facebook_url, instagram_url, linkedin_url, whatsapp_phone, stats_total_sales, stats_sales_12mo, stats_price_min_cents, stats_price_max_cents, stats_avg_price_cents)')
     .eq('org_id', orgRow.id)
     .eq('role', 'owner')
     .limit(1)
@@ -487,6 +516,7 @@ export async function fetchAgentProfile(
     facebook_url: string | null;
     instagram_url: string | null;
     linkedin_url: string | null;
+    whatsapp_phone: string | null;
     stats_total_sales: number;
     stats_sales_12mo: number;
     stats_price_min_cents: number | null;
@@ -508,6 +538,7 @@ export async function fetchAgentProfile(
         facebookUrl: ownerProfile.facebook_url,
         instagramUrl: ownerProfile.instagram_url,
         linkedinUrl: ownerProfile.linkedin_url,
+        whatsappPhone: ownerProfile.whatsapp_phone,
         statsTotalSales: ownerProfile.stats_total_sales ?? 0,
         statsSales12mo: ownerProfile.stats_sales_12mo ?? 0,
         statsPriceMinCents: ownerProfile.stats_price_min_cents,
@@ -533,7 +564,16 @@ export async function fetchAgentProfile(
 
   if (listingsErr) {
     console.error('[fetchAgentProfile] listings query failed', listingsErr);
-    return { org, agent, listings: [], soldListings: [], totalShown: 0, hasMore: false };
+    return {
+      org,
+      agent,
+      listings: [],
+      soldListings: [],
+      faqs: [],
+      areasServed: [],
+      totalShown: 0,
+      hasMore: false,
+    };
   }
 
   // Sold listings — separate query so the for-sale set keeps its own
@@ -621,7 +661,52 @@ export async function fetchAgentProfile(
     representedSide: (r.represented_side as 'buyer' | 'seller' | 'both' | null) ?? null,
   }));
 
-  return { org, agent, listings, soldListings, totalShown: listings.length, hasMore };
+  // FAQs — public read gated by RLS migration 0032 (only when the org
+  // has at least one active+published listing). Filter per active locale:
+  // a row missing the locale's Q+A pair is dropped.
+  const { data: faqRows } = await supabase
+    .from('agent_faqs')
+    .select('id, question_en, question_es, answer_en, answer_es, sort_order')
+    .eq('org_id', orgRow.id)
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: true });
+
+  const faqs: PublicAgentFaq[] = [];
+  for (const r of faqRows ?? []) {
+    const q = args.locale === 'es' ? r.question_es : r.question_en;
+    const a = args.locale === 'es' ? r.answer_es : r.answer_en;
+    if (q && a) faqs.push({ id: r.id as string, question: q, answer: a });
+  }
+
+  // Areas served — distinct (city, country_code) across active + sold
+  // listings. Counted so the badge row can sort by activity.
+  const areaCounts = new Map<string, { city: string; countryCode: string; count: number }>();
+  for (const l of [...listings, ...soldListings]) {
+    if (!l.city || !l.countryCode) continue;
+    const key = `${l.countryCode.toUpperCase()}::${l.city.trim()}`;
+    const slot = areaCounts.get(key);
+    if (slot) slot.count += 1;
+    else
+      areaCounts.set(key, {
+        city: l.city.trim(),
+        countryCode: l.countryCode.toUpperCase(),
+        count: 1,
+      });
+  }
+  const areasServed = [...areaCounts.values()].sort(
+    (a, b) => b.count - a.count || a.city.localeCompare(b.city),
+  );
+
+  return {
+    org,
+    agent,
+    listings,
+    soldListings,
+    faqs,
+    areasServed,
+    totalShown: listings.length,
+    hasMore,
+  };
 }
 
 /**

@@ -160,14 +160,44 @@ export default async function AgentProfilePage({
   const profileUrl = `${site}/${locale}/${
     typedLocale === 'es' ? 'agentes' : 'agents'
   }/${slug}`;
+  // Build sameAs[] from all surfaced socials so search engines can
+  // confidently knit the Knowledge Panel together. Empty array stays
+  // omitted because schema.org rejects sameAs:[].
+  const socialLinks = [
+    result.org.website,
+    result.agent?.facebookUrl,
+    result.agent?.instagramUrl,
+    result.agent?.linkedinUrl,
+  ].filter((u): u is string => !!u);
   const jsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': result.org.type === 'agent' ? 'RealEstateAgent' : 'Organization',
     name: result.org.name,
     url: profileUrl,
     ...(description ? { description } : {}),
-    ...(result.org.website ? { sameAs: [result.org.website] } : {}),
+    ...(socialLinks.length > 0 ? { sameAs: socialLinks } : {}),
     ...(result.org.logoUrl ? { image: result.org.logoUrl } : {}),
+    ...(result.agent?.specialties.length
+      ? { knowsAbout: result.agent.specialties }
+      : {}),
+    ...(result.agent?.languagesSpoken.length
+      ? { knowsLanguage: result.agent.languagesSpoken }
+      : {}),
+    // areaServed[]: each distinct (city, country) tuple becomes a Place
+    // node so Google understands the agent's geographic coverage.
+    ...(result.areasServed.length > 0
+      ? {
+          areaServed: result.areasServed.map((a) => ({
+            '@type': 'Place',
+            name: `${a.city}, ${getCountryName(a.countryCode, typedLocale)}`,
+            address: {
+              '@type': 'PostalAddress',
+              addressLocality: a.city,
+              addressCountry: a.countryCode,
+            },
+          })),
+        }
+      : {}),
     ...(result.org.headquartersCity || result.org.headquartersCountry
       ? {
           address: {
@@ -182,6 +212,52 @@ export default async function AgentProfilePage({
         }
       : {}),
   };
+
+  // BreadcrumbList JSON-LD — Home > Agents (directory) > {Name}.
+  // Separate node from the agent JSON-LD so each tracks its own validity.
+  const agentsDirHref = `${site}/${locale}/${typedLocale === 'es' ? 'agentes' : 'agents'}`;
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: typedLocale === 'es' ? 'Inicio' : 'Home',
+        item: `${site}/${locale}`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: typedLocale === 'es' ? 'Agentes' : 'Agents',
+        item: agentsDirHref,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: result.org.name,
+        item: profileUrl,
+      },
+    ],
+  };
+
+  // FAQPage JSON-LD — only when we have at least one published FAQ.
+  // Empty FAQPage is invalid per Google's docs (mainEntity must be ≥1).
+  const faqJsonLd =
+    result.faqs.length > 0
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: result.faqs.map((f) => ({
+            '@type': 'Question',
+            name: f.question,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: f.answer,
+            },
+          })),
+        }
+      : null;
 
   // AggregateRating JSON-LD — REQUIRED by schema.org to omit when count
   // is 0 (otherwise Google flags it as invalid). Per the privacy/JSON-LD
@@ -238,6 +314,16 @@ export default async function AgentProfilePage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
       <main>
         {/* Hero band — dot-grid + glow, logo or initials chip on the seam. */}
         <section className="relative overflow-hidden border-b border-border">
@@ -275,8 +361,42 @@ export default async function AgentProfilePage({
                 {description}
               </p>
             )}
-            {result.org.website && (
-              <p className="mt-5">
+            {(result.agent?.specialties.length || result.agent?.languagesSpoken.length) && (
+              <div className="mt-5 flex flex-wrap gap-2">
+                {result.agent?.specialties.map((s) => (
+                  <span
+                    key={`spec-${s}`}
+                    className="inline-flex items-center rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-ink shadow-whisper dark:bg-surface-deep dark:text-ink-inverse"
+                  >
+                    {s}
+                  </span>
+                ))}
+                {result.agent?.languagesSpoken.map((l) => (
+                  <span
+                    key={`lang-${l}`}
+                    className="inline-flex items-center rounded-full bg-emerald-100/70 px-3 py-1 text-xs font-medium text-emerald-900 dark:bg-emerald-900/30 dark:text-emerald-100"
+                  >
+                    {l}
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              {result.agent?.whatsappPhone && (
+                <a
+                  href={`https://wa.me/${result.agent.whatsappPhone.replace(/\D/g, '')}?text=${encodeURIComponent(
+                    typedLocale === 'es'
+                      ? `Hola ${result.agent.fullName ?? result.org.name}, vi tu perfil en AHO y me gustaría saber más.`
+                      : `Hi ${result.agent.fullName ?? result.org.name}, I saw your profile on AHO and would like to know more.`,
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-9 items-center gap-2 rounded-lg bg-emerald-600 px-4 text-sm font-medium text-white transition hover:bg-emerald-700"
+                >
+                  {t('whatsappCta')}
+                </a>
+              )}
+              {result.org.website && (
                 <a
                   href={result.org.website}
                   target="_blank"
@@ -285,12 +405,62 @@ export default async function AgentProfilePage({
                 >
                   {t('websiteCta')} →
                 </a>
-              </p>
-            )}
+              )}
+              {result.agent?.linkedinUrl && (
+                <a
+                  href={result.agent.linkedinUrl}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  className="inline-flex items-center gap-1 text-sm text-action underline-offset-2 hover:underline dark:text-action-dark"
+                >
+                  LinkedIn →
+                </a>
+              )}
+              {result.agent?.instagramUrl && (
+                <a
+                  href={result.agent.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  className="inline-flex items-center gap-1 text-sm text-action underline-offset-2 hover:underline dark:text-action-dark"
+                >
+                  Instagram →
+                </a>
+              )}
+              {result.agent?.facebookUrl && (
+                <a
+                  href={result.agent.facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  className="inline-flex items-center gap-1 text-sm text-action underline-offset-2 hover:underline dark:text-action-dark"
+                >
+                  Facebook →
+                </a>
+              )}
+            </div>
           </div>
         </section>
 
         <div className="mx-auto max-w-6xl space-y-10 px-6 py-12">
+
+        {/* Long-form bio. Whitespace-preserved (whitespace-pre-line) so
+            agents can use simple line breaks without learning Markdown.
+            Hero already shows the org description (which may be the same
+            text); this is the agent's personal bio from the profiles
+            row. Hidden when empty rather than rendering "About me" with
+            no content. */}
+        {result.agent?.bio && (
+          <section aria-labelledby="bio-heading" className="space-y-3">
+            <h2
+              id="bio-heading"
+              className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper"
+            >
+              {t('bioHeading')}
+            </h2>
+            <p className="max-w-3xl whitespace-pre-line text-base text-ink-muted dark:text-ink-inverse-muted">
+              {result.agent.bio}
+            </p>
+          </section>
+        )}
 
         {/* Stat tiles. Em-dash for missing values (locked decision per
             the dev review — clearer than 0 for "we don't have data yet").
@@ -486,6 +656,60 @@ export default async function AgentProfilePage({
                   })}
                 </tbody>
               </table>
+            </div>
+          </section>
+        )}
+
+        {/* Areas served — derived from listing cities, not user-entered.
+            Hidden when there's nothing to show. */}
+        {result.areasServed.length > 0 && (
+          <section aria-labelledby="areas-heading" className="space-y-3">
+            <h2
+              id="areas-heading"
+              className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper"
+            >
+              {t('areasServedHeading')}
+            </h2>
+            <ul className="flex flex-wrap gap-2">
+              {result.areasServed.map((a) => (
+                <li
+                  key={`${a.countryCode}-${a.city}`}
+                  className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1 text-sm shadow-whisper dark:bg-surface-deep"
+                >
+                  <span className="font-medium">{a.city}</span>
+                  <span className="text-helper">·</span>
+                  <span className="text-helper">{getCountryName(a.countryCode, typedLocale)}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {/* FAQ — uses native <details> so keyboard nav + screen readers
+            work without extra script. JSON-LD is emitted at the top of
+            the page; rendering verbatim keeps SERP rich-snippets aligned
+            with the visible text per Google's policy. Hidden entirely if
+            the agent hasn't published any FAQs in the active locale. */}
+        {result.faqs.length > 0 && (
+          <section aria-labelledby="faq-heading" className="space-y-3">
+            <h2
+              id="faq-heading"
+              className="font-brand text-xl font-bold tracking-tight"
+            >
+              {t('faqHeading')}
+            </h2>
+            <div className="divide-y divide-border rounded-card border border-border bg-surface shadow-whisper dark:bg-surface-deep">
+              {result.faqs.map((f) => (
+                <details key={f.id} className="group px-4 py-3">
+                  <summary className="cursor-pointer list-none font-medium leading-snug marker:hidden">
+                    <span className="mr-2 inline-block transition-transform group-open:rotate-90 text-helper">›</span>
+                    {f.question}
+                  </summary>
+                  <div className="mt-2 whitespace-pre-line text-sm text-ink-muted dark:text-ink-inverse-muted">
+                    {f.answer}
+                  </div>
+                </details>
+              ))}
             </div>
           </section>
         )}

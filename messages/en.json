@@ -463,6 +463,10 @@
     "emptyBody": "{name} doesn't have any active listings on AHO at the moment.",
     "browseAllCta": "Browse listings worldwide",
     "websiteCta": "Visit website",
+    "whatsappCta": "Message on WhatsApp",
+    "bioHeading": "About",
+    "areasServedHeading": "Areas served",
+    "faqHeading": "Frequently asked questions",
     "statsLabel": "Sales metrics",
     "statSales12mo": "Sales last 12 months",
     "statTotalSales": "Total sales",
@@ -577,6 +581,7 @@
     "navLeads": "Leads",
     "navReviews": "Reviews",
     "navSavedSearches": "Saved searches",
+    "navFaqs": "FAQs",
     "navProfile": "Profile",
     "navBilling": "Billing",
     "manageBilling": "Manage billing",
@@ -646,6 +651,29 @@
         "lost": "Lost"
       }
     }
+  },
+  "dashboardFaqs": {
+    "heading": "Frequently asked questions",
+    "subheading": "Answer common questions buyers ask. Each FAQ appears on your public profile and is structured for Google rich snippets. You can publish in English, Spanish, or both — leave the other language blank if you prefer.",
+    "publishedTo": "Published on",
+    "addFaq": "Add FAQ",
+    "save": "Save changes",
+    "saving": "Saving…",
+    "publish": "Publish FAQ",
+    "delete": "Delete",
+    "savedHint": "Saved",
+    "emptyHint": "No FAQs yet. Add your first one below — common starters: areas you cover, languages you speak, response time, work with foreign buyers, documents needed for purchase.",
+    "questionEn": "Question (English)",
+    "questionEs": "Question (Spanish)",
+    "answerEn": "Answer (English)",
+    "answerEs": "Answer (Spanish)",
+    "placeholderQuestionEn": "What areas do you cover?",
+    "placeholderQuestionEs": "¿Qué zonas atiendes?",
+    "placeholderAnswerEn": "I work primarily in Santo Domingo and Punta Cana, with select listings in…",
+    "placeholderAnswerEs": "Trabajo principalmente en Santo Domingo y Punta Cana, con propiedades seleccionadas en…",
+    "errorPartial": "Fill both the question and the answer for that language, or leave both blank.",
+    "errorEmpty": "Add at least one language (English or Spanish) before saving.",
+    "errorSaveFailed": "Couldn't save the FAQ. Try again or refresh the page."
   },
   "editListing": {
     "sectionCore": "Title & description",

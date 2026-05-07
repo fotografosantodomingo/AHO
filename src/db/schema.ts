@@ -744,3 +744,32 @@ export const currencyRateSnapshot = pgTable('currency_rate_snapshot', {
 
 export type CurrencyRateSnapshot = typeof currencyRateSnapshot.$inferSelect;
 
+// ----------------------------------------------------------------
+// agent_faqs (migration 0032). Per-org FAQ entries surfaced on the
+// public agent profile page; emits FAQPage JSON-LD for rich-snippet
+// eligibility. Bilingual; both languages independently optional.
+// ----------------------------------------------------------------
+
+export const agentFaqs = pgTable(
+  'agent_faqs',
+  {
+    id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+    orgId: uuid('org_id')
+      .notNull()
+      .references(() => organizations.id, { onDelete: 'cascade' }),
+    questionEn: text('question_en'),
+    questionEs: text('question_es'),
+    answerEn: text('answer_en'),
+    answerEs: text('answer_es'),
+    sortOrder: integer('sort_order').notNull().default(0),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    idxOrgSort: index('idx_agent_faqs_org_sort').on(t.orgId, t.sortOrder),
+  }),
+);
+
+export type AgentFaq = typeof agentFaqs.$inferSelect;
+export type NewAgentFaq = typeof agentFaqs.$inferInsert;
+

@@ -12,6 +12,25 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-06 — Countries combobox, search-page fixes, agent profile enrichment + FAQs
+- **What shipped (continuous session, after the rate-limit work):**
+  - **/countries combobox typeahead.** Search box above the country grid that queries countries + cities at once with diacritic-folded matching. WAI-ARIA 1.2 combobox pattern (role=combobox + listbox + activedescendant). New `getGlobalSearchIndex(locale)` helper in `src/lib/listings/countries.ts`; new `<CountryCityCombobox>` client component. Static grid kept below for SEO.
+  - **/search filter + map fixes** (PO report on `/en/search?transaction=sale`):
+    - Country filter: 2-letter ISO input → localized full-name `<select>` populated from `getCountriesIndex`. Currently-selected code is force-merged in if it sits outside the index so deep-link URLs keep their value visible.
+    - Map markers: default Leaflet blue PNG → inline-SVG divIcons in emerald (#059669). Two variants: solid for precise lat/lng, dashed-stroke for centroid fallback. Cluster bubbles re-themed from action-blue to matching emerald shades (500/600/700).
+    - Centroid fallback: new `src/lib/listings/country-centroids.ts` ships ~70 country centroids; listings without coords fall back with deterministic jitter so co-located pins don't stack into one un-clickable marker.
+  - **Agent profile enrichment** (PR 2):
+    - Migration `0032_agent_faqs.sql` — bilingual FAQ table; RLS gates anon read on org having ≥1 active+published listing (mirrors org policy 0031); owner/manager full CRUD via membership join. Applied to prod.
+    - `fetchAgentProfile` extended: pulls `whatsapp_phone`; loads FAQ rows filtered for active locale (rows missing locale's complete Q+A pair are dropped); derives `areasServed` from distinct city × country across active + sold listings.
+    - Profile page UI: hero now shows specialties + languages chips; WhatsApp / website / LinkedIn / Instagram / Facebook CTAs; bio section (whitespace-preserved); areas-served pills; FAQ accordion (native `<details>` for kbd + a11y).
+    - JSON-LD: `RealEstateAgent` now emits `knowsAbout` (specialties), `knowsLanguage` (languages), `areaServed[]` (Place nodes per city/country), `sameAs[]` from socials. New separate `BreadcrumbList` and `FAQPage` JSON-LD scripts (FAQPage emitted only when ≥1 FAQ exists per Google's rich-result rules).
+    - Dashboard FAQ editor at `/dashboard/faqs` (`/panel/faqs` ES). Server-resolves user's org; client editor uses Supabase browser client subject to RLS — owner/manager only. Each row is bilingual (EN, ES, or both); both-or-neither rule per locale enforced client-side + by DB CHECK constraint. Add/edit/delete + auto-refresh of public profile on save. Wired into the existing dashboard sidebar + mobile nav.
+- **What changed since last session:** Same calendar day; this entry succeeds the rate-limit ship.
+- **Blockers / open questions:** None new. The agent profile is now competitive with Zillow/Realtor.com surfaces (bio, specialties, languages, sales stats, recent sales, listings, sold table, reviews, FAQs, areas served, full social CTAs, RealEstateAgent + AggregateRating + Review + FAQPage + BreadcrumbList JSON-LD). Deferred: response-time stats (needs event tracking), license/credentials field (per-country logic), years-of-experience.
+- **Next session should start with:** Saved-search email-alert worker (CF cron + diff against last_notified_at + Brevo notify). Highest user-facing value remaining; saved-searches surface is live but currently inert beyond storage. Or: webhook-replay fixture-state harness for pre-live confidence on Stripe.
+
+---
+
 ## 2026-05-06 — Lead form anti-abuse complete: KV rate limit + Turnstile diagnostic
 - **What shipped:**
   - **KV-backed per-IP rate limit on `/api/leads`** (10 form submits / hour). Created the `aho_rate_limit` namespace (id `2df4492330a443cc8d43a21a53c8fff7`), bound it via `wrangler.toml`, and wrote `src/lib/rate-limit/kv.ts` — a fixed-window counter that uses KV TTL for cleanup, ctx.waitUntil for guaranteed flush of the increment, and degrades open in non-CF envs (tests, local). Wired into `src/app/api/leads/route.ts` ahead of the Turnstile siteverify (saves a CF call when the IP is past quota). Added 7 unit tests covering allow/block/window-rollover/per-namespace/per-identifier isolation/skip-when-no-binding/waitUntil-when-available — all pass.
