@@ -189,12 +189,18 @@ html.dark {
     transform: scale(0.97);
   }
 
+  /* Always-light pill: this button sits on the always-dark footer, so it
+     uses fixed light tokens to keep dark-green-text-on-white contrast in
+     both themes (~9:1). Without the override, dark-mode `bg-surface`
+     becomes near-black and contrast collapses to ~1.86:1. */
   .btn-primary-inverse {
-    @apply inline-flex h-10 items-center justify-center rounded-full bg-surface px-6 text-sm font-medium text-action shadow-whisper transition;
+    @apply inline-flex h-10 items-center justify-center rounded-full px-6 text-sm font-medium shadow-whisper transition;
+    background-color: #ffffff;
+    color: #1d5a3c;
     letter-spacing: -0.01em;
   }
   .btn-primary-inverse:hover {
-    background-color: var(--color-surface-muted);
+    background-color: #f4ede1;
   }
   .btn-primary-inverse:active {
     transform: scale(0.97);
