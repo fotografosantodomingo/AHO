@@ -169,7 +169,7 @@ export default async function EditListingPage({
           to advertisehomes.online. Pro Automation tier only;
           published listings only (the API enforces both server-side). */}
       {proUnlocked && listing.status === 'active' && (
-        <SocialGrid propertyId={listing.id} />
+        <SocialGrid propertyId={listing.id} locale={typedLocale} />
       )}
 
       {/* Social Media Automation module — visible to all paid agents,
