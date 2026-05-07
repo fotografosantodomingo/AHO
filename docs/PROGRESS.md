@@ -64,7 +64,19 @@ Newest entries on top. At the end of every working session, append a new entry h
     network anyway).
   - Zillow / Redfin / Realtor.com still bot-blocked (R12 in
     `RISKS.md`). Sprint-2 item B requires a residential proxy.
-- **Commits:** `92cc6ef` photo-import, `a52383e` PWA. (2 commits.)
+- **PWA polish (`afde5ef`):** apple-touch-icon at 180×180 (Next's
+  `app/apple-icon.tsx` via ImageResponse on Edge — iOS Safari Add-to-
+  Home-Screen reads this tag, not the manifest's icons array, so without
+  it the iOS launcher tile falls back to a page screenshot). SW
+  bumped v1 → v2 with a navigation-only offline fallback: precaches
+  `/offline.html` + `/icon-pwa.svg` + the manifest at install, serves
+  the cached offline page when `req.mode === 'navigate'` and the
+  network call rejects. Strictly navigation-only — API / RSC / image
+  fetches still go straight to network so we don't fight Cloudflare's
+  CDN or swallow auth POSTs. `online` event auto-reloads the offline
+  page. `online`-event auto-reload + Try-Again + Home buttons.
+- **Commits:** `92cc6ef` photo-import, `a52383e` PWA scaffold,
+  `afde5ef` PWA polish. (3 commits.)
 - **Blockers / open questions:**
   - **A** (PO action): Meta OAuth deep-debug — App Mode + Roles +
     Configuration redirect URI; "Sorry, something went wrong" still
