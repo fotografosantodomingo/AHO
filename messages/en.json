@@ -271,7 +271,12 @@
   "locale": {
     "label": "Language",
     "en": "English",
-    "es": "Español"
+    "es": "Español",
+    "pl": "Polski",
+    "pt": "Português",
+    "de": "Deutsch",
+    "fr": "Français",
+    "it": "Italiano"
   },
   "property": {
     "translationPending": "Spanish translation pending — showing English content.",
