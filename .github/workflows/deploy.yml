@@ -54,6 +54,10 @@ jobs:
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
           NEXT_PUBLIC_R2_PUBLIC_URL: ${{ secrets.NEXT_PUBLIC_R2_PUBLIC_URL }}
+          # Cloudflare Images account hash. Not a secret — it appears in
+          # every imagedelivery.net URL the client renders. Hardcoding
+          # avoids one more GH repo secret to maintain.
+          NEXT_PUBLIC_CF_IMAGES_HASH: Sl-ceWby0IYMRC5pXgwVxg
 
       # Trim non-runtime build artifacts before wrangler uploads. The
       # `nop-build-log.json` is ~1.6 MiB of next-on-pages diagnostic
