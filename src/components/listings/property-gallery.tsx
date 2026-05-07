@@ -178,6 +178,23 @@ export function PropertyGallery({
     r2Key: primary.r2Key,
     variant: 'public',
   });
+  /**
+   * Mobile-sized variant for the primary image. On phones (~414 CSS px
+   * → ~828 device px on a 2× DPI screen) the `public` 1366×768 variant
+   * is ~2.5× the size we actually paint, costing ~150 KiB of bandwidth
+   * for nothing. The 600×400 `card` variant matches the painted area
+   * almost exactly, knocking ~100 KiB off LCP. Browsers pick between
+   * srcset entries using the `sizes` hint.
+   */
+  const primaryUrlMobile = buildImageUrl({
+    cfImageId: primary.cfImageId,
+    r2Key: primary.r2Key,
+    variant: 'card',
+  });
+  const primarySrcSet =
+    primaryUrlMobile && primaryUrlMobile !== primaryUrl
+      ? `${primaryUrlMobile} 600w, ${primaryUrl} 1366w`
+      : undefined;
   if (!primaryUrl) {
     return (
       <div
@@ -219,6 +236,15 @@ export function PropertyGallery({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={primaryUrl}
+            {...(primarySrcSet
+              ? {
+                  srcSet: primarySrcSet,
+                  // Mobile fills the viewport; on md+ the image caps at
+                  // 600 px tall (max-h-[600px] below); 1366 is the
+                  // largest variant we serve.
+                  sizes: '(max-width: 768px) 100vw, 1366px',
+                }
+              : {})}
             alt={altOf(primary, 1)}
             {...(primary.width && primary.height
               ? { width: primary.width, height: primary.height }
