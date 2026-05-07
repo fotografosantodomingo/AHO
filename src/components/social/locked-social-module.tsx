@@ -29,7 +29,9 @@ interface Props {
  */
 export async function LockedSocialModule({ locale, size = 'full' }: Props) {
   const t = await getTranslations({ locale, namespace: 'social' });
-  const pricingHref = `/${locale}/${locale === 'es' ? 'precios' : 'pricing'}`;
+  // Focus the pricing page on the Pro Automation tier — the user is
+  // looking AT the social dashboard, comparing 3 tiers would be noise.
+  const pricingHref = `/${locale}/${locale === 'es' ? 'precios' : 'pricing'}?focus=pro_automation`;
 
   const headingClass =
     size === 'full'

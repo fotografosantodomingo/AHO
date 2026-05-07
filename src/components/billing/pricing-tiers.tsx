@@ -30,6 +30,13 @@ interface Props {
   signInPath: string;
   /** Path to /dashboard for signed-in users with existing subscriptions. */
   dashboardPath: string;
+  /**
+   * When set, render only the named tier's card (used by Pro Automation
+   * deep-links from the homepage hero + social dashboard locked module).
+   * Null = default 3-tier comparison. The wrapping page also surfaces a
+   * "compare all plans" link out when a focus is active.
+   */
+  focusTier?: Tier | null;
 }
 
 /**
@@ -51,6 +58,7 @@ export function PricingTiers({
   currentTier,
   signInPath,
   dashboardPath,
+  focusTier = null,
 }: Props) {
   const t = useTranslations('pricing');
   const locale = useLocale() as Locale;
@@ -102,20 +110,31 @@ export function PricingTiers({
     });
   }
 
-  const tiers: Array<{ id: Tier; emphasized: boolean }> = [
+  const allTiers: Array<{ id: Tier; emphasized: boolean }> = [
     { id: 'agent', emphasized: false },
     { id: 'plus', emphasized: false },
     { id: 'pro_automation', emphasized: true },
   ];
+  // Focus mode renders ONLY the named tier (centered, single column).
+  // Visited from /pricing?focus=pro_automation deep-links — the user
+  // already knows which plan they're considering, so the comparison is
+  // distracting noise.
+  const tiers = focusTier
+    ? allTiers.filter((tt) => tt.id === focusTier)
+    : allTiers;
 
   return (
     <div>
-      {/* Period toggle — shared across all 3 cards. */}
+      {/* Period toggle — shared across all 3 cards. Both tabs are
+          interactive in both directions; the inactive tab uses solid
+          ink color (not the muted helper gray that previously read as
+          disabled, which is the bug PO reported about "can't easily
+          switch back to Monthly"). */}
       <div className="mb-8 flex justify-center">
         <div
           role="tablist"
           aria-label={t('periodToggleAria')}
-          className="inline-flex rounded-full border border-border-strong bg-surface p-1 shadow-whisper"
+          className="inline-flex rounded-full border border-border-strong bg-surface p-1 shadow-whisper dark:bg-surface-deep"
         >
           {(['monthly', 'annual'] as const).map((p) => {
             const active = period === p;
@@ -128,13 +147,19 @@ export function PricingTiers({
                 onClick={() => setPeriod(p)}
                 className={
                   active
-                    ? 'rounded-full bg-action px-4 py-1.5 text-sm font-medium text-white shadow-whisper transition'
-                    : 'rounded-full px-4 py-1.5 text-sm text-helper transition hover:text-action'
+                    ? 'min-w-[7rem] cursor-pointer rounded-full bg-action px-5 py-1.5 text-sm font-semibold text-white shadow-whisper transition'
+                    : 'min-w-[7rem] cursor-pointer rounded-full px-5 py-1.5 text-sm font-medium text-ink transition hover:bg-black/5 dark:text-ink-inverse dark:hover:bg-white/5'
                 }
               >
                 {t(`period.${p}`)}
                 {p === 'annual' && (
-                  <span className="ml-1.5 text-[11px] opacity-90">
+                  <span
+                    className={
+                      active
+                        ? 'ml-1.5 text-[11px] opacity-90'
+                        : 'ml-1.5 text-[11px] text-action dark:text-action-dark'
+                    }
+                  >
                     {t('annualBadge')}
                   </span>
                 )}
@@ -144,7 +169,13 @@ export function PricingTiers({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div
+        className={
+          tiers.length === 1
+            ? 'mx-auto max-w-lg'
+            : 'grid grid-cols-1 gap-6 lg:grid-cols-3'
+        }
+      >
         {tiers.map(({ id: tier, emphasized }) => {
           const isCurrent = currentTier === tier;
           const price = PRICING[tier][period];

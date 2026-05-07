@@ -72,7 +72,7 @@ export async function ProAutomationSection({ pricingPath, locale }: Props) {
 
         <div className="mt-10">
           <Link
-            href={pricingPath}
+            href={`${pricingPath}?focus=pro_automation`}
             className="inline-flex items-center gap-2 rounded-lg bg-ink-inverse px-5 py-3 text-sm font-semibold text-surface-band shadow-lift transition hover:opacity-95"
           >
             {t('proSocialCta')} <span aria-hidden="true">→</span>

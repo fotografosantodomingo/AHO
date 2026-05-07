@@ -41,8 +41,10 @@ export async function generateMetadata({
  */
 export default async function PricingPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { locale } = await params;
   if (!LOCALES.includes(locale as Locale)) return null;
@@ -59,9 +61,23 @@ export default async function PricingPage({
   const currentTier =
     currentTierLabel === 'none' ? null : currentTierLabel;
 
-  const signInNext = `/${locale}/${locale === 'es' ? 'precios' : 'pricing'}`;
+  // ?focus=<tier> renders only that tier card with its full feature
+  // list — used by Pro Automation CTAs in the homepage hero, the social
+  // dashboard's locked module, and any future tier-specific link.
+  // Unknown / missing values fall back to the full 3-tier comparison.
+  const sp = await searchParams;
+  const focusRaw = Array.isArray(sp.focus) ? sp.focus[0] : sp.focus;
+  const focusTier =
+    focusRaw === 'agent' || focusRaw === 'plus' || focusRaw === 'pro_automation'
+      ? focusRaw
+      : null;
+
+  const signInNext = `/${locale}/${locale === 'es' ? 'precios' : 'pricing'}${
+    focusTier ? `?focus=${focusTier}` : ''
+  }`;
   const signInPath = `/${locale}/${locale === 'es' ? 'iniciar-sesion' : 'signin'}?next=${encodeURIComponent(signInNext)}`;
   const dashboardPath = `/${locale}/${locale === 'es' ? 'panel' : 'dashboard'}`;
+  const fullPricingHref = `/${locale}/${locale === 'es' ? 'precios' : 'pricing'}`;
 
   const faqItems = [1, 2, 3, 4] as const;
 
@@ -72,13 +88,13 @@ export default async function PricingPage({
         <DotGrid />
         <div className="relative mx-auto max-w-3xl px-6 py-16 text-center md:py-20">
           <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
-            {t('eyebrow')}
+            {focusTier ? t(`focus.${focusTier}.eyebrow` as 'focus.pro_automation.eyebrow') : t('eyebrow')}
           </p>
           <h1 className="mt-3 font-brand text-3xl font-semibold tracking-tight md:text-[44px] md:leading-[1.12]">
-            {t('heading')}
+            {focusTier ? t(`focus.${focusTier}.heading` as 'focus.pro_automation.heading') : t('heading')}
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base text-ink-muted">
-            {t('subheading')}
+            {focusTier ? t(`focus.${focusTier}.subheading` as 'focus.pro_automation.subheading') : t('subheading')}
           </p>
         </div>
       </section>
@@ -90,7 +106,18 @@ export default async function PricingPage({
           currentTier={currentTier}
           signInPath={signInPath}
           dashboardPath={dashboardPath}
+          focusTier={focusTier}
         />
+        {focusTier && (
+          <div className="mt-8 text-center">
+            <a
+              href={fullPricingHref}
+              className="text-sm text-action underline-offset-2 hover:underline dark:text-action-dark"
+            >
+              {t('compareAllPlans')}
+            </a>
+          </div>
+        )}
 
         {/* FAQ band. */}
         <section className="mt-20 mx-auto max-w-3xl">

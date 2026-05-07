@@ -75,7 +75,6 @@ export async function SiteHeader({ locale }: Props) {
     { href: `${searchPath}?transaction=rent`, label: t('rent') },
     { href: pricingPath, label: t('sell') },
     { href: countriesPath, label: t('findAgent') },
-    { href: `/${locale}`, label: t('help') }, // Placeholder until /help ships
   ];
 
   return (

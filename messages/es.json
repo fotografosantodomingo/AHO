@@ -34,6 +34,24 @@
     "eyebrow": "Precios",
     "heading": "Un plan. Hecho para agentes que trabajan.",
     "subheading": "Paga mensual o ahorra con el anual. Cancela cuando quieras desde el Portal de Cliente de Stripe.",
+    "compareAllPlans": "Comparar todos los planes →",
+    "focus": {
+      "agent": {
+        "eyebrow": "Agente",
+        "heading": "Todo lo necesario para publicar y vender.",
+        "subheading": "Anuncios ilimitados, bandeja de contactos, perfil de agente y reseñas. Cancela cuando quieras."
+      },
+      "plus": {
+        "eyebrow": "Plus",
+        "heading": "Pulido para agentes serios.",
+        "subheading": "Todo lo de Agente, más boosts para anuncios destacados, soporte prioritario y el tratamiento visual Plus en tu perfil público."
+      },
+      "pro_automation": {
+        "eyebrow": "Pro Automation",
+        "heading": "Publica una vez, distribuye a todos lados.",
+        "subheading": "Distribución en un clic a Facebook + Instagram + WhatsApp. Programación, reintentos y analítica — todo integrado. El único nivel AHO con automatización social."
+      }
+    },
     "periodToggleAria": "Periodo de facturación",
     "period": {
       "monthly": "Mensual",
@@ -146,7 +164,7 @@
     "viewAllListings": "Ver todos los anuncios",
     "howHeading": "Cómo funciona AHO",
     "howSubheading": "De anuncio a contacto en tres pasos. Pensado para agentes que no quieren publicar a mano en cinco redes sociales cada semana.",
-    "howStep1Title": "Suscríbete y crea tu organización",
+    "howStep1Title": "Suscríbete y crea tu anuncio",
     "howStep1Body": "$29 al mes, prueba gratis de 7 días, cancela cuando quieras desde el Portal de Stripe.",
     "howStep2Title": "Publica tus anuncios",
     "howStep2Body": "Título, fotos, precio, ubicación — bilingüe EN/ES. Hasta 5 anuncios activos en el plan Agente.",

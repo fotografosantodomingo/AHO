@@ -4,6 +4,7 @@ import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { ProfileForm } from '@/components/dashboard/profile-form';
 import { DangerZone } from '@/components/dashboard/danger-zone';
+import { FaqEditor } from '@/components/dashboard/faq-editor';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -68,15 +69,90 @@ export default async function ProfilePage({
 
   const userEmail = userResult.user.email ?? '';
 
+  // FAQ editor is shown to org owners/managers only — Free/Registered
+  // tier users have no org, so no FAQs to manage. Resolve manage-rights
+  // here and pass the existing rows down. PO directive 2026-05-06: FAQs
+  // were on a separate /dashboard/faqs page; they belong on the profile
+  // page bottom because they ARE part of the agent's public profile.
+  const { data: membership } = await supabase
+    .from('organization_members')
+    .select('org_id, role, organizations!inner(slug)')
+    .eq('user_id', userResult.user.id)
+    .in('role', ['owner', 'manager'])
+    .limit(1)
+    .maybeSingle();
+
+  const orgId = (membership?.org_id as string | undefined) ?? null;
+  const orgField = membership?.organizations as
+    | { slug: string }
+    | { slug: string }[]
+    | null
+    | undefined;
+  const orgSlug =
+    (Array.isArray(orgField) ? orgField[0]?.slug : orgField?.slug) ?? null;
+
+  const { data: faqRows } = orgId
+    ? await supabase
+        .from('agent_faqs')
+        .select('id, question_en, question_es, answer_en, answer_es, sort_order')
+        .eq('org_id', orgId)
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: true })
+    : { data: null };
+
+  const tFaqs = await getTranslations({ locale, namespace: 'dashboardFaqs' });
+
   return (
-    <main className="space-y-6">
-      <header>
-        <h1 className="font-brand text-2xl font-semibold tracking-tight md:text-[26px] md:leading-[1.19]">
-          {t('heading')}
-        </h1>
-        <p className="mt-1 text-sm text-helper">{t('subheading')}</p>
-      </header>
-      <ProfileForm initial={initial} />
+    <main className="space-y-10">
+      <section className="space-y-6">
+        <header>
+          <h1 className="font-brand text-2xl font-semibold tracking-tight md:text-[26px] md:leading-[1.19]">
+            {t('heading')}
+          </h1>
+          <p className="mt-1 text-sm text-helper">{t('subheading')}</p>
+        </header>
+        <ProfileForm initial={initial} />
+      </section>
+
+      {orgId && (
+        <section aria-labelledby="faqs-heading" className="space-y-4">
+          <header className="space-y-1">
+            <h2
+              id="faqs-heading"
+              className="font-brand text-xl font-semibold tracking-tight"
+            >
+              {tFaqs('heading')}
+            </h2>
+            <p className="max-w-2xl text-sm text-helper">{tFaqs('subheading')}</p>
+            {orgSlug && (
+              <p className="text-xs text-helper">
+                {tFaqs('publishedTo')}{' '}
+                <a
+                  href={`/${locale}/${locale === 'es' ? 'agentes' : 'agents'}/${orgSlug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-action underline-offset-2 hover:underline dark:text-action-dark"
+                >
+                  {locale === 'es' ? 'tu perfil público' : 'your public profile'}
+                </a>
+              </p>
+            )}
+          </header>
+          <FaqEditor
+            orgId={orgId}
+            locale={locale as Locale}
+            initialFaqs={(faqRows ?? []).map((r) => ({
+              id: r.id as string,
+              questionEn: (r.question_en as string | null) ?? '',
+              questionEs: (r.question_es as string | null) ?? '',
+              answerEn: (r.answer_en as string | null) ?? '',
+              answerEs: (r.answer_es as string | null) ?? '',
+              sortOrder: r.sort_order as number,
+            }))}
+          />
+        </section>
+      )}
+
       <DangerZone email={userEmail} locale={locale as Locale} />
     </main>
   );

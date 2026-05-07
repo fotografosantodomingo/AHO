@@ -34,6 +34,24 @@
     "eyebrow": "Pricing",
     "heading": "Plans built for working agents.",
     "subheading": "Pay monthly or save with annual. Upgrade anytime through the Stripe Customer Portal.",
+    "compareAllPlans": "Compare all plans →",
+    "focus": {
+      "agent": {
+        "eyebrow": "Agent",
+        "heading": "Everything you need to list and sell.",
+        "subheading": "Unlimited active listings, lead inbox, agent profile + reviews. Cancel any time."
+      },
+      "plus": {
+        "eyebrow": "Plus",
+        "heading": "Polish for serious closers.",
+        "subheading": "Everything in Agent, plus featured-listing boosts, priority support, and the Plus visual treatment on your public profile."
+      },
+      "pro_automation": {
+        "eyebrow": "Pro Automation",
+        "heading": "Post once, publish everywhere.",
+        "subheading": "One-click distribution to Facebook + Instagram + WhatsApp. Schedules, retries, and analytics — built in. The only AHO tier with social automation."
+      }
+    },
     "periodToggleAria": "Billing period",
     "period": {
       "monthly": "Monthly",
@@ -148,7 +166,7 @@
     "viewAllListings": "View all listings",
     "howHeading": "How AHO works",
     "howSubheading": "From listing to lead in three steps. Built for agents who don't want to hand-post to five social networks every week.",
-    "howStep1Title": "Subscribe + create your org",
+    "howStep1Title": "Subscribe + create your ad",
     "howStep1Body": "$29 a month, 7-day free trial, cancel anytime in the Stripe Customer Portal.",
     "howStep2Title": "Publish your listings",
     "howStep2Body": "Title, photos, price, location — bilingual EN/ES. Up to 5 active listings on the Agent plan.",
