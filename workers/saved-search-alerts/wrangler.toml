@@ -27,6 +27,7 @@ crons = ["0 10 * * *"]
 LOG_LEVEL = "info"
 # DRY_RUN gate — when "true", the worker runs the full query + digest
 # render and logs each recipient + match count, but does NOT call Brevo.
-# Flip to "false" via `wrangler deploy` after PO confirms (CLAUDE.md
-# hard rule #9: live billable email send needs explicit go).
-DRY_RUN = "true"
+# Set "false" 2026-05-06 after PO greenlight + a successful dry-run
+# (11 saved-searches due, 0 errors, run summary inspected). Flip back
+# to "true" if anything looks off; takes one redeploy.
+DRY_RUN = "false"
