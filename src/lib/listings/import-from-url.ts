@@ -115,7 +115,7 @@ interface AnthropicResponse {
  *   - PerimeterX / Akamai / DataDome: status 200/403 with empty / tiny
  *     bodies served as a delayed JS challenge.
  */
-function detectBotBlock(args: {
+export function detectBotBlock(args: {
   status: number;
   headers: Headers;
   bodyBytes: number;
@@ -155,7 +155,7 @@ function detectBotBlock(args: {
  * Fetch a URL with a timeout + size cap. Returns the body as text.
  * Throws on timeout / oversized response / non-2xx / bot-challenge.
  */
-async function fetchPage(url: string): Promise<string> {
+export async function fetchPage(url: string): Promise<string> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   try {
@@ -220,7 +220,7 @@ async function fetchPage(url: string): Promise<string> {
  * The result is roughly an order of magnitude smaller than the raw
  * page and still contains everything we extract.
  */
-function condense(html: string): string {
+export function condense(html: string): string {
   // Pull schema.org JSON-LD scripts — these are gold for portals that
   // emit them (otodom does, idealista does, Zillow does on Search but
   // not always on detail pages).
@@ -306,6 +306,24 @@ Output rules:
 9. NEVER translate proper nouns: city names, neighborhood names, transit / school / landmark names. "Szkoła Podstawowa nr 4" stays "Szkoła Podstawowa nr 4" in English (with brief gloss like "Primary School #4" in parentheses if helpful), and "PKP Legionowo Piaski" stays as-is. Same in Spanish.
 10. Never invent yield numbers, ROI percentages, or future-projection claims. If the source surfaces them, repeat verbatim. If not, omit — the agent can add positioning hints later.`;
 
+/**
+ * SSRF guard. Returns true when the hostname looks like an internal
+ * target (loopback, RFC1918 private, link-local). Even though CF
+ * Workers can't reach these, we reject them at the validation layer
+ * so a misconfigured local dev or self-hosted target can't be probed
+ * via the import endpoint. Exported for unit tests.
+ */
+export function isInternalHost(hostname: string): boolean {
+  const h = hostname.toLowerCase();
+  return (
+    h === 'localhost' ||
+    h.startsWith('127.') ||
+    h.startsWith('10.') ||
+    h.startsWith('192.168.') ||
+    h.startsWith('169.254.')
+  );
+}
+
 export async function importFromUrl(args: {
   url: string;
   /** Caller's locale — passed only for logging / context; we still
@@ -327,16 +345,7 @@ export async function importFromUrl(args: {
   if (!['http:', 'https:'].includes(parsed.protocol)) {
     throw new Error('URL must use http or https');
   }
-  // Quick SSRF guard — block obvious internal targets even though
-  // CF Workers wouldn't reach them anyway.
-  const hostname = parsed.hostname.toLowerCase();
-  if (
-    hostname === 'localhost' ||
-    hostname.startsWith('127.') ||
-    hostname.startsWith('10.') ||
-    hostname.startsWith('192.168.') ||
-    hostname.startsWith('169.254.')
-  ) {
+  if (isInternalHost(parsed.hostname)) {
     throw new Error('URL points to an internal address');
   }
 

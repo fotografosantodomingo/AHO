@@ -22,8 +22,8 @@ export const runtime = 'edge';
  *   - locale: optional agent UI locale (improves Whisper accuracy)
  */
 
-const MAX_BYTES = 24 * 1024 * 1024;
-const ALLOWED_TYPES = [
+export const MAX_BYTES = 24 * 1024 * 1024;
+export const ALLOWED_TYPES = [
   'audio/mpeg',
   'audio/mp3',
   'audio/mp4',
@@ -34,6 +34,36 @@ const ALLOWED_TYPES = [
   'audio/ogg',
   'audio/flac',
 ];
+
+export type AudioValidationResult =
+  | { ok: true }
+  | { ok: false; errorCode: 'no_file' | 'empty_file' | 'file_too_large' | 'unsupported_audio_type'; got?: string | number };
+
+/**
+ * Pure-function audio-upload validator: enforces "must be a File",
+ * non-empty, ≤ MAX_BYTES, and (when a content-type is present)
+ * normalizes `audio/webm;codecs=opus` style values to the base mime
+ * before checking against ALLOWED_TYPES. Empty `file.type` is
+ * permitted because some browsers leave it blank on MediaRecorder
+ * blobs and Whisper sniffs the format from the bytes.
+ *
+ * Exported so unit tests can exercise the matrix without
+ * mocking the auth + Supabase + Whisper boundary.
+ */
+export function validateAudioUpload(file: unknown): AudioValidationResult {
+  if (!(file instanceof File)) return { ok: false, errorCode: 'no_file' };
+  if (file.size === 0) return { ok: false, errorCode: 'empty_file' };
+  if (file.size > MAX_BYTES) {
+    return { ok: false, errorCode: 'file_too_large', got: file.size };
+  }
+  if (file.type) {
+    const baseType = file.type.split(';')[0]?.trim().toLowerCase() ?? '';
+    if (baseType && !ALLOWED_TYPES.includes(baseType)) {
+      return { ok: false, errorCode: 'unsupported_audio_type', got: file.type };
+    }
+  }
+  return { ok: true };
+}
 
 export async function POST(req: NextRequest) {
   const supabase = await createServerSupabaseClient();
@@ -53,32 +83,30 @@ export async function POST(req: NextRequest) {
   }
 
   const file = form.get('file');
-  if (!(file instanceof File)) {
-    return NextResponse.json({ error: 'no_file' }, { status: 400 });
-  }
-  if (file.size === 0) {
-    return NextResponse.json({ error: 'empty_file' }, { status: 400 });
-  }
-  if (file.size > MAX_BYTES) {
-    return NextResponse.json(
-      { error: 'file_too_large', limit: MAX_BYTES, got: file.size },
-      { status: 413 },
-    );
-  }
   // Some browsers leave content-type empty on MediaRecorder Blobs —
-  // accept those too; Whisper sniffs the format from the bytes.
-  // Normalize to the base mime — MediaRecorder usually emits
-  // `audio/webm;codecs=opus`, `audio/mp4;codecs="mp4a.40.2"`, etc.
-  // We only check the part before the semicolon.
-  if (file.type) {
-    const baseType = file.type.split(';')[0]?.trim().toLowerCase() ?? '';
-    if (baseType && !ALLOWED_TYPES.includes(baseType)) {
-      return NextResponse.json(
-        { error: 'unsupported_audio_type', got: file.type },
-        { status: 415 },
-      );
+  // validateAudioUpload accepts those (Whisper sniffs the format from
+  // the bytes). MediaRecorder usually emits `audio/webm;codecs=opus`,
+  // `audio/mp4;codecs="mp4a.40.2"`, etc. — the helper normalizes to
+  // the base mime before the allowlist check.
+  const validation = validateAudioUpload(file);
+  if (!validation.ok) {
+    const status =
+      validation.errorCode === 'file_too_large'
+        ? 413
+        : validation.errorCode === 'unsupported_audio_type'
+          ? 415
+          : 400;
+    const body: Record<string, unknown> = { error: validation.errorCode };
+    if (validation.errorCode === 'file_too_large') {
+      body.limit = MAX_BYTES;
+      if (validation.got !== undefined) body.got = validation.got;
+    } else if (validation.errorCode === 'unsupported_audio_type' && validation.got !== undefined) {
+      body.got = validation.got;
     }
+    return NextResponse.json(body, { status });
   }
+  // Narrow: validation.ok === true means file is a valid File.
+  const audioFile = file as File;
 
   const localeHint = form.get('locale');
   const agentLocale =
@@ -88,8 +116,8 @@ export async function POST(req: NextRequest) {
 
   try {
     const result = await importFromVoice({
-      audio: file,
-      filename: file.name || `voice-${Date.now()}.webm`,
+      audio: audioFile,
+      filename: audioFile.name || `voice-${Date.now()}.webm`,
       agentLocale,
     });
     return NextResponse.json(

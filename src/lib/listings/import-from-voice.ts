@@ -31,7 +31,7 @@ const MODEL_ID = 'claude-sonnet-4-6';
 
 /** Whisper rejects audio above ~25 MB. We cap at 24 MB to leave
  *  multipart overhead headroom. */
-const MAX_AUDIO_BYTES = 24 * 1024 * 1024;
+export const MAX_AUDIO_BYTES = 24 * 1024 * 1024;
 
 interface AnthropicResponse {
   content: Array<{ type: string; text?: string }>;

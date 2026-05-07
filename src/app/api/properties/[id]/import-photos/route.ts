@@ -31,18 +31,18 @@ export const runtime = 'edge';
  * with more photos can re-call or fall back to manual upload.
  */
 
-const BodySchema = z.object({
+export const BodySchema = z.object({
   urls: z
     .array(z.string().url())
     .min(1)
     .max(15),
 });
 
-const MAX_IMAGE_BYTES = 15 * 1024 * 1024;
+export const MAX_IMAGE_BYTES = 15 * 1024 * 1024;
 const FETCH_TIMEOUT_MS = 12_000;
 const CONCURRENCY = 4;
 
-const EXT_BY_TYPE: Record<string, string> = {
+export const EXT_BY_TYPE: Record<string, string> = {
   'image/jpeg': 'jpg',
   'image/jpg': 'jpg',
   'image/png': 'png',
@@ -50,6 +50,49 @@ const EXT_BY_TYPE: Record<string, string> = {
   'image/heic': 'heic',
   'image/heif': 'heif',
 };
+
+/**
+ * Normalize a `content-type` header value to its base mime, lowercased
+ * with no parameters. `image/jpeg;charset=binary` → `image/jpeg`.
+ *
+ * Exported for unit tests + reuse if another importer flow needs the
+ * same normalization.
+ */
+export function normalizeContentType(raw: string | null | undefined): string {
+  return (raw ?? '').split(';')[0]!.trim().toLowerCase();
+}
+
+/**
+ * Decide whether a remote response's content-type is one of the image
+ * formats we accept for import. Returns the normalized type when the
+ * answer is yes; otherwise returns a discriminated error code matching
+ * the `errorCode` field on `ImportResult`.
+ */
+export function classifyImageContentType(
+  raw: string | null | undefined,
+): { ok: true; type: string } | { ok: false; errorCode: 'not_an_image' | 'unsupported_type' } {
+  const ct = normalizeContentType(raw);
+  if (!ct.startsWith('image/')) return { ok: false, errorCode: 'not_an_image' };
+  if (!EXT_BY_TYPE[ct]) return { ok: false, errorCode: 'unsupported_type' };
+  return { ok: true, type: ct };
+}
+
+/**
+ * Cap-aware slot calculation for how many of a caller-supplied URL list
+ * we will actually attempt to import. Mirrors what the POST handler
+ * does inline; extracted so the math is unit-testable without spinning
+ * up the full auth + DB stack.
+ */
+export function computeImportSlots(args: {
+  existingCount: number;
+  urlsLength: number;
+  cap: number;
+}): { remaining: number; toProcess: number; skipped: number } {
+  const remaining = Math.max(0, args.cap - args.existingCount);
+  const toProcess = Math.min(remaining, args.urlsLength);
+  const skipped = args.urlsLength - toProcess;
+  return { remaining, toProcess, skipped };
+}
 
 interface CfUploadResponse {
   success: boolean;
@@ -84,13 +127,11 @@ async function fetchAsImage(
     if (!res.ok) {
       return { error: `fetch_${res.status}` };
     }
-    const ct = (res.headers.get('content-type') ?? '').split(';')[0]!.trim().toLowerCase();
-    if (!ct.startsWith('image/')) {
-      return { error: 'not_an_image' };
+    const classified = classifyImageContentType(res.headers.get('content-type'));
+    if (!classified.ok) {
+      return { error: classified.errorCode };
     }
-    if (!EXT_BY_TYPE[ct]) {
-      return { error: 'unsupported_type' };
-    }
+    const ct = classified.type;
     const lengthHeader = res.headers.get('content-length');
     if (lengthHeader && Number(lengthHeader) > MAX_IMAGE_BYTES) {
       return { error: 'too_large' };
