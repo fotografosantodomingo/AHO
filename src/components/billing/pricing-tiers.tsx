@@ -1,6 +1,13 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import {
+  useCallback,
+  useRef,
+  useState,
+  useTransition,
+  type KeyboardEvent,
+  type PointerEvent,
+} from 'react';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import type { Locale } from '@/i18n/config';
@@ -125,54 +132,18 @@ export function PricingTiers({
 
   return (
     <div>
-      {/* Period toggle — shared across all 3 cards. Mobile-tightened
-          after PO report 2026-05-07: tabs now `whitespace-nowrap` so the
-          "save ~17%" badge can't wrap onto a second line and shift the
-          tap target mid-render; `touch-action-manipulation` kills the
-          iOS 300ms double-tap-zoom delay; `select-none` prevents iOS
-          long-press text-selection from intercepting the tap; min-h-11
-          meets the 44px iOS tap-target guideline; the badge has
-          `pointer-events-none` so a tap on it routes cleanly to the
-          parent button without any inner-element ambiguity. */}
+      {/* Period switch — drag the thumb to slide between Monthly and
+          Annual, or just tap a side. Replaces the prior tablist that
+          PO reported didn't reliably fire on mobile. */}
       <div className="mb-8 flex justify-center px-2">
-        <div
-          role="tablist"
-          aria-label={t('periodToggleAria')}
-          className="inline-flex max-w-full rounded-full border border-border-strong bg-surface p-1 shadow-whisper dark:bg-surface-deep"
-        >
-          {(['monthly', 'annual'] as const).map((p) => {
-            const active = period === p;
-            return (
-              <button
-                key={p}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                onClick={() => setPeriod(p)}
-                style={{ touchAction: 'manipulation' }}
-                className={
-                  active
-                    ? 'inline-flex min-h-11 cursor-pointer select-none items-center justify-center whitespace-nowrap rounded-full bg-action px-4 py-1.5 text-sm font-semibold text-white shadow-whisper transition sm:px-5'
-                    : 'inline-flex min-h-11 cursor-pointer select-none items-center justify-center whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium text-ink transition hover:bg-black/5 dark:text-ink-inverse dark:hover:bg-white/5 sm:px-5'
-                }
-              >
-                {t(`period.${p}`)}
-                {p === 'annual' && (
-                  <span
-                    aria-hidden="true"
-                    className={
-                      active
-                        ? 'pointer-events-none ml-1.5 text-[11px] opacity-90'
-                        : 'pointer-events-none ml-1.5 text-[11px] text-action dark:text-action-dark'
-                    }
-                  >
-                    {t('annualBadge')}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
+        <PeriodSwitch
+          period={period}
+          onChange={setPeriod}
+          monthlyLabel={t('period.monthly')}
+          annualLabel={t('period.annual')}
+          annualBadge={t('annualBadge')}
+          ariaLabel={t('periodToggleAria')}
+        />
       </div>
 
       <div
@@ -287,6 +258,190 @@ export function PricingTiers({
           {error}
         </p>
       )}
+    </div>
+  );
+}
+
+/**
+ * Swipeable period toggle — Monthly ↔ Annual.
+ *
+ * Behavior:
+ *   - Drag the thumb (or anywhere on the track) with finger / mouse
+ *     to slide between sides. Snap to the nearest on release.
+ *   - A simple tap on either side jumps the thumb there, same as the
+ *     old tablist.
+ *   - Keyboard: ←/→ jump to that side, Space / Enter flip.
+ *
+ * Accessibility: implemented as `role="switch"` because the control
+ * has two states (Annual on / off). aria-checked tracks the current
+ * state. The track is `tabIndex=0` so keyboard users can focus it.
+ *
+ * Implementation notes:
+ *   - Pointer events (not touch + mouse separately) — handles iOS
+ *     touch, Android touch, mouse, and Apple Pencil with one code
+ *     path.
+ *   - `setPointerCapture` so a drag that wanders off the track edge
+ *     still tracks the finger / cursor.
+ *   - `touch-action: none` is critical — without it, iOS Safari
+ *     hijacks the gesture for native scroll/zoom and the drag never
+ *     reaches our handler.
+ *   - Thumb position is a fraction 0..1 (0 = Monthly, 1 = Annual);
+ *     while dragging we override with the live pointer fraction so
+ *     the thumb sticks to the finger. On release we snap to whichever
+ *     side the pointer is on (>= 0.5 = Annual) and clear the override
+ *     — the CSS `transition-transform` then animates the snap.
+ */
+interface PeriodSwitchProps {
+  period: Period;
+  onChange: (next: Period) => void;
+  monthlyLabel: string;
+  annualLabel: string;
+  annualBadge: string;
+  ariaLabel: string;
+}
+
+function PeriodSwitch({
+  period,
+  onChange,
+  monthlyLabel,
+  annualLabel,
+  annualBadge,
+  ariaLabel,
+}: PeriodSwitchProps) {
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  // null when not interacting; 0..1 fraction while dragging.
+  const [dragFrac, setDragFrac] = useState<number | null>(null);
+  const isAnnual = period === 'annual';
+  const targetFrac = isAnnual ? 1 : 0;
+  const visibleFrac = dragFrac ?? targetFrac;
+  // Visual color of each label is driven by *which side the thumb is
+  // currently over*, not by the committed period state — so colors flip
+  // live as the user drags rather than waiting for release.
+  const monthlyLit = visibleFrac < 0.5;
+  const annualLit = visibleFrac >= 0.5;
+
+  const pointerToFrac = useCallback((clientX: number): number => {
+    const track = trackRef.current;
+    if (!track) return targetFrac;
+    const rect = track.getBoundingClientRect();
+    const x = clientX - rect.left;
+    // The thumb is 50% wide. Its CENTER traverses from x = W/4 (frac 0,
+    // thumb on left) to x = 3W/4 (frac 1, thumb on right). Map pointer
+    // x in [W/4, 3W/4] to [0, 1] and clamp.
+    const usable = rect.width * 0.5;
+    return Math.max(0, Math.min(1, (x - rect.width * 0.25) / usable));
+  }, [targetFrac]);
+
+  const handlePointerDown = useCallback(
+    (e: PointerEvent<HTMLDivElement>) => {
+      e.currentTarget.setPointerCapture(e.pointerId);
+      setDragFrac(pointerToFrac(e.clientX));
+    },
+    [pointerToFrac],
+  );
+
+  const handlePointerMove = useCallback(
+    (e: PointerEvent<HTMLDivElement>) => {
+      if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
+      setDragFrac(pointerToFrac(e.clientX));
+    },
+    [pointerToFrac],
+  );
+
+  const handlePointerUp = useCallback(
+    (e: PointerEvent<HTMLDivElement>) => {
+      const frac = pointerToFrac(e.clientX);
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      } catch {
+        // Pointer might already be released on touchcancel-like flows.
+      }
+      setDragFrac(null);
+      onChange(frac >= 0.5 ? 'annual' : 'monthly');
+    },
+    [pointerToFrac, onChange],
+  );
+
+  const handlePointerCancel = useCallback(() => {
+    setDragFrac(null);
+  }, []);
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        onChange('annual');
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        onChange('monthly');
+      } else if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        onChange(isAnnual ? 'monthly' : 'annual');
+      }
+    },
+    [isAnnual, onChange],
+  );
+
+  const dragging = dragFrac !== null;
+
+  return (
+    <div
+      ref={trackRef}
+      role="switch"
+      aria-checked={isAnnual}
+      aria-label={ariaLabel}
+      tabIndex={0}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerCancel}
+      onKeyDown={handleKeyDown}
+      style={{ touchAction: 'none' }}
+      className={`relative inline-flex h-11 w-72 max-w-full select-none rounded-full border border-border-strong bg-surface shadow-whisper outline-hidden focus-visible:ring-3 focus-visible:ring-action dark:bg-surface-deep dark:focus-visible:ring-action-dark ${
+        dragging ? 'cursor-grabbing' : 'cursor-grab'
+      }`}
+    >
+      {/* Sliding thumb. translateX(100%) of the thumb's own width
+          equals (W - 8px)/2 thanks to w-[calc(50%-4px)], which is
+          exactly the gap from the left half-track to the right
+          half-track with 4px gutters preserved. */}
+      <div
+        aria-hidden="true"
+        style={{ transform: `translateX(${visibleFrac * 100}%)` }}
+        className={`pointer-events-none absolute left-1 top-1 h-9 w-[calc(50%-4px)] rounded-full bg-action shadow-whisper dark:bg-action-dark ${
+          dragging ? '' : 'transition-transform duration-150 ease-out'
+        }`}
+      />
+      {/* Labels overlay. pointer-events-none so taps pass through to
+          the track. Each label flips between high-contrast white (when
+          the thumb is over it) and ink-color (when bare). */}
+      <div className="pointer-events-none relative grid h-full w-full grid-cols-2 items-center px-1 text-center text-sm">
+        <span
+          className={
+            monthlyLit
+              ? 'font-semibold text-white'
+              : 'font-medium text-ink dark:text-ink-inverse'
+          }
+        >
+          {monthlyLabel}
+        </span>
+        <span
+          className={`whitespace-nowrap ${
+            annualLit
+              ? 'font-semibold text-white'
+              : 'font-medium text-ink dark:text-ink-inverse'
+          }`}
+        >
+          {annualLabel}
+          <span
+            className={`ml-1.5 text-[11px] ${
+              annualLit ? 'opacity-90' : 'text-action dark:text-action-dark'
+            }`}
+          >
+            {annualBadge}
+          </span>
+        </span>
+      </div>
     </div>
   );
 }
