@@ -12,6 +12,33 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-07 — Lighthouse round 3-5: full localization on property surface + a11y/BP push to 100
+- **What shipped:**
+  - **Gallery i18n.** `src/components/listings/property-gallery.tsx` had 9 hardcoded `locale === 'es' ? 'es text' : 'en text'` ternaries that resolved to English on PL/PT/DE/FR/IT. Replaced with `useTranslations('gallery')` and a new `gallery` namespace (noPhotos / openPhoto / backToListing / previous / next / photoCounter). All 7 locales got the strings; Lightbox no longer takes the `locale` prop.
+  - **Mega-menu aria.** `src/components/mega-menu-client.tsx` was emitting `aria-label="Open menu"` regardless of locale. Now reads `t('openMenu')` / `t('closeMenu')`. Added the keys to all 7 message files.
+  - **Property + chrome translations.** Added the full `property` (with PL Slavic plural rules `_one/_few/_many/_other` for bedrooms/bathrooms), `contact`, `priceTile`, `card`, `favorite`, `savedProperties`, `recentlyViewed` namespaces to PL/PT/DE/FR/IT messages files. Verified live on `/pl/properties/wwww-siemianowice-pl-cQF9BN` and `/it/properties/...`: Sypialnie/Łazienki/Otwórz menu/Powiększ zdjęcie + Camere da letto/Bagni/Apri menu/Ingrandisci foto all render correctly. Resolves the user's earlier complaint "kazdy jezyk ma miec swoj profil takze przetlumaczony".
+  - **A11y contrast hit 100.** `.btn-primary-inverse` (footer CTA) was rendering #1d5a3c on #142a1f in dark mode (1.86:1 fail). Since the footer is always-dark regardless of theme, the pill now uses fixed light tokens (#ffffff bg / #1d5a3c text) for ~9:1 in both themes.
+  - **BP hit 100 (`/pl/property`).** Console-error fixed: `/api/properties/[id]/view` was rejecting `locale: 'pl'` because the Zod schema was `z.enum(['en','es'])`. Widened to `z.enum(LOCALES)`. Same fix applied to `/api/leads`, `/api/newsletter`, `/api/reviews`, `/api/billing/portal`, `lib/saved-searches/actions`, `lib/billing/checkout` (CheckoutLocale). Where the downstream sink is bilingual (e.g. email templates), narrow with `narrowContentLocale()` at the call site, not at the input boundary. `me/profile.preferred_language` stays EN/ES because content language preference IS bilingual by design.
+  - **CLS 0.404 → 0.** `ImageItem` in property-gallery.tsx was missing the `width`/`height` fields even though `fetchPropertyByShortId` already selects them from `property_images`. Threaded them onto the primary + thumbnail `<img>` tags. Also added `fetchPriority="high"` on the primary so it becomes the LCP candidate over below-the-fold thumbs.
+- **Lighthouse score progression:**
+  - `/en/for-agents` round-1 → round-4: Perf 84→97, A11y 92→100, BP 96→100, SEO 100→100.
+  - `/pl/properties/<slug>` round-4 → round-5: Perf 40→42, A11y 100→100, BP 96→100, SEO 92→92, CLS 0.404→0, LCP 60.7s→28.9s.
+- **What changed since last session:** Same calendar day continuation; this entry succeeds the locales-2→7 ship that landed earlier today.
+- **Blockers / open questions:**
+  - **Cloudflare Images still inactive on the account** — every property image URL falls back to `images.advertisehomes.online` R2 originals. On `wwww-siemianowice-pl-cQF9BN`, page weight is 34.5 MB / image-delivery savings 33 MB. This caps Performance at ~42 regardless of code-side fixes. It also explains the `meta-description` Lighthouse audit failing on `/pl/property` despite the tag being in the served HTML — Lighthouse's MetaElements gather snapshots after `load`, and with 33 MB of images Chrome times out before fully loading the head's audit context. Aktywacja CF Images + backfill R2→CFI worker is now THE perf blocker for every listing page across every locale. Next sprint candidate.
+  - **Pro Automation engine still not built.** The `/social` page is Phase 4-7 placeholder. Per the strategic-vision project memory (2026-05-07), the marquee feature is "paste-link → full multi-channel campaign" — that still requires Meta App Review (long lead time), LLM key, Cloudflare Queues wired, and a `/preview` widget on `/for-agents` for the gated-signup hook. Architecture spec drafted in chat (Admin / Existing / New customer perspectives + 90-day milestone sequence M1-M3); awaiting PO go-ahead to persist as `docs/AUTOMATION_STRATEGY.md` + `docs/AD_PLATFORMS_INTEGRATION.md`.
+  - **Public API surfaces beyond chrome still leak EN.** `search` and `listingForm` namespaces are in the `__next_f.push` JSON island with EN values for non-EN/ES locales — not visible body text on property page, but visible body text once the user opens the search page or the edit-listing form on a /pl/ URL. Future i18n round.
+- **Next session should start with:**
+  1. Decide on CF Images activation (PO action; needs CF account upgrade if free-tier limit hit). Once active, write `scripts/backfill-r2-to-cf-images.ts` that walks `property_images.r2_key` rows, uploads each to CF Images, populates `cf_image_id`. After backfill, expect `/pl/property` Perf jump from 42 → ~85+ AND `meta-description` Lighthouse audit to pass automatically.
+  2. Translate the `search` + `listingForm` + `agentProfile` + `dashboard` + `auth` namespaces to PL/PT/DE/FR/IT for full coverage of public surfaces.
+  3. Re-run Lighthouse on `/en/`, `/en/pricing`, `/en/agents/[slug]`, `/en/search` and address whatever's <95.
+- **Commits this session (post-summary):**
+  - `8d376ce` — i18n: full PL/PT/DE/FR/IT translation for property + chrome surfaces
+  - `4ec01dc` — a11y: fix btn-primary-inverse contrast in dark mode
+  - `f314006` — i18n + perf: accept all 7 URL locales in API + thread image dims through gallery
+
+---
+
 ## 2026-05-07 — Locales 2→7 + 3 agent-acquisition landing pages with full schema
 - **What shipped:**
   - **Locales expanded** to 7: EN, ES, PL, PT, DE, FR, IT. Content surfaces (listings, agent profiles, photos) keep EN/ES translations via new `ContentLocale` type + `narrowContentLocale()` helper. Marketing locales fall back to EN content with localized chrome via deep-merge in `src/i18n/request.ts`. New pathnames table covers all 7 locales (most fall back to EN path segments; landing pages get translated slugs since the slug IS the keyword).

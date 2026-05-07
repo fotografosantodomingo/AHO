@@ -71,3 +71,11 @@ Live document. Update as risks materialize, are mitigated, or close. Status valu
 **Risk:** Internal contradictions, technical errors, or unrealistic estimates that only surface when implementation starts.
 **Mitigation:** Critique pass before any code is written. Critique to be added to this repo as `docs/CRITIQUE.md` (or merged into `DECISIONS.md`) once `HANDOFF_part2.md` is received.
 **Owner:** dev
+
+---
+
+## R12 — Cloudflare Images inactive; every property page serves R2 originals
+**Status:** active blocker (perf + ad-pipeline)
+**Risk:** `property_images.cf_image_id` is null on every row because Cloudflare Images is not yet provisioned on the account. `buildImageUrl()` therefore always falls back to direct R2 `images.advertisehomes.online/...` reads of the originals at upload resolution. Observed on `/pl/properties/wwww-siemianowice-pl-cQF9BN` (Lighthouse 2026-05-07): page total 34.5 MB, image-delivery savings 33.5 MB, LCP 28.9 s, Performance score 42 — all gated by image weight. This caps Performance on every listing page, in every locale, regardless of code-side fixes. Secondary effect: the Lighthouse `meta-description` audit fails on slow listings even though the tag is in the served HTML, because the MetaElements gather snapshots after `load` and Chrome times out before the head's audit context settles. Tertiary effect: the planned Pro Automation pipeline (paste-link → multi-channel ads) needs platform-specific variants (FB feed 1200×630, IG square 1080², IG Reel 1080×1920, etc.) — without CF Images we'd have to build a parallel resize service.
+**Mitigation:** (a) Activate Cloudflare Images on the account (PO; account upgrade if free-tier exceeded). (b) Define variant set: `public`, `card`, `thumbnail`, `og`, `fb_feed`, `ig_square`, `ig_reel`. (c) Write `scripts/backfill-r2-to-cf-images.ts` to walk every `property_images` row, upload the R2 original, write the returned id back to `cf_image_id`. (d) Update the upload pipeline so new images go through CF Images at write time, not just R2. After this lands, expect listing-page Perf to jump from ~42 → ~85+ on this same property and `meta-description` to start passing automatically.
+**Owner:** PO (CF account) + dev (backfill + pipeline)
