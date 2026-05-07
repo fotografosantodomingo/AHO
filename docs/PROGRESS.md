@@ -12,6 +12,99 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-07 — Sprint 2 batch (4 parallel agents): tone selector + photo-import polish + import tests + bbox URL
+- **Frame:** Following Sprint 2 C+D earlier today, the PO said "deploy
+  all agents available to do all" — so I dispatched 4 isolated
+  worktree agents in parallel for the highest-leverage autonomous
+  polish items, holding back the 3 risky ones (background-sync queue,
+  Stripe replay harness, long-term RLS refactor — those need
+  supervised single-session work, not unsupervised parallelism).
+- **What shipped (5 commits, ~6 minutes wall time across all 4
+  agents):**
+  - **Import-flow unit tests** (`3f5a512`): 56 new tests across 3
+    files exercising the URL-import / voice-import / photo-migration
+    surfaces shipped earlier today. Pulled the testable bits into
+    pure helpers so failure paths run without mocking Supabase /
+    Anthropic / OpenAI / Cloudflare boundaries: `BodySchema`,
+    `EXT_BY_TYPE`, `MAX_IMAGE_BYTES`, `normalizeContentType`,
+    `classifyImageContentType`, `computeImportSlots` exported from
+    import-photos route; `detectBotBlock`, `condense`, `fetchPage`,
+    `isInternalHost` exported from import-from-url; `MAX_AUDIO_BYTES`
+    + `validateAudioUpload` extracted from voice import. Vitest
+    config now excludes `.claude/worktrees/` so parallel agent runs
+    don't pollute test discovery. 211 → 277 → 293 tests through
+    the session.
+  - **Tone-of-voice selector** (`75b4513`): Luxury / Investment /
+    Family dropdown above the SocialGrid on /dashboard/properties/[id].
+    Investment stays the default. New `Tone` type + `TONE_VOICE`
+    record with per-tone leading angles + variant-distinctness
+    guidance so the three platform cards differ materially per tone,
+    not just vocabulary swap. LinkedIn platform constraint
+    neutralized (was hardcoded "investor-leaning, lead with ROI" —
+    would have collided with Luxury); ROI framing moved into the
+    Investment tone block where it belongs. All 7 locales translated
+    for the new `socialTones` namespace. Tone-switch clears the grid
+    so cards don't visually mismatch. 8 unit tests cover tone
+    routing, locale-voice layering, LinkedIn neutrality, and
+    70%-char-ceiling preservation.
+  - **Photo-import partial-failure banner** (`f819c31`): server-side
+    photo migration was silently dropping failed URLs, leaving the
+    agent on the listing page with no clue why some photos were
+    missing. Now stash result in `sessionStorage` keyed by property
+    id before redirect; detail page renders a tone-aware banner
+    (green=all imported, amber=partial, red=none) with a Show
+    Details expander listing per-URL error codes, an X dismiss, and
+    a CTA that smooth-scrolls to `#photo-uploader`. URL-param
+    rejected — would leak partial-failure state into copy/paste +
+    bookmark URLs.
+  - **Search polish: bbox URL persistence** (`5ec2937`): goal-1 and
+    goal-2 of the agent's prompt (list-view sync to bbox + marker
+    clustering) were already shipped weeks ago — agent correctly
+    flagged the stale prompt and shipped the genuinely-open polish:
+    shareable URL state via `history.replaceState` (NOT
+    `next/router`, which would re-trigger the server query on every
+    map pan), bbox-aware result-count copy ("20 listings in this
+    area" vs "20 listings"), 16 unit tests for the bbox-encode/parse
+    round-trip + validation rejection paths.
+  - **Merge** (`f90d375`): clean auto-merge of Agent 2's branch into
+    main; messages/{en,es}.json had additions from both Agent 1
+    (`socialTones`) and Agent 2 (`resultsCountInArea_*`) — git ort
+    strategy resolved both without manual conflict.
+- **Held back (require supervised single-session work):**
+  - Background-sync queue for offline voice imports (IndexedDB schema
+    + retry + conflict resolution).
+  - Fixture-Stripe-state harness for the 5 deferred webhook-replay
+    cases (test scaffolding interconnected enough to dead-lock under
+    parallel workers).
+  - Long-term RLS on `organization_members` to drop the admin-client
+    escape hatch in `fetchAgentProfile` (refactor; risky to rush).
+- **What works after this session:**
+  - Agent on dashboard can pick Luxury / Investment / Family before
+    generating the 3 social posts. Each tone produces materially
+    different copy.
+  - URL-import flow that loses some photos to bot-blocked CDNs now
+    reports it visibly on the detail page.
+  - Search page URLs are shareable: pan Mexico City, copy the URL,
+    paste into chat — recipient lands on the same view.
+  - 80 new tests cover the import surfaces shipped today + the bbox
+    URL helpers.
+- **Commits:** `3f5a512` import-flow tests, `5ec2937` search bbox
+  URL, `75b4513` tone selector, `f819c31` photo-import banner,
+  `f90d375` merge. (5 commits across 4 parallel agents.)
+- **Next session should start with:** verify the deploy went through;
+  the per-agent test count + typecheck were green locally but the
+  agents themselves couldn't run tests in their sandboxed worktrees
+  (deferred to CI). If anything breaks, the most likely suspects are
+  (a) the LinkedIn tone-neutrality refactor changing existing
+  Investment-locale outputs in subtle ways, (b) the bbox URL-restore
+  path on the LIST view (URL fires bbox fetch but list view has no
+  map — visually invisible filter; consider adding a "panned view"
+  pill). If everything works: pick from the held-back list above
+  (background-sync queue is highest ROI; Stripe replay harness is
+  highest debt-paydown).
+
+---
+
 ## 2026-05-07 — Search polish: bbox URL persistence + "in this area" copy
 - **Frame:** Marker-clustering and list-view sync to bbox both already
   shipped on `main` (commits `e3ade0a` + `a36fc8b`, ~1 week ago). Two
