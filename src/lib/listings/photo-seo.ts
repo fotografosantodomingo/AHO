@@ -1,4 +1,5 @@
-import type { Locale } from '@/i18n/config';
+import type { ContentLocale, Locale } from '@/i18n/config';
+import { narrowContentLocale } from '@/i18n/config';
 
 /**
  * Build SEO-friendly image alt text + visible caption ("leyenda" in
@@ -39,8 +40,11 @@ export interface PhotoSeoArgs {
   locale: Locale;
 }
 
+// Photo SEO labels are content-side; only the two content locales
+// (EN/ES) have real translations. Marketing locales fall back to EN
+// via narrowContentLocale() at the use sites below.
 const TRANSACTION_PHRASE: Record<
-  Locale,
+  ContentLocale,
   Record<TransactionType, string>
 > = {
   en: {
@@ -58,7 +62,7 @@ const TRANSACTION_PHRASE: Record<
 // Light translation for the most common property types. Anything not in
 // the map falls through as-is (Spanish-speaking visitors will see English
 // "loft" or "studio" — acceptable; both are loanwords in es-DO/es-MX).
-const PROPERTY_TYPE_LABEL: Record<Locale, Record<string, string>> = {
+const PROPERTY_TYPE_LABEL: Record<ContentLocale, Record<string, string>> = {
   en: {
     apartment: 'apartment',
     house: 'house',
@@ -88,7 +92,7 @@ const PROPERTY_TYPE_LABEL: Record<Locale, Record<string, string>> = {
 };
 
 function propertyTypeLabel(value: string, locale: Locale): string {
-  const map = PROPERTY_TYPE_LABEL[locale];
+  const map = PROPERTY_TYPE_LABEL[narrowContentLocale(locale)];
   return map[value.toLowerCase()] ?? value;
 }
 
@@ -104,13 +108,14 @@ function capitalizeFirst(s: string): string {
  *   es: "Villa Moderna — villa en venta en Santo Domingo, República Dominicana (Foto 2 de 8)"
  */
 export function buildPhotoAlt(args: PhotoSeoArgs): string {
-  const transaction = TRANSACTION_PHRASE[args.locale][args.transactionType];
+  const cl = narrowContentLocale(args.locale);
+  const transaction = TRANSACTION_PHRASE[cl][args.transactionType];
   const type = propertyTypeLabel(args.propertyType, args.locale);
-  const inWord = args.locale === 'es' ? 'en' : 'in';
+  const inWord = cl === 'es' ? 'en' : 'in';
   const base = `${args.title} — ${type} ${transaction} ${inWord} ${args.city}, ${args.countryDisplay}`;
   if (args.position && args.total && args.total > 1) {
-    const photoLabel = args.locale === 'es' ? 'Foto' : 'Photo';
-    const ofWord = args.locale === 'es' ? 'de' : 'of';
+    const photoLabel = cl === 'es' ? 'Foto' : 'Photo';
+    const ofWord = cl === 'es' ? 'de' : 'of';
     return `${base} (${photoLabel} ${args.position} ${ofWord} ${args.total})`;
   }
   return base;
@@ -122,8 +127,9 @@ export function buildPhotoAlt(args: PhotoSeoArgs): string {
  * caption appears once on the primary; the suffix would be visual noise).
  */
 export function buildPhotoCaption(args: Omit<PhotoSeoArgs, 'position' | 'total'>): string {
-  const transaction = TRANSACTION_PHRASE[args.locale][args.transactionType];
+  const cl = narrowContentLocale(args.locale);
+  const transaction = TRANSACTION_PHRASE[cl][args.transactionType];
   const type = propertyTypeLabel(args.propertyType, args.locale);
-  const inWord = args.locale === 'es' ? 'en' : 'in';
+  const inWord = cl === 'es' ? 'en' : 'in';
   return `${args.title} — ${capitalizeFirst(type)} ${transaction} ${inWord} ${args.city}, ${args.countryDisplay}`;
 }

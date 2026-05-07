@@ -5,7 +5,7 @@ import { sendEmail } from '@/lib/email/brevo';
 import { renderWelcomeEmail } from '@/lib/email/templates/welcome';
 import { renderAdminNewUserEmail } from '@/lib/email/templates/admin-new-user';
 import { publicEnv } from '@/lib/env';
-import { LOCALES, type Locale } from '@/i18n/config';
+import { LOCALES, type Locale, narrowContentLocale } from '@/i18n/config';
 import { ANON_COOKIE_NAME } from '@/lib/listings/recent-views';
 import { translatePathForLocale } from '@/lib/auth/translate-path';
 
@@ -123,7 +123,7 @@ export async function GET(request: NextRequest) {
 
         const welcome = renderWelcomeEmail({
           email: user.email,
-          locale: inferredLocale,
+          locale: narrowContentLocale(inferredLocale),
           homeUrl,
           pricingUrl,
         });
@@ -139,7 +139,7 @@ export async function GET(request: NextRequest) {
           };
           const adminNotice = renderAdminNewUserEmail({
             userEmail: user.email,
-            locale: inferredLocale,
+            locale: narrowContentLocale(inferredLocale),
             marketingOptIn: meta.marketing_opt_in === true,
             signedUpAt: new Date().toISOString(),
             adminUsersUrl,

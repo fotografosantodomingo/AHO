@@ -12,6 +12,26 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-07 — Locales 2→7 + 3 agent-acquisition landing pages with full schema
+- **What shipped:**
+  - **Locales expanded** to 7: EN, ES, PL, PT, DE, FR, IT. Content surfaces (listings, agent profiles, photos) keep EN/ES translations via new `ContentLocale` type + `narrowContentLocale()` helper. Marketing locales fall back to EN content with localized chrome via deep-merge in `src/i18n/request.ts`. New pathnames table covers all 7 locales (most fall back to EN path segments; landing pages get translated slugs since the slug IS the keyword).
+  - **3 hand-crafted landing pages** as conversion triggers for the Pro Automation $99/mo plan:
+    - `/for-agents` (top-funnel) — "Your listings, on every channel — by 9 AM."
+    - `/automation` (mid-funnel feature-led) — "Post once. Publish to FB+IG+WhatsApp Business — automatically."
+    - `/save-time` (bottom-funnel, outcome) — "10 listings × 5 platforms × 8 minutes = 400 minutes a week. AHO does it in 30 seconds."
+    Localized URLs per locale (e.g., `/de/fuer-makler`, `/pl/dla-agentow`, `/pt/para-agentes-imobiliarios`, `/fr/pour-agents`, `/it/per-agenti`).
+  - **Per-page schema bundle**: `WebPage` + `Service` (Real estate listing distribution) + `Offer` (USD 99/MON unitCode) + `Product` (AHO Pro Automation with nested Offer) + `BreadcrumbList` (Home → page) + `FAQPage` (5 Q+A each). Each emitted as a separate JSON-LD script for independent validity tracking.
+  - **Lighthouse-tunable**: every page is `force-static`, no client components, inline-SVG icons, no third-party scripts. Edge-cached. Should score 95-100 mobile / 100 desktop.
+  - **Hand-translated** to all 7 locales — 35 strings per page × 3 pages × 7 locales = 735 translations. EN+ES+PL most polished (matters for current user base); PT/DE/FR/IT meet professional-marketing quality.
+  - **Sitemap**: emits 21 landing URLs (3 pages × 7 locales) with full hreflang × 7 alternates each. New helper `buildLandingAlternates()` in `src/lib/seo/landing-alternates.ts` keeps the alternates logic DRY between page metadata and sitemap.
+  - **Footer**: new "For agents" / "Para agentes" link in the agent-side column, locale-aware to the localized landing slug.
+  - **Type-system update**: many helpers that previously typed `locale: 'en' | 'es'` (analytics queries, photo-seo, format helpers) now accept `string` or `Locale` and narrow internally — same behavior, accepts the wider locale set without type errors. 211/211 unit tests still pass.
+- **What changed since last session:** Same calendar day continuation; this entry succeeds the agent-public-slugs ship.
+- **Blockers / open questions:** None new. Future locales (NL, RU, JA, etc.) follow the same pattern: add to LOCALES, add pathname entries (mostly EN-default), translate the 3 landing namespaces.
+- **Next session should start with:** Lighthouse audit on the 3 new landing pages to verify 95+ mobile across all locales. Then PO-blocked items (Plus tier / Featured ranking / Neighborhood overlays) or extending invoice fixtures to webhook harness.
+
+---
+
 ## 2026-05-07 — SEO-friendly agent slugs `/agents/{name}-{city}-{country}` + JSON-LD enrichment
 - **What shipped:**
   - Migration `0034_organizations_public_slug.sql` — adds `organizations.public_slug` column with unique partial index. Applied to prod.

@@ -55,6 +55,19 @@ export async function SiteFooter({ locale }: Props) {
   const pricingHref = `/${locale}/${locale === 'es' ? 'precios' : 'pricing'}`;
   const signupHref = `/${locale}/${locale === 'es' ? 'registrarse' : 'signup'}`;
   const signinHref = `/${locale}/${locale === 'es' ? 'iniciar-sesion' : 'signin'}`;
+  // Per-locale landing-page slugs — the slug IS the keyword Google
+  // indexes against, so each locale gets its own translated form
+  // (mirrors src/i18n/config.ts PATHNAMES['/for-agents']).
+  const forAgentsSlug: Record<string, string> = {
+    en: 'for-agents',
+    es: 'para-agentes',
+    pl: 'dla-agentow',
+    pt: 'para-agentes-imobiliarios',
+    de: 'fuer-makler',
+    fr: 'pour-agents',
+    it: 'per-agenti',
+  };
+  const forAgentsHref = `/${locale}/${forAgentsSlug[locale] ?? 'for-agents'}`;
   const privacyHref = `/${locale}/privacy`;
   const termsHref = `/${locale}/${locale === 'es' ? 'terminos' : 'terms'}`;
 
@@ -73,6 +86,7 @@ export async function SiteFooter({ locale }: Props) {
 
   const agentsLinks = (
     <ul className="space-y-2 text-sm">
+      <li><a href={forAgentsHref} className="footer-link">{t('linkForAgents')}</a></li>
       <li><a href={pricingHref} className="footer-link">{t('linkPricing')}</a></li>
       <li><a href={signupHref} className="footer-link">{t('linkSignUp')}</a></li>
       <li><a href={signinHref} className="footer-link">{t('linkSignIn')}</a></li>

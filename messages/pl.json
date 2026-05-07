@@ -1,0 +1,308 @@
+{
+  "forAgents": {
+    "meta": {
+      "title": "AHO dla agentów nieruchomości — opublikuj raz, dystrybuuj wszędzie",
+      "description": "AHO to platforma nieruchomości stworzona dla pracujących agentów. Jedno źródło prawdy na ofertę. Automatyczna publikacja na Facebook, Instagram i WhatsApp Business. Pro Automation $99/mies, 7-dniowy okres próbny."
+    },
+    "hero": {
+      "eyebrow": "Dla agentów nieruchomości",
+      "headline": "Twoje oferty na każdym kanale — przed 9 rano.",
+      "sub": "AHO publikuje raz i automatycznie dystrybuuje na Facebooka, Instagrama i WhatsApp Business. Koniec żonglowania zakładkami.",
+      "primaryCta": "Rozpocznij 7-dniowy okres próbny · $99/mies",
+      "secondaryCta": "Zobacz pełny cennik"
+    },
+    "problem": {
+      "heading": "Właśnie teraz…",
+      "bullets": [
+        "Ręcznie kopiujesz tę samą ofertę na Facebooka, Instagrama, swoją stronę i listę rozsyłkową WhatsApp — każdą nieruchomość, za każdym razem.",
+        "Kontakty przychodzą z pięciu kanałów. Tracisz dwa.",
+        "Eksportujesz zdjęcia ponownie do każdej platformy — kwadrat dla IG, panorama dla FB, pion dla WhatsApp."
+      ]
+    },
+    "solution": {
+      "heading": "AHO upraszcza ten proces.",
+      "body": "Jedno źródło prawdy na każdą ofertę. Jedna skrzynka na wszystkie kontakty. Jedna subskrypcja, która zarządza dystrybucją społecznościową od początku do końca. Ty piszesz ofertę raz; AHO robi resztę."
+    },
+    "features": {
+      "heading": "Co dostajesz",
+      "items": [
+        {
+          "title": "Opublikuj raz, wszędzie",
+          "body": "Połącz Facebooka, Instagrama i WhatsApp Business raz. Każda publikowana oferta automatycznie się rozprzestrzenia — z wariantami obrazów dopasowanymi do każdego kanału."
+        },
+        {
+          "title": "Jedna skrzynka na wszystkie kontakty",
+          "body": "Formularze kontaktowe, kliknięcia WhatsApp, odpowiedzi mailowe — wszystko trafia do panelu AHO. Odpowiadasz raz."
+        },
+        {
+          "title": "Dwujęzyczne SEO od ręki",
+          "body": "Każda oferta indeksowana po angielsku i hiszpańsku (z polskim, portugalskim, niemieckim, francuskim i włoskim na stronach marketingowych). Kupujący znajdują Cię w swoim języku."
+        }
+      ]
+    },
+    "howItWorks": {
+      "heading": "Jak to działa",
+      "steps": [
+        {
+          "title": "Zarejestruj się — 7 dni za darmo",
+          "body": "Bez karty kredytowej na start. Anuluj w dowolnym momencie podczas próbnego okresu — bez opłat."
+        },
+        {
+          "title": "Dodaj pierwszą ofertę",
+          "body": "Zdjęcia, cena, cechy, opis. AHO automatycznie optymalizuje obrazy dla każdego kanału — kwadrat, panorama, pion."
+        },
+        {
+          "title": "Połącz swoje socjale",
+          "body": "Jedno OAuth-kliknięcie dla Strony Facebook, Instagram Business, WhatsApp Business. Każda opublikowana oferta automatycznie idzie dalej."
+        }
+      ]
+    },
+    "pricingTeaser": {
+      "eyebrow": "Pro Automation",
+      "price": "$99",
+      "period": "/ miesiąc",
+      "features": [
+        "Nielimitowane oferty",
+        "Auto-publikacja na FB + IG + WhatsApp Business",
+        "Centralna skrzynka kontaktów",
+        "Dwujęzyczne SEO + strona profilu agenta",
+        "7 dni za darmo — bez karty"
+      ],
+      "cta": "Rozpocznij okres próbny"
+    },
+    "faq": {
+      "heading": "Najczęstsze pytania",
+      "items": [
+        {
+          "q": "Czy potrzebuję karty kredytowej, by zacząć?",
+          "a": "Nie. 7-dniowy okres próbny nie wymaga karty. Dodaj ją w dowolnym momencie przed siódmym dniem, by zachować subskrypcję."
+        },
+        {
+          "q": "Które platformy społecznościowe są obsługiwane?",
+          "a": "Strona Facebook + Instagram Business + WhatsApp Business w v1. LinkedIn jest na mapie drogowej."
+        },
+        {
+          "q": "Czy mogę publikować w wielu językach?",
+          "a": "Tak. Każda oferta ma osobne pola dla treści po angielsku i hiszpańsku. Wpisujesz oba, AHO publikuje oba. Strony marketingowe lokalizują się też do PL/PT/DE/FR/IT."
+        },
+        {
+          "q": "Co się stanie, jeśli publikacja społecznościowa zawiedzie?",
+          "a": "AHO automatycznie ponawia próby z opóźnieniem. Jeśli błąd jest trwały (zawieszone konto, naruszenie reguł), dostaniesz mail i alert w panelu z dokładnym komunikatem."
+        },
+        {
+          "q": "Czy mogę anulować w dowolnym momencie?",
+          "a": "Tak. Anuluj z Portalu Klienta Stripe — dostęp trwa do końca okresu rozliczeniowego."
+        }
+      ]
+    },
+    "finalCta": {
+      "heading": "Skończ z pracą ręczną. Rozpocznij okres próbny już dziś.",
+      "sub": "Pro Automation, $99/mies. 7 dni za darmo. Anuluj kiedy chcesz.",
+      "cta": "Rozpocznij okres próbny"
+    }
+  },
+  "automation": {
+    "meta": {
+      "title": "Automatyzacja social media nieruchomości — publikuj raz, na FB, IG, WhatsApp | AHO",
+      "description": "AHO Pro Automation publikuje Twoją ofertę na Stronie Facebook, Instagram Business i WhatsApp Business — automatycznie. Natywna integracja Graph API, warianty obrazu na kanał, harmonogram + ponawianie. $99/mies z 7-dniowym okresem próbnym."
+    },
+    "hero": {
+      "eyebrow": "Pro Automation",
+      "headline": "Opublikuj raz. AHO wysyła na Facebooka, Instagrama i WhatsApp Business — automatycznie.",
+      "sub": "Sztandarowa funkcja AHO Pro. Jedno OAuth-kliknięcie łączy każdy kanał; każda opublikowana oferta dystrybuuje się sama.",
+      "primaryCta": "Rozpocznij okres próbny · $99/mies",
+      "secondaryCta": "Porównaj wszystkie plany"
+    },
+    "problem": {
+      "heading": "Ręczny proces, który zjada Twój tydzień",
+      "bullets": [
+        "Ta sama oferta, pięć miejsc do publikacji. Na nieruchomość. Na język. Co tydzień.",
+        "Różne wymiary obrazów na każdą platformę. Eksportuj, kadruj, wgrywaj.",
+        "Ręczne harmonogramy się rozjeżdżają — oferta na FB we wtorek, na IG w czwartek. Kupujący widzą chaos."
+      ]
+    },
+    "solution": {
+      "heading": "Natywna automatyzacja. Nie narzędzie do re-publikacji.",
+      "body": "AHO łączy się bezpośrednio z API Graph Facebooka, Instagrama i WhatsApp Business. Twoja oferta publikuje się przez Twoje własne konta; my po prostu oszczędzamy Ci ręcznej roboty."
+    },
+    "features": {
+      "heading": "Zbudowane pod prawdziwy proces",
+      "items": [
+        {
+          "title": "Natywna integracja Graph API",
+          "body": "Bezpośrednie posty na Twoją Stronę Facebook, profil Instagram Business i katalog WhatsApp Business. Bez pośredników."
+        },
+        {
+          "title": "Warianty obrazu na kanał",
+          "body": "Kwadrat dla Instagrama, panorama dla Facebooka, pion dla WhatsApp Business — generowane automatycznie przez Cloudflare Images. Zero pracy z eksportem."
+        },
+        {
+          "title": "Harmonogram + ponawianie + panel",
+          "body": "Ustaw harmonogram per kanał. Nieudane publikacje automatycznie się ponawiają. Każdy status (kolejka, opublikowano, błąd) widzisz w panelu AHO."
+        }
+      ]
+    },
+    "howItWorks": {
+      "heading": "Trzy OAuth-kliknięcia. Potem automatyzacja.",
+      "steps": [
+        {
+          "title": "Połącz swoje kanały",
+          "body": "Jedno OAuth-kliknięcie dla każdego: Strona Facebook, Instagram Business, WhatsApp Business. AHO przechowuje tokeny zaszyfrowane."
+        },
+        {
+          "title": "Opublikuj ofertę",
+          "body": "Ten sam formularz, ten sam proces. AHO obsługuje formatowanie i harmonogram per kanał."
+        },
+        {
+          "title": "Patrz na panel",
+          "body": "Każda publikacja kanałowa pokazuje status: zaplanowana, opublikowana, błąd (z ponowieniem). Błędy wysyłają mail z dokładnym komunikatem platformy."
+        }
+      ]
+    },
+    "pricingTeaser": {
+      "eyebrow": "Plan Pro Automation",
+      "price": "$99",
+      "period": "/ miesiąc",
+      "features": [
+        "Auto-publikacja na Facebook + Instagram + WhatsApp Business",
+        "Warianty obrazu per kanał (kwadrat / panorama / pion)",
+        "Harmonogram + ponawianie + status w panelu",
+        "Nielimitowane oferty + skrzynka kontaktów + profil agenta",
+        "7 dni za darmo — bez karty"
+      ],
+      "cta": "Rozpocznij okres próbny"
+    },
+    "faq": {
+      "heading": "Najczęstsze pytania",
+      "items": [
+        {
+          "q": "Czy działa z moją obecną Stroną Facebook?",
+          "a": "Tak. Proces OAuth łączy się z dowolną Stroną, którą administrujesz. Nie trzeba zakładać nowego konta."
+        },
+        {
+          "q": "A osobiste konta na Instagramie?",
+          "a": "Tylko Instagram Business — Facebook tego wymaga dla dostępu do API. Konwersja z osobistego na Business jest darmowa i zajmuje 60 sekund."
+        },
+        {
+          "q": "Czy mogę zaplanować publikacje?",
+          "a": "Tak. Ustaw harmonogram per kanał per oferta. Domyślnie: publikuj natychmiast. Możesz też rozłożyć kanały o godziny lub dni."
+        },
+        {
+          "q": "Co jeśli publikacja zawiedzie?",
+          "a": "AHO ponawia 3× z opóźnieniem. Jeśli nadal błąd, dostajesz mail + alert w panelu z dokładnym komunikatem platformy."
+        },
+        {
+          "q": "Czy mogę edytować opublikowaną ofertę?",
+          "a": "Tak. Edycje wyzwalają aktualizację na każdym kanale (lub świeży post, jeśli platforma nie obsługuje edycji, jak WhatsApp Business)."
+        }
+      ]
+    },
+    "finalCta": {
+      "heading": "Połącz raz. Dystrybuuj na zawsze.",
+      "sub": "Pro Automation, $99/mies. 7 dni za darmo. Anuluj kiedy chcesz.",
+      "cta": "Rozpocznij okres próbny"
+    }
+  },
+  "saveTime": {
+    "meta": {
+      "title": "Oszczędź 10+ godzin tygodniowo na ofertach | AHO dla agentów nieruchomości",
+      "description": "10 ofert × 5 platform × 8 minut = 400 minut tygodniowo. AHO robi to w 30 sekund. Pro Automation $99/mies z 7-dniowym okresem próbnym."
+    },
+    "hero": {
+      "eyebrow": "10 godzin tygodniowo, odzyskane",
+      "headline": "Przestań publikować tę samą ofertę pięć razy. Odzyskaj te godziny.",
+      "sub": "10 ofert × 5 platform × 8 minut = 400 minut tygodniowo zmarnowanych na re-publikację. AHO robi to w 30 sekund.",
+      "primaryCta": "Rozpocznij okres próbny · $99/mies",
+      "secondaryCta": "Jak to działa"
+    },
+    "problem": {
+      "heading": "Matematyka jest brutalna.",
+      "bullets": [
+        "10 ofert × 5 platform × 8 minut na każdą = 400 minut straconych tygodniowo na re-publikację.",
+        "Re-pisanie per język — piszesz opis pod FB, potem pod IG, potem pod WhatsApp, potem dla anglojęzycznych, potem dla hiszpańskojęzycznych.",
+        "Pogoń za kontaktami w 5 skrzynkach — wiadomości Facebook, DMy Instagram, wątki WhatsApp, mail, formularz. Tracisz dwa."
+      ]
+    },
+    "solution": {
+      "heading": "Bez AHO: 400 min/tydzień. Z AHO: 30 sekund.",
+      "body": "Oszczędność: 6 godzin i 39 minut tygodniowo. Na agenta. Co tydzień. AHO upraszcza proces do jednej akcji publikacji, która rozsyła się na każdy kanał — i jednej skrzynki, gdzie lądują wszystkie odpowiedzi."
+    },
+    "features": {
+      "heading": "Jak AHO oddaje Ci czas",
+      "items": [
+        {
+          "title": "Jedna publikacja, pięć dystrybucji",
+          "body": "Pisz raz. AHO publikuje na Facebooku, Instagramie, WhatsApp Business, Twojej stronie AHO i w sitemap — w sekundach."
+        },
+        {
+          "title": "Centralna skrzynka kontaktów",
+          "body": "Każdy formularz, kliknięcie WhatsApp i odpowiedź mailowa ląduje w jednym miejscu. Odpowiadasz raz; AHO przekazuje na kanał, z którego przyszedł kontakt."
+        },
+        {
+          "title": "Format per kanał automatycznie",
+          "body": "Kwadrat dla Instagrama. Panorama dla Facebooka. Pion dla WhatsApp. Zero re-eksportu. Cloudflare Images generuje warianty na żądanie."
+        }
+      ]
+    },
+    "howItWorks": {
+      "heading": "Trzy kroki do odzyskania weekendu",
+      "steps": [
+        {
+          "title": "Zarejestruj się — 7 dni za darmo",
+          "body": "Bez karty. Skonfiguruj profil agenta w mniej niż 5 minut."
+        },
+        {
+          "title": "Połącz swoje kanały",
+          "body": "Jedno OAuth-kliknięcie dla każdego: Facebook, Instagram, WhatsApp Business. Zaszyfrowane, odwoływalne kiedy chcesz."
+        },
+        {
+          "title": "Opublikuj pierwszą ofertę",
+          "body": "Zdjęcia + cena + opis. AHO robi resztę. 400 minut tygodniowo zamienia się w 30 sekund."
+        }
+      ]
+    },
+    "pricingTeaser": {
+      "eyebrow": "Pro Automation",
+      "price": "$99",
+      "period": "/ miesiąc",
+      "features": [
+        "Czas zaoszczędzony: ~10 godzin tygodniowo, na agenta",
+        "Auto-publikacja na FB + IG + WhatsApp Business",
+        "Jedna skrzynka, każdy kanał",
+        "Nielimitowane oferty + profil agenta + dwujęzyczne SEO",
+        "7 dni za darmo — bez karty"
+      ],
+      "cta": "Rozpocznij okres próbny"
+    },
+    "faq": {
+      "heading": "Najczęstsze pytania",
+      "items": [
+        {
+          "q": "Czy 10 godzin to realistyczna liczba?",
+          "a": "To górny limit. Niektórzy agenci oszczędzają więcej (słyszeliśmy 12+), inni mniej. Matematyka: 10 ofert × 5 platform × 8 min = 400 min/tydz. Twoja liczba zależy od wolumenu ofert i tego, jak dokładnie publikowałeś ręcznie."
+        },
+        {
+          "q": "Czy zachowuję własne konta społecznościowe?",
+          "a": "Tak. AHO łączy się przez OAuth z Twoją istniejącą Stroną Facebook, Instagram Business i WhatsApp Business. Publikacje idą przez Twoje konta, z Twoją marką."
+        },
+        {
+          "q": "A kontakty przychodzące przez DMy?",
+          "a": "Wiadomości Facebook + DMy Instagram przekazują się do skrzynki AHO przez webhooks Graph API. Wiadomości WhatsApp Business też. Odpowiadasz raz w AHO; odpowiedź wraca na oryginalny kanał."
+        },
+        {
+          "q": "Jak szybko mogę się skonfigurować?",
+          "a": "Mniej niż 15 minut od rejestracji do pierwszej dystrybuowanej oferty: 5 min profil, 5 min połączenie kanałów, 5 min pierwsza oferta."
+        },
+        {
+          "q": "A jeśli potrzebuję pomocy?",
+          "a": "Napisz na info@advertisehomes.online — odpowiadamy w 24 godziny w dni robocze."
+        }
+      ]
+    },
+    "finalCta": {
+      "heading": "Odzyskaj weekendy. Rozpocznij okres próbny już dziś.",
+      "sub": "Pro Automation, $99/mies. 7 dni za darmo. Anuluj kiedy chcesz.",
+      "cta": "Rozpocznij okres próbny"
+    }
+  }
+}

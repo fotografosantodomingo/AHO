@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
-import { LOCALES, type Locale } from '@/i18n/config';
+import { LOCALES, type Locale, narrowContentLocale } from '@/i18n/config';
 import {
   fetchListingContact,
   fetchPropertyByShortId,
@@ -221,7 +221,7 @@ export default async function PropertyDetailPage({
     listingTitle: title,
     city: property.city,
     url: canonicalUrl,
-    locale: typedLocale,
+    locale: narrowContentLocale(typedLocale),
   });
   // Tel link (single phone for click-to-call). E.164-ish — strip
   // non-digits for the href but show the formatted version.

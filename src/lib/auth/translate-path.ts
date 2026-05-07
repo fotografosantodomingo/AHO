@@ -38,7 +38,11 @@ export function translatePathForLocale(
 
   for (const value of Object.values(PATHNAMES)) {
     if (typeof value === 'string') continue;
-    const v = value as { en: string; es: string };
+    // PATHNAMES values are now Record<Locale, string> covering all 7
+    // locales. Index dynamically; the current/user locale are both
+    // guaranteed to be valid Locale values from the regex match above
+    // and the function signature respectively.
+    const v = value as Record<Locale, string>;
     if (v[currentLocale] === rest) {
       return `/${userLocale}${v[userLocale]}`;
     }

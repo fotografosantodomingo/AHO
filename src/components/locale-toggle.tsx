@@ -6,9 +6,17 @@ import { LOCALES, type Locale } from '@/i18n/config';
 import { usePathname, getPathname } from '@/i18n/routing';
 
 const PROPERTY_PATH_SEGMENTS = new Set(['properties', 'propiedades']);
+// Content locales (EN/ES) get the localized property URL segment.
+// Marketing locales (PL/PT/DE/FR/IT) use the EN form — there are no
+// translated listings in those locales yet, but the route still works.
 const PROPERTY_PATH_FOR_LOCALE: Record<Locale, string> = {
   en: 'properties',
   es: 'propiedades',
+  pl: 'properties',
+  pt: 'properties',
+  de: 'properties',
+  fr: 'properties',
+  it: 'properties',
 };
 
 /**

@@ -204,11 +204,14 @@ export type CommonCurrency = (typeof COMMON_CURRENCIES)[number];
  * surprise the visitor (no "show me Argentine pesos by default" if I
  * land on /en).
  */
-export function defaultCurrencyForLocale(locale: 'en' | 'es'): string {
-  // Both locales default to USD because:
-  //   - en speakers split across US/UK/Canada/Australia; USD is the
-  //     real estate cross-border default
-  //   - es speakers in DR (anchor) use USD for property pricing already
-  // The picker is the override path for anyone who wants something else.
-  return locale === 'en' ? 'USD' : 'USD';
+export function defaultCurrencyForLocale(_locale: string): string {
+  // Default USD across all locales because:
+  //   - en/es content locales: USD is the real-estate cross-border
+  //     default; DR (anchor) uses USD for property pricing.
+  //   - Marketing-only locales (PL/PT/DE/FR/IT) inherit USD as default;
+  //     visitors switch via the currency picker if needed. We don't
+  //     auto-pick PLN/BRL/EUR per locale because the listings price
+  //     in their native currency; auto-converting at landing time
+  //     would surprise the visitor.
+  return 'USD';
 }

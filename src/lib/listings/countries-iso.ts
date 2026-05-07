@@ -34,8 +34,11 @@ export const COUNTRY_CODES = [
  * Spanish and "Argentina, Australia, …" in English.
  */
 export function buildCountryOptions(
-  locale: 'en' | 'es',
+  locale: string,
 ): Array<{ code: string; name: string }> {
+  // Use ES display names for the ES locale; everyone else gets EN.
+  // Marketing locales (PL/PT/DE/FR/IT) inherit EN country names —
+  // adding their native country names is a future polish item.
   const intlLocale = locale === 'es' ? 'es-DO' : 'en-US';
   let display: Intl.DisplayNames | null = null;
   try {

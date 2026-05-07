@@ -209,7 +209,7 @@ export async function getTopListingsByEngagement(
   supabase: SupabaseClient,
   orgId: string,
   since: Date,
-  locale: 'en' | 'es',
+  locale: string,
   limit = 10,
 ): Promise<TopListingRow[]> {
   // 1. Pull events for the window. Include visitor identity so we can
@@ -341,7 +341,7 @@ export interface ActivityRow {
 export async function getPropertyRecentActivity(
   supabase: SupabaseClient,
   propertyId: string,
-  locale: 'en' | 'es',
+  locale: string,
   limit = 50,
 ): Promise<ActivityRow[]> {
   const { data, error } = await supabase
@@ -400,7 +400,7 @@ export async function getPropertyRecentActivity(
 export async function getRecentActivity(
   supabase: SupabaseClient,
   orgId: string,
-  locale: 'en' | 'es',
+  locale: string,
   limit = 20,
 ): Promise<ActivityRow[]> {
   const { data, error } = await supabase

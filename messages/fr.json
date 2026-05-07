@@ -1,0 +1,308 @@
+{
+  "forAgents": {
+    "meta": {
+      "title": "AHO pour agents immobiliers — publiez une fois, distribuez partout",
+      "description": "AHO est la plateforme immobilière conçue pour les agents en activité. Une seule source de vérité par annonce. Publication automatique sur Facebook, Instagram et WhatsApp Business. Pro Automation 99 $/mois, essai gratuit de 7 jours."
+    },
+    "hero": {
+      "eyebrow": "Pour agents immobiliers",
+      "headline": "Vos annonces, sur tous les canaux — avant 9 h.",
+      "sub": "AHO publie une fois et distribue automatiquement sur Facebook, Instagram et WhatsApp Business. Fini de jongler entre les onglets.",
+      "primaryCta": "Démarrer l'essai 7 jours · 99 $/mois",
+      "secondaryCta": "Voir tous les plans"
+    },
+    "problem": {
+      "heading": "En ce moment vous êtes en train de…",
+      "bullets": [
+        "Republier manuellement la même annonce sur Facebook, Instagram, votre site et une liste de diffusion WhatsApp — chaque bien, à chaque fois.",
+        "Recevoir des contacts via cinq canaux. Vous en manquez deux.",
+        "Réexporter les photos pour le format de chaque plateforme. Carré pour IG, paysage pour FB, vertical pour WhatsApp."
+      ]
+    },
+    "solution": {
+      "heading": "AHO simplifie le flux.",
+      "body": "Une seule source de vérité par annonce. Une seule boîte pour tous les contacts. Un seul abonnement qui gère la distribution sociale de bout en bout. Vous écrivez l'annonce une fois ; AHO fait le reste."
+    },
+    "features": {
+      "heading": "Ce que vous obtenez",
+      "items": [
+        {
+          "title": "Publiez une fois, partout",
+          "body": "Connectez Facebook, Instagram et WhatsApp Business une seule fois. Chaque annonce publiée se distribue automatiquement — avec des variantes d'image par canal générées à la volée."
+        },
+        {
+          "title": "Une boîte pour tous les contacts",
+          "body": "Formulaires, clics WhatsApp, réponses e-mail — tout entre dans votre tableau de bord AHO. Répondez une seule fois."
+        },
+        {
+          "title": "SEO multilingue d'office",
+          "body": "Chaque annonce indexée en anglais et espagnol (avec polonais, portugais, allemand, français et italien sur les pages marketing). Les acheteurs vous trouvent dans leur langue."
+        }
+      ]
+    },
+    "howItWorks": {
+      "heading": "Comment ça marche",
+      "steps": [
+        {
+          "title": "Inscrivez-vous — essai gratuit 7 jours",
+          "body": "Pas de carte au démarrage. Annulez à tout moment pendant l'essai sans frais."
+        },
+        {
+          "title": "Ajoutez votre première annonce",
+          "body": "Photos, prix, caractéristiques, description. AHO optimise les images par canal — carré, paysage, vertical — automatiquement."
+        },
+        {
+          "title": "Connectez vos réseaux",
+          "body": "Un clic OAuth pour Page Facebook, Instagram Business, WhatsApp Business. Chaque annonce publiée se distribue automatiquement."
+        }
+      ]
+    },
+    "pricingTeaser": {
+      "eyebrow": "Pro Automation",
+      "price": "99 $",
+      "period": "/ mois",
+      "features": [
+        "Annonces illimitées",
+        "Auto-publication vers FB + IG + WhatsApp Business",
+        "Boîte de contacts centralisée",
+        "SEO bilingue + page profil agent",
+        "Essai 7 jours — sans carte"
+      ],
+      "cta": "Démarrer l'essai gratuit"
+    },
+    "faq": {
+      "heading": "Questions fréquentes",
+      "items": [
+        {
+          "q": "Ai-je besoin d'une carte pour démarrer ?",
+          "a": "Non. L'essai de 7 jours ne demande pas de carte. Ajoutez-en une avant le 7e jour pour garder votre abonnement actif."
+        },
+        {
+          "q": "Quelles plateformes sociales sont prises en charge ?",
+          "a": "Page Facebook + Instagram Business + WhatsApp Business en v1. LinkedIn est sur la feuille de route."
+        },
+        {
+          "q": "Puis-je publier en plusieurs langues ?",
+          "a": "Oui. Chaque annonce a des champs séparés pour l'anglais et l'espagnol. Tapez les deux, AHO publie les deux. Les pages marketing localisent aussi vers PL/PT/DE/FR/IT."
+        },
+        {
+          "q": "Que se passe-t-il si une publication échoue ?",
+          "a": "AHO réessaie automatiquement avec backoff. Si l'échec persiste (compte suspendu, règle de contenu), vous recevez e-mail + alerte tableau de bord avec le message exact."
+        },
+        {
+          "q": "Puis-je annuler à tout moment ?",
+          "a": "Oui. Annulez depuis le Portail Client Stripe — l'accès continue jusqu'à la fin de votre période de facturation."
+        }
+      ]
+    },
+    "finalCta": {
+      "heading": "Stop au travail manuel. Démarrez votre essai aujourd'hui.",
+      "sub": "Pro Automation, 99 $/mois. Essai 7 jours. Annulable à tout moment.",
+      "cta": "Démarrer l'essai gratuit"
+    }
+  },
+  "automation": {
+    "meta": {
+      "title": "Automatisation des réseaux sociaux immobiliers — publiez une fois sur FB, IG, WhatsApp | AHO",
+      "description": "AHO Pro Automation publie votre annonce sur Page Facebook, Instagram Business et WhatsApp Business — automatiquement. Intégration native Graph API, variantes d'image par canal, planification + retry. 99 $/mois avec essai gratuit de 7 jours."
+    },
+    "hero": {
+      "eyebrow": "Pro Automation",
+      "headline": "Publiez une fois. Distribuez vers Facebook, Instagram et WhatsApp Business — automatiquement.",
+      "sub": "La fonctionnalité phare d'AHO Pro. Un clic OAuth connecte chaque canal ; chaque annonce publiée se distribue elle-même.",
+      "primaryCta": "Démarrer l'essai gratuit · 99 $/mois",
+      "secondaryCta": "Comparer tous les plans"
+    },
+    "problem": {
+      "heading": "Le flux manuel qui dévore votre semaine",
+      "bullets": [
+        "Même annonce, cinq endroits où poster. Par bien. Par langue. Chaque semaine.",
+        "Dimensions différentes par plateforme. Réexporter, recadrer, recharger.",
+        "Les plannings manuels glissent — annonces le mardi sur FB, jeudi sur IG. Les acheteurs voient le chaos."
+      ]
+    },
+    "solution": {
+      "heading": "Automatisation native. Pas un outil de re-publication tiers.",
+      "body": "AHO se connecte directement aux APIs Graph de Facebook, Instagram et WhatsApp Business. Votre annonce est publiée via vos propres comptes ; nous vous épargnons juste le travail manuel."
+    },
+    "features": {
+      "heading": "Conçu pour le vrai flux de travail",
+      "items": [
+        {
+          "title": "Intégration Graph API native",
+          "body": "Publications directes sur votre Page Facebook, profil Instagram Business et catalogue WhatsApp Business. Pas d'intermédiaire tiers."
+        },
+        {
+          "title": "Variantes d'image par canal",
+          "body": "Carré pour Instagram, paysage pour Facebook, vertical pour WhatsApp Business — générées automatiquement par Cloudflare Images. Zéro réexport."
+        },
+        {
+          "title": "Planification + retry + tableau de bord",
+          "body": "Définissez un planning par canal. Les publications échouées sont rejouées automatiquement. Chaque statut (en file, publié, échec) apparaît dans votre tableau de bord AHO."
+        }
+      ]
+    },
+    "howItWorks": {
+      "heading": "Trois clics OAuth. Puis automatisation.",
+      "steps": [
+        {
+          "title": "Connectez vos canaux",
+          "body": "Un clic OAuth chacun : Page Facebook, Instagram Business, WhatsApp Business. AHO stocke les tokens chiffrés."
+        },
+        {
+          "title": "Publiez votre annonce",
+          "body": "Même formulaire, même flux. AHO gère le formatage et le planning par canal."
+        },
+        {
+          "title": "Regardez le tableau de bord",
+          "body": "Chaque post canal affiche son statut : planifié, publié, échec (avec retry). Les échecs vous envoient un e-mail avec le message exact de la plateforme."
+        }
+      ]
+    },
+    "pricingTeaser": {
+      "eyebrow": "Plan Pro Automation",
+      "price": "99 $",
+      "period": "/ mois",
+      "features": [
+        "Auto-publication vers Facebook + Instagram + WhatsApp Business",
+        "Variantes d'image par canal (carré / paysage / vertical)",
+        "Planification + retry + statut tableau de bord",
+        "Annonces illimitées + boîte de contacts + profil agent",
+        "Essai 7 jours — sans carte"
+      ],
+      "cta": "Démarrer l'essai gratuit"
+    },
+    "faq": {
+      "heading": "Questions fréquentes",
+      "items": [
+        {
+          "q": "Cela fonctionne-t-il avec ma Page Facebook actuelle ?",
+          "a": "Oui. Le flux OAuth se connecte à toute Page que vous administrez. Pas besoin de nouveau compte."
+        },
+        {
+          "q": "Et les comptes Instagram personnels ?",
+          "a": "Instagram Business uniquement — Facebook l'exige pour l'accès API. Convertir votre compte personnel en Business est gratuit et prend 60 secondes."
+        },
+        {
+          "q": "Puis-je planifier les publications ?",
+          "a": "Oui. Définissez un planning par canal et par annonce. Par défaut : publier immédiatement. Vous pouvez aussi étaler les canaux par heures ou jours."
+        },
+        {
+          "q": "Que se passe-t-il si un post échoue ?",
+          "a": "AHO rejoue 3× avec backoff. Si l'échec persiste, vous recevez e-mail + alerte tableau de bord avec le message exact de la plateforme."
+        },
+        {
+          "q": "Puis-je éditer une annonce publiée ?",
+          "a": "Oui. Les éditions déclenchent une mise à jour sur chaque canal (ou un nouveau post si la plateforme ne supporte pas les édits, comme WhatsApp Business)."
+        }
+      ]
+    },
+    "finalCta": {
+      "heading": "Connectez une fois. Distribuez pour toujours.",
+      "sub": "Pro Automation, 99 $/mois. Essai 7 jours. Annulable à tout moment.",
+      "cta": "Démarrer l'essai gratuit"
+    }
+  },
+  "saveTime": {
+    "meta": {
+      "title": "Économisez 10+ heures par semaine sur les annonces | AHO pour agents immobiliers",
+      "description": "10 annonces × 5 plateformes × 8 minutes = 400 minutes par semaine. AHO le fait en 30 secondes. Pro Automation 99 $/mois avec essai gratuit de 7 jours."
+    },
+    "hero": {
+      "eyebrow": "10 heures par semaine, récupérées",
+      "headline": "Arrêtez de poster la même annonce cinq fois. Récupérez ces heures.",
+      "sub": "10 annonces × 5 plateformes × 8 minutes = 400 minutes par semaine perdues en re-publication. AHO le fait en 30 secondes.",
+      "primaryCta": "Démarrer l'essai gratuit · 99 $/mois",
+      "secondaryCta": "Comment ça marche"
+    },
+    "problem": {
+      "heading": "Le calcul est brutal.",
+      "bullets": [
+        "10 annonces × 5 plateformes × 8 minutes chacune = 400 minutes perdues par semaine en re-publication.",
+        "Re-rédaction par langue — caption FB, puis IG, puis WhatsApp, puis anglais, puis espagnol.",
+        "Chasse aux contacts dans 5 boîtes — messages Facebook, DMs Instagram, fils WhatsApp, e-mail, formulaire. Vous en manquez deux."
+      ]
+    },
+    "solution": {
+      "heading": "Sans AHO : 400 min/semaine. Avec AHO : 30 secondes.",
+      "body": "Économisé : 6 heures et 39 minutes par semaine. Par agent. Chaque semaine. AHO réduit le flux à une seule action de publication qui se déploie sur chaque canal — et une seule boîte où atterrissent toutes les réponses."
+    },
+    "features": {
+      "heading": "Comment AHO vous rend votre temps",
+      "items": [
+        {
+          "title": "Une publication, cinq distributions",
+          "body": "Écrivez une fois. AHO poste sur Facebook, Instagram, WhatsApp Business, votre page AHO et votre sitemap — en quelques secondes."
+        },
+        {
+          "title": "Boîte de contacts centralisée",
+          "body": "Chaque formulaire, clic WhatsApp et réponse e-mail atterrit au même endroit. Répondez une fois ; AHO transmet au canal d'origine."
+        },
+        {
+          "title": "Formatage par canal automatique",
+          "body": "Carré pour Instagram. Paysage pour Facebook. Vertical pour WhatsApp. Zéro réexport. Cloudflare Images génère les variantes à la volée."
+        }
+      ]
+    },
+    "howItWorks": {
+      "heading": "Trois étapes pour récupérer votre week-end",
+      "steps": [
+        {
+          "title": "Inscrivez-vous — essai gratuit 7 jours",
+          "body": "Sans carte. Configurez votre profil agent en moins de 5 minutes."
+        },
+        {
+          "title": "Connectez vos canaux",
+          "body": "Un clic OAuth chacun : Facebook, Instagram, WhatsApp Business. Stockés chiffrés, révocables à tout moment."
+        },
+        {
+          "title": "Publiez votre première annonce",
+          "body": "Photos + prix + description. AHO fait le reste. Les 400 minutes par semaine deviennent 30 secondes."
+        }
+      ]
+    },
+    "pricingTeaser": {
+      "eyebrow": "Pro Automation",
+      "price": "99 $",
+      "period": "/ mois",
+      "features": [
+        "Temps économisé : ~10 heures par semaine, par agent",
+        "Auto-publication vers FB + IG + WhatsApp Business",
+        "Une boîte, tous les canaux",
+        "Annonces illimitées + profil agent + SEO bilingue",
+        "Essai 7 jours — sans carte"
+      ],
+      "cta": "Démarrer l'essai gratuit"
+    },
+    "faq": {
+      "heading": "Questions fréquentes",
+      "items": [
+        {
+          "q": "Le chiffre de 10 heures est-il réaliste ?",
+          "a": "C'est une borne haute. Certains agents économisent plus (nous avons entendu 12+), d'autres moins. Le calcul : 10 annonces × 5 plateformes × 8 min = 400 min/sem. Votre chiffre dépend du volume + de la rigueur de votre publication manuelle."
+        },
+        {
+          "q": "Je garde mes propres comptes sociaux ?",
+          "a": "Oui. AHO se connecte via OAuth à votre Page Facebook, Instagram Business et WhatsApp Business existants. Les posts passent par vos comptes, avec votre marque."
+        },
+        {
+          "q": "Et les contacts qui arrivent par DM ?",
+          "a": "Les messages Facebook + DMs Instagram sont transférés vers votre boîte AHO via les webhooks Graph API. Idem WhatsApp Business. Vous répondez une fois dans AHO ; la réponse est routée vers le canal d'origine."
+        },
+        {
+          "q": "Combien de temps pour la mise en place ?",
+          "a": "Moins de 15 minutes de l'inscription à la première annonce distribuée : 5 min profil, 5 min connexion canaux, 5 min première annonce."
+        },
+        {
+          "q": "Et si j'ai besoin d'aide ?",
+          "a": "Écrivez à info@advertisehomes.online — réponse sous 24 heures les jours ouvrés."
+        }
+      ]
+    },
+    "finalCta": {
+      "heading": "Récupérez vos week-ends. Démarrez votre essai aujourd'hui.",
+      "sub": "Pro Automation, 99 $/mois. Essai 7 jours. Annulable à tout moment.",
+      "cta": "Démarrer l'essai gratuit"
+    }
+  }
+}

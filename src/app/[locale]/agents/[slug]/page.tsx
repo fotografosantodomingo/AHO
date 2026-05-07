@@ -786,7 +786,7 @@ function StatTile({ label, value }: { label: string; value: string }) {
   );
 }
 
-function formatStatPrice(cents: number, locale: 'en' | 'es', currency = 'USD'): string {
+function formatStatPrice(cents: number, locale: string, currency = 'USD'): string {
   return new Intl.NumberFormat(locale === 'es' ? 'es-DO' : 'en-US', {
     style: 'currency',
     currency,

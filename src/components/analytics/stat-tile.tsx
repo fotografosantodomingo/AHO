@@ -40,7 +40,7 @@ export function StatTile({
  * "2m ago" / "5h ago" / "3d ago" / "Mar 12" formatter. Locale-aware
  * for Spanish ("hace 2m"). Avoids dragging in date-fns for one tiny use.
  */
-export function formatRelativeTime(iso: string, locale: 'en' | 'es'): string {
+export function formatRelativeTime(iso: string, locale: string): string {
   const t = new Date(iso).getTime();
   const now = Date.now();
   const diff = Math.max(0, now - t);

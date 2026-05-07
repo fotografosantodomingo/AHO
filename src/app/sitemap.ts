@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next';
 import { publicEnv } from '@/lib/env';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { citySlug } from '@/lib/listings/search';
+import { buildLandingAlternates } from '@/lib/seo/landing-alternates';
 
 // next-on-pages requires explicit runtime declaration. Sitemap reads from
 // Supabase per-request, so it can't be statically generated at build time.
@@ -342,5 +343,42 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     );
   }
 
-  return [...marketing, ...listings, ...countryLandings, ...cityLandings, ...agents];
+  // Agent-acquisition landing pages — one entry per locale per page,
+  // each carrying hreflang alternates pointing to all 7 locale versions.
+  // Total: 3 pages × 7 locales = 21 URLs. Static (force-static), so
+  // the sitemap can hint daily change frequency without lying.
+  const landingPathKeys = [
+    '/for-agents',
+    '/automation',
+    '/save-time',
+  ] as const;
+  const landings: MetadataRoute.Sitemap = [];
+  for (const pathKey of landingPathKeys) {
+    // currentLocale doesn't matter for the URL list — each loop run
+    // emits a sitemap entry per locale separately. We just need the
+    // shared `languages` map and the list of all URLs.
+    const alts = buildLandingAlternates({
+      pathKey,
+      currentLocale: 'en',
+      siteUrl: site,
+    });
+    for (const { url } of alts.allUrls) {
+      landings.push({
+        url,
+        lastModified: now,
+        changeFrequency: 'weekly',
+        priority: 0.8,
+        alternates: { languages: alts.languages },
+      });
+    }
+  }
+
+  return [
+    ...marketing,
+    ...listings,
+    ...countryLandings,
+    ...cityLandings,
+    ...agents,
+    ...landings,
+  ];
 }

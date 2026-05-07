@@ -249,6 +249,7 @@
     "linkBrowseByCountry": "Browse by country",
     "linkSavedSearches": "Saved searches",
     "linkSavedProperties": "Saved properties",
+    "linkForAgents": "For agents",
     "linkPricing": "Pricing",
     "linkSignUp": "Create an agent account",
     "linkSignIn": "Sign in",
@@ -1072,6 +1073,312 @@
       "viewListingActivityHeading": "All activity for this listing",
       "noActivity": "No activity recorded yet.",
       "noActivityHint": "When visitors view, save, or contact about this listing, you'll see each event here."
+    }
+  },
+  "forAgents": {
+    "meta": {
+      "title": "AHO for real estate agents — publish once, distribute everywhere",
+      "description": "AHO is a real-estate platform built for working agents. One source of truth per listing. Auto-publishing to Facebook, Instagram, and WhatsApp Business. Pro Automation $99/mo, 7-day free trial."
+    },
+    "hero": {
+      "eyebrow": "For real estate agents",
+      "headline": "Your listings, on every channel — by 9 AM.",
+      "sub": "AHO publishes once and distributes to Facebook, Instagram, and WhatsApp Business automatically. Stop juggling tabs.",
+      "primaryCta": "Start 7-day free trial · $99/mo",
+      "secondaryCta": "See full pricing"
+    },
+    "problem": {
+      "heading": "Right now you're…",
+      "bullets": [
+        "Manually re-posting the same listing to Facebook, Instagram, your website, and a WhatsApp broadcast list — every property, every time.",
+        "Receiving leads across five channels. You miss two of them.",
+        "Re-exporting photos for each platform's aspect ratio. Square for IG, landscape for FB, vertical for WhatsApp."
+      ]
+    },
+    "solution": {
+      "heading": "AHO collapses the workflow.",
+      "body": "One source of truth for every listing. One inbox for every lead. One subscription that handles social distribution end to end. You write the listing once; AHO does the rest."
+    },
+    "features": {
+      "heading": "What you get",
+      "items": [
+        {
+          "title": "Post once, publish everywhere",
+          "body": "Connect Facebook, Instagram, and WhatsApp Business once. Every listing you publish auto-distributes — with per-channel image variants generated on the fly."
+        },
+        {
+          "title": "One inbox for every lead",
+          "body": "Contact-form submissions, WhatsApp click-to-chats, email replies — all funnel into your AHO dashboard. Reply once."
+        },
+        {
+          "title": "Bilingual SEO out of the box",
+          "body": "Every listing indexed in English and Spanish (with Polish, Portuguese, German, French, Italian on the marketing surface). Buyers find you in their language."
+        }
+      ]
+    },
+    "howItWorks": {
+      "heading": "How it works",
+      "steps": [
+        {
+          "title": "Sign up — 7-day free trial",
+          "body": "No credit card to start. Cancel any time during the trial without charge."
+        },
+        {
+          "title": "Add your first listing",
+          "body": "Photos, price, features, description. AHO optimizes images per channel — square, landscape, vertical — automatically."
+        },
+        {
+          "title": "Connect your socials",
+          "body": "One OAuth click each for Facebook Page, Instagram Business, WhatsApp Business. Then every published listing distributes automatically."
+        }
+      ]
+    },
+    "pricingTeaser": {
+      "eyebrow": "Pro Automation",
+      "price": "$99",
+      "period": "/ month",
+      "features": [
+        "Unlimited listings",
+        "Auto-publish to FB + IG + WhatsApp Business",
+        "Centralized lead inbox",
+        "Bilingual SEO + agent profile page",
+        "7-day free trial — no card required"
+      ],
+      "cta": "Start free trial"
+    },
+    "faq": {
+      "heading": "Frequently asked questions",
+      "items": [
+        {
+          "q": "Do I need a credit card to start?",
+          "a": "No. The 7-day trial doesn't require a card. Add one any time before day 7 to keep your subscription active."
+        },
+        {
+          "q": "Which social platforms are supported?",
+          "a": "Facebook Page + Instagram Business + WhatsApp Business in v1. LinkedIn is on the roadmap."
+        },
+        {
+          "q": "Can I publish in multiple languages?",
+          "a": "Yes. Each listing has separate fields for English and Spanish content. Type both, AHO publishes both. Marketing pages also localize to PL/PT/DE/FR/IT."
+        },
+        {
+          "q": "What happens if a social post fails?",
+          "a": "AHO retries automatically with backoff. If the failure is persistent (account suspended, content rule violation), you get an email and a dashboard alert with the exact error."
+        },
+        {
+          "q": "Can I cancel any time?",
+          "a": "Yes. Cancel from the Stripe Customer Portal — access continues to the end of your billing period."
+        }
+      ]
+    },
+    "finalCta": {
+      "heading": "Stop the manual work. Start your free trial today.",
+      "sub": "Pro Automation, $99/mo. 7-day free trial. Cancel any time.",
+      "cta": "Start free trial"
+    }
+  },
+  "automation": {
+    "meta": {
+      "title": "Real estate social automation — post once, publish to FB, IG, WhatsApp | AHO",
+      "description": "AHO Pro Automation publishes your listing to Facebook Page, Instagram Business, and WhatsApp Business — automatically. Native Graph API integration, per-channel image variants, schedule + retry. $99/mo with a 7-day free trial."
+    },
+    "hero": {
+      "eyebrow": "Pro Automation",
+      "headline": "Post once. Publish to Facebook, Instagram, and WhatsApp Business — automatically.",
+      "sub": "The marquee feature of AHO Pro. One OAuth click connects each channel; every published listing distributes itself.",
+      "primaryCta": "Start free trial · $99/mo",
+      "secondaryCta": "Compare all plans"
+    },
+    "problem": {
+      "heading": "The manual workflow that's eating your week",
+      "bullets": [
+        "Same listing, five places to post. Per property. Per language. Every week.",
+        "Different image dimensions per platform. Re-export, re-crop, re-upload.",
+        "Manual schedules slip — listings show up Tuesday on FB, Thursday on IG. Buyers see chaos."
+      ]
+    },
+    "solution": {
+      "heading": "Native automation. Not a third-party reposting tool.",
+      "body": "AHO connects directly to the Facebook, Instagram, and WhatsApp Business Graph APIs. Your listing publishes through your own accounts; we just save you the manual labor."
+    },
+    "features": {
+      "heading": "Built for the real workflow",
+      "items": [
+        {
+          "title": "Native Graph API integration",
+          "body": "Direct posts to your Facebook Page, Instagram Business profile, and WhatsApp Business catalog. No third-party reposting middleman."
+        },
+        {
+          "title": "Per-channel image variants",
+          "body": "Square for Instagram, landscape for Facebook, vertical for WhatsApp Business — auto-generated by Cloudflare Images. Zero re-export work."
+        },
+        {
+          "title": "Schedule + retry + dashboard",
+          "body": "Set a posting schedule per channel. Failed posts retry automatically with backoff. Every status (queued, posted, failed) shows in your AHO dashboard."
+        }
+      ]
+    },
+    "howItWorks": {
+      "heading": "Three OAuth clicks. Then automation.",
+      "steps": [
+        {
+          "title": "Connect your channels",
+          "body": "OAuth click each: Facebook Page, Instagram Business, WhatsApp Business. AHO saves the tokens encrypted at rest."
+        },
+        {
+          "title": "Publish your listing",
+          "body": "Same form, same flow as before. AHO handles the per-channel formatting + scheduling."
+        },
+        {
+          "title": "Watch the dashboard",
+          "body": "Every channel post shows status: scheduled, posted, failed (with retry). Failures email you with the exact platform error."
+        }
+      ]
+    },
+    "pricingTeaser": {
+      "eyebrow": "Pro Automation tier",
+      "price": "$99",
+      "period": "/ month",
+      "features": [
+        "Auto-publish to Facebook + Instagram + WhatsApp Business",
+        "Per-channel image variants (square / landscape / vertical)",
+        "Schedule + retry + dashboard status",
+        "Unlimited listings + lead inbox + agent profile",
+        "7-day free trial — no card required"
+      ],
+      "cta": "Start free trial"
+    },
+    "faq": {
+      "heading": "Frequently asked questions",
+      "items": [
+        {
+          "q": "Does this work with my existing Facebook Page?",
+          "a": "Yes. The OAuth flow connects to any Page you admin. No new account needed."
+        },
+        {
+          "q": "What about Instagram personal accounts?",
+          "a": "Instagram Business only — Facebook requires it for API access. Converting your personal account to Business is free and takes 60 seconds."
+        },
+        {
+          "q": "Can I schedule posts?",
+          "a": "Yes. Set a per-channel schedule per listing. Default: post immediately on publish. You can also stagger channels by hours or days."
+        },
+        {
+          "q": "What if a post fails?",
+          "a": "AHO retries 3× with backoff. If still failing, you get an email + dashboard alert with the exact platform error message."
+        },
+        {
+          "q": "Can I edit a posted listing?",
+          "a": "Yes. Edits trigger an update on each channel (or a fresh post if the platform doesn't support edits, like WhatsApp Business broadcasts)."
+        }
+      ]
+    },
+    "finalCta": {
+      "heading": "Connect once. Distribute forever.",
+      "sub": "Pro Automation, $99/mo. 7-day free trial. Cancel any time.",
+      "cta": "Start free trial"
+    }
+  },
+  "saveTime": {
+    "meta": {
+      "title": "Save 10+ hours a week on listings | AHO for real estate agents",
+      "description": "10 listings × 5 platforms × 8 minutes = 400 minutes a week. AHO does it in 30 seconds. Pro Automation $99/mo with a 7-day free trial."
+    },
+    "hero": {
+      "eyebrow": "10 hours a week, returned",
+      "headline": "Stop posting the same listing five times. Get those hours back.",
+      "sub": "10 listings × 5 platforms × 8 minutes = 400 minutes a week lost to repeat-posting. AHO does it in 30 seconds.",
+      "primaryCta": "Start free trial · $99/mo",
+      "secondaryCta": "How it works"
+    },
+    "problem": {
+      "heading": "The math is brutal.",
+      "bullets": [
+        "10 listings × 5 platforms × 8 minutes each = 400 minutes lost per week to repeat-posting.",
+        "Per-language re-typing — write the FB caption, then for IG, then for WhatsApp, then again for English buyers, then again for Spanish.",
+        "Lead chasing across 5 inboxes — Facebook messages, Instagram DMs, WhatsApp threads, email, contact form. You miss two."
+      ]
+    },
+    "solution": {
+      "heading": "Without AHO: 400 min/week. With AHO: 30 seconds.",
+      "body": "Saved: 6 hours and 39 minutes weekly. Per agent. Every week. AHO collapses the workflow into one publish action that fans out to every channel — and one inbox where every reply lands."
+    },
+    "features": {
+      "heading": "How AHO returns your time",
+      "items": [
+        {
+          "title": "One publish, five distributions",
+          "body": "Write once. AHO posts to Facebook, Instagram, WhatsApp Business, your AHO listing page, and your sitemap — in seconds."
+        },
+        {
+          "title": "Centralized lead inbox",
+          "body": "Every contact form, WhatsApp click, and email reply lands in one place. Reply once; AHO forwards to whichever channel the lead came from."
+        },
+        {
+          "title": "Per-channel formatting auto",
+          "body": "Square for Instagram. Landscape for Facebook. Vertical for WhatsApp. Zero re-export. Cloudflare Images generates variants on the fly."
+        }
+      ]
+    },
+    "howItWorks": {
+      "heading": "Three steps to your weekend back",
+      "steps": [
+        {
+          "title": "Sign up — 7-day free trial",
+          "body": "No credit card to start. Set up your agent profile in under 5 minutes."
+        },
+        {
+          "title": "Connect your channels",
+          "body": "One OAuth click each: Facebook, Instagram, WhatsApp Business. Saved encrypted, revocable any time."
+        },
+        {
+          "title": "Publish your first listing",
+          "body": "Photos + price + description. AHO handles the rest. The 400 minutes a week become 30 seconds."
+        }
+      ]
+    },
+    "pricingTeaser": {
+      "eyebrow": "Pro Automation",
+      "price": "$99",
+      "period": "/ month",
+      "features": [
+        "Time saved: ~10 hours a week, per agent",
+        "Auto-publish to FB + IG + WhatsApp Business",
+        "One inbox, every channel",
+        "Unlimited listings + agent profile + bilingual SEO",
+        "7-day free trial — no card required"
+      ],
+      "cta": "Start free trial"
+    },
+    "faq": {
+      "heading": "Frequently asked questions",
+      "items": [
+        {
+          "q": "Is the 10-hour figure realistic?",
+          "a": "It's an upper bound. Some agents save more (we've heard 12+), some less. The math: 10 listings × 5 platforms × 8 min each = 400 min/week. Your number depends on your listing volume + how thorough your manual posting was."
+        },
+        {
+          "q": "Do I keep my own social accounts?",
+          "a": "Yes. AHO connects via OAuth to your existing Facebook Page, Instagram Business, and WhatsApp Business. Posts go through your accounts, with your branding."
+        },
+        {
+          "q": "What about leads that come in through DMs?",
+          "a": "Facebook Messenger + Instagram DMs forward to your AHO inbox via the Graph API webhooks. WhatsApp Business messages too. You reply once in AHO; the reply routes to the original channel."
+        },
+        {
+          "q": "How quickly can I be set up?",
+          "a": "Under 15 minutes from signup to first listing distributed: 5 min profile, 5 min channel connect, 5 min first listing."
+        },
+        {
+          "q": "What if I need help?",
+          "a": "Email info@advertisehomes.online — we reply within 24 hours on weekdays."
+        }
+      ]
+    },
+    "finalCta": {
+      "heading": "Get your weekends back. Start your free trial today.",
+      "sub": "Pro Automation, $99/mo. 7-day free trial. Cancel any time.",
+      "cta": "Start free trial"
     }
   }
 }
