@@ -24,7 +24,11 @@ export const runtime = 'edge';
  * Failure modes (each returns a structured 4xx with `errorCode`):
  *   - `invalid_url` — malformed or non-http(s)
  *   - `internal_url` — points to localhost / private IP
- *   - `fetch_failed` — source returned 4xx/5xx, timed out, or oversized
+ *   - `source_blocks_scraping` — AWS WAF / Cloudflare / Akamai / DataDome
+ *     served a bot-challenge instead of the real listing. Common on
+ *     Zillow, Redfin, Realtor.com. Sprint-2 fix: residential IP proxy.
+ *   - `fetch_failed` — source returned 4xx/5xx (other than challenges),
+ *     timed out, or oversized
  *   - `extract_failed` — Claude returned non-JSON / unparseable
  */
 
@@ -57,6 +61,7 @@ export async function POST(req: NextRequest) {
     let errorCode = 'extract_failed';
     if (/invalid url/i.test(message)) errorCode = 'invalid_url';
     else if (/internal address/i.test(message)) errorCode = 'internal_url';
+    else if (/source blocks scraping/i.test(message)) errorCode = 'source_blocks_scraping';
     else if (/source page too large|HTTP 4|HTTP 5|timed out|aborted|fetch failed/i.test(message))
       errorCode = 'fetch_failed';
     return NextResponse.json(

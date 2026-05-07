@@ -29,9 +29,13 @@ const MODEL_ID = 'claude-sonnet-4-6';
 
 /** Cap to prevent a malicious or huge page from stalling the worker. */
 const MAX_FETCH_BYTES = 1_500_000; // 1.5 MB
-const FETCH_TIMEOUT_MS = 8_000;
+const FETCH_TIMEOUT_MS = 7_000;
 /** Send at most this much HTML/text to Claude — keeps cost bounded. */
 const MAX_PROMPT_CHARS = 90_000;
+/** Below this body size, we assume the source served a bot-challenge
+ *  page rather than real content. Genuine listings are 50KB+ in HTML;
+ *  empty / sub-2KB responses are AWS WAF / Cloudflare challenges. */
+const MIN_BODY_BYTES_FOR_REAL_PAGE = 2_000;
 
 export type ImportTransactionType = 'sale' | 'rent' | 'short_term';
 
@@ -93,8 +97,56 @@ interface AnthropicResponse {
 }
 
 /**
+ * Detect a bot-challenge / WAF response. Returns true when the
+ * upstream gave us nothing useful even though the HTTP status was OK.
+ *
+ * Indicators:
+ *   - AWS WAF challenge: 202 status + `x-amzn-waf-action: challenge`.
+ *   - Cloudflare challenge: 200/403 with `cf-mitigated: challenge` or
+ *     content-type text/html plus `Just a moment...` / `cf-ray` markers
+ *     in the body.
+ *   - PerimeterX / Akamai / DataDome: status 200/403 with empty / tiny
+ *     bodies served as a delayed JS challenge.
+ */
+function detectBotBlock(args: {
+  status: number;
+  headers: Headers;
+  bodyBytes: number;
+  bodyHead: string;
+}): string | null {
+  const wafAction = args.headers.get('x-amzn-waf-action');
+  if (wafAction && /challenge|captcha/i.test(wafAction)) {
+    return 'AWS WAF challenge';
+  }
+  const cfMitigated = args.headers.get('cf-mitigated');
+  if (cfMitigated && /challenge/i.test(cfMitigated)) {
+    return 'Cloudflare challenge';
+  }
+  if (args.status === 202 && args.bodyBytes < MIN_BODY_BYTES_FOR_REAL_PAGE) {
+    return 'Bot-challenge (HTTP 202 with no body)';
+  }
+  if (args.bodyBytes < MIN_BODY_BYTES_FOR_REAL_PAGE) {
+    return 'Source returned an empty / tiny page';
+  }
+  // Body markers — sometimes the upstream returns 200 + a JS challenge
+  // page which is short HTML that loads the captcha widget.
+  const head = args.bodyHead.toLowerCase();
+  if (
+    head.includes('cf-challenge') ||
+    head.includes('attention required') ||
+    head.includes('px-captcha') ||
+    head.includes('datadome') ||
+    head.includes('akamai-challenge') ||
+    head.includes('"reason":"access denied"')
+  ) {
+    return 'Source served a bot-challenge page';
+  }
+  return null;
+}
+
+/**
  * Fetch a URL with a timeout + size cap. Returns the body as text.
- * Throws on timeout / oversized response / non-2xx.
+ * Throws on timeout / oversized response / non-2xx / bot-challenge.
  */
 async function fetchPage(url: string): Promise<string> {
   const controller = new AbortController();
@@ -102,8 +154,11 @@ async function fetchPage(url: string): Promise<string> {
   try {
     const res = await fetch(url, {
       signal: controller.signal,
+      redirect: 'follow',
       // Some portals serve different content based on UA. Pretend
-      // to be a real browser so we don't get the bot-block page.
+      // to be a real browser so we don't get the bot-block page —
+      // works on agency sites + smaller portals; the big ones
+      // (Zillow, Redfin, Realtor) still WAF us out.
       headers: {
         'user-agent':
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
@@ -112,27 +167,36 @@ async function fetchPage(url: string): Promise<string> {
         'accept-language': 'en-US,en;q=0.9,pl;q=0.8,es;q=0.7,it;q=0.6,fr;q=0.5,de;q=0.4',
       },
     });
-    if (!res.ok) {
+    if (!res.ok && res.status !== 202) {
       throw new Error(`Source returned HTTP ${res.status}`);
     }
     // Stream into memory with a hard cap.
     const reader = res.body?.getReader();
-    if (!reader) {
-      throw new Error('No body on source response');
-    }
-    const decoder = new TextDecoder('utf-8');
     let total = 0;
     let html = '';
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      total += value.byteLength;
-      if (total > MAX_FETCH_BYTES) {
-        throw new Error('Source page too large');
+    if (reader) {
+      const decoder = new TextDecoder('utf-8');
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        total += value.byteLength;
+        if (total > MAX_FETCH_BYTES) {
+          throw new Error('Source page too large');
+        }
+        html += decoder.decode(value, { stream: true });
       }
-      html += decoder.decode(value, { stream: true });
+      html += decoder.decode();
     }
-    html += decoder.decode();
+
+    const blockReason = detectBotBlock({
+      status: res.status,
+      headers: res.headers,
+      bodyBytes: total,
+      bodyHead: html.slice(0, 4_000),
+    });
+    if (blockReason) {
+      throw new Error(`Source blocks scraping: ${blockReason}`);
+    }
     return html;
   } finally {
     clearTimeout(timeout);

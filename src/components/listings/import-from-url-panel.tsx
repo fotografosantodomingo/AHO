@@ -64,17 +64,30 @@ export function ImportFromUrlPanel({ successRedirectBase }: Props) {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ url: url.trim() }),
       });
-      const json = (await res.json()) as
+      // Defensive — on rare upstream errors (worker timeout, CF Pages
+      // 502 page, etc.) the response body is HTML, not JSON. Don't
+      // let JSON.parse blow up; show a generic retry message instead.
+      const raw = await res.text();
+      type ApiResponse =
         | { facts: ImportedFacts }
         | { error: string; message?: string };
-      if (!res.ok || !('facts' in json)) {
+      let json: ApiResponse | null = null;
+      try {
+        json = JSON.parse(raw) as ApiResponse;
+      } catch {
+        setError(
+          `Server didn't respond with JSON (HTTP ${res.status}). Try again, or pick a different URL — some portals (Zillow, Redfin, Realtor.com) block scrapers and we'll have a fix for that in a future update.`,
+        );
+        return;
+      }
+      if (!res.ok || !json || !('facts' in json)) {
+        const errCode =
+          json && 'error' in json && typeof json.error === 'string' ? json.error : null;
         const errMsg =
-          'message' in json && typeof json.message === 'string'
+          json && 'message' in json && typeof json.message === 'string'
             ? json.message
-            : 'error' in json
-              ? json.error
-              : `HTTP ${res.status}`;
-        setError(errMsg);
+            : null;
+        setError(translateError(errCode, errMsg, res.status));
         return;
       }
       setFacts(json.facts);
@@ -84,6 +97,17 @@ export function ImportFromUrlPanel({ successRedirectBase }: Props) {
     } finally {
       setLoading(false);
     }
+  }
+
+  function translateError(code: string | null, raw: string | null | undefined, status: number): string {
+    if (code === 'source_blocks_scraping') {
+      return `That portal blocks scrapers (we hit their bot-protection). Big US portals — Zillow, Redfin, Realtor.com — and some EU ones use Cloudflare / AWS WAF / DataDome. We'll add residential-proxy support in a future release. For now, try otodom.pl, idealista.com, immobilienscout24.de, leboncoin.fr, an agency website, or fill the form manually.`;
+    }
+    if (code === 'invalid_url') return 'That URL looks malformed. Make sure it starts with https:// and points to a real listing page.';
+    if (code === 'internal_url') return 'That URL points to a local network address — not allowed.';
+    if (code === 'fetch_failed') return 'We couldn\'t fetch that page (timeout / 404 / oversized). Make sure the URL points to a public listing.';
+    if (code === 'extract_failed') return 'We fetched the page but couldn\'t parse the facts from it. The portal\'s page layout might be unusual; try a different URL or fill the form manually.';
+    return raw ?? `HTTP ${status}`;
   }
 
   if (mode === 'manual') {
