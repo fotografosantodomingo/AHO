@@ -12,6 +12,35 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-07 — Day 1 of execution plan: CF Images live + perf jump 42 → 83 + map P0 + country dropdowns
+- **Frame:** PO accepted the 90-day execution plan in `docs/EXECUTION_PLAN.md`. Day 0 was the prep + map P0; Day 1 was the CF Images activation + backfill + listing-page perf push. Both done in one calendar day.
+- **What shipped:**
+  - **Map P0 fix** (`ca1b1c3`). User reported `/search?view=map` flashed the map then unmounted. Three causes: (1) the empty-result branch unmounted the map; (2) Leaflet's programmatic `zoomstart` from auto-fitBounds() set userInteracted=true falsely, dispatching a bbox fetch that returned 0 because the lone listing had no precise lat/lng; (3) by-bbox excluded no-coords listings entirely. Fixes: map view never unmounts on empty; native pointer/wheel/keydown gate replaces Leaflet event gate; `/api/properties/by-bbox?include_no_coords=1` accepts a low-zoom flag for country-overview mode. Search-results-view passes `include_no_coords=1` when `zoom < 6`.
+  - **P1 batch on property page** (`c06c6dd`). Removed the duplicate "Ver en Español / View in English" footer toggle (header dropdown is the single source). Added "See full profile on AHO" CTA under agent name → `/agents/{publicSlug}`; pulled `orgPublicSlug` (with `organizations.slug` legacy fallback) into `fetchPropertyByShortId`. Translated to all 7 locales. Added `export const dynamic = 'force-dynamic'` to dodge Cloudflare Pages serving stale HTML with stale agent avatar URLs.
+  - **Country dropdown** (`44f1afe` profile form, `c6688fe` listing form). New `<CountrySelect>` component + `getAllCountries(locale)` helper renders all 249 ISO 3166-1 alpha-2 countries with display names localized via Intl.DisplayNames per locale. Fixed `intlTagFor()` to map all 7 AHO locales (was hardcoded EN/ES, so PL/IT/DE/FR/PT visitors were getting English country names). Listing form's legacy `buildCountryOptions` replaced; the `(PL)` ISO suffix dropped per PO directive.
+  - **CF Images activation** (`981618c`, `9a64df3`, `55e53ec`). PO activated CF Images on the account, supplied the public account hash, added Cloudflare Images: Edit scope to a fresh API token. New scripts: `setup-cf-images-variants.ts` (idempotent provisioning of 8 variants — public, card, thumbnail, og, full, fbfeed, igsquare, igreel; CF Images rejects both `_` and `-` in variant ids, hence the alphanumeric ad-pipeline names) and `backfill-r2-to-cf-images.ts` (paged + 5 req/sec; 7/7 PL property photos succeeded on first run). Workflow extended to bake `NEXT_PUBLIC_CF_IMAGES_HASH` into the build env. Day 1 polish (`55e53ec`): primary-image preload `<link>` rendered from the server page (Next.js 15 hoists it into <head>) + responsive srcset on the gallery primary <img> so mobile gets the 600×400 `card` variant and desktop gets `public` 1366×768.
+  - **5 runtime secrets pushed** to CF Pages via wrangler stdin (Anthropic API key, Meta App ID/Secret, Threads App ID/Secret) — values never went through chat or argv.
+  - **Cloudflare Email Obfuscation OFF** at the domain level — was injecting a 1 KiB script that render-blocked for 648ms; we don't display emails on listings (contact via form/WhatsApp), so pure overhead.
+  - **R12 resolved in RISKS.md** — full resolution recipe captured. Two follow-ups noted: upload pipeline still writes R2-only (new images skip CF Images until backfilled — a Day 2+ wiring task), and the Lighthouse `meta-description` audit still fails on this URL despite the tag being in HTML (Lighthouse quirk; not blocking real users).
+- **Lighthouse score progression on `/pl/properties/wwww-siemianowice-pl-cQF9BN`:**
+  | Round | Trigger | Perf | A11y | BP | SEO | LCP | Total bytes |
+  |---|---|---|---|---|---|---|---|
+  | 4 | end of prior session | 40 | 100 | 96 | 92 | 60.7 s | 34.5 MB |
+  | 5 | post `f314006` (locale enums + image dims) | 42 | 100 | 100 | 92 | 28.9 s | 34.5 MB |
+  | 6 | post CF Images backfill | 73 | 100 | 100 | 92 | 7.3 s | 1.9 MB |
+  | 7 | post preload+srcset | 80 | 100 | 100 | 92 | 4.8 s | 1.9 MB |
+  | 8 | post Email-Obf off | **83** | 100 | 100 | 92 | 4.6 s | 1.9 MB |
+  Net Day 0→Day 1: **Perf +41, total bytes -94%, LCP -84%, TBT -95%**.
+- **Commits this session (newest last):** `ca1b1c3` map P0 + EXECUTION_PLAN.md, `c06c6dd` property-page P1 batch, `44f1afe` country dropdown profile form, `c6688fe` country dropdown listing form, `981618c` Day 1 prep scripts + workflow env, `9a64df3` R12 resolved (CF Images + backfill), `55e53ec` Day 1 polish (preload + srcset).
+- **Blockers / open questions:**
+  - **Upload pipeline still writes R2-only** for new property photos and avatars. New uploads bypass CF Images until a backfill run picks them up. Wire CF Images into `/api/properties/[id]/images` and `/api/me/avatar` so `cf_image_id` is set at upload time, not on a second pass. Day 2+ candidate.
+  - **Performance ceiling at 83** without app-level changes. To get into 90s: defer below-the-fold scripts (Leaflet, Stripe), reduce framework JS bundle, longer cache lifetimes on `_next/static/*`. Diminishing returns relative to Day 1's 42-point jump.
+  - **Strategic frame** — PO directive 2026-05-07 ("WSZYSTKO NA TAK JESLI NAWET MA TO KOSZTY") authorizes paid resources at the platform level. Next subscriptions to track: Cloudflare Images (~$5+/mo), Anthropic API (per-token), eventually Meta App Review fees (none — review is free). All inside CLAUDE.md hard rule #9 — billing-creating actions still need explicit per-action confirmation.
+  - **4 secrets rotated** by PO after they leaked in chat earlier today. Old values dead. New values in `.env.local` + CF Pages secrets. CLAUDE.md hard rule #1 reinforced: secrets do not pass through chat going forward — `.env.local` + `wrangler pages secret put` via stdin only.
+- **Next session should start with:** PO's "start dzień 2". Day 2 scope: multilingual FAQ migration (existing `agent_faqs` schema is bilingual EN/ES; needs PL/PT/DE/FR/IT either as additional columns or a `agent_faq_translations` side table) + UI rework on profile-form for multi-locale entry + agent profile page renders the FAQ in the visitor's UI locale with EN fallback. Plus the Day 1 follow-up: wire CF Images into the upload pipeline so new images skip the backfill step.
+
+---
+
 ## 2026-05-07 — Lighthouse round 3-5: full localization on property surface + a11y/BP push to 100
 - **What shipped:**
   - **Gallery i18n.** `src/components/listings/property-gallery.tsx` had 9 hardcoded `locale === 'es' ? 'es text' : 'en text'` ternaries that resolved to English on PL/PT/DE/FR/IT. Replaced with `useTranslations('gallery')` and a new `gallery` namespace (noPhotos / openPhoto / backToListing / previous / next / photoCounter). All 7 locales got the strings; Lightbox no longer takes the `locale` prop.
