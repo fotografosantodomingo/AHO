@@ -157,6 +157,7 @@
     "transactionType": { "sale": "In vendita", "rent": "In affitto", "short_term": "Affitto breve" },
     "pricePeriod": { "total": "", "monthly": "/ mese", "weekly": "/ settimana", "nightly": "/ notte" },
     "contactAgent": "Contatta l'agente",
+    "seeFullProfile": "Vedi profilo completo su AHO",
     "chatOnWhatsapp": "Scrivi su WhatsApp",
     "signUpToContact": "Registrati per contattare l'agente",
     "priceHistoryHeading": "Storico prezzi",

@@ -41,6 +41,11 @@ export interface PropertyDetail {
    *  `@/lib/listings/features` to get the typed shape. */
   features: unknown;
   orgId: string;
+  /** Org's canonical public-profile slug (`organizations.public_slug`),
+   *  with `organizations.slug` legacy fallback. Used to build the "See
+   *  full profile on AHO" link on the listing page → `/agents/{slug}`.
+   *  Null when the agent hasn't filled their profile (rare). */
+  orgPublicSlug: string | null;
   createdAt: string;
   updatedAt: string;
   images: Array<{
@@ -155,6 +160,9 @@ export async function fetchPropertyByShortId(
         amenities, features,
         address_line, neighborhood, city, state_region, country_code, postal_code, display_address,
         org_id, created_at, updated_at,
+        organizations (
+          public_slug, slug
+        ),
         property_images (
           id, r2_key, cf_image_id,
           alt_text_en, alt_text_es,
@@ -217,6 +225,10 @@ export async function fetchPropertyByShortId(
     postalCode: data.postal_code,
     displayAddress: data.display_address,
     orgId: data.org_id,
+    orgPublicSlug:
+      ((data.organizations as { public_slug?: string | null; slug?: string | null } | null)?.public_slug ??
+        (data.organizations as { slug?: string | null } | null)?.slug ??
+        null),
     createdAt: data.created_at,
     updatedAt: data.updated_at,
     images: (data.property_images ?? [])

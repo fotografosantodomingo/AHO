@@ -157,6 +157,7 @@
     "transactionType": { "sale": "À vendre", "rent": "À louer", "short_term": "Location courte durée" },
     "pricePeriod": { "total": "", "monthly": "/ mois", "weekly": "/ semaine", "nightly": "/ nuit" },
     "contactAgent": "Contacter l'agent",
+    "seeFullProfile": "Voir le profil complet sur AHO",
     "chatOnWhatsapp": "Écrire sur WhatsApp",
     "signUpToContact": "Inscrivez-vous pour contacter l'agent",
     "priceHistoryHeading": "Historique du prix",

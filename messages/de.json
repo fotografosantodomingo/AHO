@@ -157,6 +157,7 @@
     "transactionType": { "sale": "Zum Verkauf", "rent": "Zur Miete", "short_term": "Kurzzeitmiete" },
     "pricePeriod": { "total": "", "monthly": "/ Monat", "weekly": "/ Woche", "nightly": "/ Nacht" },
     "contactAgent": "Makler kontaktieren",
+    "seeFullProfile": "Vollständiges Profil auf AHO ansehen",
     "chatOnWhatsapp": "WhatsApp-Chat",
     "signUpToContact": "Anmelden, um Makler zu kontaktieren",
     "priceHistoryHeading": "Preishistorie",

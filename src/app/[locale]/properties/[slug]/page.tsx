@@ -29,6 +29,14 @@ import { TrackGalleryOpen } from '@/components/listings/track-gallery-open';
 import { ManualShareModule } from '@/components/listings/manual-share-module';
 
 export const runtime = 'edge';
+// Force dynamic rendering on every request. Without this, Cloudflare
+// Pages occasionally serves a stale HTML snapshot of the listing page
+// — including a stale agent avatar URL — even after the underlying
+// `profiles.avatar_url` has been updated. The Edge cost is one fresh
+// Supabase round-trip per visit; the UX cost of stale agent photos is
+// reported by users as "the photo I uploaded never shows up on my
+// listing." 2026-05-07.
+export const dynamic = 'force-dynamic';
 
 /**
  * Property detail page — `/{locale}/properties/{slug}-{shortId}` (en) and
@@ -443,6 +451,14 @@ export default async function PropertyDetailPage({
                 {contact?.orgName && (
                   <p className="text-sm text-helper">{contact.orgName}</p>
                 )}
+                {property.orgPublicSlug && (
+                  <a
+                    href={`/${typedLocale}/agents/${property.orgPublicSlug}`}
+                    className="mt-1.5 inline-flex h-8 items-center rounded-full border border-border-strong bg-surface px-3 text-xs font-medium text-action transition hover:bg-action/5 dark:bg-surface-deep dark:text-action-dark dark:hover:bg-action-dark/10"
+                  >
+                    {t('seeFullProfile')}
+                  </a>
+                )}
               </div>
             </div>
 
@@ -548,18 +564,11 @@ export default async function PropertyDetailPage({
           <ContactForm propertyId={property.id} />
         </section>
 
-        {/* Footer alternates — useful for crawlers that may not parse hreflang
-            from the head, plus a usability cue if the user lands on the
-            "wrong" locale. */}
-        <footer className="mt-16 border-t border-border pt-6 text-xs text-helper">
-          {urls.en && urls.es && (
-            <p>
-              <a className="underline" href={typedLocale === 'es' ? urls.en : urls.es}>
-                {typedLocale === 'es' ? 'View in English' : 'Ver en Español'}
-              </a>
-            </p>
-          )}
-        </footer>
+        {/* Locale switching happens exclusively in the header dropdown
+            now (PO directive 2026-05-07). The previous footer link
+            duplicated the header switcher and added clutter. Crawlers
+            consume the same alternates from the <head> hreflang already
+            emitted in generateMetadata. */}
       </main>
     </>
   );
