@@ -94,6 +94,12 @@ export function ListingCard({
             alt={title}
             loading="lazy"
             decoding="async"
+            // Explicit dimensions match the parent's aspect-[4/3]
+            // container — Lighthouse CLS audit prefers concrete
+            // intrinsic sizes even when CSS aspect-ratio handles the
+            // layout. 800×600 is the CF Images variant we serve.
+            width={800}
+            height={600}
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
           />
         ) : (

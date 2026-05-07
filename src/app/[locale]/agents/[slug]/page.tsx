@@ -385,6 +385,8 @@ export default async function AgentProfilePage({
                 <img
                   src={result.org.logoUrl}
                   alt={`${result.org.name} logo`}
+                  width={80}
+                  height={80}
                   className="h-20 w-20 rounded-card border border-border bg-surface object-cover shadow-whisper dark:bg-surface-dark"
                 />
               ) : (

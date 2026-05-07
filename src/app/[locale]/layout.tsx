@@ -93,13 +93,37 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} className={inter.variable} suppressHydrationWarning>
       <head>
+        {/* Theme color — drives Safari iOS / Chrome address-bar tint
+            so the chrome matches the AHO surface band. Light + dark
+            variants picked up by the browser via prefers-color-scheme. */}
+        <meta name="theme-color" content="#fbf8f1" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#15181e" media="(prefers-color-scheme: dark)" />
+        {/* Preconnects — opens TLS to the image CDN early so below-the-
+            fold listing thumbnails (Cloudflare Images) and the Stripe
+            checkout iframe pre-arrange their TCP/TLS handshake before
+            their resources are actually needed. Bumps LCP a hair on
+            real-world mobile networks where TLS setup is the long pole. */}
+        <link rel="preconnect" href="https://imagedelivery.net" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://imagedelivery.net" />
+        <link rel="preconnect" href="https://js.stripe.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://js.stripe.com" />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="min-h-screen antialiased">
+        {/* Skip-to-main-content — visible only on keyboard focus.
+            Lighthouse "bypass blocks" already passes via <main> /
+            <nav> / <footer> landmarks; the skip link is the WCAG
+            ergonomic bonus for keyboard + screen-reader users. */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:rounded-lg focus:bg-action focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lg focus:outline-hidden"
+        >
+          Skip to main content
+        </a>
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>
             <SiteHeader locale={locale as Locale} />
-            <div>{children}</div>
+            <div id="main-content">{children}</div>
             <SiteFooter locale={locale as Locale} />
           </ThemeProvider>
         </NextIntlClientProvider>
