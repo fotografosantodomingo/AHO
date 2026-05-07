@@ -12,6 +12,80 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-07 — Sprint 2 C+D: photo migration on URL/voice import + PWA scaffold
+- **Frame:** Continuation of the Sprint-1 closure session. Picked the two
+  Sprint-2 items that don't need PO action — server-side photo migration
+  (closes the URL-import lane's "saves typing" promise) and PWA install-
+  ability (mobile agents install AHO → one-tap to voice import). Items A
+  (Meta OAuth deep-debug), B (residential proxy for Zillow/Redfin/Realtor),
+  E (rotate Anthropic + OpenAI keys leaked via system reminders) all
+  remain PO-action-blocked.
+- **What shipped:**
+  - **Photo migration on URL import** (`92cc6ef`): new
+    `POST /api/properties/:id/import-photos` accepts up to 15 URLs.
+    Server fetches each (real-UA header — some CDNs serve different
+    bytes to user-agentless clients; 15MB / 12s caps), PUTs to R2 via a
+    new `putObject()` helper in `lib/storage/r2.ts`, pushes to
+    Cloudflare Images, inserts confirmed `property_images` rows in
+    4-wide parallel batches. Same end-state as user-uploaded photos so
+    the post-save UX is identical. ListingForm gains an
+    `importedPhotoUrls` prop + `'importing-photos'` phase between
+    staged-upload and publish; ImportPanel passes `facts.photoUrls`
+    through and updates the banner copy ("imported automatically when
+    you save" instead of "use the photo uploader after save"). Best-
+    effort: a partial import does not block publish.
+  - **PWA scaffold** (`a52383e`): `public/manifest.webmanifest`
+    (name, theme color, scope=/, display=standalone, two app shortcuts
+    for New Listing + Dashboard), `public/icon-pwa.svg` 512px, and a
+    minimal `public/sw.js` with an empty fetch handler — its presence
+    flips Chrome to "installable" without us intercepting any actual
+    responses (incorrect SW caching has bricked production sites for
+    weeks; precaching is deferred until an offline use-case actually
+    exists). `<PwaRegister>` client component registers the SW on
+    advertisehomes.online + *.pages.dev only (localhost stays SW-free).
+    Layout metadata gains `manifest` + `appleWebApp` fields; middleware
+    matcher excludes `/sw.js` + `/manifest.webmanifest`; CSP gains
+    explicit `worker-src 'self'`.
+- **What works after this session:**
+  - URL-import flow now full end-to-end: paste otodom URL → form
+    pre-filled (title/description bilingual) → save → Edge function
+    downloads source photos in 4-wide parallel batches → R2 + CF Images
+    populated → listing renders thumbnails immediately on first view.
+    No manual re-upload step.
+  - `https://aho-web.pages.dev` is installable as a PWA on Chrome /
+    Edge / Samsung Internet (Android + desktop). Lighthouse PWA install
+    audit should pass.
+- **What still does NOT work:**
+  - iOS Add-to-Home-Screen needs a PNG `apple-touch-icon` link tag —
+    currently SVG-only. Falls back gracefully (icon shows as a generic
+    web-clip glyph) but isn't pretty. Future polish.
+  - Service worker has no precache; offline = "no internet" page.
+    Acceptable for v1 (voice import / Whisper / Supabase all need
+    network anyway).
+  - Zillow / Redfin / Realtor.com still bot-blocked (R12 in
+    `RISKS.md`). Sprint-2 item B requires a residential proxy.
+- **Commits:** `92cc6ef` photo-import, `a52383e` PWA. (2 commits.)
+- **Blockers / open questions:**
+  - **A** (PO action): Meta OAuth deep-debug — App Mode + Roles +
+    Configuration redirect URI; "Sorry, something went wrong" still
+    blocks the dialog.
+  - **B** (PO + dev): residential proxy for Zillow/Redfin/Realtor —
+    Bright Data ~$50–200/mo or similar.
+  - **E** (PO action): rotate `ANTHROPIC_API_KEY` + `OPENAI_API_KEY` —
+    both leaked via system reminders earlier this session.
+- **Next session should start with:** Verify deploy by hitting
+  `https://aho-web.pages.dev/dashboard/properties/new` from a clean
+  Chrome on Android: (1) try a URL import on otodom.pl, watch the
+  "Importing photos…" phase, then confirm thumbnails on the listing
+  detail page; (2) tap the address-bar menu — should see "Install AHO"
+  prompt. If photo migration partially fails, the route's `results[]`
+  array surfaces per-URL `errorCode` for triage. Then advance Sprint 2:
+  pick between (a) iOS apple-touch-icon polish + offline shell, or
+  (b) Sprint 2 item D's deferred follow-ups (background-sync queue for
+  offline voice recordings).
+
+---
+
 ## 2026-05-07 — Day 3-6: Content Hub MVP shipped end-to-end (Stripe upgrade + Meta OAuth deferred + AI Copywriter + URL import + voice input + org merge)
 - **Frame:** All-day session that closed Sprint 1 of `docs/CONTENT_HUB_VISION.md`. Started as Day 3 (Meta App Review) but pivoted hard mid-day after the OAuth Configuration flow blocked on the Meta side (App Mode + Login-for-Business gremlins; deferred). The pivot delivered three end-to-end Content Hub lanes — generator, URL import, voice — plus all the supporting plumbing.
 - **What shipped (commits in chronological order):**
