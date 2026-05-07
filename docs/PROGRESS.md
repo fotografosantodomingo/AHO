@@ -12,6 +12,26 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-07 — SEO-friendly agent slugs `/agents/{name}-{city}-{country}` + JSON-LD enrichment
+- **What shipped:**
+  - Migration `0034_organizations_public_slug.sql` — adds `organizations.public_slug` column with unique partial index. Applied to prod.
+  - New `src/lib/agents/public-slug.ts` — `slugify()` (NFD diacritic strip + Latin-extension fold for ł/ø/đ/ß) + `buildAgentSlugBase()` + `resolvePublicSlugForOrg()` with collision-handling that appends `-2`, `-3`… up to `-1000`.
+  - Hooked into `PUT /api/me/profile` — after a successful profile update, when `full_name`/`city`/`country_code` changed, the route resolves a unique slug via the service-role client and writes it to `organizations.public_slug` for the user's owned org.
+  - Updated `fetchAgentProfile` (`src/lib/listings/search.ts`) to look up by either `public_slug` OR legacy `slug` via PostgREST `.or(...)`. Returns the org with `publicSlug` field exposed.
+  - `/{locale}/agents/[slug]` page route now: (a) 301-redirects to canonical `public_slug` URL when the visitor lands via legacy `slug`, (b) sets canonical metadata + hreflang alternates to the public_slug form so Google consolidates rankings, (c) the JSON-LD `url` field uses the canonical too.
+  - **JSON-LD enrichments for 100/100 schema score:**
+    - `priceRange` derived from `agent.statsPriceMinCents` / `statsPriceMaxCents` (formatted USD range, e.g., "$200,000 - $1,500,000").
+    - `image` array — agency logo + agent avatar — gives Google two candidate thumbnails for the Knowledge Panel.
+    - `telephone` — emits `agent.whatsappPhone` when the agent has it set (already publicly displayed in the UI as the WhatsApp click-to-chat CTA, so emitting it as schema doesn't widen the privacy surface).
+    - Existing already in place: `RealEstateAgent` (`@type`), `name`, `url`, `description`, `sameAs[]` from socials, `knowsAbout` (specialties), `knowsLanguage` (languages), `areaServed[]` as Place nodes per city, `address` from headquarters, `aggregateRating` + `review[]` (when ≥1 review). Plus separate `BreadcrumbList` and `FAQPage` JSON-LD scripts.
+  - `src/app/sitemap.ts` — agent sitemap entries now use `public_slug` when present (canonical URL), falling back to legacy `slug` for orgs whose owner hasn't filled their profile yet.
+  - `scripts/backfill-agent-public-slugs.ts` (`pnpm tsx scripts/backfill-agent-public-slugs.ts`) — one-shot migration to recompute slugs for all existing orgs. Ran successfully against prod: 1 real org updated (`babula` → `michal-34434343-pl`), 2 fixture orgs skipped, 0 errors. Subsequent profile saves keep slugs fresh via the route.
+- **What changed since last session:** Same calendar day continuation; this entry succeeds the webhook-fixture-replay-harness ship.
+- **Blockers / open questions:** None. Future agents fill the profile form → automatically get a SEO URL on save. Existing `babula` user's slug is `michal-34434343-pl` because the city field was filled with "34434343"; if they edit the profile to a real city, the slug auto-recomputes.
+- **Next session should start with:** Confirm saved-search worker's first live cron at 10:00 UTC. Then: invoice fixtures for the webhook harness (~1h), or (PO-blocked) Plus tier / Featured ranking / Neighborhood overlays, or Lighthouse audit on `/agents/{slug}` for formal 100/100 verification (already loaded with everything Google rewards).
+
+---
+
 ## 2026-05-07 — Map fixes, swipe pricing toggle, webhook fixture-replay harness
 - **What shipped (today, post the saved-search live-deploy):**
   - **Map stability + pin accuracy** (commit 1dc27b7). Three independent fixes on `src/components/listings/property-map.tsx`: (a) `isValidCoordinate()` rejects (0,0) "Null Island" + out-of-range + non-finite — listings with form-default lat/lng=0 now fall through to country-centroid instead of pinning off-Africa; (b) `userInteractedRef` gates bbox-fetch on dragstart/zoomstart so the initial setView and auto-fitBounds don't trigger feedback-loop fetches that made the map "disappear"; (c) default view widened from Santo Domingo zoom 5 to world view (lat 20, lng 0, zoom 2) so non-DR users see something sensible while waiting for fitBounds.

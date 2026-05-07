@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { resolvePublicSlugForOrg } from '@/lib/agents/public-slug';
 
 export const runtime = 'edge';
 
@@ -106,6 +108,54 @@ export async function PUT(req: NextRequest) {
       { ok: false, errorCode: updateErr.message ?? 'db_error' },
       { status: 500 },
     );
+  }
+
+  // After a successful profile update, recompute the SEO `public_slug`
+  // on the user's owned org (if any). The slug is a function of
+  // (full_name, city, country_code); whenever any of those change we
+  // refresh it. Service-role client because the resolver scans the
+  // global public_slug space for collisions, which RLS would limit to
+  // orgs with public listings — pre-launch orgs would be invisible and
+  // we'd miss legitimate collisions.
+  if (
+    updateRow.full_name !== undefined ||
+    updateRow.city !== undefined ||
+    updateRow.country_code !== undefined
+  ) {
+    try {
+      const admin = createAdminClient();
+      const { data: ownedOrg } = await admin
+        .from('organization_members')
+        .select('org_id')
+        .eq('user_id', userResult.user.id)
+        .eq('role', 'owner')
+        .limit(1)
+        .maybeSingle();
+      const orgId = ownedOrg?.org_id as string | undefined;
+      if (orgId) {
+        const { data: profile } = await admin
+          .from('profiles')
+          .select('full_name, city, country_code')
+          .eq('id', userResult.user.id)
+          .maybeSingle();
+        const newSlug = await resolvePublicSlugForOrg(
+          admin,
+          orgId,
+          profile?.full_name ?? null,
+          profile?.city ?? null,
+          profile?.country_code ?? null,
+        );
+        // Always write — null clears stale slug if profile became sparse.
+        await admin
+          .from('organizations')
+          .update({ public_slug: newSlug })
+          .eq('id', orgId);
+      }
+    } catch (e) {
+      // Slug is best-effort: we don't fail the whole profile-save if the
+      // slug recompute hits a transient issue. The next save will retry.
+      console.warn('[PUT /api/me/profile] public_slug recompute skipped', e);
+    }
   }
 
   return NextResponse.json({ ok: true, id: userResult.user.id });

@@ -344,7 +344,12 @@ interface AgentProfileArgs {
 
 interface AgentProfile {
   name: string;
+  /** Legacy auto-generated slug (set at signup; e.g., "acme-realty-1234"). */
   slug: string;
+  /** SEO-friendly slug derived from agent profile (name-city-country),
+   *  null until the agent completes their profile. The route prefers
+   *  this when present and 301-redirects the legacy slug to it. */
+  publicSlug: string | null;
   type: 'agent' | 'agency' | 'expert';
   descriptionEn: string | null;
   descriptionEs: string | null;
@@ -461,12 +466,18 @@ export async function fetchAgentProfile(
     };
   }
 
+  // Lookup is by public_slug first (the SEO-friendly
+  // name-city-country form set after the agent fills their profile),
+  // falling back to the legacy `slug` (auto-generated at signup). The
+  // route uses the result's actual `public_slug` to decide whether to
+  // 301-redirect when a visitor lands via the legacy path.
   const { data: orgRow, error: orgErr } = await supabase
     .from('organizations')
     .select(
-      'id, name, slug, type, description_en, description_es, headquarters_country, headquarters_city, website, logo_url',
+      'id, name, slug, public_slug, type, description_en, description_es, headquarters_country, headquarters_city, website, logo_url',
     )
-    .eq('slug', args.orgSlug)
+    .or(`public_slug.eq.${args.orgSlug},slug.eq.${args.orgSlug}`)
+    .limit(1)
     .maybeSingle();
 
   if (orgErr || !orgRow) {
@@ -485,6 +496,7 @@ export async function fetchAgentProfile(
   const org: AgentProfile = {
     name: orgRow.name,
     slug: orgRow.slug,
+    publicSlug: (orgRow.public_slug as string | null) ?? null,
     type: orgRow.type,
     descriptionEn: orgRow.description_en,
     descriptionEs: orgRow.description_es,

@@ -87,6 +87,12 @@ export const organizations = pgTable('organizations', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
   name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
+  // SEO-friendly `<name>-<city>-<country>` slug, derived from the
+  // owner's profile fields after they complete the form. Recomputed
+  // on every profile save by `PUT /api/me/profile`. NULL until the
+  // profile has full_name + city + country_code; the public route
+  // falls back to `slug` for those orgs. See migration 0034.
+  publicSlug: text('public_slug'),
   type: text('type').notNull(), // 'agent' | 'agency' | 'expert'
   logoUrl: text('logo_url'),
   website: text('website'),

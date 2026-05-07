@@ -185,7 +185,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { data: rows, error } = await supabase
     .from('properties')
     .select(
-      'short_id, slug_en, slug_es, updated_at, published_at, status, country_code, city, organizations!inner(slug, name, updated_at)',
+      'short_id, slug_en, slug_es, updated_at, published_at, status, country_code, city, organizations!inner(slug, public_slug, name, updated_at)',
     )
     .eq('status', 'active')
     .not('published_at', 'is', null)
@@ -299,16 +299,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Agent profile pages — distinct organizations from the listing set.
   // The inner-join filter on the main query already excluded
   // `aho-test-org-*` orgs, so anything that survived is real.
+  // We emit the SEO-friendly `public_slug` when the org has one (the
+  // canonical URL after the agent fills their profile); otherwise fall
+  // back to the legacy `slug`. The route handles both forms — visitors
+  // landing via the legacy URL get a 301 to the public_slug.
   const agentPairs = new Map<string, { slug: string; updatedAt: string | null }>();
   for (const row of cleanRows) {
     const org = Array.isArray(row.organizations)
       ? row.organizations[0]
       : row.organizations;
     if (!org || typeof org !== 'object' || !('slug' in org)) continue;
-    const slug = (org as { slug: string }).slug;
-    if (!slug || agentPairs.has(slug)) continue;
-    agentPairs.set(slug, {
-      slug,
+    const legacySlug = (org as { slug: string }).slug;
+    const publicSlug = (org as { public_slug?: string | null }).public_slug ?? null;
+    const canonicalSlug = publicSlug ?? legacySlug;
+    if (!canonicalSlug || agentPairs.has(canonicalSlug)) continue;
+    agentPairs.set(canonicalSlug, {
+      slug: canonicalSlug,
       updatedAt:
         ((org as { updated_at?: string | null }).updated_at as string | null) ?? null,
     });

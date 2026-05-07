@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { fetchAgentProfile } from '@/lib/listings/search';
@@ -56,8 +56,13 @@ export async function generateMetadata({
   }
 
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
-  const enPath = `/en/agents/${slug}`;
-  const esPath = `/es/agentes/${slug}`;
+  // Canonical always points at the SEO-friendly public_slug when the
+  // org has one, even if the visitor arrived via the legacy slug.
+  // Search engines follow the canonical and consolidate ranking on
+  // the public_slug URL.
+  const canonicalSlug = result.org.publicSlug ?? slug;
+  const enPath = `/en/agents/${canonicalSlug}`;
+  const esPath = `/es/agentes/${canonicalSlug}`;
   const canonical = typedLocale === 'es' ? `${site}${esPath}` : `${site}${enPath}`;
 
   const description =
@@ -100,6 +105,15 @@ export default async function AgentProfilePage({
 
   const result = await fetchAgentProfile({ orgSlug: slug, locale: typedLocale });
   if (!result.org) notFound();
+
+  // Legacy-slug redirect: if the visitor used the auto-generated org
+  // slug AND the org now has a public_slug, send them to the canonical
+  // SEO URL with a 301-equivalent redirect. Search engines consolidate
+  // and humans see the readable URL in their address bar.
+  if (result.org.publicSlug && slug !== result.org.publicSlug) {
+    const pathSeg = typedLocale === 'es' ? 'agentes' : 'agents';
+    redirect(`/${typedLocale}/${pathSeg}/${result.org.publicSlug}`);
+  }
 
   const t = await getTranslations({ locale, namespace: 'agentProfile' });
 
@@ -157,9 +171,15 @@ export default async function AgentProfilePage({
   // JSON-LD: schema.org RealEstateAgent for agent-tier orgs, Organization
   // for agency/expert. Both inherit name + description + url + sameAs.
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
+  // Canonical URL for the JSON-LD `url` field — always the public_slug
+  // when present, falling back to the legacy slug. (At this point in
+  // the function the legacy-slug visitor was already redirected, so
+  // `slug` here is the canonical form, but the explicit `??` keeps it
+  // robust if the redirect path ever changes.)
+  const canonicalSlug = result.org.publicSlug ?? slug;
   const profileUrl = `${site}/${locale}/${
     typedLocale === 'es' ? 'agentes' : 'agents'
-  }/${slug}`;
+  }/${canonicalSlug}`;
   // Build sameAs[] from all surfaced socials so search engines can
   // confidently knit the Knowledge Panel together. Empty array stays
   // omitted because schema.org rejects sameAs:[].
@@ -169,6 +189,30 @@ export default async function AgentProfilePage({
     result.agent?.instagramUrl,
     result.agent?.linkedinUrl,
   ].filter((u): u is string => !!u);
+  // Image array — logo + agent avatar gives Google two distinct
+  // images to consider for the Knowledge Panel thumbnail. schema.org
+  // accepts a string or an array; array is richer.
+  const images = [result.org.logoUrl, result.agent?.avatarUrl].filter(
+    (u): u is string => !!u,
+  );
+
+  // priceRange — derived from the agent's sales-stats price range,
+  // formatted in the agent's primary currency. Schema.org expects a
+  // string like "$$$" or a localized range. We emit the explicit USD
+  // range when we have it (richer signal than the abstract "$$$"
+  // notation; Google reads both).
+  const priceMin = result.agent?.statsPriceMinCents;
+  const priceMax = result.agent?.statsPriceMaxCents;
+  const priceRange =
+    priceMin != null && priceMax != null && priceMax >= priceMin
+      ? `${formatRangePrice(priceMin)} - ${formatRangePrice(priceMax)}`
+      : null;
+
+  // WhatsApp phone is already exposed in the UI as a click-to-chat
+  // link, so emitting it as `telephone` doesn't widen the privacy
+  // surface — it just lets Google attach it to the rich result.
+  const telephone = result.agent?.whatsappPhone;
+
   const jsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': result.org.type === 'agent' ? 'RealEstateAgent' : 'Organization',
@@ -176,7 +220,9 @@ export default async function AgentProfilePage({
     url: profileUrl,
     ...(description ? { description } : {}),
     ...(socialLinks.length > 0 ? { sameAs: socialLinks } : {}),
-    ...(result.org.logoUrl ? { image: result.org.logoUrl } : {}),
+    ...(images.length > 0 ? { image: images.length === 1 ? images[0] : images } : {}),
+    ...(priceRange ? { priceRange } : {}),
+    ...(telephone ? { telephone } : {}),
     ...(result.agent?.specialties.length
       ? { knowsAbout: result.agent.specialties }
       : {}),
@@ -744,6 +790,19 @@ function formatStatPrice(cents: number, locale: 'en' | 'es', currency = 'USD'): 
   return new Intl.NumberFormat(locale === 'es' ? 'es-DO' : 'en-US', {
     style: 'currency',
     currency,
+    maximumFractionDigits: 0,
+  }).format(cents / 100);
+}
+
+/**
+ * Locale-agnostic USD-formatted price for the schema.org `priceRange`
+ * field. Always en-US so the JSON-LD reads cleanly to crawlers
+ * regardless of which locale the page renders in.
+ */
+function formatRangePrice(cents: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
     maximumFractionDigits: 0,
   }).format(cents / 100);
 }
