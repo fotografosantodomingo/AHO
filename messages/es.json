@@ -993,6 +993,22 @@
     "saveButtonError": "Error al guardar",
     "alertsBlocked": "Las alertas por correo empezarán cuando AHO termine de configurar su transporte de email."
   },
+  "metaConnect": {
+    "eyebrow": "Facebook + Instagram",
+    "heading": "Conecta tus cuentas de Meta",
+    "statusConnected": "Conectado",
+    "explainerNotConnected": "Conecta tu cuenta de Facebook para que AHO pueda publicar tus inmuebles en tus Páginas y cuentas de Instagram Business vinculadas. Tú mantienes el control — cada publicación se genera primero como vista previa; nada se publica sin tu aprobación.",
+    "explainerConnected": "Conectado como {name}. Podemos publicar en las Páginas y cuentas de Instagram Business listadas abajo en tu nombre.",
+    "scopesNote": "Solicitamos: listar tus Páginas, publicar en tus Páginas, leer estadísticas de interacción, listar y publicar en cuentas de Instagram Business vinculadas. Token de larga duración renovado cada 60 días.",
+    "connectButton": "Conectar Facebook",
+    "reconnectButton": "Reconectar / actualizar permisos",
+    "facebookPagesHeading": "{count, plural, =1 {1 Página de Facebook} other {# Páginas de Facebook}}",
+    "instagramAccountsHeading": "{count, plural, =1 {1 cuenta de Instagram Business} other {# cuentas de Instagram Business}}",
+    "noPagesHint": "Conectamos tu perfil de Facebook pero no encontramos Páginas que administres. Crea o reclama una Página de Facebook primero, luego haz clic en Reconectar.",
+    "flashConnected": "Conectado. Vemos {pages, plural, =0 {ninguna Página} =1 {1 Página} other {# Páginas}} y {ig, plural, =0 {ninguna cuenta de Instagram Business} =1 {1 cuenta de Instagram Business} other {# cuentas de Instagram Business}} en tu cuenta.",
+    "flashDenied": "Rechazaste los permisos. AHO los necesita para publicar en tu nombre — vuelve a intentarlo cuando estés listo.",
+    "flashError": "Algo salió mal al conectar ({reason}). Inténtalo de nuevo, o contacta soporte si persiste."
+  },
   "social": {
     "pageHeading": "Automatización de Redes Sociales",
     "pageSubheading": "Publica tus anuncios automáticamente en Facebook, Instagram y LinkedIn.",

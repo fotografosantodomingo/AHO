@@ -995,6 +995,22 @@
     "saveButtonError": "Save failed",
     "alertsBlocked": "Email alerts will start when AHO finishes wiring its email transport."
   },
+  "metaConnect": {
+    "eyebrow": "Facebook + Instagram",
+    "heading": "Connect your Meta accounts",
+    "statusConnected": "Connected",
+    "explainerNotConnected": "Connect your Facebook account so AHO can publish your listings on your Pages and any linked Instagram Business accounts. You stay in control — every post is generated as a preview first; nothing goes live without your approval.",
+    "explainerConnected": "Connected as {name}. We can publish to the Pages and Instagram Business accounts below on your behalf.",
+    "scopesNote": "We request: list your Pages, post to your Pages, read engagement, list and publish to linked Instagram Business accounts. Long-lived token refreshed every 60 days.",
+    "connectButton": "Connect Facebook",
+    "reconnectButton": "Reconnect / refresh permissions",
+    "facebookPagesHeading": "{count, plural, =1 {1 Facebook Page} other {# Facebook Pages}}",
+    "instagramAccountsHeading": "{count, plural, =1 {1 Instagram Business account} other {# Instagram Business accounts}}",
+    "noPagesHint": "We connected your Facebook profile but didn't see any Pages you manage. Create or claim a Facebook Page first, then click Reconnect.",
+    "flashConnected": "Connected. We see {pages, plural, =0 {no Pages} =1 {1 Page} other {# Pages}} and {ig, plural, =0 {no Instagram Business accounts} =1 {1 Instagram Business account} other {# Instagram Business accounts}} on your account.",
+    "flashDenied": "You declined the permissions. AHO needs them to publish on your behalf — try again when you're ready.",
+    "flashError": "Something went wrong while connecting ({reason}). Try again, or contact support if it persists."
+  },
   "social": {
     "pageHeading": "Social Media Automation",
     "pageSubheading": "Post your listings to Facebook, Instagram and LinkedIn automatically.",

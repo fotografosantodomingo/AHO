@@ -54,6 +54,25 @@ const serverSchema = z.object({
   ADMIN_EMAIL: z.string().email().optional(),
   CLOUDFLARE_API_TOKEN: z.string().optional(),
   CLOUDFLARE_ACCOUNT_ID: z.string().optional(),
+  // Meta (Facebook + Instagram) OAuth + Marketing API. The App ID is
+  // technically public (it appears in OAuth dialog URLs) but stays in
+  // server env to discourage hard-coding. The App Secret is sensitive
+  // and never reaches the client.
+  META_APP_ID: z.string().optional(),
+  META_APP_SECRET: z.string().optional(),
+  // Threads — separate Meta app + secret. Wired up alongside Meta but
+  // not used for Sprint-1 OAuth (Threads has its own dialog endpoint).
+  THREADS_APP_ID: z.string().optional(),
+  THREADS_APP_SECRET: z.string().optional(),
+  // AES-256 key (hex) for ad_platform_tokens encryption-at-rest.
+  // Doubles as the HMAC secret for the OAuth state cookie. Lost ⇒
+  // existing stored tokens are unrecoverable; users must re-connect.
+  AHO_TOKEN_ENCRYPTION_KEY: z
+    .string()
+    .regex(/^[0-9a-fA-F]{64}$/, 'AHO_TOKEN_ENCRYPTION_KEY must be 64 hex characters (32 bytes)')
+    .optional(),
+  // Anthropic API key for the AI Copywriter pipeline (Sprint 1+).
+  ANTHROPIC_API_KEY: z.string().optional(),
   SENTRY_DSN_WEB: z.string().optional(),
   SENTRY_DSN_WORKERS: z.string().optional(),
   AHO_FOUNDER_RATE_WINDOW_END: z.string().datetime().optional(),

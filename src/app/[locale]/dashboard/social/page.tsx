@@ -7,9 +7,21 @@ import {
 } from '@/lib/billing/plan-gating';
 import { LockedSocialModule } from '@/components/social/locked-social-module';
 import { UnlockedSocialPlaceholder } from '@/components/social/unlocked-social-placeholder';
+import { ConnectMetaSection } from '@/components/social/connect-meta-section';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
+
+const KNOWN_FLASH_STATUSES = [
+  'connected',
+  'denied',
+  'invalid',
+  'state_mismatch',
+  'exchange_failed',
+  'long_lived_failed',
+  'fetch_failed',
+] as const;
+type FlashStatus = (typeof KNOWN_FLASH_STATUSES)[number];
 
 /**
  * /{locale}/dashboard/social
@@ -28,8 +40,10 @@ export const dynamic = 'force-dynamic';
  */
 export default async function SocialDashboardPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { locale } = await params;
   if (!LOCALES.includes(locale as Locale)) return null;
@@ -45,6 +59,23 @@ export default async function SocialDashboardPage({
     ? await isOrgOnProAutomation(supabase, ctx.orgId)
     : false;
 
+  // Parse the OAuth callback's flash payload for the Connect section.
+  const sp = await searchParams;
+  const rawStatus = typeof sp.meta_oauth === 'string' ? sp.meta_oauth : null;
+  const flashStatus: FlashStatus | null =
+    rawStatus && (KNOWN_FLASH_STATUSES as readonly string[]).includes(rawStatus)
+      ? (rawStatus as FlashStatus)
+      : null;
+  const flash = flashStatus
+    ? {
+        status: flashStatus,
+        pages:
+          typeof sp.pages === 'string' ? Number(sp.pages) || 0 : undefined,
+        ig: typeof sp.ig === 'string' ? Number(sp.ig) || 0 : undefined,
+        reason: typeof sp.reason === 'string' ? sp.reason : undefined,
+      }
+    : undefined;
+
   return (
     <main className="space-y-6">
       <header>
@@ -58,7 +89,10 @@ export default async function SocialDashboardPage({
       </header>
 
       {unlocked ? (
-        <UnlockedSocialPlaceholder locale={typedLocale} />
+        <>
+          <ConnectMetaSection locale={typedLocale} flash={flash} />
+          <UnlockedSocialPlaceholder locale={typedLocale} />
+        </>
       ) : (
         <LockedSocialModule locale={typedLocale} size="full" />
       )}
