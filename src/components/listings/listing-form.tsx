@@ -308,6 +308,14 @@ export function ListingForm({
     // Step 2b: server-side photo migration from URL-import.
     // Best-effort: a partial result is still useful, so we don't block
     // publish on it the way staged-upload partial failures do.
+    //
+    // Why we hand off via sessionStorage instead of a URL search param:
+    // the redirect below ends our component's lifetime, and the user
+    // shouldn't see a stale "5 imported, 2 failed" notice if they
+    // refresh or share the listing-detail URL. sessionStorage is
+    // tab-scoped + survives one refresh, which is exactly the
+    // lifetime the post-action banner needs. The companion reader is
+    // `<PhotoImportBanner>` rendered on the detail page.
     if (importedPhotoUrls && importedPhotoUrls.length > 0) {
       setPhase('importing-photos');
       setImportProgress({ imported: 0, failed: 0, total: importedPhotoUrls.length });
@@ -322,13 +330,43 @@ export function ListingForm({
           imported?: number;
           failed?: number;
           skipped?: number;
+          results?: Array<{ url: string; ok: boolean; errorCode?: string }>;
         };
         if (res.ok && body.ok) {
+          const imported = body.imported ?? 0;
+          const failed = body.failed ?? 0;
           setImportProgress({
-            imported: body.imported ?? 0,
-            failed: body.failed ?? 0,
+            imported,
+            failed,
             total: importedPhotoUrls.length,
           });
+          // Stash the result for the detail page's banner to read on
+          // mount. Only persist when there's something to report — a
+          // 0/0/0 result (e.g. cap-already-reached skipped-only) is a
+          // no-op and would just be banner noise. We strip the
+          // successful entries to keep the payload small; the banner
+          // only ever displays per-URL details for failures.
+          if ((imported > 0 || failed > 0) && typeof window !== 'undefined') {
+            try {
+              const failedResults = (body.results ?? [])
+                .filter((r) => !r.ok)
+                .map((r) => ({ url: r.url, ok: false, errorCode: r.errorCode }));
+              window.sessionStorage.setItem(
+                `aho:photo-import-result:${propertyId}`,
+                JSON.stringify({
+                  imported,
+                  failed,
+                  skipped: body.skipped ?? 0,
+                  total: importedPhotoUrls.length,
+                  results: failedResults,
+                }),
+              );
+            } catch {
+              // sessionStorage can throw (private browsing, quota).
+              // The banner is a nice-to-have — silently skip rather
+              // than block the redirect.
+            }
+          }
         }
       } catch (e) {
         console.warn('[listing-form] photo import failed', e);

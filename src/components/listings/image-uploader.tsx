@@ -142,7 +142,10 @@ export function ImageUploader({
   }
 
   return (
-    <section className="space-y-4">
+    // `id="photo-uploader"` is the scroll target for the
+    // <PhotoImportBanner> CTA on partial photo-import failures. Keep
+    // this in sync with UPLOADER_ANCHOR_ID in photo-import-banner.tsx.
+    <section id="photo-uploader" className="scroll-mt-24 space-y-4">
       <div className="flex items-baseline justify-between">
         <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
           {t('heading')}

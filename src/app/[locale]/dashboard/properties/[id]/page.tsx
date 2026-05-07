@@ -7,6 +7,7 @@ import { ImageUploader } from '@/components/listings/image-uploader';
 import { MarkAsSoldButton } from '@/components/listings/mark-as-sold-button';
 import { ArchiveListingButton } from '@/components/listings/archive-listing-button';
 import { EditListingForm } from '@/components/listings/edit-listing-form';
+import { PhotoImportBanner } from '@/components/listings/photo-import-banner';
 import {
   getCurrentUserOrgPlan,
   isOrgOnProAutomation,
@@ -106,6 +107,12 @@ export default async function EditListingPage({
           )}
         </div>
       </header>
+
+      {/* Post-redirect banner reporting URL-import photo migration
+          results (imported / failed counts + per-URL error codes).
+          Reads from sessionStorage and self-clears; renders nothing
+          when the user didn't arrive here from the import flow. */}
+      <PhotoImportBanner propertyId={listing.id} />
 
       <EditListingForm
         initial={{
