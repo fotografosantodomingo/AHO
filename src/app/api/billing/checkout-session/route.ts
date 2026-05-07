@@ -69,9 +69,15 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json(result, { status: 200 });
   } catch (e) {
-    console.error('[checkout-session]', e);
+    // Include the error message + name in the 500 body for debugging.
+    // Safe: this route requires auth (the user's own session); the body
+    // doesn't reach unauthenticated callers. Stripe error messages are
+    // operator-facing strings, not secrets.
+    const message = e instanceof Error ? e.message : String(e);
+    const name = e instanceof Error ? e.name : 'Unknown';
+    console.error('[checkout-session]', name, message, e);
     return NextResponse.json(
-      { error: 'session_create_failed' },
+      { error: 'session_create_failed', details: { name, message } },
       { status: 500 },
     );
   }
