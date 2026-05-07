@@ -43,8 +43,12 @@ interface PropertyMapProps {
   fetching?: boolean;
 }
 
-const DEFAULT_CENTER: [number, number] = [18.4861, -69.9312]; // Santo Domingo
-const DEFAULT_ZOOM = 5;
+// Default world-ish view. Was previously Santo Domingo at zoom 5 — fine
+// for the DR launch but jarring for visitors browsing other countries
+// (you'd see the Caribbean and wonder where your search results went).
+// fitBounds() takes over the moment we have any pins.
+const DEFAULT_CENTER: [number, number] = [20, 0];
+const DEFAULT_ZOOM = 2;
 const LEAFLET_CSS_URL = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
 const LEAFLET_CSS_INTEGRITY =
   'sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H';
@@ -114,6 +118,16 @@ export function PropertyMap({
   // re-render.
   const onBoundsChangeRef = useRef(onBoundsChange);
   onBoundsChangeRef.current = onBoundsChange;
+  /**
+   * Tracks whether the user has actually interacted with the map
+   * (dragged or zoomed), as opposed to programmatic camera moves like
+   * the initial setView() and the auto-fitBounds() over the seeded
+   * pins. Without this gate, every map mount would dispatch a bbox
+   * fetch using the default world view, which then re-renders the
+   * pins, which fires another moveend, and the page flickers as the
+   * map "disappears and reappears" while the feedback loop settles.
+   */
+  const userInteractedRef = useRef(false);
 
   /**
    * Pinned listings — pair (listing, [lat, lng], precise?). Listings with
@@ -121,6 +135,18 @@ export function PropertyMap({
    * the map isn't empty when agents haven't entered exact coordinates
    * yet. Precise pins use a darker shade so the user can tell at a glance
    * which markers are surveyed vs. approximated.
+   *
+   * Coordinates are validated here, not at fetch time, because PostgREST
+   * returns `numeric` columns as strings and a sloppy form input could
+   * produce technically-valid-but-meaningless values like (0, 0). We
+   * reject:
+   *   - non-finite numbers (NaN from "abc", Infinity)
+   *   - out-of-range latitudes (|lat| > 90) and longitudes (|lng| > 180)
+   *   - the literal (0, 0) — Null Island, gulf of Guinea — which appears
+   *     as a default for forms that submitted lat/lng "0" instead of NULL
+   * Any rejected listing falls through to the country-centroid path; if
+   * that also fails (unknown country code), the listing is dropped from
+   * the map entirely (still appears in the list view).
    */
   const pinned = useMemo<
     Array<{ listing: SearchListing; lat: number; lng: number; precise: boolean }>
@@ -132,8 +158,13 @@ export function PropertyMap({
       precise: boolean;
     }> = [];
     for (const l of listings) {
-      if (l.latitude != null && l.longitude != null) {
-        out.push({ listing: l, lat: l.latitude, lng: l.longitude, precise: true });
+      if (isValidCoordinate(l.latitude, l.longitude)) {
+        out.push({
+          listing: l,
+          lat: l.latitude as number,
+          lng: l.longitude as number,
+          precise: true,
+        });
         continue;
       }
       const centroid = countryCentroid(l.countryCode);
@@ -180,8 +211,16 @@ export function PropertyMap({
       mapRef.current = map;
       setReady(true);
 
-      // Bbox callback on pan/zoom — debounced 400ms.
+      // Bbox callback on pan/zoom — debounced 400ms. Gated on actual
+      // user interaction (dragstart / zoomstart) so the initial setView
+      // and the auto-fitBounds over seeded pins don't trigger a fetch.
+      const markInteracted = () => {
+        userInteractedRef.current = true;
+      };
+      map.on('dragstart', markInteracted);
+      map.on('zoomstart', markInteracted);
       const onMoveEnd = () => {
+        if (!userInteractedRef.current) return;
         const m = mapRef.current;
         if (!m) return;
         if (fetchTimeout.current) clearTimeout(fetchTimeout.current);
@@ -331,6 +370,19 @@ export function PropertyMap({
       )}
     </div>
   );
+}
+
+function isValidCoordinate(lat: number | null, lng: number | null): boolean {
+  if (lat == null || lng == null) return false;
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
+  if (lat < -90 || lat > 90) return false;
+  if (lng < -180 || lng > 180) return false;
+  // (0, 0) is "Null Island" off the West African coast — almost certainly
+  // a placeholder/default, not a real real-estate listing. Reject so the
+  // centroid fallback fires instead and the pin lands in the listing's
+  // declared country.
+  if (lat === 0 && lng === 0) return false;
+  return true;
 }
 
 function escapeHtml(s: string): string {
