@@ -36,6 +36,15 @@ export async function GET(req: NextRequest) {
       { status: 503 },
     );
   }
+  if (!env.META_LOGIN_CONFIG_ID) {
+    // Required to drive the Login for Business permission set. Without
+    // it Meta returns "Invalid Scopes" and falls back to public_profile
+    // only — the connected user has no Page-publish capability.
+    return NextResponse.json(
+      { error: 'meta_config_id_missing' },
+      { status: 503 },
+    );
+  }
   if (!env.AHO_TOKEN_ENCRYPTION_KEY) {
     // Required as the HMAC secret for the state cookie. Same key the
     // RPCs use for token AES — independent crypto operation, safe.
@@ -64,6 +73,7 @@ export async function GET(req: NextRequest) {
     appId: env.META_APP_ID,
     redirectUri,
     state,
+    configId: env.META_LOGIN_CONFIG_ID,
   });
 
   const res = NextResponse.redirect(authUrl, { status: 302 });

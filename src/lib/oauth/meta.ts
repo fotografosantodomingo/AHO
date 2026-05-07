@@ -1,58 +1,75 @@
 import 'server-only';
 
 /**
- * Meta (Facebook + Instagram Business) OAuth flow helpers.
+ * Meta (Facebook) OAuth flow helpers — Login for Business model.
  *
  * Flow per https://developers.facebook.com/docs/facebook-login/guides/access-tokens:
  *   1. Redirect user to dialog/oauth with our App ID + redirect_uri +
- *      requested scopes + a CSRF state token.
- *   2. User authorizes on Facebook.
+ *      Configuration ID + a CSRF state token.
+ *   2. User authorizes on Facebook (sees the permission set bundled in
+ *      the Configuration; can't pass arbitrary scopes any more).
  *   3. FB redirects to our callback with `?code=…&state=…`.
  *   4. We exchange `code` for a short-lived user access token (~1h).
  *   5. We exchange the short-lived token for a long-lived (~60d) token.
  *   6. We fetch the user's id + name + their managed Pages with their
  *      respective Page tokens, and store everything encrypted.
  *
- * Scopes we ask for (matches the Day 4 Meta App Review submission):
- *   - public_profile + email — base login (auto-granted, no review needed)
+ * Configuration model (since v18+) replaces the legacy `scope=` param.
+ * Instead of listing permissions in the URL, the app developer creates
+ * a "Configuration" in the Meta dashboard that bundles permissions +
+ * login variant + access-token type + assets. The OAuth URL passes
+ * `config_id` and Meta resolves the permission set server-side.
+ *
+ * Sprint-1 Configuration `META_LOGIN_CONFIG_ID` includes:
+ *   - public_profile + email — base login
  *   - pages_show_list — list the user's FB Pages so they can pick one
  *   - pages_manage_posts — publish on behalf of a Page
  *   - pages_read_engagement — read post stats for our analytics dashboard
- *   - instagram_basic — list the IG Business accounts linked to a Page
- *   - instagram_content_publish — publish to IG Business
  *   - business_management — required when posts target Business-Managed
  *     pages (most agency / agent setups)
+ *
+ * Instagram permissions (instagram_basic, instagram_content_publish)
+ * are tracked in a separate Configuration / submission. They require
+ * the "Manage messaging & content on Instagram" use case to be
+ * configured first, plus IG Business accounts linked to FB Pages.
+ * Adding them here would block the FB-only submission on dependencies
+ * we don't have yet.
  */
 
 export const META_GRAPH_VERSION = 'v21.0';
 export const META_OAUTH_DIALOG = `https://www.facebook.com/${META_GRAPH_VERSION}/dialog/oauth`;
 export const META_GRAPH_BASE = `https://graph.facebook.com/${META_GRAPH_VERSION}`;
 
+/** Documentation only — the actual permission set for OAuth comes
+ *  from the Configuration referenced by META_LOGIN_CONFIG_ID. Kept
+ *  here as the canonical record of what we expect Meta to grant on
+ *  successful authorization, used for setting `scopes` on the stored
+ *  ad_platform_tokens row. */
 export const META_SCOPES = [
   'public_profile',
   'email',
   'pages_show_list',
   'pages_manage_posts',
   'pages_read_engagement',
-  'instagram_basic',
-  'instagram_content_publish',
   'business_management',
 ] as const;
 
 /**
  * Build the OAuth dialog URL for the start route. The state token is
- * the CSRF guard — the callback verifies it matches the cookie.
+ * the CSRF guard — the callback verifies it matches the cookie. The
+ * Configuration ID drives which permissions Meta asks the user for.
  */
 export function buildAuthUrl(args: {
   appId: string;
   redirectUri: string;
   state: string;
+  configId: string;
 }): string {
   const url = new URL(META_OAUTH_DIALOG);
   url.searchParams.set('client_id', args.appId);
   url.searchParams.set('redirect_uri', args.redirectUri);
   url.searchParams.set('state', args.state);
-  url.searchParams.set('scope', META_SCOPES.join(','));
+  url.searchParams.set('config_id', args.configId);
   url.searchParams.set('response_type', 'code');
   return url.toString();
 }

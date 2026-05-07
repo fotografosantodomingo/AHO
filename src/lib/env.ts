@@ -60,6 +60,12 @@ const serverSchema = z.object({
   // and never reaches the client.
   META_APP_ID: z.string().optional(),
   META_APP_SECRET: z.string().optional(),
+  /** Facebook Login for Business — Configuration ID for the AHO app.
+   *  Public identifier. The Configuration bundles permissions + login
+   *  variant + access-token type (we use User access token; FB Pages
+   *  permissions; no Instagram in v1). Replaces the old scope= param
+   *  in the OAuth dialog URL. */
+  META_LOGIN_CONFIG_ID: z.string().optional(),
   // Threads — separate Meta app + secret. Wired up alongside Meta but
   // not used for Sprint-1 OAuth (Threads has its own dialog endpoint).
   THREADS_APP_ID: z.string().optional(),
