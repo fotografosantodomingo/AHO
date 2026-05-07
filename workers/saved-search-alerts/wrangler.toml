@@ -1,0 +1,32 @@
+name = "aho-saved-search-alerts"
+main = "src/index.ts"
+compatibility_date = "2025-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Cron Trigger — runs once a day at 10:00 UTC.
+# Coverage by tz: 06:00 ET / 07:00 EST(DR) / 11:00 Madrid / 13:00 Riyadh.
+# This is the default; can be paused or rescheduled from the dashboard
+# if PO wants different cadence. To disable temporarily without removing
+# the cron, comment out `[triggers]` and re-deploy.
+#
+# IMPORTANT: per CLAUDE.md hard rule #9, the first live cron run sends
+# real Brevo emails to real saved-search subscribers. Do not flip this
+# from a no-op test schedule to the production schedule below without an
+# explicit "go" from the product owner.
+[triggers]
+crons = ["0 10 * * *"]
+
+# Secrets — set via `wrangler secret put` per environment, never
+# committed:
+#   - SUPABASE_URL
+#   - SUPABASE_SERVICE_ROLE_KEY  (worker bypasses RLS to read everyone's
+#     saved searches; never expose this to the browser)
+#   - BREVO_API_KEY
+#   - PUBLIC_SITE_URL  (used in the digest's listing links)
+[vars]
+LOG_LEVEL = "info"
+# DRY_RUN gate — when "true", the worker runs the full query + digest
+# render and logs each recipient + match count, but does NOT call Brevo.
+# Flip to "false" via `wrangler deploy` after PO confirms (CLAUDE.md
+# hard rule #9: live billable email send needs explicit go).
+DRY_RUN = "true"

@@ -12,6 +12,20 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-06 — Saved-search digest worker (code-ready, DRY_RUN gated)
+- **What shipped:**
+  - Migration `0033_saved_searches_last_notified_at.sql` — additive `last_notified_at timestamptz` column + partial index `idx_saved_searches_notify_due` on the opt-in subset. Applied to prod. Semantically distinct from the existing `last_seen_at` (which is bumped client-side on dashboard visits): `last_notified_at` is server-side dispatch tracking, gates idempotent retry within a cron window.
+  - New separate Cloudflare Worker `aho-saved-search-alerts` at `workers/saved-search-alerts/`. Self-contained: own `wrangler.toml`, `tsconfig.json`, `package.json` with `@supabase/supabase-js` + `wrangler` only. Cron Trigger scheduled `0 10 * * *` (10am UTC daily — covers ET / DR / Madrid morning windows). Runtime: `nodejs_compat` flag. Bundle 733 KiB (140 KiB gz) — comfortably under the 10 MiB Workers Paid limit.
+  - Pure-render helpers extracted to `src/lib/saved-search/digest.ts` so the worker imports them via relative path AND the vitest unit test imports them via `@/` alias — no need to drag `@cloudflare/workers-types` into the main app's tsconfig. The worker entry stays tight (cron handler + `pickDueSavedSearches` + `findMatches` + Brevo dispatch). Bilingual digest (EN/ES) with HTML-escaped recipient/saved-search names + locale-correct property URLs + locale-correct unsubscribe link to `/saved-searches` dashboard.
+  - 11 unit tests for the digest renderer covering: subject pluralization (EN/ES), nameless saved-search fallback, XSS-safe escape on recipient + saved-search name, locale-correct slug+path resolution, unsubscribe-footer URL, currency formatting (with ICU-data tolerance for the test runtime). All pass.
+  - **Safety lever** — wrangler.toml ships with `DRY_RUN = "true"`. The full pipeline runs (DB query → match filter → digest render → recipient log) but the Brevo call is short-circuited. Live email send requires a PO-explicit greenlight + a one-line config flip + redeploy. Per CLAUDE.md hard rule #9 (billable resources need explicit confirmation).
+  - Root `tsconfig.json` excludes `workers/` so the standalone Worker's CF-types don't leak into the main app's typecheck. Worker has its own `tsconfig.json` with `@cloudflare/workers-types` as the canonical type source.
+- **What changed since last session:** Same calendar day; this entry succeeds the OG-pricing ship.
+- **Blockers / open questions:** Worker is **NOT YET DEPLOYED** to Cloudflare. Awaiting PO go-ahead to: (a) `cd workers/saved-search-alerts && wrangler secret put SUPABASE_URL` + 3 more secrets; (b) `wrangler deploy` with `DRY_RUN=true` (safe staging — no Brevo calls, just logs); (c) after at least one cycle of dry-run inspection, flip wrangler.toml to `DRY_RUN=false` + redeploy. The first live cycle should be at a known time so PO can monitor.
+- **Next session should start with:** PO greenlight on the saved-search worker first deploy, OR webhook-replay fixture-state harness (autonomous, ~2h, pre-live Stripe confidence on the 5 deferred replay cases).
+
+---
+
 ## 2026-05-06 — Countries combobox, search-page fixes, agent profile enrichment + FAQs
 - **What shipped (continuous session, after the rate-limit work):**
   - **/countries combobox typeahead.** Search box above the country grid that queries countries + cities at once with diacritic-folded matching. WAI-ARIA 1.2 combobox pattern (role=combobox + listbox + activedescendant). New `getGlobalSearchIndex(locale)` helper in `src/lib/listings/countries.ts`; new `<CountryCityCombobox>` client component. Static grid kept below for SEO.

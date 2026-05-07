@@ -1,0 +1,21 @@
+{
+  "name": "aho-saved-search-alerts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AHO scheduled worker — daily saved-search digest emails via Brevo. See ../../docs/HANDOFF.md §17.x for the workflow.",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "deploy:dry-run": "wrangler deploy --dry-run",
+    "dev": "wrangler dev",
+    "trigger": "wrangler dev --test-scheduled",
+    "tail": "wrangler tail"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240620.0",
+    "typescript": "^5.5.4",
+    "wrangler": "^4.88.0"
+  }
+}
