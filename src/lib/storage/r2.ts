@@ -3,6 +3,8 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { serverEnv } from '@/lib/env';
 
+export type R2Body = ArrayBuffer | Uint8Array | Blob;
+
 /**
  * R2 (Cloudflare's S3-compatible object store) signing helpers.
  *
@@ -63,6 +65,37 @@ export async function presignPut(args: PresignArgs): Promise<PresignResult> {
   const uploadUrl = await getSignedUrl(client, command, { expiresIn });
   const expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString();
   return { uploadUrl, expiresAt };
+}
+
+interface PutObjectArgs {
+  bucket: string;
+  key: string;
+  body: R2Body;
+  contentType: string;
+}
+
+/**
+ * Server-side PUT directly into R2 — used by flows where the bytes already
+ * live on the server (URL-import photo migration). Distinct from
+ * `presignPut` which hands a signed URL back to the browser for a direct
+ * upload. Both end up at the same `r2_key`.
+ */
+export async function putObject(args: PutObjectArgs): Promise<void> {
+  const client = getClient();
+  const body =
+    args.body instanceof Blob
+      ? new Uint8Array(await args.body.arrayBuffer())
+      : args.body instanceof ArrayBuffer
+      ? new Uint8Array(args.body)
+      : args.body;
+  await client.send(
+    new PutObjectCommand({
+      Bucket: args.bucket,
+      Key: args.key,
+      Body: body,
+      ContentType: args.contentType,
+    }),
+  );
 }
 
 /** Test seam — reset the cached client between unit-test runs. */

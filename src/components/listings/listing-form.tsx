@@ -52,6 +52,9 @@ interface ListingFormProps {
   initialValues?: Partial<CreateListingInput>;
   /** Where to redirect after a successful create. */
   successRedirectBase: string;
+  /** Remote photo URLs from URL/voice import. Server downloads + relays
+   *  them into R2 + Cloudflare Images after the property row is created. */
+  importedPhotoUrls?: string[];
 }
 
 /**
@@ -70,7 +73,11 @@ interface ListingFormProps {
  *   - Submit label: "Save as draft" — accurate to what the action does.
  *     Publish happens on the edit page once images are uploaded.
  */
-export function ListingForm({ initialValues, successRedirectBase }: ListingFormProps) {
+export function ListingForm({
+  initialValues,
+  successRedirectBase,
+  importedPhotoUrls,
+}: ListingFormProps) {
   const t = useTranslations('listingForm');
   const tDashboard = useTranslations('dashboard');
   const tUploader = useTranslations('imageUploader');
@@ -81,8 +88,13 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
   // photos, 'publishing' = flipping status to active. Drives label state on
   // the buttons + spinner.
   const [phase, setPhase] = useState<
-    'idle' | 'creating' | 'uploading' | 'publishing'
+    'idle' | 'creating' | 'uploading' | 'importing-photos' | 'publishing'
   >('idle');
+  const [importProgress, setImportProgress] = useState<{
+    imported: number;
+    failed: number;
+    total: number;
+  } | null>(null);
 
   const countryOptions = useMemo(
     () => getAllCountries(locale as Locale),
@@ -290,6 +302,36 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
         clearDraftStorage();
         router.push(`${successRedirectBase}/${propertyId}`);
         return;
+      }
+    }
+
+    // Step 2b: server-side photo migration from URL-import.
+    // Best-effort: a partial result is still useful, so we don't block
+    // publish on it the way staged-upload partial failures do.
+    if (importedPhotoUrls && importedPhotoUrls.length > 0) {
+      setPhase('importing-photos');
+      setImportProgress({ imported: 0, failed: 0, total: importedPhotoUrls.length });
+      try {
+        const res = await fetch(`/api/properties/${propertyId}/import-photos`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ urls: importedPhotoUrls.slice(0, 15) }),
+        });
+        const body = (await res.json().catch(() => ({}))) as {
+          ok?: boolean;
+          imported?: number;
+          failed?: number;
+          skipped?: number;
+        };
+        if (res.ok && body.ok) {
+          setImportProgress({
+            imported: body.imported ?? 0,
+            failed: body.failed ?? 0,
+            total: importedPhotoUrls.length,
+          });
+        }
+      } catch (e) {
+        console.warn('[listing-form] photo import failed', e);
       }
     }
 
@@ -868,7 +910,9 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
           disabled={busy}
           className="inline-flex h-10 items-center rounded-lg border border-border-strong bg-surface px-5 text-sm font-medium shadow-whisper transition hover:bg-black/5 disabled:opacity-50 dark:bg-surface-deep dark:hover:bg-white/5"
         >
-          {phase === 'creating' || phase === 'uploading' ? '…' : tDashboard('saveAsDraft')}
+          {phase === 'creating' || phase === 'uploading' || phase === 'importing-photos'
+            ? '…'
+            : tDashboard('saveAsDraft')}
         </button>
         <button
           type="button"
@@ -880,10 +924,16 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
             ? '…'
             : phase === 'uploading'
             ? tUploader('statusUploading')
+            : phase === 'importing-photos'
+            ? locale === 'es'
+              ? `Importando fotos${importProgress ? ` (${importProgress.total})` : ''}…`
+              : `Importing photos${importProgress ? ` (${importProgress.total})` : ''}…`
             : tDashboard('publishListing')}
         </button>
         <p className="ml-auto text-xs text-helper">
-          {stagedFiles.length === 0 ? t('publishNeedsPhotos') : null}
+          {stagedFiles.length === 0 && (!importedPhotoUrls || importedPhotoUrls.length === 0)
+            ? t('publishNeedsPhotos')
+            : null}
         </p>
       </div>
     </form>

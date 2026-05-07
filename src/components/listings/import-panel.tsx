@@ -65,6 +65,10 @@ export function ImportPanel({ successRedirectBase }: Props) {
   // Imported mode — show success banner + ListingForm pre-filled.
   if (mode === 'imported' && facts) {
     const initial = factsToFormDefaults(facts);
+    // Cap matches the import-photos route (15 URLs/call, 30 cap on the
+    // listing). Anything beyond can be uploaded manually after save.
+    const photoUrlsToImport = facts.photoUrls.slice(0, 15);
+    const truncated = facts.photoUrls.length - photoUrlsToImport.length;
     return (
       <div className="space-y-4">
         <div className="rounded-card border border-emerald-500/30 bg-emerald-500/5 p-4 text-sm text-emerald-800 dark:text-emerald-300">
@@ -75,10 +79,18 @@ export function ImportPanel({ successRedirectBase }: Props) {
           </p>
           <p className="mt-1">
             Review the pre-filled fields below and edit anything that needs adjusting.
-            {facts.photoUrls.length > 0 && (
+            {photoUrlsToImport.length > 0 && (
               <>
-                {' '}Found <strong>{facts.photoUrls.length}</strong> photos on the source —
-                use the photo uploader below the form once the listing is saved.
+                {' '}Found <strong>{photoUrlsToImport.length}</strong>
+                {truncated > 0 ? ` of ${facts.photoUrls.length}` : ''} photo
+                {photoUrlsToImport.length === 1 ? '' : 's'} on the source — they&apos;ll be
+                imported automatically when you save.
+                {truncated > 0 && (
+                  <>
+                    {' '}({truncated} extra will be skipped — upload them manually after save
+                    if you want them.)
+                  </>
+                )}
               </>
             )}
           </p>
@@ -87,6 +99,7 @@ export function ImportPanel({ successRedirectBase }: Props) {
           key={facts.sourceUrl + (facts.detectedLanguage ?? '')}
           successRedirectBase={successRedirectBase}
           initialValues={initial}
+          importedPhotoUrls={photoUrlsToImport}
         />
       </div>
     );
