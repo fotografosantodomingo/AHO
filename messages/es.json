@@ -771,6 +771,8 @@
     "whatsappHelp": "Opcional. Si es diferente del teléfono anterior; si no, usamos el teléfono también para WhatsApp.",
     "city": "Ciudad",
     "countryCode": "País (ISO de 2 letras)",
+    "country": "País",
+    "countryPlaceholder": "Selecciona un país…",
     "specialties": "Especialidades",
     "specialtiesHelp": "Elige de las sugerencias o añade las tuyas. Haz clic en una etiqueta para quitarla.",
     "specialtyOptions": {

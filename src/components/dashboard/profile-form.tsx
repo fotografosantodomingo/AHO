@@ -4,6 +4,8 @@ import { useState, type FormEvent } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { AvatarUploader } from './avatar-uploader';
+import { CountrySelect } from '@/components/forms/country-select';
+import type { Locale } from '@/i18n/config';
 
 export interface ProfileFormInitial {
   full_name: string | null;
@@ -244,16 +246,15 @@ export function ProfileForm({ initial }: Props) {
           </div>
           <div>
             <label htmlFor="pf-country" className={labelClass}>
-              {t('countryCode')}
+              {t('country')}
             </label>
-            <input
+            <CountrySelect
               id="pf-country"
-              type="text"
               value={countryCode}
-              onChange={(e) => setCountryCode(e.target.value.toUpperCase())}
-              maxLength={2}
-              className={`${inputClass} uppercase`}
-              placeholder="DO"
+              onChange={setCountryCode}
+              locale={locale as Locale}
+              className={inputClass}
+              placeholder={t('countryPlaceholder')}
             />
           </div>
         </Field>

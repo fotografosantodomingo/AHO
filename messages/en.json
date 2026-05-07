@@ -773,6 +773,8 @@
     "whatsappHelp": "Optional. If different from the phone above; otherwise we use the phone for the WhatsApp button too.",
     "city": "City",
     "countryCode": "Country (2-letter ISO)",
+    "country": "Country",
+    "countryPlaceholder": "Select a country…",
     "specialties": "Specialties",
     "specialtiesHelp": "Pick from the suggestions or add your own. Click a tag to remove.",
     "specialtyOptions": {
