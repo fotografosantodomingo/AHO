@@ -125,6 +125,23 @@
     "fr": "Français",
     "it": "Italiano"
   },
+  "socialTones": {
+    "label": "Ton wypowiedzi",
+    "tones": {
+      "luxury": {
+        "label": "Luksus",
+        "description": "Aspiracyjny i ekskluzywny — eksponuje rzadkość, prestiżowy adres, jakość wykonania i styl życia jako wyznacznik statusu."
+      },
+      "investment": {
+        "label": "Inwestycja",
+        "description": "Konkretny i liczbowy — eksponuje stopę zwrotu z najmu, wzrost wartości i pozycję rynkową."
+      },
+      "family": {
+        "label": "Rodzina",
+        "description": "Ciepły i konkretny — eksponuje szkoły, spacerowy zasięg, miejsce do życia i rytm codziennego dnia."
+      }
+    }
+  },
   "priceTile": {
     "approximateInLabel": "Około {value} w wybranej walucie"
   },

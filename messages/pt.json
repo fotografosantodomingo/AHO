@@ -125,6 +125,23 @@
     "fr": "Français",
     "it": "Italiano"
   },
+  "socialTones": {
+    "label": "Tom de voz",
+    "tones": {
+      "luxury": {
+        "label": "Luxo",
+        "description": "Aspiracional e exclusivo — destaca raridade, endereço, requinte e estilo de vida como sinal de status."
+      },
+      "investment": {
+        "label": "Investimento",
+        "description": "Numérico e fundamentado — destaca rentabilidade do aluguel, valorização e posicionamento de mercado."
+      },
+      "family": {
+        "label": "Família",
+        "description": "Acolhedor e concreto — destaca escolas, caminhabilidade, espaço para crescer e o ritmo do dia a dia."
+      }
+    }
+  },
   "priceTile": {
     "approximateInLabel": "Aproximadamente {value} na moeda selecionada"
   },

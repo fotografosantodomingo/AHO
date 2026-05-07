@@ -43,6 +43,27 @@ export const COPYWRITER_PLATFORMS = [
 ] as const;
 export type CopywriterPlatform = (typeof COPYWRITER_PLATFORMS)[number];
 
+/**
+ * Tone of voice — the WHAT-to-talk-about axis. Per
+ * `docs/CONTENT_HUB_VISION.md`, three tones cover the bulk of agent
+ * positioning needs: Luxury (status / rarity), Investment (ROI / yield),
+ * Family (community / safety). Investment is the v1 default and the
+ * gold-standard quality bar; the other two are tuned to match.
+ *
+ * Layering rule: per-locale voice (LOCALE_VOICE) governs HOW the
+ * caption sounds in the target language; tone governs WHAT angle the
+ * caption leads with. PL+Investment is not the same caption as
+ * EN+Investment — the locale voice still shapes word choice, sentence
+ * rhythm, and emotional register.
+ */
+export const COPYWRITER_TONES = ['luxury', 'investment', 'family'] as const;
+export type Tone = (typeof COPYWRITER_TONES)[number];
+
+/** Default tone — keeps existing callers (and any cached client
+ *  payloads in flight) producing the Investment-tone copy that shipped
+ *  in Sprint 1 before the selector existed. */
+export const DEFAULT_TONE: Tone = 'investment';
+
 export interface PropertyFacts {
   title: string;
   transactionType: 'sale' | 'rent' | 'short_term';
@@ -90,6 +111,10 @@ interface CallArgs {
   locale: Locale;
   platform: CopywriterPlatform;
   count?: number;
+  /** Tone of voice — luxury / investment / family. Defaults to
+   *  `investment` to preserve back-compat with Sprint-1 callers (and
+   *  any in-flight cached client payloads) that didn't pass tone. */
+  tone?: Tone;
   /** Permanent AHO listing URL — embedded into every caption so each
    *  social post links back to advertisehomes.online. Required when
    *  generating for a published listing; pass null for the standalone
@@ -142,7 +167,51 @@ const PLATFORM_CONSTRAINTS: Record<
     // = 315 — agent-LinkedIn buyers WILL expand for a property post.
     bodyMaxChars: 315,
     hashtagsRange: '2-4 hashtags',
-    tone: 'professional, investor-leaning. Lead with ROI signal, capital appreciation, market positioning. Treat the reader as a sophisticated investor (HNW, family office, or institutional).',
+    // Platform-level guidance kept tone-neutral so the selectable
+    // Tone block (Luxury / Investment / Family) drives the angle.
+    // Pre-tone-selector default ("investor-leaning, lead with ROI")
+    // moved into the Investment-tone instructions where it belongs.
+    tone: 'professional, longer-form. The reader expects substance and will expand to read. Treat them as a sophisticated decision-maker — informed, time-pressed, allergic to fluff.',
+  },
+};
+
+/**
+ * Per-tone voice guide. Each entry is a multi-line block injected
+ * verbatim into the system prompt so the model has explicit guidance
+ * on (1) what the lead angle is, (2) what vocabulary register to use,
+ * (3) what to skip, and (4) how the three variants should differ from
+ * each other — three distinct angles within the tone, not three
+ * rephrasings of the same hook.
+ *
+ * Investment is the gold-standard quality bar (it shipped first and is
+ * the v1 default); Luxury and Family are tuned to match its specificity.
+ */
+const TONE_VOICE: Record<Tone, { label: string; instructions: string }> = {
+  luxury: {
+    label: 'LUXURY',
+    instructions: [
+      'The reader is a discerning buyer drawn to rarity, craftsmanship, and lifestyle as a status signal — not someone running yield calculations. Lead with what makes the property hard to replicate: provenance, materials, address, view, scale, the moments it makes possible.',
+      'Vocabulary: aspirational and evocative — "private", "rare", "considered", "crafted", "address", "vista". Skip "ROI", "yield", "appreciation", "investment-grade" — they cheapen luxury copy. No price-per-square-meter framing.',
+      'Sensory and scenic where appropriate ("morning light across the terrace", "the silence of the second floor"), but stay restrained — luxury is suggested, never shouted. Avoid superlatives stacked together.',
+      'Three variants must lead with different facets of the property\'s rarity: e.g. Variant A leads with the address / location pedigree, Variant B with materials and craftsmanship, Variant C with the lifestyle moment the home enables. Three distinct angles, not three rephrasings.',
+    ].join(' '),
+  },
+  investment: {
+    label: 'INVESTMENT',
+    instructions: [
+      'The reader is a buyer evaluating return on capital, not a dreamer scrolling for inspiration. Lead with ROI signals: rental yield, capital appreciation, neighborhood trajectory, comparable sales, tax advantages where relevant. Treat soft features (lifestyle, family, "you\'ll love it") as supporting evidence, never the lead.',
+      'Vocabulary: numerate and grounded — yield percentages where data supports them, capital-growth signals tied to neighborhood fundamentals, rental-comparable references, tax angles (e.g. Act 60 in PR, foreign-buyer programs in DR). Never invent yield numbers; if the input has none, lean on location strength and comparable price points.',
+      'Three variants must lead with different investor angles: e.g. Variant A with rental yield, Variant B with capital appreciation, Variant C with the neighborhood\'s investment trajectory or a tax/regulatory advantage. Three distinct investor angles, not three rewrites of the same hook.',
+    ].join(' '),
+  },
+  family: {
+    label: 'FAMILY',
+    instructions: [
+      'The reader is a parent (or about-to-be parent) thinking in terms of life inside the home. Lead with what daily life looks like here: the school down the street, the walk to the park, the room that becomes a nursery, the kitchen where Sunday lunch happens, the neighborhood\'s rhythm.',
+      'Vocabulary: warm and concrete — "school", "park", "walk to", "room to grow", "quiet street", "weekends", "kids", "neighbours". Avoid ROI / yield / appreciation framing entirely. Avoid rarity / status framing. The home is the setting for a life, not a trophy and not an asset class.',
+      'Anchor every claim in something verifiable from the facts: distance to school, number of bedrooms, presence of garden / garage, neighborhood character. Don\'t invent schools or amenities not in the facts.',
+      'Three variants must lead with different facets of family life: e.g. Variant A with the school / walkability angle, Variant B with the room-to-grow angle (bedrooms, garden, layout), Variant C with the neighborhood / weekend-rhythm angle. Three distinct family angles.',
+    ].join(' '),
   },
 };
 
@@ -162,19 +231,32 @@ const LOCALE_VOICE: Record<Locale, string> = {
 };
 
 /**
- * Build the system prompt. Combines: master role + Investment-tone
- * default + per-platform 70% character ceiling + per-locale voice +
- * output JSON shape.
+ * Build the system prompt. Combines: master role + selected tone of
+ * voice (Luxury / Investment / Family) + per-platform 70% character
+ * ceiling + per-locale voice + output JSON shape.
+ *
+ * Layering: locale voice governs HOW (cadence, register, native-speaker
+ * idiom in the target language); tone governs WHAT (which angle leads).
+ * Same listing in PL+Investment and EN+Investment shares the angle;
+ * the words and rhythm differ.
  */
-function buildSystemPrompt(args: { locale: Locale; platform: CopywriterPlatform }): string {
+function buildSystemPrompt(args: {
+  locale: Locale;
+  platform: CopywriterPlatform;
+  tone: Tone;
+}): string {
   const platform = PLATFORM_CONSTRAINTS[args.platform];
   const voice = LOCALE_VOICE[args.locale];
+  const tone = TONE_VOICE[args.tone];
+  // Generic "no fake urgency" phrasing — applies to all tones.
+  // (Pre-selector copy was investor-specific; the current line works
+  //  for luxury / family buyers too.)
   return [
     `You are a senior real-estate marketing copywriter writing in ${args.locale.toUpperCase()}. You write social-media captions for property listings that read like a native local marketer wrote them — never like a translation.`,
     '',
-    `Tone of voice: INVESTMENT. The reader is a buyer evaluating return on capital, not a dreamer scrolling for inspiration. Lead with ROI signals: rental yield, capital appreciation, neighborhood trajectory, comparable sales, tax advantages. Treat soft features (lifestyle, family, "you'll love it") as supporting evidence, never the lead. The locale voice (below) governs HOW you say it; this Investment angle governs WHAT you say.`,
+    `Tone of voice: ${tone.label}. ${tone.instructions}`,
     '',
-    `Locale voice: ${voice}`,
+    `Locale voice (governs HOW you say it; tone above governs WHAT angle you lead with): ${voice}`,
     '',
     `Platform: ${args.platform}`,
     `Body length ceiling: ${platform.bodyMaxChars} characters MAX. This is 70% of the platform's "Read more" cutoff — agents prefer captions that read deliberate, not auto-filled. Going below the ceiling is fine; above it is rejected.`,
@@ -185,13 +267,18 @@ function buildSystemPrompt(args: { locale: Locale; platform: CopywriterPlatform 
     `1. Respond with ONLY a JSON array. No prose outside the array. No code-fence markers.`,
     `2. Each element: {"text": "<caption body — no URL, no hashtags>", "hashtags": ["#tag1"]}`,
     `3. Keep "text" at or below the body length ceiling. Hashtags go in the separate field; don't embed them in the body. The AHO listing URL is appended by our code AFTER your output, so you NEVER write any URL — focus on the caption body.`,
-    `4. Each variant must be DISTINCT in angle, not just rephrased. Variant A may lead with rental yield, Variant B with capital appreciation, Variant C with the neighborhood's investment trajectory — three honest investor angles, not three rewrites of the same hook.`,
-    `5. Never invent facts. If a field is null/missing in the input, omit it — don't guess. If the input has no rental-yield data, don't fabricate a yield number; lean on what IS there (location strength, comparable price points, etc.).`,
+    `4. Each variant must be DISTINCT in angle, not just rephrased — see the tone-of-voice block above for which three angles to use for this tone.`,
+    `5. Never invent facts. If a field is null/missing in the input, omit it — don't guess. No fabricated yields, schools, awards, or amenities.`,
     `6. Emojis: at most one or two per caption, only where it adds flavor. Never start every caption with an emoji — feels mass-produced.`,
-    `7. Avoid "Don't miss out!" / "Limited time!" / fake-urgency phrases. Real-estate investors spot them and discount the listing.`,
+    `7. Avoid "Don't miss out!" / "Limited time!" / fake-urgency phrases. Sophisticated readers spot them and discount the listing.`,
     `8. The agent's social post will display: <body> + newline + <AHO URL> + newline + <hashtags>. So your body should NOT include a CTA pointing at the URL ("Check out this listing!") — the URL appears separately and that line IS the CTA. Your body's job is to make the reader want to click; the URL line does the clicking.`,
   ].join('\n');
 }
+
+/** Test-only export: surface the system prompt builder so unit tests
+ *  can assert the right tone block + locale voice land in the prompt
+ *  without making network calls. */
+export const __test__ = { buildSystemPrompt };
 
 function buildUserPrompt(args: CallArgs): string {
   const f = args.facts;
@@ -247,6 +334,8 @@ export async function generateCaptions(args: CallArgs): Promise<CopywriterResult
   }
   const count = args.count ?? 3;
 
+  const tone: Tone = args.tone ?? DEFAULT_TONE;
+
   const apiRes = await fetch(ANTHROPIC_API, {
     method: 'POST',
     headers: {
@@ -257,7 +346,7 @@ export async function generateCaptions(args: CallArgs): Promise<CopywriterResult
     body: JSON.stringify({
       model: MODEL_ID,
       max_tokens: 1500,
-      system: buildSystemPrompt({ locale: args.locale, platform: args.platform }),
+      system: buildSystemPrompt({ locale: args.locale, platform: args.platform, tone }),
       messages: [{ role: 'user', content: buildUserPrompt({ ...args, count }) }],
     }),
   });

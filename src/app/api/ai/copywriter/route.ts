@@ -7,6 +7,8 @@ import {
 } from '@/lib/billing/plan-gating';
 import {
   COPYWRITER_PLATFORMS,
+  COPYWRITER_TONES,
+  DEFAULT_TONE,
   generateCaptions,
   type PropertyFacts,
 } from '@/lib/ai/copywriter';
@@ -61,6 +63,11 @@ const RequestSchema = z
     locale: z.enum(LOCALES),
     platform: z.enum(COPYWRITER_PLATFORMS),
     count: z.number().int().min(1).max(6).default(3),
+    // Tone of voice — Sprint-2 selector (luxury / investment / family).
+    // Defaults to investment to keep older clients (and any in-flight
+    // cached payloads from before the selector shipped) producing the
+    // exact copy they got pre-feature.
+    tone: z.enum(COPYWRITER_TONES).default(DEFAULT_TONE),
   })
   .refine(
     (v) => Boolean(v.facts) !== Boolean(v.propertyId),
@@ -220,6 +227,7 @@ export async function POST(req: NextRequest) {
       locale: parsed.data.locale,
       platform: parsed.data.platform,
       count: parsed.data.count,
+      tone: parsed.data.tone,
       listingUrl,
     });
     return NextResponse.json(

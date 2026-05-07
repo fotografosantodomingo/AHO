@@ -125,6 +125,23 @@
     "fr": "Français",
     "it": "Italiano"
   },
+  "socialTones": {
+    "label": "Tonfall",
+    "tones": {
+      "luxury": {
+        "label": "Luxus",
+        "description": "Aspirativ und exklusiv — stellt Seltenheit, Lage, Handwerkskunst und Lebensstil als Statussignal in den Vordergrund."
+      },
+      "investment": {
+        "label": "Investment",
+        "description": "Sachlich und fundiert — stellt Mietrendite, Wertsteigerung und Marktpositionierung in den Vordergrund."
+      },
+      "family": {
+        "label": "Familie",
+        "description": "Warm und konkret — stellt Schulen, fußläufige Erreichbarkeit, Platz zum Wachsen und den Alltagsrhythmus in den Vordergrund."
+      }
+    }
+  },
   "priceTile": {
     "approximateInLabel": "Etwa {value} in Ihrer gewählten Währung"
   },

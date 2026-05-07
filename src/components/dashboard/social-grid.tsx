@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useTranslations } from 'next-intl';
 import type { Locale } from '@/i18n/config';
 
 /**
@@ -15,6 +16,12 @@ import type { Locale } from '@/i18n/config';
  * later wants another language, they switch their UI locale and
  * click Regenerate.
  *
+ * Sprint-2 tone selector (Luxury / Investment / Family) added 2026-05-07
+ * — see `docs/CONTENT_HUB_VISION.md` § Three layers of personalization.
+ * Default tone is Investment for back-compat. Switching tone clears the
+ * existing cards so the agent can't accidentally read a Luxury card next
+ * to two Investment cards from the previous run.
+ *
  * Each card has its own Regenerate button so a single weak variant
  * doesn't force re-running all three. Copy button puts the
  * ready-to-paste blob (body + AHO URL + hashtags) on the clipboard.
@@ -26,6 +33,10 @@ const PLATFORMS = [
   { id: 'linkedin', label: 'LinkedIn', emoji: '💼' },
 ] as const;
 type Platform = (typeof PLATFORMS)[number]['id'];
+
+const TONES = ['luxury', 'investment', 'family'] as const;
+type Tone = (typeof TONES)[number];
+const DEFAULT_TONE: Tone = 'investment';
 
 interface Caption {
   text: string;
@@ -48,6 +59,7 @@ interface Props {
 }
 
 export function SocialGrid({ propertyId, locale }: Props) {
+  const t = useTranslations('socialTones');
   const [, startTransition] = useTransition();
   const [cells, setCells] = useState<Record<Platform, CellState>>({
     fb_feed: { status: 'idle' },
@@ -56,8 +68,13 @@ export function SocialGrid({ propertyId, locale }: Props) {
   });
   const [generating, setGenerating] = useState(false);
   const [copiedPlatform, setCopiedPlatform] = useState<Platform | null>(null);
+  const [tone, setTone] = useState<Tone>(DEFAULT_TONE);
 
-  async function generateOne(platform: Platform): Promise<void> {
+  async function generateOne(platform: Platform, toneOverride?: Tone): Promise<void> {
+    // Allow callers (e.g. generateAll, which fires three parallel
+    // requests in the same tick) to pin the tone the user just
+    // selected, instead of racing the React state update.
+    const toneToUse = toneOverride ?? tone;
     setCells((c) => ({ ...c, [platform]: { status: 'pending' } }));
     try {
       const res = await fetch('/api/ai/copywriter', {
@@ -68,6 +85,7 @@ export function SocialGrid({ propertyId, locale }: Props) {
           locale,
           platform,
           count: 1,
+          tone: toneToUse,
         }),
       });
       const json = (await res.json()) as
@@ -97,14 +115,28 @@ export function SocialGrid({ propertyId, locale }: Props) {
     }
   }
 
-  function generateAll(): void {
+  function generateAll(toneOverride?: Tone): void {
     setGenerating(true);
     setCopiedPlatform(null);
     void Promise.allSettled(
-      PLATFORMS.map((p) => generateOne(p.id)),
+      PLATFORMS.map((p) => generateOne(p.id, toneOverride)),
     ).finally(() => {
       startTransition(() => setGenerating(false));
     });
+  }
+
+  function handleToneChange(next: Tone): void {
+    if (next === tone) return;
+    setTone(next);
+    // Clear the grid so the agent can't read mismatched-tone cards
+    // side-by-side. They re-trigger generation explicitly via the
+    // (now relabelled) Generate button.
+    setCells({
+      fb_feed: { status: 'idle' },
+      ig_feed: { status: 'idle' },
+      linkedin: { status: 'idle' },
+    });
+    setCopiedPlatform(null);
   }
 
   async function copyCell(platform: Platform, text: string): Promise<void> {
@@ -127,7 +159,7 @@ export function SocialGrid({ propertyId, locale }: Props) {
       aria-labelledby="social-grid-heading"
       className="space-y-4 rounded-card border border-border bg-surface p-6 shadow-whisper dark:bg-surface-deep"
     >
-      <header className="flex flex-wrap items-center justify-between gap-3">
+      <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-helper">
             Pro Automation · Content Hub
@@ -139,18 +171,41 @@ export function SocialGrid({ propertyId, locale }: Props) {
             Generate 3 social posts
           </h2>
           <p className="mt-1 text-sm text-helper">
-            One caption per platform — Facebook, Instagram, LinkedIn — in your active language ({locale.toUpperCase()}). Tone: investment angle. Each post links back to this listing on AHO.
+            One caption per platform — Facebook, Instagram, LinkedIn — in your active language ({locale.toUpperCase()}). Each post links back to this listing on AHO.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={generateAll}
-          disabled={generating}
-          className="btn-primary inline-flex h-10 items-center px-5 disabled:opacity-50"
-        >
-          {generating ? 'Generating…' : hasAnyDone ? 'Regenerate all' : 'Generate'}
-        </button>
+        <div className="flex flex-wrap items-end gap-3">
+          <label className="block">
+            <span className="block text-xs font-semibold uppercase tracking-wider text-helper">
+              {t('label')}
+            </span>
+            <select
+              value={tone}
+              onChange={(e) => handleToneChange(e.target.value as Tone)}
+              disabled={generating}
+              aria-label={t('label')}
+              className="mt-1 inline-flex h-10 items-center rounded-lg border border-border-strong bg-surface px-3 text-sm shadow-whisper outline-hidden focus:ring-3 focus:ring-action disabled:opacity-50 dark:bg-surface-deep dark:focus:ring-action-dark"
+            >
+              {TONES.map((id) => (
+                <option key={id} value={id}>
+                  {t(`tones.${id}.label`)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            type="button"
+            onClick={() => generateAll()}
+            disabled={generating}
+            className="btn-primary inline-flex h-10 items-center px-5 disabled:opacity-50"
+          >
+            {generating ? 'Generating…' : hasAnyDone ? 'Regenerate all' : 'Generate'}
+          </button>
+        </div>
       </header>
+      <p className="text-xs text-helper">
+        {t(`tones.${tone}.description`)}
+      </p>
 
       <div className="grid gap-4 md:grid-cols-3">
         {PLATFORMS.map((p) => {

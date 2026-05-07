@@ -1009,6 +1009,23 @@
     "flashDenied": "Rechazaste los permisos. AHO los necesita para publicar en tu nombre — vuelve a intentarlo cuando estés listo.",
     "flashError": "Algo salió mal al conectar ({reason}). Inténtalo de nuevo, o contacta soporte si persiste."
   },
+  "socialTones": {
+    "label": "Tono de voz",
+    "tones": {
+      "luxury": {
+        "label": "Lujo",
+        "description": "Aspiracional y exclusivo — destaca rareza, dirección, oficio y estilo de vida como signo de estatus."
+      },
+      "investment": {
+        "label": "Inversión",
+        "description": "Numérico y fundamentado — destaca rentabilidad por alquiler, plusvalía y posicionamiento de mercado."
+      },
+      "family": {
+        "label": "Familia",
+        "description": "Cálido y concreto — destaca colegios, paseos a pie, espacio para crecer y el ritmo del día a día."
+      }
+    }
+  },
   "social": {
     "pageHeading": "Automatización de Redes Sociales",
     "pageSubheading": "Publica tus anuncios automáticamente en Facebook, Instagram y LinkedIn.",

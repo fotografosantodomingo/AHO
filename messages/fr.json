@@ -125,6 +125,23 @@
     "fr": "Français",
     "it": "Italiano"
   },
+  "socialTones": {
+    "label": "Ton de voix",
+    "tones": {
+      "luxury": {
+        "label": "Luxe",
+        "description": "Aspirationnel et exclusif — met en avant la rareté, l'adresse, le savoir-faire et l'art de vivre comme signe de statut."
+      },
+      "investment": {
+        "label": "Investissement",
+        "description": "Chiffré et concret — met en avant la rentabilité locative, la plus-value et le positionnement de marché."
+      },
+      "family": {
+        "label": "Famille",
+        "description": "Chaleureux et concret — met en avant les écoles, les déplacements à pied, la place pour grandir et le rythme du quotidien."
+      }
+    }
+  },
   "priceTile": {
     "approximateInLabel": "Environ {value} dans votre devise sélectionnée"
   },

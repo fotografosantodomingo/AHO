@@ -1011,6 +1011,23 @@
     "flashDenied": "You declined the permissions. AHO needs them to publish on your behalf — try again when you're ready.",
     "flashError": "Something went wrong while connecting ({reason}). Try again, or contact support if it persists."
   },
+  "socialTones": {
+    "label": "Tone of voice",
+    "tones": {
+      "luxury": {
+        "label": "Luxury",
+        "description": "Aspirational and exclusive — leads with rarity, address, craftsmanship, and lifestyle as a status signal."
+      },
+      "investment": {
+        "label": "Investment",
+        "description": "Numerate and grounded — leads with rental yield, capital appreciation, and market positioning."
+      },
+      "family": {
+        "label": "Family",
+        "description": "Warm and concrete — leads with schools, walkability, room to grow, and the rhythm of daily life."
+      }
+    }
+  },
   "social": {
     "pageHeading": "Social Media Automation",
     "pageSubheading": "Post your listings to Facebook, Instagram and LinkedIn automatically.",

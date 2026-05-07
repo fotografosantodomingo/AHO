@@ -125,6 +125,23 @@
     "fr": "Français",
     "it": "Italiano"
   },
+  "socialTones": {
+    "label": "Tono di voce",
+    "tones": {
+      "luxury": {
+        "label": "Lusso",
+        "description": "Aspirazionale ed esclusivo — mette in primo piano rarità, indirizzo, sapienza artigianale e stile di vita come segno di status."
+      },
+      "investment": {
+        "label": "Investimento",
+        "description": "Numerico e concreto — mette in primo piano rendita da locazione, rivalutazione del capitale e posizionamento di mercato."
+      },
+      "family": {
+        "label": "Famiglia",
+        "description": "Caloroso e concreto — mette in primo piano scuole, percorsi a piedi, spazio per crescere e il ritmo della vita quotidiana."
+      }
+    }
+  },
   "priceTile": {
     "approximateInLabel": "Circa {value} nella valuta selezionata"
   },
