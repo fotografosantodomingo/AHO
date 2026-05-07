@@ -36,6 +36,11 @@ const csp = [
   // the password (only first 5 chars of SHA-1 hash). Turnstile callbacks
   // are same-origin via the script.
   "connect-src 'self' https://*.supabase.co https://api.stripe.com https://api.pwnedpasswords.com",
+  // Service worker (PWA install). default-src 'self' would already cover
+  // same-origin workers, but worker-src is the explicit directive Chrome
+  // consults first, and PWA installability tooling (Lighthouse) lints
+  // for it.
+  "worker-src 'self'",
   // Stripe 3DS challenge iframe + Turnstile challenge iframe.
   "frame-src https://js.stripe.com https://hooks.stripe.com https://challenges.cloudflare.com",
   "frame-ancestors 'none'",

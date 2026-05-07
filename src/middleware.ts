@@ -100,6 +100,9 @@ export const config = {
     //   - SEO metadata routes (sitemap.xml, robots.txt) — they live at the
     //     site root and must NOT get a locale prefix; otherwise crawlers see
     //     a 307 to `/en/sitemap.xml` and ignore the canonical URL.
-    '/((?!_next/static|_next/image|favicon\\.ico|icon|apple-icon|sitemap\\.xml|sitemap-images\\.xml|robots\\.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico)$|api/|auth/callback).*)',
+    //   - PWA root assets (sw.js, manifest.webmanifest) — service worker
+    //     registration scope is `/`, so these must stay at the site root
+    //     without a locale prefix.
+    '/((?!_next/static|_next/image|favicon\\.ico|icon|apple-icon|sitemap\\.xml|sitemap-images\\.xml|robots\\.txt|sw\\.js|manifest\\.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico)$|api/|auth/callback).*)',
   ],
 };

@@ -7,6 +7,7 @@ import { LOCALES, type Locale } from '@/i18n/config';
 import { ThemeProvider } from '@/components/theme-provider';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/footer/site-footer';
+import { PwaRegister } from '@/components/pwa-register';
 import '../globals.css';
 
 // Brand font — substituted for HashiCorp Sans (proprietary; we don't have
@@ -48,6 +49,17 @@ export async function generateMetadata({
     title: { default: `${t('name')} — ${t('tagline')}`, template: `%s | ${t('name')}` },
     description: t('description'),
     metadataBase: new URL('https://advertisehomes.online'),
+    // PWA manifest. Static file in /public; not locale-aware (the manifest
+    // describes the installed app, not the page locale — Chrome / iOS pin
+    // a single manifest per scope). Lang field inside the manifest stays
+    // EN for now; localizing requires per-locale manifests with separate
+    // start_urls and is a future polish item.
+    manifest: '/manifest.webmanifest',
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: 'default',
+      title: 'AHO',
+    },
     openGraph: {
       type: 'website',
       siteName: t('name'),
@@ -127,6 +139,7 @@ export default async function LocaleLayout({
             <SiteFooter locale={locale as Locale} />
           </ThemeProvider>
         </NextIntlClientProvider>
+        <PwaRegister />
       </body>
     </html>
   );
