@@ -9,7 +9,8 @@ import {
   CreateListingSchema,
   type CreateListingInput,
 } from '@/lib/listings/listing-schema';
-import { buildCountryOptions } from '@/lib/listings/countries-iso';
+import { getAllCountries } from '@/lib/i18n/countries';
+import type { Locale } from '@/i18n/config';
 import { AMENITY_KEYS, type AmenityKey } from '@/lib/listings/amenities';
 import { uploadOneFile } from '@/lib/listings/client-upload';
 
@@ -84,7 +85,7 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
   >('idle');
 
   const countryOptions = useMemo(
-    () => buildCountryOptions(locale === 'es' ? 'es' : 'en'),
+    () => getAllCountries(locale as Locale),
     [locale],
   );
 
@@ -605,11 +606,11 @@ export function ListingForm({ initialValues, successRedirectBase }: ListingFormP
               defaultValue={initialValues?.country_code ?? ''}
             >
               <option value="" disabled>
-                {locale === 'es' ? 'Selecciona un país' : 'Select a country'}
+                {t('countryPlaceholder')}
               </option>
               {countryOptions.map((c) => (
                 <option key={c.code} value={c.code}>
-                  {c.name} ({c.code})
+                  {c.name}
                 </option>
               ))}
             </select>

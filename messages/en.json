@@ -853,6 +853,7 @@
     "city": "City",
     "stateRegion": "State / Region",
     "countryCode": "Country (ISO 2-letter)",
+    "countryPlaceholder": "Select a country…",
     "postalCode": "Postal code",
     "latitude": "Latitude",
     "longitude": "Longitude",

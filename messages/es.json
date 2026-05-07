@@ -851,6 +851,7 @@
     "city": "Ciudad",
     "stateRegion": "Estado / Región",
     "countryCode": "País (ISO de 2 letras)",
+    "countryPlaceholder": "Selecciona un país…",
     "postalCode": "Código postal",
     "latitude": "Latitud",
     "longitude": "Longitud",
