@@ -32,6 +32,130 @@ const LOCALES = [
   { id: 'it', label: 'Italiano' },
 ] as const;
 
+interface FactsPreset {
+  id: string;
+  label: string;
+  title: string;
+  transactionType: 'sale' | 'rent' | 'short_term';
+  propertyType: string;
+  bedrooms: string;
+  bathrooms: string;
+  areaSqm: string;
+  city: string;
+  country: string;
+  priceLabel: string;
+  amenities: string;
+  description: string;
+  positioningHint: string;
+}
+
+/**
+ * Realistic example fact sets for testing the AI Copywriter across
+ * different markets without inserting fake listings into the DB
+ * (`aho_no_fake_data` rule). PO directive 2026-05-07: covers DR / PR /
+ * USA / Madrid (existing example) so the locale-voice tuning gets
+ * exercised on plausible inputs from each market.
+ *
+ * These are pure UI fixtures — never written to `properties`, never
+ * indexable, never reachable via any URL.
+ */
+const PRESETS: FactsPreset[] = [
+  {
+    id: 'dr-puntacana-villa',
+    label: '🇩🇴 Punta Cana villa (DR)',
+    title: 'Beachfront villa with private pool — Cap Cana',
+    transactionType: 'sale',
+    propertyType: 'villa',
+    bedrooms: '4',
+    bathrooms: '4.5',
+    areaSqm: '380',
+    city: 'Punta Cana',
+    country: 'Dominican Republic',
+    priceLabel: '$850,000 USD',
+    amenities:
+      'private pool, direct beach access, ocean view, gated community, 2-car garage, outdoor terrace, BBQ area, 24/7 security',
+    description:
+      'Modern Caribbean villa in Cap Cana, 8 minutes from Punta Cana International Airport. Open-plan living with floor-to-ceiling glass overlooking the Atlantic. Private infinity pool flows toward the white-sand beach. Marble finishes throughout, fully equipped chef\'s kitchen, 4 ensuite bedrooms. Title insurance available. Perfect for owner-occupier or short-term rental investor (typical Cap Cana villas yield 6-9% annually).',
+    positioningHint:
+      'Investor + lifestyle buyer; high vacation rental yield, Title transfer in 30 days for foreigners',
+  },
+  {
+    id: 'pr-sanjuan-condo',
+    label: '🇵🇷 San Juan oceanfront condo (PR)',
+    title: 'Oceanfront 2-bedroom condo — Condado',
+    transactionType: 'sale',
+    propertyType: 'condo',
+    bedrooms: '2',
+    bathrooms: '2',
+    areaSqm: '110',
+    city: 'San Juan',
+    country: 'Puerto Rico',
+    priceLabel: '$425,000 USD',
+    amenities:
+      'ocean view, hurricane-rated impact windows, covered parking, building gym, pool, 24/7 concierge, walking distance to Old San Juan',
+    description:
+      'Bright 2-bed condo on the 11th floor of a Condado oceanfront tower, fully renovated 2023. Wraparound balcony with unobstructed Atlantic views. Steps from Ashford Avenue restaurants, 10-minute walk into Old San Juan. Building amenities include rooftop pool, gym, and 24/7 doorman. Act 60 (formerly Act 22/20) tax incentive eligible for qualifying mainland buyers.',
+    positioningHint:
+      'Mainland US relocator on Act 60; or short-term rental investor (San Juan ADR ~$220 in season)',
+  },
+  {
+    id: 'us-miami-apartment',
+    label: '🇺🇸 Miami Beach high-rise (USA)',
+    title: 'Brickell high-rise 3-bedroom — Bayfront views',
+    transactionType: 'sale',
+    propertyType: 'apartment',
+    bedrooms: '3',
+    bathrooms: '2',
+    areaSqm: '145',
+    city: 'Miami',
+    country: 'United States',
+    priceLabel: '$1,250,000 USD',
+    amenities:
+      'bayfront balcony, floor-to-ceiling windows, 2 covered parking spots, building gym, infinity pool, sauna, 24/7 doorman, valet, dog spa',
+    description:
+      'Corner 3-bed unit on the 38th floor of a Brickell tower with panoramic Biscayne Bay + downtown Miami views. Italian kitchen with Sub-Zero / Wolf appliances, Carrera marble baths, smart-home Lutron lighting. Building offers full-service amenities including spa, business center, and direct waterfront access. Walking distance to Brickell City Centre, Mary Brickell Village. HOA $1,800/mo includes everything except electricity.',
+    positioningHint:
+      'Latin-American relocator buying second home in US; high HNW investor; rental yield not the angle, lifestyle + visa is',
+  },
+  {
+    id: 'es-madrid-salamanca',
+    label: '🇪🇸 Madrid Salamanca apartment (ES)',
+    title: 'Modern 3-bedroom apartment with rooftop terrace',
+    transactionType: 'sale',
+    propertyType: 'apartment',
+    bedrooms: '3',
+    bathrooms: '2',
+    areaSqm: '95',
+    city: 'Madrid',
+    country: 'Spain',
+    priceLabel: '€485,000',
+    amenities:
+      'rooftop terrace, parking, elevator, air conditioning, two balconies, fully renovated 2024',
+    description:
+      'Bright south-facing apartment in the Salamanca district, fully renovated 2024. Two balconies plus a private rooftop terrace with city views. Walking distance to Retiro Park and Serrano shopping.',
+    positioningHint: 'Family + investor appeal; rental yield ~4.5% in this zone',
+  },
+  {
+    id: 'pl-siemianowice-house',
+    label: '🇵🇱 Siemianowice family house (PL)',
+    title: 'Dom rodzinny z ogrodem — Siemianowice Śląskie',
+    transactionType: 'sale',
+    propertyType: 'house',
+    bedrooms: '4',
+    bathrooms: '2',
+    areaSqm: '180',
+    city: 'Siemianowice Śląskie',
+    country: 'Poland',
+    priceLabel: '720 000 PLN',
+    amenities:
+      'ogród 450 m², garaż 2-stanowiskowy, pompa ciepła, fotowoltaika, taras południowy, kominek, alarm',
+    description:
+      'Dom wolnostojący na osiedlu domów jednorodzinnych, 5 minut autem do A4 i 15 minut do centrum Katowic. Po remoncie z 2023, niskie koszty utrzymania dzięki pompie ciepła + 8 kW PV (rachunki ~200 zł/mc). Działka 450 m² z dojrzałym ogrodem. Idealne dla rodziny 2+2 — szkoła podstawowa 600m, przedszkole 400m, sklepy w zasięgu spaceru.',
+    positioningHint:
+      'Rodzina z dziećmi szkolno-przedszkolnymi; alternatywa dla mieszkania w Katowicach (mniejszy budżet, więcej przestrzeni)',
+  },
+];
+
 interface Caption {
   text: string;
   characterCount: number;
@@ -120,6 +244,28 @@ export function CopywriterPlayground() {
     }
   }
 
+  function loadPreset(presetId: string): void {
+    const p = PRESETS.find((x) => x.id === presetId);
+    if (!p) return;
+    setTitle(p.title);
+    setTransactionType(p.transactionType);
+    setPropertyType(p.propertyType);
+    setBedrooms(p.bedrooms);
+    setBathrooms(p.bathrooms);
+    setAreaSqm(p.areaSqm);
+    setCity(p.city);
+    setCountry(p.country);
+    setPriceLabel(p.priceLabel);
+    setAmenities(p.amenities);
+    setDescription(p.description);
+    setPositioningHint(p.positioningHint);
+    // Clear results so the user knows the previous run isn't from
+    // these new facts.
+    setResult(null);
+    setMeta(null);
+    setError(null);
+  }
+
   async function copyCaption(text: string, hashtags: string[], idx: number): Promise<void> {
     const blob = hashtags.length > 0 ? `${text}\n\n${hashtags.join(' ')}` : text;
     try {
@@ -137,13 +283,30 @@ export function CopywriterPlayground() {
         onSubmit={onSubmit}
         className="space-y-6 rounded-card border border-border bg-surface p-6 shadow-whisper dark:bg-surface-deep"
       >
-        <header>
-          <h2 className="font-brand text-xl font-semibold tracking-tight">
-            Property facts
-          </h2>
-          <p className="mt-1 text-sm text-helper">
-            Fill these in (or leave the example as-is) and pick a locale + platform. We&apos;ll generate variant captions tuned for that combo.
-          </p>
+        <header className="space-y-3">
+          <div>
+            <h2 className="font-brand text-xl font-semibold tracking-tight">
+              Property facts
+            </h2>
+            <p className="mt-1 text-sm text-helper">
+              Fill these in (or load an example) and pick a locale + platform. We&apos;ll generate variant captions tuned for that combo.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <span className="text-xs font-semibold uppercase tracking-wider text-helper">
+              Load example:
+            </span>
+            {PRESETS.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => loadPreset(p.id)}
+                className="inline-flex h-8 items-center rounded-full border border-border-strong bg-surface px-3 text-xs transition hover:bg-action/5 hover:text-action dark:bg-surface-deep dark:hover:bg-action-dark/10 dark:hover:text-action-dark"
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
         </header>
 
         <div className="grid gap-4 md:grid-cols-2">
