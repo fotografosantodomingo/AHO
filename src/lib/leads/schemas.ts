@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { LEAD_SOURCES } from '@/db/schema';
+import { LOCALES } from '@/i18n/config';
 
 /**
  * Public lead-creation schema. Routed through `POST /api/leads`.
@@ -18,7 +19,7 @@ export const LeadCreateSchema = z
     contact_email: z.string().trim().email().optional(),
     contact_phone: z.string().trim().max(40).optional(),
     message: z.string().trim().max(4000).optional(),
-    language: z.enum(['en', 'es']).optional(),
+    language: z.enum(LOCALES).optional(),
     /**
      * Honeypot field — the contact form renders a hidden input named
      * `website` outside the visible flow. Real users never see it; most

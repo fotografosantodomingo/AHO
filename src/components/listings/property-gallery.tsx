@@ -19,6 +19,12 @@ interface ImageItem {
   altTextEs: string | null;
   isPrimary: boolean;
   position: number;
+  /** Intrinsic pixel dimensions from the DB (uploaded resolution). When
+   *  set, threaded into <img width/height> so the browser can reserve the
+   *  correct slot in advance, eliminating CLS on the gallery row. Both
+   *  may be null on legacy rows that pre-date the columns. */
+  width?: number | null;
+  height?: number | null;
 }
 
 interface Props {
@@ -214,8 +220,12 @@ export function PropertyGallery({
           <img
             src={primaryUrl}
             alt={altOf(primary, 1)}
+            {...(primary.width && primary.height
+              ? { width: primary.width, height: primary.height }
+              : {})}
             className="block h-auto w-full max-w-full cursor-zoom-in md:h-auto md:w-auto md:max-h-[600px] md:rounded-card"
             loading="eager"
+            fetchPriority="high"
             decoding="async"
           />
         </button>
@@ -249,6 +259,9 @@ export function PropertyGallery({
                   <img
                     src={url}
                     alt={altOf(img, realIndex + 1)}
+                    {...(img.width && img.height
+                      ? { width: img.width, height: img.height }
+                      : {})}
                     className="block h-32 w-auto cursor-zoom-in rounded-card md:h-40"
                     loading="lazy"
                     decoding="async"

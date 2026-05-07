@@ -5,6 +5,7 @@ import { sendEmail } from '@/lib/email/brevo';
 import { renderReviewVerificationEmail } from '@/lib/email/templates/review-verification';
 import { generateVerificationToken, REVIEW_TOKEN_TTL_MS } from '@/lib/reviews/token';
 import { publicEnv } from '@/lib/env';
+import { LOCALES, narrowContentLocale } from '@/i18n/config';
 
 export const runtime = 'edge';
 
@@ -40,7 +41,7 @@ const ReviewSchema = z.object({
   body: z.string().trim().min(50).max(5000),
   reviewer_email: z.string().trim().email().toLowerCase(),
   reviewer_name: z.string().trim().min(1).max(120),
-  locale: z.enum(['en', 'es']).default('en'),
+  locale: z.enum(LOCALES).default('en'),
 });
 
 export async function POST(req: NextRequest) {
@@ -142,7 +143,8 @@ export async function POST(req: NextRequest) {
   const email = renderReviewVerificationEmail({
     reviewerName: data.reviewer_name,
     agentName: agentDisplayName,
-    locale: data.locale,
+    // Email content is bilingual EN/ES; narrow PL/PT/DE/FR/IT to EN.
+    locale: narrowContentLocale(data.locale),
     verifyUrl,
     expiresInHours: Math.floor(REVIEW_TOKEN_TTL_MS / (60 * 60 * 1000)),
   });

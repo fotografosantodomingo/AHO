@@ -4,7 +4,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { recordPropertyView, ANON_COOKIE_NAME } from '@/lib/listings/recent-views';
 import { recordPropertyEvent } from '@/lib/listings/events';
-import type { Locale } from '@/i18n/config';
+import { LOCALES } from '@/i18n/config';
 
 export const runtime = 'edge';
 
@@ -33,7 +33,7 @@ export const runtime = 'edge';
 
 const ParamSchema = z.object({ id: z.string().uuid() });
 const BodySchema = z.object({
-  locale: z.enum(['en', 'es']),
+  locale: z.enum(LOCALES),
   sourcePath: z.string().max(500).optional(),
 });
 
@@ -139,7 +139,7 @@ export async function POST(
     propertyId,
     userId,
     anonymousId,
-    locale: locale as Locale,
+    locale,
     sourcePath: sourcePath ?? null,
   });
   await recordPropertyEvent({

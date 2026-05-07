@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
+import { LOCALES } from '@/i18n/config';
 
 export const runtime = 'edge';
 
@@ -28,7 +29,7 @@ export const runtime = 'edge';
 
 const BodySchema = z.object({
   email: z.string().trim().email().max(254),
-  locale: z.enum(['en', 'es']).optional(),
+  locale: z.enum(LOCALES).optional(),
 });
 
 const BREVO_CONTACTS_URL = 'https://api.brevo.com/v3/contacts';

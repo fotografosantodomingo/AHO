@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { LOCALES } from '@/i18n/config';
 
 /**
  * Saved-search server actions for the buyer-side dashboard.
@@ -36,7 +37,7 @@ const SavedFiltersSchema = z
 const SaveInputSchema = z.object({
   name: z.string().trim().max(120).optional(),
   filters: SavedFiltersSchema,
-  locale: z.enum(['en', 'es']),
+  locale: z.enum(LOCALES),
   notifyEmail: z.boolean().default(true),
 });
 

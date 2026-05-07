@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { getStripeClient } from './stripe';
 import { publicEnv } from '@/lib/env';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { LOCALES } from '@/i18n/config';
 
 /**
  * Stripe Checkout session creation for the AHO Agent paid tier.
@@ -32,7 +33,7 @@ export type CheckoutPlan = z.infer<typeof CheckoutPlan>;
 export const CheckoutTier = z.enum(['agent', 'plus', 'pro_automation']);
 export type CheckoutTier = z.infer<typeof CheckoutTier>;
 
-export const CheckoutLocale = z.enum(['en', 'es']);
+export const CheckoutLocale = z.enum(LOCALES);
 export type CheckoutLocale = z.infer<typeof CheckoutLocale>;
 
 export const CreateCheckoutSessionInput = z.object({

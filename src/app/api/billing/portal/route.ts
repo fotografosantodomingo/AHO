@@ -4,15 +4,17 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getStripeClient } from '@/lib/billing/stripe';
 import { publicEnv } from '@/lib/env';
+import { LOCALES, type Locale } from '@/i18n/config';
 
 const PortalRequestSchema = z
   .object({
     /** Active locale at click time. Threaded into Stripe's `return_url`
      *  so the user lands back in the locale they were browsing — without
-     *  this, ES users get bounced to `/dashboard` (which only resolves in
-     *  EN) instead of `/panel`. Defaults to 'en' for callers that haven't
-     *  been updated yet. */
-    locale: z.enum(['en', 'es']).optional(),
+     *  this, non-EN users get bounced to `/dashboard` (which only resolves
+     *  in EN) instead of e.g. `/panel`. Defaults to 'en' for callers that
+     *  haven't been updated yet. Accepts every locale AHO renders so users
+     *  on PL/PT/DE/FR/IT pages don't 400. */
+    locale: z.enum(LOCALES).optional(),
   })
   .strict();
 
@@ -42,9 +44,11 @@ export const runtime = 'edge';
  * webhooks reflect any changes back into our DB.
  */
 export async function POST(req: NextRequest) {
-  // Optional JSON body { locale?: 'en' | 'es' }. We tolerate empty body for
-  // backwards compatibility with the original callers that POSTed nothing.
-  let locale: 'en' | 'es' = 'en';
+  // Optional JSON body { locale? }. We tolerate empty body for backwards
+  // compatibility with the original callers that POSTed nothing. Locale
+  // accepts every URL-routable locale; only ES has a localized dashboard
+  // path (`/panel`), so the URL ternary below already handles the wide set.
+  let locale: Locale = 'en';
   try {
     const text = await req.text();
     if (text.trim().length > 0) {
