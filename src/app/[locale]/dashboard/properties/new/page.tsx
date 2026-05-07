@@ -1,6 +1,6 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
-import { ImportFromUrlPanel } from '@/components/listings/import-from-url-panel';
+import { ImportPanel } from '@/components/listings/import-panel';
 
 export const runtime = 'edge';
 
@@ -25,7 +25,7 @@ export default async function NewListingPage({
       <header>
         <h1 className="text-2xl font-semibold tracking-tight">{t('createListingHeading')}</h1>
       </header>
-      <ImportFromUrlPanel successRedirectBase={successBase} />
+      <ImportPanel successRedirectBase={successBase} />
     </main>
   );
 }

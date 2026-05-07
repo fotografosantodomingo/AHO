@@ -79,6 +79,11 @@ const serverSchema = z.object({
     .optional(),
   // Anthropic API key for the AI Copywriter pipeline (Sprint 1+).
   ANTHROPIC_API_KEY: z.string().optional(),
+  /** OpenAI API key — used for Whisper STT in the voice-import flow.
+   *  Anthropic doesn't expose STT, so we run Whisper for transcript
+   *  then hand the text to Claude for fact extraction (same shape as
+   *  URL-import). Cost: ~$0.006/minute audio. */
+  OPENAI_API_KEY: z.string().optional(),
   SENTRY_DSN_WEB: z.string().optional(),
   SENTRY_DSN_WORKERS: z.string().optional(),
   AHO_FOUNDER_RATE_WINDOW_END: z.string().datetime().optional(),
