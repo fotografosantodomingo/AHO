@@ -1,6 +1,7 @@
 import 'server-only';
 import { z } from 'zod';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { TRANSACTION_TYPES } from '@/db/schema';
 import type { Locale } from '@/i18n/config';
@@ -447,7 +448,30 @@ interface AgentProfileResult {
 export async function fetchAgentProfile(
   args: AgentProfileArgs,
 ): Promise<AgentProfileResult> {
-  const supabase = await createServerSupabaseClient();
+  // The public agent profile page is anon-readable by design but the
+  // current RLS topology blocks anon from reading `organization_members`
+  // and `profiles` (only `om_self_select` + `om_org_admin_select` exist
+  // — see 0002_identity.sql). Without a path through, the inner-join
+  // returns null for anon visitors and the page renders only org-level
+  // fields (no agent name, no avatar, no bio, no socials, no FAQs).
+  // Confirmed live on /en/agents/michal-babula-katowice-pl 2026-05-07
+  // when the PO reported the missing avatar.
+  //
+  // Fix: read with the admin client. Safe because (a) we filter by the
+  // URL slug, so we only ever return the org the visitor explicitly
+  // asked for, and (b) we only project public-safe fields below
+  // (full_name, avatar_url, bio, specialties, languages, socials,
+  // whatsapp_phone, public stats — same set the agent has chosen to
+  // expose by filling out their public profile). No email, no the
+  // private `phone` column. The fixture-org filter (`aho-test-org-`)
+  // still gates the function at entry.
+  //
+  // The right long-term fix is RLS public-read policies on
+  // organization_members + a public-fields VIEW or RPC over profiles —
+  // tracked separately. For now the admin escape-hatch matches the
+  // existing pattern in `recordPropertyView` and other public-write
+  // surfaces.
+  const supabase = createAdminClient();
   const limit = args.limit ?? 30;
 
   // Refuse to surface fixture orgs publicly. The sitemap helper inner-joins;
