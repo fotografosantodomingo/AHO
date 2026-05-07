@@ -1,10 +1,19 @@
+// Direct fetch to the Anthropic Messages API instead of the official
+// `@anthropic-ai/sdk` package. The SDK pulls `node:fs` + `node:path`
+// internally, which webpack can't bundle for Cloudflare Pages' Edge
+// runtime ("UnhandledSchemeError: Reading from 'node:fs' is not
+// handled by plugins"). The Messages endpoint is plain JSON-over-HTTPS
+// — fetch is more than enough.
+//
 // `server-only` deliberately omitted so the helper is callable from
 // scripts/ (e.g. test-copywriter.ts) without webpack-vs-tsx friction.
 // All call sites read ANTHROPIC_API_KEY from process.env, which is
 // `undefined` on the client — the function throws fast, no secret
 // leak. The compiler-only `server-only` gate isn't load-bearing here.
-import Anthropic from '@anthropic-ai/sdk';
 import type { Locale } from '@/i18n/config';
+
+const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
+const ANTHROPIC_VERSION = '2023-06-01';
 
 /**
  * Real-estate ad copywriter — Anthropic Claude Sonnet 4.6.
@@ -171,6 +180,24 @@ function buildUserPrompt(args: CallArgs): string {
  *  if cost matters more than craft. */
 const MODEL_ID = 'claude-sonnet-4-6';
 
+interface AnthropicTextBlock {
+  type: 'text';
+  text: string;
+}
+interface AnthropicResponseBlock {
+  type: string;
+  text?: string;
+}
+interface AnthropicResponse {
+  content: AnthropicResponseBlock[];
+  usage: {
+    input_tokens: number;
+    output_tokens: number;
+  };
+  stop_reason?: string;
+  model?: string;
+}
+
 /**
  * Generate caption variants. Throws on API error or unparseable
  * response — caller wraps in try/catch.
@@ -180,21 +207,35 @@ export async function generateCaptions(args: CallArgs): Promise<CopywriterResult
   if (!apiKey) {
     throw new Error('ANTHROPIC_API_KEY not configured');
   }
-  const client = new Anthropic({ apiKey });
   const count = args.count ?? 3;
 
-  const response = await client.messages.create({
-    model: MODEL_ID,
-    max_tokens: 1500,
-    system: buildSystemPrompt({ locale: args.locale, platform: args.platform }),
-    messages: [{ role: 'user', content: buildUserPrompt({ ...args, count }) }],
+  const apiRes = await fetch(ANTHROPIC_API, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': ANTHROPIC_VERSION,
+    },
+    body: JSON.stringify({
+      model: MODEL_ID,
+      max_tokens: 1500,
+      system: buildSystemPrompt({ locale: args.locale, platform: args.platform }),
+      messages: [{ role: 'user', content: buildUserPrompt({ ...args, count }) }],
+    }),
   });
 
-  // Concatenate text blocks. Anthropic's ContentBlock union includes
-  // ThinkingBlock + ToolUseBlock + others; we only consume the text
-  // blocks here. The narrowing is by `type` discriminator.
+  if (!apiRes.ok) {
+    const detail = await apiRes.text();
+    throw new Error(`Anthropic API ${apiRes.status}: ${detail.slice(0, 400)}`);
+  }
+
+  const response = (await apiRes.json()) as AnthropicResponse;
+
+  // Concatenate text blocks. Anthropic's content array includes
+  // text + thinking + tool_use blocks; we only consume text here.
   const text = response.content
-    .map((b) => (b.type === 'text' ? b.text : ''))
+    .filter((b): b is AnthropicTextBlock => b.type === 'text' && typeof b.text === 'string')
+    .map((b) => b.text)
     .join('');
 
   // Strip any accidental code-fence wrapping.
