@@ -125,16 +125,20 @@ export function PricingTiers({
 
   return (
     <div>
-      {/* Period toggle — shared across all 3 cards. Both tabs are
-          interactive in both directions; the inactive tab uses solid
-          ink color (not the muted helper gray that previously read as
-          disabled, which is the bug PO reported about "can't easily
-          switch back to Monthly"). */}
-      <div className="mb-8 flex justify-center">
+      {/* Period toggle — shared across all 3 cards. Mobile-tightened
+          after PO report 2026-05-07: tabs now `whitespace-nowrap` so the
+          "save ~17%" badge can't wrap onto a second line and shift the
+          tap target mid-render; `touch-action-manipulation` kills the
+          iOS 300ms double-tap-zoom delay; `select-none` prevents iOS
+          long-press text-selection from intercepting the tap; min-h-11
+          meets the 44px iOS tap-target guideline; the badge has
+          `pointer-events-none` so a tap on it routes cleanly to the
+          parent button without any inner-element ambiguity. */}
+      <div className="mb-8 flex justify-center px-2">
         <div
           role="tablist"
           aria-label={t('periodToggleAria')}
-          className="inline-flex rounded-full border border-border-strong bg-surface p-1 shadow-whisper dark:bg-surface-deep"
+          className="inline-flex max-w-full rounded-full border border-border-strong bg-surface p-1 shadow-whisper dark:bg-surface-deep"
         >
           {(['monthly', 'annual'] as const).map((p) => {
             const active = period === p;
@@ -145,19 +149,21 @@ export function PricingTiers({
                 role="tab"
                 aria-selected={active}
                 onClick={() => setPeriod(p)}
+                style={{ touchAction: 'manipulation' }}
                 className={
                   active
-                    ? 'min-w-[7rem] cursor-pointer rounded-full bg-action px-5 py-1.5 text-sm font-semibold text-white shadow-whisper transition'
-                    : 'min-w-[7rem] cursor-pointer rounded-full px-5 py-1.5 text-sm font-medium text-ink transition hover:bg-black/5 dark:text-ink-inverse dark:hover:bg-white/5'
+                    ? 'inline-flex min-h-11 cursor-pointer select-none items-center justify-center whitespace-nowrap rounded-full bg-action px-4 py-1.5 text-sm font-semibold text-white shadow-whisper transition sm:px-5'
+                    : 'inline-flex min-h-11 cursor-pointer select-none items-center justify-center whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium text-ink transition hover:bg-black/5 dark:text-ink-inverse dark:hover:bg-white/5 sm:px-5'
                 }
               >
                 {t(`period.${p}`)}
                 {p === 'annual' && (
                   <span
+                    aria-hidden="true"
                     className={
                       active
-                        ? 'ml-1.5 text-[11px] opacity-90'
-                        : 'ml-1.5 text-[11px] text-action dark:text-action-dark'
+                        ? 'pointer-events-none ml-1.5 text-[11px] opacity-90'
+                        : 'pointer-events-none ml-1.5 text-[11px] text-action dark:text-action-dark'
                     }
                   >
                     {t('annualBadge')}

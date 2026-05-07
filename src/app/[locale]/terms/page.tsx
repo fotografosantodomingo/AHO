@@ -1,4 +1,9 @@
+/* eslint-disable react/no-unescaped-entities -- legal copy uses
+   English-natural apostrophes throughout; manually escaping every
+   "we're"/"don't"/"you're" ruins readability and diff-noise without
+   any rendering benefit (React HTML-encodes them anyway). */
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 
@@ -63,7 +68,7 @@ function TermsEn() {
         These Terms govern your use of AHO (Advertise Homes Online) at{' '}
         <strong>advertisehomes.online</strong>. By creating an account, subscribing, or
         publishing a listing, you accept these Terms together with our{' '}
-        <a href="/en/privacy">Privacy Policy</a>.
+        <Link href="/en/privacy">Privacy Policy</Link>.
       </p>
 
       <h2>1. The service</h2>
@@ -105,7 +110,7 @@ function TermsEn() {
       <h2>4. Subscriptions, billing, refunds</h2>
       <p>
         Plans are billed via Stripe. Current pricing is shown at{' '}
-        <a href="/en/pricing">/pricing</a>; the prices on that page at the time of
+        <Link href="/en/pricing">/pricing</Link>; the prices on that page at the time of
         purchase are the operative terms.
       </p>
       <ul>
@@ -343,7 +348,7 @@ function TermsEs() {
         Estos Términos rigen tu uso de AHO (Advertise Homes Online) en{' '}
         <strong>advertisehomes.online</strong>. Al crear una cuenta, suscribirte o
         publicar un anuncio, aceptas estos Términos junto con nuestra{' '}
-        <a href="/es/privacidad">Política de Privacidad</a>.
+        <Link href="/es/privacidad">Política de Privacidad</Link>.
       </p>
 
       <h2>1. El servicio</h2>
@@ -387,7 +392,7 @@ function TermsEs() {
       <h2>4. Suscripciones, facturación, reembolsos</h2>
       <p>
         Los planes se facturan vía Stripe. El precio actual se muestra en{' '}
-        <a href="/es/precios">/precios</a>; los precios en esa página al momento de
+        <Link href="/es/precios">/precios</Link>; los precios en esa página al momento de
         la compra son los operativos.
       </p>
       <ul>

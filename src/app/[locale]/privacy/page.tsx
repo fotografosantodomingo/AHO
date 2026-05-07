@@ -1,4 +1,9 @@
+/* eslint-disable react/no-unescaped-entities -- legal copy uses
+   English-natural apostrophes throughout; manually escaping every
+   "we're"/"don't"/"you're" ruins readability and diff-noise without
+   any rendering benefit (React HTML-encodes them anyway). */
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 
@@ -64,7 +69,7 @@ function PrivacyEn() {
         <strong>advertisehomes.online</strong>, collects, uses, shares, and protects
         information about real-estate agents who subscribe to publish listings and the
         buyers who browse and contact them. Read it together with our{' '}
-        <a href="/en/terms">Terms of Service</a>.
+        <Link href="/en/terms">Terms of Service</Link>.
       </p>
 
       <h2>1. Who is responsible for your data</h2>
@@ -334,7 +339,7 @@ function PrivacyEs() {
         opera en <strong>advertisehomes.online</strong>, recopila, utiliza, comparte y
         protege la información de los agentes inmobiliarios que se suscriben para
         publicar anuncios y de los compradores que los exploran y los contactan. Léela
-        junto con nuestros <a href="/es/terminos">Términos de Servicio</a>.
+        junto con nuestros <Link href="/es/terminos">Términos de Servicio</Link>.
       </p>
 
       <h2>1. Quién es responsable de tus datos</h2>
