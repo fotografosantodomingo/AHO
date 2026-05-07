@@ -14,6 +14,7 @@ import {
 import { LockedSocialModule } from '@/components/social/locked-social-module';
 import { UnlockedSocialPlaceholder } from '@/components/social/unlocked-social-placeholder';
 import { ManualShareModule } from '@/components/listings/manual-share-module';
+import { SocialGrid } from '@/components/dashboard/social-grid';
 import { getCountryName } from '@/lib/i18n/countries';
 import { publicEnv } from '@/lib/env';
 
@@ -162,12 +163,20 @@ export default async function EditListingPage({
         />
       )}
 
+      {/* AI Content Hub — generate 21 caption variants (3 platforms × 7
+          locales) for this published listing. Each variant has the
+          listing's permanent AHO URL embedded so social posts link back
+          to advertisehomes.online. Pro Automation tier only;
+          published listings only (the API enforces both server-side). */}
+      {proUnlocked && listing.status === 'active' && (
+        <SocialGrid propertyId={listing.id} />
+      )}
+
       {/* Social Media Automation module — visible to all paid agents,
           interactive only on Pro Automation. Lower tiers see the
-          locked upsell + "Upgrade to Pro Automation" CTA. The button
-          itself is rendered as part of the unlocked placeholder
-          (Phase 4 of social-distribution spec replaces the placeholder
-          with the real connect-accounts + post-modal UI). */}
+          locked upsell + "Upgrade to Pro Automation" CTA. The Content
+          Hub above is the new primary surface; this placeholder
+          remains for the rollout-status copy until Phase 4 ships. */}
       {proUnlocked ? (
         <UnlockedSocialPlaceholder locale={typedLocale} />
       ) : (

@@ -64,9 +64,16 @@ export interface PropertyFacts {
 }
 
 export interface GeneratedCaption {
+  /** Caption body — no URL, no hashtags. Sized to 70% of the
+   *  platform's Read-more cutoff. */
   text: string;
   characterCount: number;
   hashtags: string[];
+  /** Pre-assembled "agent copies this as-is" string: body + newline +
+   *  listingUrl + newline + hashtags. When listingUrl is null (e.g.
+   *  the standalone playground without a published listing), the URL
+   *  line is omitted. The Copy button on the UI uses this verbatim. */
+  readyToPaste: string;
 }
 
 export interface CopywriterResult {
@@ -83,31 +90,59 @@ interface CallArgs {
   locale: Locale;
   platform: CopywriterPlatform;
   count?: number;
+  /** Permanent AHO listing URL — embedded into every caption so each
+   *  social post links back to advertisehomes.online. Required when
+   *  generating for a published listing; pass null for the standalone
+   *  playground / preview-before-publish flow. */
+  listingUrl?: string | null;
 }
 
+/**
+ * Per-platform "Read more" cutoff. Captions stay at 70% of this so:
+ *   - Algorithms never truncate mid-sentence (PO directive 2026-05-07)
+ *   - The post reads like a marketer chose to write that length, not
+ *     like AI auto-filled to the max
+ *   - Leaves headroom for the AHO URL on its own line + hashtag block
+ *
+ * `body70Pct` is the actual ceiling for the caption text itself,
+ * exclusive of URL and hashtag lines (the URL becomes a link card
+ * preview on FB/LinkedIn; on IG it's plain text but agents still
+ * point users to "link in bio"; either way it doesn't compete with
+ * the body for the visible-on-feed real estate).
+ */
 const PLATFORM_CONSTRAINTS: Record<
   CopywriterPlatform,
-  { lengthRange: string; hashtagsRange: string; tone: string }
+  {
+    bodyMaxChars: number;
+    hashtagsRange: string;
+    tone: string;
+  }
 > = {
   fb_feed: {
-    lengthRange: '80-180 characters',
+    // FB feed cutoff ~180 chars before "See more". 70% = 126.
+    bodyMaxChars: 126,
     hashtagsRange: '0-2 hashtags (use sparingly; FB downranks hashtag-spam)',
     tone: 'conversational, single hook + benefit + soft call to action',
   },
   ig_feed: {
-    lengthRange: '120-220 characters',
+    // IG feed shows ~125 chars in feed (rest behind "more"). 70% of 220
+    // visible-once-expanded gives 154 — still readable when expanded.
+    bodyMaxChars: 154,
     hashtagsRange: '5-8 hashtags at the END (mix of broad + niche + city)',
     tone: 'visual-first; assume the photo carries the impact, caption adds context + emotional pull',
   },
   ig_reel: {
-    lengthRange: '60-120 characters (people read 1-2 seconds)',
+    // Reels viewers read 1-2 seconds while scrolling. 70% of 120 = 84.
+    bodyMaxChars: 84,
     hashtagsRange: '8-12 hashtags at the END',
     tone: 'punchy; one hook line + curiosity gap; assume video already shows the property',
   },
   linkedin: {
-    lengthRange: '250-450 characters',
+    // LinkedIn shows ~210 chars before "...more". 70% of 450 visible
+    // = 315 — agent-LinkedIn buyers WILL expand for a property post.
+    bodyMaxChars: 315,
     hashtagsRange: '2-4 hashtags',
-    tone: 'professional; investor angle when it fits; emphasize location, ROI signals, and market positioning',
+    tone: 'professional, investor-leaning. Lead with ROI signal, capital appreciation, market positioning. Treat the reader as a sophisticated investor (HNW, family office, or institutional).',
   },
 };
 
@@ -127,9 +162,9 @@ const LOCALE_VOICE: Record<Locale, string> = {
 };
 
 /**
- * Build the system prompt. Combines: master role description +
- * per-platform constraints + per-locale voice guide + output format
- * rule (strict JSON).
+ * Build the system prompt. Combines: master role + Investment-tone
+ * default + per-platform 70% character ceiling + per-locale voice +
+ * output JSON shape.
  */
 function buildSystemPrompt(args: { locale: Locale; platform: CopywriterPlatform }): string {
   const platform = PLATFORM_CONSTRAINTS[args.platform];
@@ -137,21 +172,24 @@ function buildSystemPrompt(args: { locale: Locale; platform: CopywriterPlatform 
   return [
     `You are a senior real-estate marketing copywriter writing in ${args.locale.toUpperCase()}. You write social-media captions for property listings that read like a native local marketer wrote them — never like a translation.`,
     '',
+    `Tone of voice: INVESTMENT. The reader is a buyer evaluating return on capital, not a dreamer scrolling for inspiration. Lead with ROI signals: rental yield, capital appreciation, neighborhood trajectory, comparable sales, tax advantages. Treat soft features (lifestyle, family, "you'll love it") as supporting evidence, never the lead. The locale voice (below) governs HOW you say it; this Investment angle governs WHAT you say.`,
+    '',
     `Locale voice: ${voice}`,
     '',
     `Platform: ${args.platform}`,
-    `Length: ${platform.lengthRange}`,
-    `Tone: ${platform.tone}`,
+    `Body length ceiling: ${platform.bodyMaxChars} characters MAX. This is 70% of the platform's "Read more" cutoff — agents prefer captions that read deliberate, not auto-filled. Going below the ceiling is fine; above it is rejected.`,
+    `Platform tone: ${platform.tone}`,
     `Hashtags: ${platform.hashtagsRange}`,
     '',
     `Output rules:`,
     `1. Respond with ONLY a JSON array. No prose outside the array. No code-fence markers.`,
-    `2. Each element: {"text": "<caption body without hashtags>", "hashtags": ["#tag1", "#tag2"]}`,
-    `3. Keep "text" within the platform length range. Hashtags go in the separate field, not embedded in text.`,
-    `4. Each variant must be DISTINCT in angle, not just rephrased. Variant A leans on lifestyle, Variant B on facts, Variant C on location, etc.`,
-    `5. Never invent facts. If a field is null/missing in the input, omit it — don't guess.`,
-    `6. Never include emojis at the start of every caption — feels mass-produced. Sprinkle one or two at most, where it adds flavor.`,
-    `7. Avoid "Don't miss out!" / "Limited time!" / fake-urgency phrases. Real-estate buyers can spot them.`,
+    `2. Each element: {"text": "<caption body — no URL, no hashtags>", "hashtags": ["#tag1"]}`,
+    `3. Keep "text" at or below the body length ceiling. Hashtags go in the separate field; don't embed them in the body. The AHO listing URL is appended by our code AFTER your output, so you NEVER write any URL — focus on the caption body.`,
+    `4. Each variant must be DISTINCT in angle, not just rephrased. Variant A may lead with rental yield, Variant B with capital appreciation, Variant C with the neighborhood's investment trajectory — three honest investor angles, not three rewrites of the same hook.`,
+    `5. Never invent facts. If a field is null/missing in the input, omit it — don't guess. If the input has no rental-yield data, don't fabricate a yield number; lean on what IS there (location strength, comparable price points, etc.).`,
+    `6. Emojis: at most one or two per caption, only where it adds flavor. Never start every caption with an emoji — feels mass-produced.`,
+    `7. Avoid "Don't miss out!" / "Limited time!" / fake-urgency phrases. Real-estate investors spot them and discount the listing.`,
+    `8. The agent's social post will display: <body> + newline + <AHO URL> + newline + <hashtags>. So your body should NOT include a CTA pointing at the URL ("Check out this listing!") — the URL appears separately and that line IS the CTA. Your body's job is to make the reader want to click; the URL line does the clicking.`,
   ].join('\n');
 }
 
@@ -255,13 +293,24 @@ export async function generateCaptions(args: CallArgs): Promise<CopywriterResult
     );
   }
 
-  const captions: GeneratedCaption[] = parsed.map((p) => ({
-    text: String(p.text ?? '').trim(),
-    characterCount: String(p.text ?? '').trim().length,
-    hashtags: Array.isArray(p.hashtags)
+  const captions: GeneratedCaption[] = parsed.map((p) => {
+    const body = String(p.text ?? '').trim();
+    const hashtags = Array.isArray(p.hashtags)
       ? p.hashtags.map((h) => String(h)).filter((h) => h.length > 0)
-      : [],
-  }));
+      : [];
+    // Assemble the ready-to-paste string the way the post should look
+    // on social. Body, then URL on its own line (when present), then
+    // hashtags. Blank lines separate the three blocks for readability.
+    const blocks: string[] = [body];
+    if (args.listingUrl) blocks.push(args.listingUrl);
+    if (hashtags.length > 0) blocks.push(hashtags.join(' '));
+    return {
+      text: body,
+      characterCount: body.length,
+      hashtags,
+      readyToPaste: blocks.join('\n\n'),
+    };
+  });
 
   return {
     captions,
