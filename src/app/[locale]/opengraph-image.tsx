@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { interBoldFontEntry } from '@/lib/og/load-font';
 
 export const runtime = 'edge';
 export const alt = 'AHO — Advertise Homes Online';
@@ -15,10 +16,10 @@ export const contentType = 'image/png';
  * wordmark + locale-correct headline. Static for now (no per-listing
  * data); per-property OG lives at `/properties/[slug]/opengraph-image`.
  *
- * No external font load — uses the runtime's system sans-serif via the
- * `fontFamily` style prop. Loading a custom font on Edge requires
- * fetching it, which has been finicky on Cloudflare Pages with
- * @vercel/og's Satori; the system stack ships immediately.
+ * Font: Inter Bold loaded at request time from `/fonts/inter-700.woff2`
+ * (vendored in /public). The system sans-serif stack stays as a graceful
+ * fallback if the font fetch fails — better to render an OK-looking
+ * preview than to fail the whole OG-image route.
  */
 
 interface PageParams {
@@ -43,6 +44,8 @@ export default async function OgImage({
     ? 'Encuentra inmuebles en cualquier ciudad. Publica anuncios con un clic en Facebook e Instagram.'
     : 'Find homes wherever you’re looking. List with one click to Facebook and Instagram.';
 
+  const fonts = await interBoldFontEntry();
+
   return new ImageResponse(
     (
       <div
@@ -56,7 +59,7 @@ export default async function OgImage({
           backgroundColor: '#15181e',
           color: '#efeff1',
           fontFamily:
-            'system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif',
+            '"Inter", system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif',
         }}
       >
         {/* Top row: AHO wordmark + locale chip */}
@@ -153,6 +156,6 @@ export default async function OgImage({
         </div>
       </div>
     ),
-    { ...size },
+    { ...size, fonts },
   );
 }

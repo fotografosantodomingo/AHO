@@ -2,6 +2,7 @@ import { ImageResponse } from 'next/og';
 import { fetchPropertyByShortId, parseSlugParam } from '@/lib/listings/queries';
 import { formatPrice } from '@/lib/listings/format';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { interBoldFontEntry } from '@/lib/og/load-font';
 
 export const runtime = 'edge';
 export const alt = 'AHO listing';
@@ -36,9 +37,12 @@ export default async function OgImage({
   const typedLocale: Locale = isEs ? 'es' : 'en';
 
   const parsed = parseSlugParam(slug);
-  const property = parsed
-    ? await fetchPropertyByShortId(parsed.shortId).catch(() => null)
-    : null;
+  const [property, fonts] = await Promise.all([
+    parsed
+      ? fetchPropertyByShortId(parsed.shortId).catch(() => null)
+      : Promise.resolve(null),
+    interBoldFontEntry(),
+  ]);
 
   // Fallback: generic AHO card when the listing can't be resolved.
   if (!property) {
@@ -55,7 +59,7 @@ export default async function OgImage({
             backgroundColor: '#15181e',
             color: '#efeff1',
             fontFamily:
-              'system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif',
+              '"Inter", system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif',
           }}
         >
           <div style={{ fontSize: 96, fontWeight: 700, color: '#ffffff' }}>AHO</div>
@@ -64,7 +68,7 @@ export default async function OgImage({
           </div>
         </div>
       ),
-      { ...size },
+      { ...size, fonts },
     );
   }
 
@@ -104,7 +108,7 @@ export default async function OgImage({
           backgroundColor: '#15181e',
           color: '#efeff1',
           fontFamily:
-            'system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif',
+            '"Inter", system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif',
         }}
       >
         {/* Top row: AHO wordmark + transaction strap */}
@@ -184,6 +188,6 @@ export default async function OgImage({
         </div>
       </div>
     ),
-    { ...size },
+    { ...size, fonts },
   );
 }

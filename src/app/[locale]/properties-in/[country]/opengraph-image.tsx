@@ -2,6 +2,7 @@ import { ImageResponse } from 'next/og';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { getCountryName } from '@/lib/i18n/countries';
 import { getCountryCities } from '@/lib/listings/countries';
+import { interBoldFontEntry } from '@/lib/og/load-font';
 
 export const runtime = 'edge';
 export const alt = 'AHO — country landing';
@@ -22,10 +23,11 @@ export default async function OgImage({
   const isEs = locale === 'es' && LOCALES.includes(locale as Locale);
   const typedLocale: Locale = isEs ? 'es' : 'en';
   const cc = country.toUpperCase();
+  const fonts = await interBoldFontEntry();
 
   // Defensive: bad ISO code → fall through to a generic AHO card.
   if (!/^[A-Z]{2}$/.test(cc)) {
-    return new ImageResponse(<GenericFallback />, { ...size });
+    return new ImageResponse(<GenericFallback />, { ...size, fonts });
   }
 
   const display = getCountryName(cc, typedLocale);
@@ -58,7 +60,7 @@ export default async function OgImage({
           backgroundColor: '#15181e',
           color: '#efeff1',
           fontFamily:
-            'system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif',
+            '"Inter", system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif',
         }}
       >
         <div
@@ -130,7 +132,7 @@ export default async function OgImage({
         </div>
       </div>
     ),
-    { ...size },
+    { ...size, fonts },
   );
 }
 
@@ -147,7 +149,7 @@ function GenericFallback() {
         backgroundColor: '#15181e',
         color: '#efeff1',
         fontFamily:
-          'system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif',
+          '"Inter", system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif',
       }}
     >
       <div style={{ fontSize: 96, fontWeight: 700, color: '#ffffff' }}>AHO</div>

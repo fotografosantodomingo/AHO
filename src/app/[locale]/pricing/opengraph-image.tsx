@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { interBoldFontEntry } from '@/lib/og/load-font';
 
 export const runtime = 'edge';
 export const alt = 'AHO pricing — plans built for working agents';
@@ -41,6 +42,8 @@ export default async function OgImage({
   const founderLabel = isEs ? 'Tarifa fundadora' : 'Founder rate';
   const founderTail = isEs ? 'primeros 50 agentes' : 'first 50 agents';
 
+  const fonts = await interBoldFontEntry();
+
   return new ImageResponse(
     (
       <div
@@ -54,7 +57,7 @@ export default async function OgImage({
           backgroundColor: '#15181e',
           color: '#efeff1',
           fontFamily:
-            'system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif',
+            '"Inter", system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif',
         }}
       >
         {/* Top row: AHO wordmark + Pricing eyebrow */}
@@ -200,6 +203,6 @@ export default async function OgImage({
         </div>
       </div>
     ),
-    { ...size },
+    { ...size, fonts },
   );
 }

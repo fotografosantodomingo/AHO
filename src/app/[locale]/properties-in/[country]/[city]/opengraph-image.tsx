@@ -2,6 +2,7 @@ import { ImageResponse } from 'next/og';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { getCountryName } from '@/lib/i18n/countries';
 import { citySlugToQuery, searchCityLanding } from '@/lib/listings/search';
+import { interBoldFontEntry } from '@/lib/og/load-font';
 
 export const runtime = 'edge';
 export const alt = 'AHO — city landing';
@@ -54,6 +55,8 @@ export default async function OgImage({
         ? `${countryDisplay} · próximamente`
         : `${countryDisplay} · coming soon`;
 
+  const fonts = await interBoldFontEntry();
+
   return new ImageResponse(
     (
       <div
@@ -67,7 +70,7 @@ export default async function OgImage({
           backgroundColor: '#15181e',
           color: '#efeff1',
           fontFamily:
-            'system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif',
+            '"Inter", system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif',
         }}
       >
         <div
@@ -139,6 +142,6 @@ export default async function OgImage({
         </div>
       </div>
     ),
-    { ...size },
+    { ...size, fonts },
   );
 }
