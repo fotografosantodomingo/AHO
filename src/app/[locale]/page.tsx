@@ -6,6 +6,7 @@ import { precomputeApproxLabels } from '@/lib/currency/server';
 import { ListingCard } from '@/components/listings/listing-card';
 import { HeroSearchForm } from '@/components/home/hero-search-form';
 import { DotGrid, HeroGlow } from '@/components/ui/dot-grid';
+import { EmptyState } from '@/components/ui/empty-state';
 import { publicEnv } from '@/lib/env';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getUserFavoriteIds } from '@/lib/listings/favorites';
@@ -190,7 +191,27 @@ export default async function HomePage({
         </div>
 
         {featured.listings.length === 0 ? (
-          <p className="mt-4 text-sm text-helper">{t('featuredEmpty')}</p>
+          // Honest emptiness — until soft-beta agents land, the featured
+          // grid has nothing real to show. Use the shared EmptyState
+          // component (dashed border, centered) so the section reads
+          // intentionally empty instead of as a broken page that lost
+          // its content. CLAUDE.md hard rule #8.
+          <div className="mt-6">
+            <EmptyState
+              heading={t('featuredEmpty')}
+              body={t('featuredEmptyBody')}
+              primaryCta={
+                <a href={searchPath} className="btn-secondary">
+                  {t('browseByCity')}
+                </a>
+              }
+              secondaryCta={
+                <a href={pricingPath} className="btn-primary">
+                  {t('listYourFirstProperty')}
+                </a>
+              }
+            />
+          </div>
         ) : (
           <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {featured.listings.slice(0, 6).map((l) => (
