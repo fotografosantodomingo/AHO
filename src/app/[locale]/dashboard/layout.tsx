@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { adminMfaSetupPath, getAdminMfaState } from '@/lib/auth/admin-mfa';
 import { BillingPortalButton } from '@/components/billing/billing-portal-button';
 import { DashboardMobileNav } from '@/components/dashboard/dashboard-mobile-nav';
 
@@ -40,6 +41,16 @@ export default async function DashboardLayout({
     redirect(
       `/${locale}/${locale === 'es' ? 'iniciar-sesion' : 'signin'}?next=${encodeURIComponent(dashboardPath)}`,
     );
+  }
+
+  // MFA gate for admins lands BEFORE the org-membership check — an
+  // admin without a factor must enroll regardless of whether they
+  // happen to also be a member of an org. The setup-mfa page lives
+  // outside the /dashboard tree (at /[locale]/setup-mfa) precisely
+  // so this redirect can't loop back to itself.
+  const mfa = await getAdminMfaState(supabase, userResult.user.id);
+  if (mfa.enrollmentRequired) {
+    redirect(adminMfaSetupPath(locale));
   }
 
   const { data: memberships } = await supabase
