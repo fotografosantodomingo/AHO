@@ -108,7 +108,27 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
   }view=map`;
 
   return (
-    <main className="mx-auto max-w-6xl space-y-6 px-6 py-8">
+    <>
+      {/* Pre-warm TLS to the tile + Leaflet CDNs the moment a visitor
+          lands on /search. The map view is one click away (or already
+          rendered if `?view=map`), and on a mobile connection the TLS
+          handshake to two new origins is the long pole. dns-prefetch +
+          preconnect double-up keeps support-matrix-wide coverage —
+          Safari and Firefox honor only one or the other depending on
+          version. Next.js 15 hoists these <link> elements into <head>. */}
+      <link rel="dns-prefetch" href="https://tile.openstreetmap.org" />
+      <link
+        rel="preconnect"
+        href="https://tile.openstreetmap.org"
+        crossOrigin="anonymous"
+      />
+      <link rel="dns-prefetch" href="https://unpkg.com" />
+      <link
+        rel="preconnect"
+        href="https://unpkg.com"
+        crossOrigin="anonymous"
+      />
+      <main className="mx-auto max-w-6xl space-y-6 px-6 py-8">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-brand text-2xl font-semibold tracking-tight md:text-[34px] md:leading-[1.18]">
           {t('heading')}
@@ -187,6 +207,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
         initialFavoriteIds={Array.from(favoriteIds)}
         isAuthed={isAuthenticated}
       />
-    </main>
+      </main>
+    </>
   );
 }
