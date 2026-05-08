@@ -16,24 +16,29 @@ export default function SearchLoading() {
         <div className="h-9 w-36 animate-pulse rounded-lg bg-border-strong/15" />
       </div>
 
-      {/* Filter card */}
-      <div className="grid gap-3 rounded-card border border-border bg-surface p-4 shadow-whisper dark:bg-surface-deep md:grid-cols-6">
-        {Array.from({ length: 6 }).map((_, i) => (
+      {/* Filter card. Mirrors the actual SearchFilters layout exactly:
+          7 fields (q · city · country · transaction · beds · min · max)
+          in md:grid-cols-4 with the action row spanning the row. The
+          earlier 6-cell mock looked wider than the real card and made
+          the swap-in feel like a layout shift. */}
+      <div className="grid gap-3 rounded-card border border-border bg-surface p-4 shadow-whisper dark:bg-surface-deep md:grid-cols-4">
+        {Array.from({ length: 7 }).map((_, i) => (
           <div key={i} className="space-y-2">
             <div className="h-3 w-20 animate-pulse rounded bg-border-strong/15" />
             <div className="h-9 w-full animate-pulse rounded-lg bg-border-strong/15" />
           </div>
         ))}
-        <div className="md:col-span-6 flex items-center gap-3 border-t border-border pt-3">
+        <div className="md:col-span-4 flex items-center gap-3 border-t border-border pt-3">
           <div className="h-9 w-28 animate-pulse rounded-lg bg-border-strong/15" />
           <div className="h-9 w-20 animate-pulse rounded-lg bg-border-strong/15" />
         </div>
       </div>
 
-      {/* View toggle */}
+      {/* View toggle — match production: h-11 on <md (Apple HIG tap-target
+          floor on mobile), h-9 on md+. */}
       <div className="flex gap-1">
-        <div className="h-8 w-16 animate-pulse rounded-lg bg-border-strong/15" />
-        <div className="h-8 w-16 animate-pulse rounded-lg bg-border-strong/15" />
+        <div className="h-11 w-20 animate-pulse rounded-lg bg-border-strong/15 md:h-9 md:w-16" />
+        <div className="h-11 w-20 animate-pulse rounded-lg bg-border-strong/15 md:h-9 md:w-16" />
       </div>
 
       {/* Result count strap */}
