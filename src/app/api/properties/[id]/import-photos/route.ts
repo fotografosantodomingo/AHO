@@ -318,11 +318,42 @@ export async function POST(
   const urls = parsed.data.urls.slice(0, remaining);
   const dedup = Array.from(new Set(urls));
 
+  /**
+   * Persist an exhausted-retry failure to the dead-letter table so the
+   * agent can re-attempt later from the listing edit page (or a future
+   * batched cron). Upserts on `(property_id, source_url)` — repeat
+   * failures bump the `attempts` counter and refresh `last_failed_at`
+   * without losing the original `first_failed_at`.
+   *
+   * RLS on `photo_import_failures` mirrors `property_images` so the
+   * caller's session token is sufficient — no service-role escalation.
+   * Errors are swallowed (logged only): the user-visible result of the
+   * import shouldn't fail just because we couldn't bookkeep the failure.
+   */
+  async function recordFailure(
+    sourceUrl: string,
+    errorCode: string,
+    attempts: number,
+  ): Promise<void> {
+    const { error } = await supabase.rpc('record_photo_import_failure', {
+      p_property_id: propertyId,
+      p_source_url: sourceUrl,
+      p_error_code: errorCode,
+      p_attempts: attempts,
+    });
+    if (error) {
+      console.warn(
+        `[import-photos] recordFailure failed for ${sourceUrl}: ${error.message}`,
+      );
+    }
+  }
+
   // Process each URL and return its slotted result, indexed so we can
   // map back into a stable order after parallel batches finish.
   async function processOne(url: string, index: number): Promise<ImportResult> {
     const fetchRes = await fetchAsImage(url);
     if ('error' in fetchRes) {
+      await recordFailure(url, fetchRes.error, fetchRes.attempts);
       return { url, ok: false, errorCode: fetchRes.error, attempts: fetchRes.attempts };
     }
     const ext = EXT_BY_TYPE[fetchRes.contentType] ?? 'jpg';
@@ -338,6 +369,7 @@ export async function POST(
       });
     } catch (e) {
       console.warn(`[import-photos] R2 PUT failed for ${url}:`, e);
+      await recordFailure(url, 'r2_put_failed', fetchRes.attempts);
       return {
         url,
         ok: false,
@@ -374,8 +406,15 @@ export async function POST(
     if (insertErr) {
       const code = insertErr.code === '42501' ? 'forbidden' : 'insert_failed';
       console.warn(`[import-photos] insert failed for ${url}: ${insertErr.message}`);
+      await recordFailure(url, code, fetchRes.attempts);
       return { url, ok: false, errorCode: code, attempts: fetchRes.attempts };
     }
+    // Success path: if the URL had a previous unresolved failure on
+    // this property, mark it resolved so the dead-letter UI clears it.
+    await supabase.rpc('resolve_photo_import_failure', {
+      p_property_id: propertyId,
+      p_source_url: url,
+    });
     return {
       url,
       ok: true,
