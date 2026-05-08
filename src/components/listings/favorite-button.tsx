@@ -112,6 +112,8 @@ export function FavoriteButton({
   }
 
   // 'card' variant — small floating heart in the top-right corner of an image.
+  // 44×44 px on <md (Apple HIG tap-target floor); 36×36 on md+ where the
+  // pointer-precision relaxes that requirement.
   return (
     <button
       type="button"
@@ -119,7 +121,7 @@ export function FavoriteButton({
       aria-pressed={favorited}
       aria-label={label}
       title={error ? t('error') : label}
-      className="absolute top-2 right-2 inline-flex h-9 w-9 items-center justify-center rounded-full bg-surface/95 shadow-whisper backdrop-blur-sm transition hover:bg-surface active:scale-95"
+      className="absolute top-2 right-2 inline-flex h-11 w-11 items-center justify-center rounded-full bg-surface/95 shadow-whisper backdrop-blur-sm transition hover:bg-surface active:scale-95 md:h-9 md:w-9"
     >
       <Heart
         aria-hidden="true"

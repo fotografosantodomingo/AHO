@@ -111,6 +111,8 @@ export function HeroSearchForm({
       >
         {tabs.map((tab) => {
           const active = transaction === tab.value;
+          // Min-h-10 floor on mobile so each tab clears the comfortable
+          // tap target. md+ relaxes to the original tighter rhythm.
           return (
             <button
               key={tab.value}
@@ -120,8 +122,8 @@ export function HeroSearchForm({
               onClick={() => setTransaction(tab.value)}
               className={
                 active
-                  ? 'rounded-md bg-action px-3.5 py-1.5 text-sm font-medium text-white shadow-whisper transition dark:bg-action-dark dark:text-surface-deep'
-                  : 'rounded-md px-3.5 py-1.5 text-sm text-helper transition hover:text-action dark:hover:text-action-dark'
+                  ? 'inline-flex min-h-10 items-center rounded-md bg-action px-4 text-sm font-medium text-white shadow-whisper transition md:min-h-0 md:px-3.5 md:py-1.5 dark:bg-action-dark dark:text-surface-deep'
+                  : 'inline-flex min-h-10 items-center rounded-md px-4 text-sm text-helper transition hover:text-action md:min-h-0 md:px-3.5 md:py-1.5 dark:hover:text-action-dark'
               }
             >
               {tab.label}
