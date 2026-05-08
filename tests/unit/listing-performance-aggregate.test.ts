@@ -42,8 +42,8 @@ describe('aggregatePerformance', () => {
     expect(r.sparkline30d).toHaveLength(30);
     expect(r.sparkline30d.every((p) => p.reach === 0)).toBe(true);
     // Newest day in the window is FROZEN_NOW's UTC date.
-    expect(r.sparkline30d[r.sparkline30d.length - 1].day).toBe('2026-05-15');
-    expect(r.sparkline30d[0].day).toBe('2026-04-16');
+    expect(r.sparkline30d[r.sparkline30d.length - 1]!.day).toBe('2026-05-15');
+    expect(r.sparkline30d[0]!.day).toBe('2026-04-16');
   });
 
   it('keeps only the LATEST snapshot per (platform, postExternalId) for tile sums', () => {
@@ -70,13 +70,13 @@ describe('aggregatePerformance', () => {
     const r = aggregatePerformance(rows, FROZEN_NOW);
     expect(r.isEmpty).toBe(false);
     expect(r.perPlatform).toHaveLength(1);
-    const fb = r.perPlatform[0];
+    const fb = r.perPlatform[0]!;
     expect(fb.platform).toBe('facebook');
     expect(fb.totalReach).toBe(250);
     expect(fb.totalLeads).toBe(3);
     expect(fb.postCount).toBe(1);
     expect(r.recentPosts).toHaveLength(1);
-    expect(r.recentPosts[0].reach).toBe(250);
+    expect(r.recentPosts[0]!.reach).toBe(250);
   });
 
   it('sums latest snapshots ACROSS posts on the same platform', () => {
@@ -120,10 +120,10 @@ describe('aggregatePerformance', () => {
     const r = aggregatePerformance(rows, FROZEN_NOW);
     expect(r.perPlatform).toHaveLength(2);
     // Sorted by reach desc — IG first.
-    expect(r.perPlatform[0].platform).toBe('instagram');
-    expect(r.perPlatform[1].platform).toBe('facebook');
-    expect(r.perPlatform[0].totalReach).toBe(400);
-    expect(r.perPlatform[1].totalReach).toBe(100);
+    expect(r.perPlatform[0]!.platform).toBe('instagram');
+    expect(r.perPlatform[1]!.platform).toBe('facebook');
+    expect(r.perPlatform[0]!.totalReach).toBe(400);
+    expect(r.perPlatform[1]!.totalReach).toBe(100);
   });
 
   it('averages CPL across posts that have spend; null when none do', () => {
@@ -179,7 +179,7 @@ describe('aggregatePerformance', () => {
       }),
     ];
     const r = aggregatePerformance(rows, FROZEN_NOW);
-    expect(r.perPlatform[0].lastPostedAt).toBe('2026-05-12T09:00:00.000Z');
+    expect(r.perPlatform[0]!.lastPostedAt).toBe('2026-05-12T09:00:00.000Z');
   });
 
   it('recentPosts is sorted by posted_at desc', () => {
@@ -283,7 +283,7 @@ describe('aggregatePerformance', () => {
     const r = aggregatePerformance(rows, FROZEN_NOW);
     expect(r.isEmpty).toBe(false);
     expect(r.perPlatform).toHaveLength(1);
-    expect(r.perPlatform[0].totalReach).toBe(0);
+    expect(r.perPlatform[0]!.totalReach).toBe(0);
     expect(r.recentPosts).toHaveLength(1);
   });
 });

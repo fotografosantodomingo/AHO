@@ -6,7 +6,6 @@ import type {
   PerformancePlatformTile,
   PerformancePostRow,
   PerformanceSparkPoint,
-  SocialPlatform,
 } from '@/lib/listings/listing-performance';
 
 interface Props {
@@ -313,11 +312,11 @@ function SparklineCard({ points, label, srLabel, locale }: SparklineCardProps) {
     .map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`)
     .join(' ');
   const areaPath =
-    `M${points2d[0][0].toFixed(1)},${(height - padY).toFixed(1)} ` +
+    `M${points2d[0]![0].toFixed(1)},${(height - padY).toFixed(1)} ` +
     points2d
       .map(([x, y]) => `L${x.toFixed(1)},${y.toFixed(1)}`)
       .join(' ') +
-    ` L${points2d[points2d.length - 1][0].toFixed(1)},${(height - padY).toFixed(1)} Z`;
+    ` L${points2d[points2d.length - 1]![0].toFixed(1)},${(height - padY).toFixed(1)} Z`;
 
   return (
     <div className="rounded-card border border-border bg-surface p-4 shadow-whisper">
