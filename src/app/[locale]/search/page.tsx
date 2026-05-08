@@ -138,7 +138,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
       <nav aria-label="View toggle" className="flex gap-1">
         <a
           href={listViewHref}
-          className={`inline-flex h-8 items-center rounded-lg px-3 text-sm transition ${
+          className={`inline-flex h-11 items-center rounded-lg px-4 text-sm transition md:h-9 md:px-3 ${
             view === 'list'
               ? 'bg-action text-white shadow-whisper dark:bg-action-dark dark:text-surface-deep'
               : 'border border-border-strong text-helper hover:bg-black/5 dark:hover:bg-white/5'
@@ -148,7 +148,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
         </a>
         <a
           href={mapViewHref}
-          className={`inline-flex h-8 items-center rounded-lg px-3 text-sm transition ${
+          className={`inline-flex h-11 items-center rounded-lg px-4 text-sm transition md:h-9 md:px-3 ${
             view === 'map'
               ? 'bg-action text-white shadow-whisper dark:bg-action-dark dark:text-surface-deep'
               : 'border border-border-strong text-helper hover:bg-black/5 dark:hover:bg-white/5'

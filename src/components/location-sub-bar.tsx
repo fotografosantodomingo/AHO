@@ -47,13 +47,19 @@ export async function LocationSubBar({
       aria-label={t('label')}
       className="border-b border-border bg-surface/50 dark:bg-surface-deep/50"
     >
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-1 px-6 py-2 text-xs text-helper">
-        <Link href={allCountriesHref} className="hover:text-action dark:hover:text-action-dark">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-1 px-6 py-2.5 text-xs text-helper md:py-2">
+        <Link
+          href={allCountriesHref}
+          className="-my-1 inline-flex items-center py-1 hover:text-action dark:hover:text-action-dark"
+        >
           {t('allCountries')}
         </Link>
         <span aria-hidden="true">/</span>
         {city ? (
-          <Link href={countryHref} className="hover:text-action dark:hover:text-action-dark">
+          <Link
+            href={countryHref}
+            className="-my-1 inline-flex items-center py-1 hover:text-action dark:hover:text-action-dark"
+          >
             {countryDisplay}
           </Link>
         ) : (

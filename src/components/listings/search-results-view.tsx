@@ -290,7 +290,7 @@ export function SearchResultsView({
       {/* Pagination — only render when bbox-driven mode is OFF and the
           server-side result set has more pages. Bbox results don't
           paginate (capped at 200; the interaction model is "pan to see
-          more"). */}
+          more"). 44px tall on mobile (Apple HIG tap target), 36px on md+. */}
       {!bboxActive && (prevHref || nextHref) && (
         <nav
           aria-label="Pagination"
@@ -299,7 +299,7 @@ export function SearchResultsView({
           {prevHref ? (
             <a
               href={prevHref}
-              className="inline-flex h-9 items-center rounded-lg border border-border-strong px-3 text-sm transition hover:bg-black/5 dark:hover:bg-white/5"
+              className="inline-flex h-11 items-center rounded-lg border border-border-strong px-4 text-sm transition hover:bg-black/5 md:h-9 md:px-3 dark:hover:bg-white/5"
             >
               {prevPageLabel}
             </a>
@@ -309,7 +309,7 @@ export function SearchResultsView({
           {nextHref && (
             <a
               href={nextHref}
-              className="inline-flex h-9 items-center rounded-lg border border-border-strong px-3 text-sm transition hover:bg-black/5 dark:hover:bg-white/5"
+              className="inline-flex h-11 items-center rounded-lg border border-border-strong px-4 text-sm transition hover:bg-black/5 md:h-9 md:px-3 dark:hover:bg-white/5"
             >
               {nextPageLabel}
             </a>

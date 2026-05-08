@@ -108,13 +108,16 @@ export async function SiteFooter({ locale }: Props) {
     <div className="space-y-4 text-sm">
       <p className="text-ink-inverse-muted">{t('newsletter.body')}</p>
       <NewsletterForm />
-      <div className="flex items-center gap-3 pt-2">
+      {/* Social links — tap-friendly. Each link reserves enough vertical
+          padding so the row hits the 44px tap-target floor on mobile
+          without breaking the visual rhythm of the surrounding footer. */}
+      <div className="flex flex-wrap items-center gap-x-3 pt-2">
         <a
           href={FACEBOOK_URL}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Facebook"
-          className="footer-link"
+          className="footer-link inline-flex min-h-11 items-center md:min-h-0"
         >
           Facebook
         </a>
@@ -124,7 +127,7 @@ export async function SiteFooter({ locale }: Props) {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Instagram"
-          className="footer-link"
+          className="footer-link inline-flex min-h-11 items-center md:min-h-0"
         >
           Instagram
         </a>
@@ -134,7 +137,7 @@ export async function SiteFooter({ locale }: Props) {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="LinkedIn"
-          className="footer-link"
+          className="footer-link inline-flex min-h-11 items-center md:min-h-0"
         >
           LinkedIn
         </a>
@@ -213,10 +216,23 @@ export async function SiteFooter({ locale }: Props) {
         {/* Bottom strip — copyright + legal + locale mirror. */}
         <div className="mt-10 flex flex-col gap-4 border-t border-white/10 pt-6 text-xs text-ink-inverse-muted md:mt-14 md:flex-row md:items-center md:justify-between">
           <p>© {new Date().getFullYear()} AHO. {t('rights')}</p>
-          <nav className="flex flex-wrap items-center gap-x-5 gap-y-2" aria-label="Legal">
-            <a href={privacyHref} className="footer-link">{t('privacy')}</a>
-            <a href={termsHref} className="footer-link">{t('terms')}</a>
-            <a href={`mailto:${SUPPORT_EMAIL}`} className="footer-link">
+          <nav className="flex flex-wrap items-center gap-x-5 gap-y-1" aria-label="Legal">
+            <a
+              href={privacyHref}
+              className="footer-link inline-flex min-h-11 items-center md:min-h-0"
+            >
+              {t('privacy')}
+            </a>
+            <a
+              href={termsHref}
+              className="footer-link inline-flex min-h-11 items-center md:min-h-0"
+            >
+              {t('terms')}
+            </a>
+            <a
+              href={`mailto:${SUPPORT_EMAIL}`}
+              className="footer-link inline-flex min-h-11 items-center break-all md:min-h-0"
+            >
               {SUPPORT_EMAIL}
             </a>
           </nav>
