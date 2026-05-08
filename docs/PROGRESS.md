@@ -12,6 +12,86 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-08 — Sprint 2/3 batch (4 parallel agents): Leaflet self-host + photo-import retry + OG fonts + performance dashboard
+- **Frame:** PO said "keep shipping autonomous all" after the previous
+  4-agent batch merged. Dispatched 4 more isolated worktree agents on
+  the deferred-but-shippable items: deferred CDN swap (Leaflet CSS),
+  reliability hardening (photo-import retry + dead-letter), brand
+  polish (OG font), Sprint-3 scaffold (performance dashboard).
+- **What shipped (14 commits, 4 agents + me):**
+  - **Self-host Leaflet CSS** (`c73512c`): vendored leaflet@1.9.4 +
+    leaflet.markercluster@1.5.3 CSS into `public/leaflet/` with marker
+    image assets. Dropped `https://unpkg.com` from CSP `style-src` —
+    one fewer cross-origin asset on the search page critical path.
+  - **Photo-import retry + dead-letter** (`99b9743`, `e5a3f4e`,
+    `b1381c9`, `1533870`): `fetchAsImage` now retries up to 2x on
+    transient errors (timeouts / fetch_failed / HTTP 408/429/5xx) with
+    500ms / 1500ms backoff. Migration 0037 adds `photo_import_failures`
+    table with RLS + helper RPCs (`record_photo_import_failure`,
+    `resolve_photo_import_failure`). `processOne()` upserts the row on
+    every non-success path; on later retry success the row is resolved.
+    `<PhotoImportFailures>` component on the listing edit page lets the
+    agent see + manually retry / dismiss the unresolved failures.
+  - **OG image custom-font on Edge** (`03b1b94`): vendored
+    Inter-Bold.woff2 into `public/fonts/`; new `src/lib/og/load-font.ts`
+    provides cached fetch via `interBoldFontEntry()` returning `[]` on
+    failure. All 7 ImageResponse routes (homepage, countries, pricing,
+    agent, property, country, city) now load Inter at OG-render time
+    and fall back to system sans only if the asset is unreachable.
+    Brand mark consistent across Slack / WhatsApp / Twitter previews.
+  - **Performance dashboard scaffold** (`37bc822`, `5910fc0`,
+    `82dc83c`, then renamed `6cdbe8c`): migration 0038 adds
+    `listing_post_metrics` (per-listing × platform × post per-day
+    snapshot) with RLS — agents read their own org's rows; service-
+    role writes via the future Meta Insights cron. New
+    `<SocialPerformanceSection>` on `/dashboard/analytics/[id]` shows
+    per-platform tiles, 30-day SVG sparkline, per-post breakdown
+    table. Renders correctly empty today (no fake data per rule #8) —
+    lights up automatically when the writer pipelines (Meta Insights
+    cron, FB Lead Ads webhook, LinkedIn Marketing API cron) land in
+    later sprints. `aggregatePerformance()` is a pure function with
+    11 unit tests + RLS test pair.
+  - **Migration rename** (`6cdbe8c`): two parallel agents both
+    targeted migration 0037 — bumped listing_performance to 0038 so
+    drizzle's lexicographic ordering is unambiguous.
+  - **Strict-mode TS fixes** (`83d2b32`): the parallel agents couldn't
+    run `pnpm typecheck` in their sandboxes; merged code had 11
+    `noUncheckedIndexedAccess` errors (test array indexes + a sparkline
+    SVG path d-string) and one unused-import warning. All
+    non-functional; fixed in a follow-up commit.
+- **What works after this session:**
+  - The /search map's stylesheet is now same-origin — one less DNS
+    lookup, one less TLS handshake, one less CORS preflight.
+  - URL-import flow now retries transient photo-fetch failures
+    automatically, and persists the rest so the agent can see + retry
+    them later from the listing page.
+  - OG share previews on Slack / WhatsApp / Twitter all render
+    headlines in Inter Bold instead of platform-system fallbacks.
+  - `/dashboard/analytics/[id]` renders the social-performance section
+    in its honest-empty state, ready to populate when Meta data flows.
+- **Held back (require supervised work):**
+  - RLS test pair for `photo_import_failures` (CLAUDE.md hard rule
+    #2). Pattern would mirror `tests/rls/property-favorites.test.ts`.
+  - Three writer pipelines for `listing_post_metrics`: Meta Insights
+    daily cron (Cloudflare Worker), FB Lead Ads webhook (gated on
+    Meta App Review), LinkedIn Marketing API cron.
+  - Background-sync queue for offline voice imports, Stripe webhook
+    replay fixture harness, long-term RLS refactor — same as before.
+- **Test count:** 293 → 310 (17 new across import-photos retry +
+  listing-performance aggregate). All pass; typecheck clean; lint no
+  new warnings.
+- **Commits:** `c73512c` Leaflet, `99b9743`/`e5a3f4e`/`b1381c9`/
+  `1533870` photo-import retry, `03b1b94` OG fonts, `37bc822`/
+  `5910fc0`/`82dc83c` performance dashboard, `6cdbe8c` migration
+  rename, `83d2b32` strict-TS fixes, plus 3 merge commits. (14 total.)
+- **Next session should start with:** verify the deploy went through
+  cleanly. The deferred items above are all good single-session
+  candidates if the PO wants to keep going on tech debt; otherwise
+  the highest-leverage PO actions are unchanged: recruit DR beta
+  agents, promote Stripe to live, custom domain, Meta App Review.
+
+---
+
 ## 2026-05-07 — Sprint 2 batch (4 parallel agents): tone selector + photo-import polish + import tests + bbox URL
 - **Frame:** Following Sprint 2 C+D earlier today, the PO said "deploy
   all agents available to do all" — so I dispatched 4 isolated
