@@ -14,7 +14,8 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
  *
  * Allow-listed externals:
  *   - script-src: js.stripe.com (Stripe Checkout / Elements)
- *   - style-src: unpkg.com (Leaflet + leaflet.markercluster CSS via <link>)
+ *   - style-src: (none) — Leaflet CSS is now self-hosted under /leaflet/*
+ *     so 'self' covers it; the unpkg.com allowance is gone
  *   - img-src: imagedelivery.net (Cloudflare Images), *.tile.openstreetmap.org (Leaflet tiles)
  *   - connect-src: *.supabase.co (auth + db), api.stripe.com (server-side calls go through us; this is for any browser-side Stripe SDK), api.brevo.com (no, our wrapper runs server-side; can drop)
  *   - frame-src: js.stripe.com (3DS challenge iframes)
@@ -25,7 +26,7 @@ const csp = [
   // js.stripe.com — Checkout/Elements; challenges.cloudflare.com — Turnstile
   // bot challenge widget script.
   "script-src 'self' 'unsafe-inline' https://js.stripe.com https://challenges.cloudflare.com",
-  "style-src 'self' 'unsafe-inline' https://unpkg.com",
+  "style-src 'self' 'unsafe-inline'",
   // Cloudflare R2 public dev URL (pub-<hash>.r2.dev) — fallback image
   // host while Cloudflare Images is not yet configured. Once a custom
   // domain like images.advertisehomes.online is set up, the wildcard

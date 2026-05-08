@@ -16,9 +16,14 @@ import type { BboxView } from '@/lib/listings/bbox-url';
  * Critical SSR detail: Leaflet calls `window.HTMLElement` at module
  * load. A bare `import L from 'leaflet'` therefore fails on the
  * Cloudflare Edge runtime. Fix: import Leaflet INSIDE useEffect via
- * dynamic `import()`. The Leaflet CSS is fetched from unpkg as a
- * one-shot `<link>` tag injection so we don't thread CSS-in-JS
- * through the bundler.
+ * dynamic `import()`. The Leaflet CSS is injected as a one-shot
+ * `<link>` tag so we don't thread CSS-in-JS through the bundler.
+ *
+ * Stylesheets are vendored under /public/leaflet/ and served from the
+ * same origin — saves a CORS preflight + extra TLS hop on the search
+ * page critical path that the previous unpkg.com link cost. The
+ * relative `url(images/...)` references in leaflet.css resolve
+ * naturally to /leaflet/images/...
  *
  * Tiles: OpenStreetMap (free, attribution rendered automatically).
  */
@@ -57,29 +62,28 @@ interface PropertyMapProps {
 // fitBounds() takes over the moment we have any pins.
 const DEFAULT_CENTER: [number, number] = [20, 0];
 const DEFAULT_ZOOM = 2;
-const LEAFLET_CSS_URL = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-const LEAFLET_CSS_INTEGRITY =
-  'sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H';
+// Self-hosted under /public/leaflet/ — vendored from leaflet@1.9.4 +
+// leaflet.markercluster@1.5.3. Same-origin = no CORS preflight, no
+// extra TLS handshake, and Cloudflare's CDN caches them alongside our
+// own static assets. Subresource integrity is unnecessary because the
+// browser already trusts our origin under the page's CSP.
+const LEAFLET_CSS_URL = '/leaflet/leaflet.css';
 const MARKERCLUSTER_CSS_URLS = [
-  'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css',
-  'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css',
+  '/leaflet/markercluster.css',
+  '/leaflet/markercluster-default.css',
 ] as const;
 
-function ensureCss(href: string, integrity?: string): void {
+function ensureCss(href: string): void {
   if (typeof document === 'undefined') return;
   if (document.querySelector(`link[href="${href}"]`)) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
   link.href = href;
-  if (integrity) {
-    link.integrity = integrity;
-    link.crossOrigin = 'anonymous';
-  }
   document.head.appendChild(link);
 }
 
 function ensureLeafletCss(): void {
-  ensureCss(LEAFLET_CSS_URL, LEAFLET_CSS_INTEGRITY);
+  ensureCss(LEAFLET_CSS_URL);
   for (const href of MARKERCLUSTER_CSS_URLS) ensureCss(href);
   ensureClusterThemeOverride();
 }
