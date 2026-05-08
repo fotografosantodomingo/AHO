@@ -1128,6 +1128,28 @@
       "viewListingActivityHeading": "All activity for this listing",
       "noActivity": "No activity recorded yet.",
       "noActivityHint": "When visitors view, save, or contact about this listing, you'll see each event here."
+    },
+    "social": {
+      "heading": "Social performance",
+      "tilesAria": "Per-platform performance summary",
+      "reach": "Reach",
+      "leads": "Leads",
+      "cpl": "CPL",
+      "organic": "Organic",
+      "lastPost": "Last post",
+      "lastPostNever": "—",
+      "posts": "posts",
+      "sparklineLabel": "Reach — past 30 days",
+      "sparklineSrLabel": "30-day reach trend",
+      "colDate": "Date",
+      "colPlatform": "Platform",
+      "colReach": "Reach",
+      "colClicks": "Clicks",
+      "colLeads": "Leads",
+      "colCpl": "CPL",
+      "emptyHeading": "No social performance data yet",
+      "emptyBody": "Connect your accounts in Social to start tracking reach, leads, and cost per lead per listing.",
+      "emptyCta": "Go to Social"
     }
   },
   "forAgents": {
