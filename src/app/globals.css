@@ -161,6 +161,27 @@ html.dark {
     letter-spacing: -0.015em;
     font-feature-settings: 'kern';
   }
+
+  /* iOS Safari zooms the viewport when a focused form control's font-size
+     is below 16px — a hostile UX moment ("why is the page suddenly
+     huge?") that's particularly painful on the search filter bar and
+     auth forms. Pin all native form controls to 16px on mobile, then
+     let component-level `text-sm` overrides relax back to 14px from
+     md+ where iOS-zoom doesn't apply. The selectors target the native
+     elements directly so we don't have to audit every `inputClass`
+     constant in the repo. */
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']):not([type='file']),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+  @media (min-width: 768px) {
+    input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']):not([type='file']),
+    select,
+    textarea {
+      font-size: 0.875rem; /* matches Tailwind text-sm (14px) on md+ */
+    }
+  }
 }
 
 @layer components {
