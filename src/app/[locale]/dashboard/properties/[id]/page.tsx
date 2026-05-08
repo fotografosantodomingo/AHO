@@ -8,6 +8,7 @@ import { MarkAsSoldButton } from '@/components/listings/mark-as-sold-button';
 import { ArchiveListingButton } from '@/components/listings/archive-listing-button';
 import { EditListingForm } from '@/components/listings/edit-listing-form';
 import { PhotoImportBanner } from '@/components/listings/photo-import-banner';
+import { PhotoImportFailures } from '@/components/listings/photo-import-failures';
 import {
   getCurrentUserOrgPlan,
   isOrgOnProAutomation,
@@ -113,6 +114,13 @@ export default async function EditListingPage({
           Reads from sessionStorage and self-clears; renders nothing
           when the user didn't arrive here from the import flow. */}
       <PhotoImportBanner propertyId={listing.id} />
+
+      {/* Persistent dead-letter list (migration 0037). Reads unresolved
+          rows from photo_import_failures every page load so an agent
+          returning later still sees URLs that failed and can retry or
+          dismiss them. Renders nothing when there are no unresolved
+          failures, so this is invisible for new listings. */}
+      <PhotoImportFailures propertyId={listing.id} />
 
       <EditListingForm
         initial={{

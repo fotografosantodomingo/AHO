@@ -5,6 +5,7 @@ import {
   MAX_IMAGE_BYTES,
   classifyImageContentType,
   computeImportSlots,
+  isRetriableFetchError,
   normalizeContentType,
 } from '@/app/api/properties/[id]/import-photos/route';
 import { MAX_IMAGES_PER_PROPERTY } from '@/lib/listings/upload';
@@ -155,5 +156,43 @@ describe('computeImportSlots', () => {
 describe('MAX_IMAGE_BYTES', () => {
   it('is the documented 15 MB cap', () => {
     expect(MAX_IMAGE_BYTES).toBe(15 * 1024 * 1024);
+  });
+});
+
+describe('isRetriableFetchError', () => {
+  it('retries network-layer failures', () => {
+    expect(isRetriableFetchError('timeout')).toBe(true);
+    expect(isRetriableFetchError('fetch_failed')).toBe(true);
+  });
+
+  it('retries HTTP 408 and 429', () => {
+    expect(isRetriableFetchError('fetch_408')).toBe(true);
+    expect(isRetriableFetchError('fetch_429')).toBe(true);
+  });
+
+  it('retries any HTTP 5xx', () => {
+    for (const status of [500, 502, 503, 504, 599]) {
+      expect(isRetriableFetchError(`fetch_${status}`)).toBe(true);
+    }
+  });
+
+  it('does NOT retry HTTP 4xx other than 408/429', () => {
+    for (const status of [400, 401, 403, 404, 410, 451]) {
+      expect(isRetriableFetchError(`fetch_${status}`)).toBe(false);
+    }
+  });
+
+  it('does NOT retry deterministic content errors', () => {
+    expect(isRetriableFetchError('not_an_image')).toBe(false);
+    expect(isRetriableFetchError('unsupported_type')).toBe(false);
+    expect(isRetriableFetchError('too_large')).toBe(false);
+    expect(isRetriableFetchError('empty')).toBe(false);
+  });
+
+  it('does NOT retry unknown / non-fetch error codes', () => {
+    expect(isRetriableFetchError('r2_put_failed')).toBe(false);
+    expect(isRetriableFetchError('insert_failed')).toBe(false);
+    expect(isRetriableFetchError('forbidden')).toBe(false);
+    expect(isRetriableFetchError('fetch_NaN')).toBe(false);
   });
 });

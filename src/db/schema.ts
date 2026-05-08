@@ -441,6 +441,41 @@ export type PropertyImageUploadStatus = (typeof PROPERTY_IMAGE_UPLOAD_STATUSES)[
 export type PropertyImage = typeof propertyImages.$inferSelect;
 export type NewPropertyImage = typeof propertyImages.$inferInsert;
 
+// ----------------------------------------------------------------
+// photo_import_failures (migration 0037) — dead-letter rows for the
+// server-side photo-import flow. Mirror of the SQL table; see the
+// migration file for the full rationale + RLS recap. One row per
+// (property_id, source_url); attempts bumps on each retry.
+// ----------------------------------------------------------------
+
+export const photoImportFailures = pgTable(
+  'photo_import_failures',
+  {
+    id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+    propertyId: uuid('property_id')
+      .notNull()
+      .references(() => properties.id, { onDelete: 'cascade' }),
+    sourceUrl: text('source_url').notNull(),
+    errorCode: text('error_code').notNull(),
+    attempts: integer('attempts').notNull().default(1),
+    firstFailedAt: timestamp('first_failed_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    lastFailedAt: timestamp('last_failed_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    resolvedAt: timestamp('resolved_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    idxUnresolved: index('idx_photo_import_failures_unresolved').on(t.propertyId),
+  }),
+);
+
+export type PhotoImportFailure = typeof photoImportFailures.$inferSelect;
+export type NewPhotoImportFailure = typeof photoImportFailures.$inferInsert;
+
 // Status / type unions — keep in sync with the SQL CHECK constraints in 0004.
 
 // Status enum — keep in sync with the CHECK constraint in
