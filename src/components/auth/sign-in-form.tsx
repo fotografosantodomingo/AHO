@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { SignInSchema, type SignInInput } from '@/lib/auth/schemas';
 import {
   TurnstileWidget,
@@ -42,17 +41,48 @@ export function SignInForm({ next = '/' }: SignInFormProps) {
 
   async function onSubmit(values: SignInInput) {
     setServerError(null);
-    const supabase = getSupabaseBrowserClient();
-    const { error } = await supabase.auth.signInWithPassword({
-      email: values.email,
-      password: values.password,
-      // Token is verified server-side by Supabase against the Turnstile
-      // secret configured in Project Settings → Auth → Captcha. Ignored
-      // when no provider is configured, so safe to always pass.
-      ...(captchaToken ? { options: { captchaToken } } : {}),
+    // POST to /api/auth/signin instead of calling Supabase directly. The
+    // route layers the email-keyed progressive lockout (5/10/20 failure
+    // tiers — see src/lib/auth/lockout.ts) on top of Supabase's own
+    // signInWithPassword call. The cookie-aware server client on the
+    // route side persists the session via Set-Cookie on the response,
+    // so a router.refresh() after success is enough to make the rest
+    // of the app see the new auth state.
+    const res = await fetch('/api/auth/signin', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        email: values.email,
+        password: values.password,
+        ...(captchaToken ? { captchaToken } : {}),
+      }),
     });
-    if (error) {
-      setServerError(error.message);
+
+    if (!res.ok) {
+      const body = (await res.json().catch(() => null)) as
+        | {
+            error?: string;
+            reason?: string;
+            retryAfter?: string;
+            message?: string;
+          }
+        | null;
+      if (res.status === 429 && body?.error === 'locked_out') {
+        const reasonKey = body.reason ?? 'cooldown_1m';
+        const minutes = body.retryAfter
+          ? Math.max(
+              1,
+              Math.ceil((new Date(body.retryAfter).getTime() - Date.now()) / 60000),
+            )
+          : undefined;
+        setServerError(
+          t(`lockout.${reasonKey}`, {
+            minutes: minutes ?? 1,
+          }),
+        );
+      } else {
+        setServerError(body?.message ?? t('errors.generic'));
+      }
       // Turnstile tokens are one-shot — Cloudflare rejects re-submission of
       // the same token with `invalid-input-response`. After a failed attempt
       // (wrong password, account locked, etc.) the user typically wants to

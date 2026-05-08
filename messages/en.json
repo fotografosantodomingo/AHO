@@ -972,6 +972,30 @@
       "mustAcceptTerms": "You must accept the Terms and Privacy Policy.",
       "pwned": "This password has appeared in known data breaches. Please choose a different one.",
       "generic": "Something went wrong. Try again."
+    },
+    "lockout": {
+      "cooldown_1m": "Too many failed sign-in attempts. Try again in {minutes, plural, one {# minute} other {# minutes}}.",
+      "cooldown_15m": "Too many failed sign-in attempts. Try again in {minutes, plural, one {# minute} other {# minutes}}.",
+      "lockout_24h": "This account is temporarily locked due to repeated failed sign-ins. Contact support if you need access sooner."
+    },
+    "mfa": {
+      "badge": "Security",
+      "setupHeading": "Set up two-factor authentication",
+      "introAdmin": "Admin accounts must use a one-time code from an authenticator app to sign in. Add a code generator to your account to continue.",
+      "introOptional": "Add a one-time code from an authenticator app for an extra layer of protection.",
+      "step1Title": "Install an authenticator app",
+      "step1Body": "Use Google Authenticator, 1Password, Authy, or any TOTP-compatible app.",
+      "step2Title": "Scan this QR code",
+      "qrAlt": "QR code for authenticator app",
+      "manualEntry": "Or enter this secret manually:",
+      "step3Title": "Enter the 6-digit code",
+      "step3Body": "Type the current code shown by your authenticator app.",
+      "verifyCta": "Verify and finish",
+      "verifying": "Verifying…",
+      "preparing": "Preparing your code…",
+      "success": "Two-factor authentication is on. Redirecting…",
+      "errorBadCode": "That code didn't match. Try the next one your app shows.",
+      "errorGeneric": "Couldn't start MFA setup. Refresh the page to try again."
     }
   },
   "savedSearches": {
