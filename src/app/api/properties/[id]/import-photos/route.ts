@@ -42,6 +42,15 @@ export const MAX_IMAGE_BYTES = 15 * 1024 * 1024;
 const FETCH_TIMEOUT_MS = 12_000;
 const CONCURRENCY = 4;
 
+/**
+ * Bounded retry config for `fetchAsImage`. Two extra attempts beyond the
+ * first call: 3 total. Backoff is roughly exponential — 500ms, 1500ms —
+ * picked to be short enough to fit inside the Edge function's ~30s wall
+ * budget while still letting a CDN recover from a brief 503/timeout.
+ */
+const FETCH_MAX_ATTEMPTS = 3;
+const FETCH_BACKOFF_MS = [500, 1500] as const;
+
 export const EXT_BY_TYPE: Record<string, string> = {
   'image/jpeg': 'jpg',
   'image/jpg': 'jpg',
@@ -105,9 +114,38 @@ interface ImportResult {
   ok: boolean;
   cfImageId?: string;
   errorCode?: string;
+  attempts?: number;
 }
 
-async function fetchAsImage(
+/**
+ * Returns true if a `fetchAsImage` error code represents a transient
+ * failure worth retrying. The split is intentional:
+ *   - Retry: network blips, timeouts, HTTP 408/429/5xx — the upstream
+ *     might have been having a moment and a second try could succeed.
+ *   - Don't retry: deterministic content errors (`not_an_image`,
+ *     `unsupported_type`, `too_large`, `empty`) and HTTP 4xx other than
+ *     408/429 (404, 403 won't suddenly succeed).
+ *
+ * Exported so the unit tests can verify the classification table without
+ * mocking the network.
+ */
+export function isRetriableFetchError(errorCode: string): boolean {
+  if (errorCode === 'timeout' || errorCode === 'fetch_failed') return true;
+  if (errorCode.startsWith('fetch_')) {
+    const status = Number(errorCode.slice('fetch_'.length));
+    if (!Number.isFinite(status)) return false;
+    if (status === 408 || status === 429) return true;
+    if (status >= 500 && status < 600) return true;
+    return false;
+  }
+  return false;
+}
+
+async function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function fetchAsImageOnce(
   url: string,
 ): Promise<{ blob: Blob; contentType: string } | { error: string }> {
   const controller = new AbortController();
@@ -147,6 +185,37 @@ async function fetchAsImage(
   } finally {
     clearTimeout(timer);
   }
+}
+
+/**
+ * Wraps `fetchAsImageOnce` with bounded retry for transient errors.
+ * Up to `FETCH_MAX_ATTEMPTS` total tries; backs off `FETCH_BACKOFF_MS`
+ * between them. Non-retriable errors short-circuit immediately so we
+ * don't waste budget on a deterministic 404. Returns the attempt count
+ * alongside the result so the caller can record it on the dead-letter
+ * row.
+ */
+async function fetchAsImage(
+  url: string,
+): Promise<
+  | { blob: Blob; contentType: string; attempts: number }
+  | { error: string; attempts: number }
+> {
+  let lastError = 'fetch_failed';
+  for (let attempt = 1; attempt <= FETCH_MAX_ATTEMPTS; attempt++) {
+    const result = await fetchAsImageOnce(url);
+    if (!('error' in result)) {
+      return { ...result, attempts: attempt };
+    }
+    lastError = result.error;
+    if (!isRetriableFetchError(result.error)) {
+      return { error: result.error, attempts: attempt };
+    }
+    if (attempt < FETCH_MAX_ATTEMPTS) {
+      await sleep(FETCH_BACKOFF_MS[attempt - 1] ?? 0);
+    }
+  }
+  return { error: lastError, attempts: FETCH_MAX_ATTEMPTS };
 }
 
 async function pushBlobToCfImages(args: {
@@ -254,7 +323,7 @@ export async function POST(
   async function processOne(url: string, index: number): Promise<ImportResult> {
     const fetchRes = await fetchAsImage(url);
     if ('error' in fetchRes) {
-      return { url, ok: false, errorCode: fetchRes.error };
+      return { url, ok: false, errorCode: fetchRes.error, attempts: fetchRes.attempts };
     }
     const ext = EXT_BY_TYPE[fetchRes.contentType] ?? 'jpg';
     const imageId = crypto.randomUUID();
@@ -269,7 +338,12 @@ export async function POST(
       });
     } catch (e) {
       console.warn(`[import-photos] R2 PUT failed for ${url}:`, e);
-      return { url, ok: false, errorCode: 'r2_put_failed' };
+      return {
+        url,
+        ok: false,
+        errorCode: 'r2_put_failed',
+        attempts: fetchRes.attempts,
+      };
     }
 
     const cfImageId = await pushBlobToCfImages({
@@ -300,9 +374,14 @@ export async function POST(
     if (insertErr) {
       const code = insertErr.code === '42501' ? 'forbidden' : 'insert_failed';
       console.warn(`[import-photos] insert failed for ${url}: ${insertErr.message}`);
-      return { url, ok: false, errorCode: code };
+      return { url, ok: false, errorCode: code, attempts: fetchRes.attempts };
     }
-    return { url, ok: true, cfImageId: cfImageId ?? undefined };
+    return {
+      url,
+      ok: true,
+      cfImageId: cfImageId ?? undefined,
+      attempts: fetchRes.attempts,
+    };
   }
 
   const results: ImportResult[] = new Array(dedup.length);
