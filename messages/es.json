@@ -1126,6 +1126,28 @@
       "viewListingActivityHeading": "Toda la actividad de este anuncio",
       "noActivity": "Aún no hay actividad registrada.",
       "noActivityHint": "Cuando los visitantes vean, guarden o contacten sobre este anuncio, verás cada evento aquí."
+    },
+    "social": {
+      "heading": "Rendimiento en redes",
+      "tilesAria": "Resumen de rendimiento por plataforma",
+      "reach": "Alcance",
+      "leads": "Contactos",
+      "cpl": "CPL",
+      "organic": "Orgánico",
+      "lastPost": "Última publicación",
+      "lastPostNever": "—",
+      "posts": "publicaciones",
+      "sparklineLabel": "Alcance — últimos 30 días",
+      "sparklineSrLabel": "Tendencia de alcance en 30 días",
+      "colDate": "Fecha",
+      "colPlatform": "Plataforma",
+      "colReach": "Alcance",
+      "colClicks": "Clics",
+      "colLeads": "Contactos",
+      "colCpl": "CPL",
+      "emptyHeading": "Aún no hay datos de rendimiento social",
+      "emptyBody": "Conecta tus cuentas en Social para empezar a medir alcance, contactos y coste por contacto por anuncio.",
+      "emptyCta": "Ir a Social"
     }
   },
   "forAgents": {

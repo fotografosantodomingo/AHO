@@ -9,6 +9,12 @@ import {
   getPropertyRecentActivity,
 } from '@/lib/analytics/queries';
 import { StatTile, formatRelativeTime } from '@/components/analytics/stat-tile';
+import { SocialPerformanceSection } from '@/components/analytics/social-performance-section';
+import { getPerformanceForListing } from '@/lib/listings/listing-performance';
+import {
+  getCurrentUserOrgPlan,
+  isOrgOnProAutomation,
+} from '@/lib/billing/plan-gating';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -61,7 +67,7 @@ export default async function PropertyAnalyticsPage({
   const since7d = daysAgo(7);
   const since30d = daysAgo(30);
 
-  const [analytics7d, analytics30d, activity] = await Promise.all([
+  const [analytics7d, analytics30d, activity, planCtx] = await Promise.all([
     getPropertyAnalytics(supabase, property.id as string, since7d),
     getPropertyAnalytics(supabase, property.id as string, since30d),
     getPropertyRecentActivity(
@@ -70,7 +76,18 @@ export default async function PropertyAnalyticsPage({
       typedLocale,
       50,
     ),
+    getCurrentUserOrgPlan(supabase),
   ]);
+
+  // Sprint 3 — "Social performance" tab is plan-gated to Pro Automation
+  // (matches the social-grid + /dashboard/social gating). Lower tiers
+  // don't see the empty state; they see no extra section.
+  const showSocialPerformance = planCtx
+    ? await isOrgOnProAutomation(supabase, planCtx.orgId)
+    : false;
+  const socialPerformance = showSocialPerformance
+    ? await getPerformanceForListing(supabase, property.id as string)
+    : null;
 
   const analyticsBackHref = `/${typedLocale}/${typedLocale === 'es' ? 'panel/estadisticas' : 'dashboard/analytics'}`;
   const slugForLocale =
@@ -147,6 +164,17 @@ export default async function PropertyAnalyticsPage({
           secondaryLabel={t('past30dWindow')}
         />
       </section>
+
+      {/* Sprint 3 — "Social performance" section. Pro Automation only.
+          Renders honest-empty today (no rows in listing_post_metrics);
+          lights up automatically when the Meta Insights cron + FB Lead
+          Ads webhook start populating snapshots. */}
+      {socialPerformance && (
+        <SocialPerformanceSection
+          locale={typedLocale}
+          performance={socialPerformance}
+        />
+      )}
 
       {/* Full activity feed for this listing (50 most recent events). */}
       <section aria-labelledby="listing-activity-heading" className="space-y-3">

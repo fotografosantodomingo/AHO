@@ -814,3 +814,63 @@ export const agentFaqs = pgTable(
 export type AgentFaq = typeof agentFaqs.$inferSelect;
 export type NewAgentFaq = typeof agentFaqs.$inferInsert;
 
+// ----------------------------------------------------------------
+// listing_post_metrics (migration 0037) — Sprint 3 performance
+// dashboard. Per-listing × per-platform × per-post snapshots of
+// reach / impressions / clicks / leads / CPL. Populated by service-
+// role writers (Meta Insights cron, FB Lead Ads webhook, future
+// LinkedIn cron); read by the agent dashboard via RLS. No user-
+// context INSERT/UPDATE/DELETE policies — append-only from the
+// agent's POV.
+// ----------------------------------------------------------------
+
+export const LISTING_POST_PLATFORMS = [
+  'facebook',
+  'instagram',
+  'linkedin',
+  'tiktok',
+  'pinterest',
+] as const;
+export type ListingPostPlatform = (typeof LISTING_POST_PLATFORMS)[number];
+
+export const listingPostMetrics = pgTable(
+  'listing_post_metrics',
+  {
+    id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+    listingId: uuid('listing_id')
+      .notNull()
+      .references(() => properties.id, { onDelete: 'cascade' }),
+    platform: text('platform').notNull(),
+    postedAt: timestamp('posted_at', { withTimezone: true }).notNull(),
+    postExternalId: text('post_external_id').notNull(),
+    reach: integer('reach').notNull().default(0),
+    impressions: integer('impressions').notNull().default(0),
+    clicks: integer('clicks').notNull().default(0),
+    leads: integer('leads').notNull().default(0),
+    /** Cost per lead in integer cents. NULL = organic / no spend. */
+    cplCents: bigint('cpl_cents', { mode: 'number' }),
+    currency: char('currency', { length: 3 }).notNull().default('USD'),
+    capturedAt: timestamp('captured_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    idxListingPlatformPosted: index(
+      'idx_listing_post_metrics_listing_platform_posted',
+    ).on(t.listingId, t.platform, t.postedAt),
+    idxListingCaptured: index('idx_listing_post_metrics_listing_captured').on(
+      t.listingId,
+      t.capturedAt,
+    ),
+  }),
+);
+
+export type ListingPostMetric = typeof listingPostMetrics.$inferSelect;
+export type NewListingPostMetric = typeof listingPostMetrics.$inferInsert;
+
