@@ -189,6 +189,11 @@ export const PATHNAMES = {
     ...en5('/agents/[slug]'),
   },
   '/admin': '/admin',
+  // MFA enrollment interstitial for admin accounts. Lives outside
+  // /dashboard so the dashboard-layout MFA gate can redirect to it
+  // without looping. Same path across locales — admin/security
+  // surfaces don't need localized URL segments.
+  '/setup-mfa': '/setup-mfa',
   '/reviews/verify/[token]': {
     en: '/reviews/verify/[token]',
     es: '/resenas/verificar/[token]',

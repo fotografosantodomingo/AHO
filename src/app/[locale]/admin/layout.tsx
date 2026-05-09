@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { adminMfaSetupPath, getAdminMfaState } from '@/lib/auth/admin-mfa';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -61,6 +62,15 @@ export default async function AdminLayout({
     // bootstrap SQL from PROGRESS.md "Admin path + first-admin
     // bootstrap".
     redirect(`/${locale}`);
+  }
+
+  // MFA gate — admins without a verified factor are bounced to the
+  // setup interstitial. Non-admins are unaffected (and never reach
+  // this layout). The gate also covers /admin/* deep links, since
+  // every admin page mounts under this layout.
+  const mfa = await getAdminMfaState(supabase, userResult.user.id);
+  if (mfa.enrollmentRequired) {
+    redirect(adminMfaSetupPath(locale));
   }
 
   // English-only nav labels — admin surface is internal and doesn't need

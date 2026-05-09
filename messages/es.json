@@ -1027,6 +1027,30 @@
       "mustAcceptTerms": "Debes aceptar los Términos y la Política de Privacidad.",
       "pwned": "Esta contraseña ha aparecido en filtraciones de datos conocidas. Por favor elige otra.",
       "generic": "Algo salió mal. Inténtalo de nuevo."
+    },
+    "lockout": {
+      "cooldown_1m": "Demasiados intentos fallidos. Vuelve a intentarlo en {minutes, plural, one {# minuto} other {# minutos}}.",
+      "cooldown_15m": "Demasiados intentos fallidos. Vuelve a intentarlo en {minutes, plural, one {# minuto} other {# minutos}}.",
+      "lockout_24h": "Esta cuenta está temporalmente bloqueada por demasiados intentos fallidos. Contacta a soporte si necesitas acceso antes."
+    },
+    "mfa": {
+      "badge": "Seguridad",
+      "setupHeading": "Configurar autenticación de dos factores",
+      "introAdmin": "Las cuentas de administrador requieren un código de un solo uso de una app de autenticación. Agrega un generador de códigos a tu cuenta para continuar.",
+      "introOptional": "Agrega un código de un solo uso de una app de autenticación para una capa adicional de protección.",
+      "step1Title": "Instala una app de autenticación",
+      "step1Body": "Usa Google Authenticator, 1Password, Authy o cualquier app compatible con TOTP.",
+      "step2Title": "Escanea este código QR",
+      "qrAlt": "Código QR para la app de autenticación",
+      "manualEntry": "O introduce este secreto manualmente:",
+      "step3Title": "Introduce el código de 6 dígitos",
+      "step3Body": "Escribe el código actual que muestra tu app de autenticación.",
+      "verifyCta": "Verificar y terminar",
+      "verifying": "Verificando…",
+      "preparing": "Preparando tu código…",
+      "success": "Autenticación de dos factores activada. Redirigiendo…",
+      "errorBadCode": "Ese código no coincide. Intenta con el siguiente que muestre tu app.",
+      "errorGeneric": "No se pudo iniciar la configuración MFA. Recarga la página para intentar de nuevo."
     }
   },
   "savedSearches": {
