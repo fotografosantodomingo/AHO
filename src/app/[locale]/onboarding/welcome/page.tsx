@@ -4,12 +4,20 @@ import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { WelcomePoller } from '@/components/billing/welcome-poller';
+import {
+  OnboardingWizard,
+  type OnboardingWizardInitial,
+} from '@/components/onboarding/onboarding-wizard';
+import {
+  getCurrentUserOrgPlan,
+  planTierLabel,
+} from '@/lib/billing/plan-gating';
 
 export const runtime = 'edge';
 
-// Auth-required + reads the user's freshly-created org row, which is
-// written by the Stripe webhook between Checkout success and the user
-// landing here. Every render must be live.
+// Auth-required + reads the user's profile + (when present) the freshly-
+// created org row written by the Stripe webhook between Checkout success
+// and the user landing here. Every render must be live.
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({
@@ -26,28 +34,28 @@ export async function generateMetadata({
 }
 
 /**
- * Post-Checkout return page.
+ * Two-purpose page:
  *
- * Stripe's `success_url` lands the user here with `?session_id=...`. By
- * that time, Stripe has *also* sent `checkout.session.completed` to our
- * webhook, which atomically creates the org + member + subscription rows
- * (see `src/lib/billing/handlers/checkout-session-completed.ts`). The
- * webhook is fast but not instant — the user can sometimes beat it.
+ *   A. Post-Checkout return surface (URL has `?session_id=...`).
+ *      Stripe's `success_url` lands the user here after the webhook
+ *      atomically creates the org + member + subscription rows
+ *      (see `src/lib/billing/handlers/checkout-session-completed.ts`).
+ *      The webhook is fast but not instant — the user can sometimes
+ *      beat it; we poll until membership exists.
  *
- * Render branches:
- *   1. Not signed in       → bounce to /signin?next=<this page>.
- *   2. Missing session_id  → friendly message + link back to /pricing.
- *      (Manual visit / botched redirect / refresh from a stale tab.)
- *   3. No org membership   → "finishing setup" state with a polling
- *      Client Component that calls `router.refresh()` every 2.5s. The
- *      next render will hit branch 4 once the webhook has run.
- *   4. Org membership      → success state with a Dashboard CTA.
+ *   B. First-run onboarding wizard for newly-signed-up agents
+ *      (URL has NO `session_id`). Multi-step soft funnel: welcome,
+ *      profile basics, social/WhatsApp connect, first-listing CTA.
+ *      Soft funnel — every step has Skip and the wizard never gates
+ *      dashboard access. PUTs incrementally to /api/me/profile so
+ *      progress survives a tab close.
  *
- * We deliberately do NOT verify the session_id against Stripe here. The
- * webhook is the source of truth for "this user is now subscribed";
- * trying to confirm payment from this page would race the webhook and
- * also leak the option of clicking around the URL to fake an upgrade.
- * The presence of a populated `organization_members` row IS the proof.
+ * We deliberately do NOT verify the session_id against Stripe in flow
+ * A. The webhook is the source of truth for "this user is now
+ * subscribed"; trying to confirm payment from this page would race the
+ * webhook and also leak the option of clicking around the URL to fake
+ * an upgrade. The presence of a populated `organization_members` row
+ * IS the proof.
  */
 export default async function OnboardingWelcomePage({
   params,
@@ -77,64 +85,106 @@ export default async function OnboardingWelcomePage({
     redirect(`${signInPath}?next=${encodeURIComponent(next)}`);
   }
 
-  if (!session_id) {
+  // ─── Flow A: post-Stripe-Checkout success ────────────────────────
+  if (session_id) {
+    const { data: memberships } = await supabase
+      .from('organization_members')
+      .select('org_id')
+      .eq('user_id', userResult.user.id)
+      .limit(1);
+
+    const isActive = !!memberships && memberships.length > 0;
+
     return (
       <main className="mx-auto max-w-md px-6 py-16 text-center">
-        <p className="text-sm text-ink-muted dark:text-ink-inverse-muted">
-          {t('missingSession')}
-        </p>
-        <a
-          href={pricingPath}
-          className="mt-4 inline-flex items-center justify-center rounded-lg border border-border-strong px-4 py-2 text-sm font-medium transition hover:bg-black/5 dark:hover:bg-white/5"
-        >
-          {t('backToPricing')}
-        </a>
+        {isActive ? (
+          <>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {t('activeHeading')}
+            </h1>
+            <p className="mt-3 text-sm text-helper">{t('activeBody')}</p>
+            <a href={dashboardPath} className="btn-primary mt-6">
+              {t('openDashboard')}
+            </a>
+          </>
+        ) : (
+          <>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {t('pendingHeading')}
+            </h1>
+            <p className="mt-3 text-sm text-helper">{t('pendingBody')}</p>
+            <p className="mt-2 text-xs text-helper">{t('pendingNote')}</p>
+            <p className="mt-6 text-xs text-helper">
+              {t('pendingTakingLong')}
+            </p>
+            <WelcomePoller />
+          </>
+        )}
       </main>
     );
   }
 
-  const { data: memberships } = await supabase
-    .from('organization_members')
-    .select('org_id')
-    .eq('user_id', userResult.user.id)
-    .limit(1);
+  // ─── Flow B: first-run onboarding wizard ─────────────────────────
+  // Voluntary visit. We had a "missing session" branch here previously —
+  // that was for users who manually navigated or refreshed a stale
+  // Checkout success URL. Now this page is the agent's first-run
+  // landing surface, so a no-session_id arrival is the *normal* case.
+  // Users with a recent paid Checkout still hit Flow A via session_id;
+  // anyone landing here without one gets the wizard.
 
-  const isActive = !!memberships && memberships.length > 0;
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select(
+      'full_name, city, country_code, bio, languages_spoken, whatsapp_phone, facebook_url, instagram_url, linkedin_url',
+    )
+    .eq('id', userResult.user.id)
+    .maybeSingle();
+
+  const orgPlan = await getCurrentUserOrgPlan(supabase);
+  const planTier = planTierLabel(orgPlan?.planId ?? null);
+
+  // "Does any country have agents?" — drives the only on-page trust
+  // signal that needs a real number. Cheap query, filters out test
+  // fixtures per the public-surface convention.
+  let hasLiveAgents = false;
+  try {
+    const { count } = await supabase
+      .from('organizations')
+      .select('id', { count: 'exact', head: true })
+      .eq('type', 'agent')
+      .not('public_slug', 'is', null);
+    hasLiveAgents = (count ?? 0) > 0;
+  } catch {
+    hasLiveAgents = false;
+  }
+
+  const initial: OnboardingWizardInitial = {
+    fullName: profile?.full_name ?? null,
+    city: profile?.city ?? null,
+    countryCode: profile?.country_code ?? null,
+    bio: profile?.bio ?? null,
+    languagesSpoken: (profile?.languages_spoken as string[] | null) ?? [],
+    whatsappPhone: profile?.whatsapp_phone ?? null,
+    facebookUrl: profile?.facebook_url ?? null,
+    instagramUrl: profile?.instagram_url ?? null,
+    linkedinUrl: profile?.linkedin_url ?? null,
+  };
 
   return (
-    <main className="mx-auto max-w-md px-6 py-16 text-center">
-      {isActive ? (
-        <>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {t('activeHeading')}
-          </h1>
-          <p className="mt-3 text-sm text-helper">
-            {t('activeBody')}
-          </p>
-          <a
-            href={dashboardPath}
-            className="btn-primary mt-6"
-          >
-            {t('openDashboard')}
-          </a>
-        </>
-      ) : (
-        <>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {t('pendingHeading')}
-          </h1>
-          <p className="mt-3 text-sm text-helper">
-            {t('pendingBody')}
-          </p>
-          <p className="mt-2 text-xs text-helper">
-            {t('pendingNote')}
-          </p>
-          <p className="mt-6 text-xs text-helper">
-            {t('pendingTakingLong')}
-          </p>
-          <WelcomePoller />
-        </>
-      )}
+    <main className="mx-auto px-4 py-12 sm:py-16">
+      <OnboardingWizard
+        initial={initial}
+        planTier={planTier}
+        hasLiveAgents={hasLiveAgents}
+      />
+      <p className="mt-6 text-center text-xs text-helper">
+        <a
+          href={pricingPath}
+          className="underline-offset-2 hover:text-action hover:underline dark:hover:text-action-dark"
+        >
+          {t('backToPricing')}
+        </a>
+      </p>
     </main>
   );
 }

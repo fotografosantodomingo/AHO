@@ -2,7 +2,7 @@
   "site": {
     "name": "AHO",
     "tagline": "Advertise Homes Online",
-    "description": "Anonse nieruchomości na całym świecie — znajdź dom gdziekolwiek, opublikuj ofertę wszędzie."
+    "description": "Anonse nieruchomości na całym świecie — znajdź dom gdziekolwiek, opublikuj ogłoszenie wszędzie."
   },
   "nav": {
     "browse": "Przeglądaj",
@@ -25,16 +25,129 @@
   "currencyPicker": {
     "label": "Wybierz walutę"
   },
+  "priceTile": {
+    "approximateInLabel": "Około {value} w wybranej walucie"
+  },
   "locationSubBar": {
     "label": "Przeglądaj według lokalizacji",
     "allCountries": "Wszystkie kraje"
   },
+  "pricing": {
+    "eyebrow": "Cennik",
+    "heading": "Plany dla pracujących agentów nieruchomości.",
+    "subheading": "Płać miesięcznie lub zaoszczędź wybierając plan roczny. Zmień plan w dowolnym momencie przez Portal Klienta Stripe.",
+    "compareAllPlans": "Porównaj wszystkie plany →",
+    "focus": {
+      "agent": {
+        "eyebrow": "Agent",
+        "heading": "Wszystko, czego potrzebujesz, by wystawiać i sprzedawać.",
+        "subheading": "Nielimitowane aktywne ogłoszenia, skrzynka kontaktów, profil agenta i opinie. Anuluj kiedy chcesz."
+      },
+      "plus": {
+        "eyebrow": "Plus",
+        "heading": "Wykończenie dla zaawansowanych pośredników.",
+        "subheading": "Wszystko z planu Agent, plus wyróżnienie ogłoszeń, priorytetowe wsparcie i wizualne oznaczenie Plus na Twoim publicznym profilu."
+      },
+      "pro_automation": {
+        "eyebrow": "Pro Automation",
+        "heading": "Opublikuj raz, dystrybuuj wszędzie.",
+        "subheading": "Dystrybucja jednym kliknięciem na Facebook + Instagram + WhatsApp. Harmonogramy, ponawianie i analityka — w standardzie. Jedyny plan AHO z automatyzacją social media."
+      }
+    },
+    "periodToggleAria": "Okres rozliczeniowy",
+    "period": {
+      "monthly": "Miesięcznie",
+      "annual": "Rocznie"
+    },
+    "annualBadge": "oszczędź ~17%",
+    "perMonth": "/ miesiąc",
+    "perYear": "/ rok",
+    "mostPopular": "Najczęściej wybierany",
+    "currentPlan": "Twój obecny plan",
+    "subscribe": "Subskrybuj",
+    "signInToSubscribe": "Zaloguj się, aby subskrybować",
+    "redirecting": "Przekierowanie do płatności…",
+    "subscribeError": "Nie udało się rozpocząć płatności. Spróbuj ponownie.",
+    "orgNamePrompt": "Jaka jest nazwa Twojej firmy lub Twoje imię i nazwisko jako agenta?",
+    "tier": {
+      "agent": {
+        "eyebrow": "Plan podstawowy",
+        "name": "Agent",
+        "tagline": "Wystaw ogłoszenia i zacznij zbierać kontakty.",
+        "feat1": "Do 5 aktywnych ogłoszeń",
+        "feat2": "Tekst do ręcznego udostępniania na FB / IG / WhatsApp",
+        "feat3": "Kontakty przez WhatsApp i email",
+        "feat4": "Skrzynka kontaktów ze śledzeniem statusu",
+        "feat5": "Analityka skuteczności każdego ogłoszenia"
+      },
+      "plus": {
+        "eyebrow": "Rozwijające się biuro",
+        "name": "Plus",
+        "tagline": "Większy limit ogłoszeń + oznaczenia zweryfikowanego pośrednika.",
+        "feat1": "Do 15 aktywnych ogłoszeń",
+        "feat2": "Odznaka Zweryfikowanego Agenta Nieruchomości",
+        "feat3": "Priorytetowe miejsce na stronach miast",
+        "feat4": "Ogłoszenia w wielu miastach",
+        "feat5": "Wszystko z planu Agent"
+      },
+      "pro_automation": {
+        "eyebrow": "Najwyższy plan",
+        "name": "Pro Automation",
+        "tagline": "Opublikuj raz, dystrybuuj wszędzie — automatycznie.",
+        "feat1": "Do 30 aktywnych ogłoszeń",
+        "feat2": "Publikacja jednym kliknięciem na Facebook + Instagram + LinkedIn",
+        "feat3": "Opisy generowane przez AI dla każdej platformy",
+        "feat4": "Historia publikacji + ponawianie + śledzenie ruchu",
+        "feat5": "Wszystko z planu Plus"
+      }
+    },
+    "manageBilling": "Zarządzaj rozliczeniami",
+    "agentPlanName": "AHO Agent",
+    "monthly": "Miesięcznie",
+    "annual": "Rocznie",
+    "monthlyPrice": "$29 / miesiąc",
+    "annualPrice": "$290 / rok",
+    "annualSavings": "~17% taniej niż miesięcznie",
+    "trialNote": "7 dni okresu próbnego przy planie miesięcznym. Anuluj przed jego końcem, by uniknąć opłaty.",
+    "features": {
+      "listings": "Do 5 aktywnych ogłoszeń",
+      "social": "Udostępnianie jednym kliknięciem na Facebook + Instagram",
+      "whatsapp": "Kontakty przez WhatsApp z Twoich ogłoszeń",
+      "inbox": "Skrzynka kontaktów ze śledzeniem statusu",
+      "analytics": "Analityka skuteczności każdego ogłoszenia",
+      "billing": "Zarządzaj rozliczeniami i zmianami planu przez Portal Klienta Stripe"
+    },
+    "orgNameLabel": "Nazwa firmy",
+    "orgNameHelp": "Tak agenci i kupujący zobaczą Twoją markę. Możesz to później zmienić.",
+    "subscribeMonthly": "Subskrybuj miesięcznie",
+    "subscribeAnnual": "Subskrybuj rocznie",
+    "alreadySubscribed": "Masz już subskrypcję planu Agent. Zarządzaj nią z poziomu panelu.",
+    "openDashboard": "Otwórz panel",
+    "needsSignIn": "Zaloguj się, aby subskrybować",
+    "priceHeading": "$29",
+    "priceSubheading": "/ miesiąc",
+    "annualPill": "Zaoszczędź ~17% z planem rocznym",
+    "featuresHeading": "Wszystko, czego potrzebujesz do publikacji",
+    "trialBadge": "7 dni za darmo",
+    "faqHeading": "Najczęściej zadawane pytania",
+    "faq1Q": "Czy mogę anulować w dowolnym momencie?",
+    "faq1A": "Tak. Otwórz Portal Klienta Stripe z poziomu panelu i anuluj w dwóch kliknięciach. Dostęp zachowujesz do końca okresu rozliczeniowego.",
+    "faq2Q": "Co stanie się z moimi ogłoszeniami, jeśli anuluję?",
+    "faq2A": "Staną się nieaktywne — przestaną pojawiać się w publicznych wynikach wyszukiwania, ale pozostaną w Twoim panelu. Po wznowieniu subskrypcji wrócą natychmiast.",
+    "faq3Q": "Czy potrzebuję osobnego planu na każdą nieruchomość?",
+    "faq3A": "Nie. Plan Agent obejmuje do 5 aktywnych ogłoszeń. Wyższe limity są dostępne w planach Premium i Agency.",
+    "faq4Q": "Jakie metody płatności są obsługiwane?",
+    "faq4A": "Wszystkie najważniejsze karty przez Stripe Checkout, plus 3-D Secure tam, gdzie wymaga tego bank.",
+    "errors": {
+      "session_create_failed": "Nie udało się rozpocząć płatności. Spróbuj ponownie."
+    }
+  },
   "home": {
     "eyebrow": "Marketplace nieruchomości",
-    "headingLead": "Nieruchomości, prawdziwe oferty —",
+    "headingLead": "Nieruchomości, prawdziwe ogłoszenia —",
     "headingAccent": "wszędzie",
-    "leadCopy": "Znajdź dom tam, gdzie szukasz, w każdym kraju. Agenci: publikujcie oferty jednym kliknięciem na Facebook i Instagram.",
-    "ctaForBuyers": "Przeglądaj oferty",
+    "leadCopy": "Znajdź dom tam, gdzie szukasz, w każdym kraju. Agenci: publikujcie ogłoszenia jednym kliknięciem na Facebook i Instagram.",
+    "ctaForBuyers": "Przeglądaj ogłoszenia",
     "ctaForAgents": "Publikuj jako agent",
     "searchPlaceholder": "Miasto, dzielnica lub słowo kluczowe",
     "searchSubmit": "Szukaj",
@@ -45,41 +158,90 @@
     "selectCity": "Dowolne miasto",
     "selectCityDisabled": "Najpierw wybierz kraj",
     "loadingCities": "Wczytywanie miast…",
-    "trustListingsLabel": "Aktywne oferty",
+    "trustListingsLabel": "Aktywne ogłoszenia",
     "trustCitiesLabel": "Miasta",
     "trustAgentsLabel": "Zweryfikowani agenci",
     "featuredHeading": "Niedawno opublikowane",
-    "featuredEmpty": "Jeszcze brak ofert",
-    "featuredEmptyBody": "AHO jest w zamkniętej becie. Pierwsi agenci są rejestrowani — prawdziwe oferty pojawią się tu, gdy zostaną opublikowane.",
+    "featuredEmpty": "Jeszcze brak ogłoszeń",
+    "featuredEmptyBody": "AHO jest w zamkniętej becie. Pierwsi agenci są rejestrowani — prawdziwe ogłoszenia pojawią się tu, gdy zostaną opublikowane.",
     "browseByCity": "Przeglądaj według miasta",
     "listYourFirstProperty": "Wystaw swoją pierwszą nieruchomość",
-    "viewAllListings": "Zobacz wszystkie oferty",
+    "viewAllListings": "Zobacz wszystkie ogłoszenia",
     "howHeading": "Jak działa AHO",
-    "howSubheading": "Od oferty do kontaktu w trzech krokach. Zbudowane dla agentów, którzy nie chcą ręcznie publikować na pięciu sieciach społecznościowych co tydzień.",
-    "howStep1Title": "Subskrybuj i utwórz ofertę",
+    "howSubheading": "Od ogłoszenia do kontaktu w trzech krokach. Zbudowane dla agentów, którzy nie chcą ręcznie publikować na pięciu sieciach społecznościowych co tydzień.",
+    "howStep1Title": "Subskrybuj i utwórz ogłoszenie",
     "howStep1Body": "$29 miesięcznie, 7 dni za darmo, anuluj kiedy chcesz przez Portal Klienta Stripe.",
-    "howStep2Title": "Opublikuj oferty",
-    "howStep2Body": "Tytuł, zdjęcia, cena, lokalizacja — dwujęzycznie EN/ES. Do 5 aktywnych ofert na planie Agent.",
+    "howStep2Title": "Opublikuj swoje ogłoszenia",
+    "howStep2Body": "Tytuł, zdjęcia, cena, lokalizacja — dwujęzycznie EN/ES. Do 5 aktywnych ogłoszeń na planie Agent.",
     "howStep3Title": "Dotrzyj do kupujących wszędzie",
-    "howStep3Body": "Oferty automatycznie publikują się na Twoim profilu AHO, stronach miast i Twoich kanałach społecznościowych.",
+    "howStep3Body": "Ogłoszenia automatycznie publikują się na Twoim profilu AHO, stronach miast i Twoich kanałach społecznościowych.",
     "howCta": "Zobacz cennik",
     "proSocialEyebrow": "Pro Automation",
     "proSocialHeading": "Opublikuj raz. Dystrybuuj wszędzie.",
-    "proSocialBody": "Jedna oferta staje się postem na Facebooku, Instagramie i LinkedIn — automatycznie. Pro Automation obsługuje opisy, obrazy i cross-posting, więc spędzasz więcej czasu zamykając transakcje, a mniej kopiując treść.",
+    "proSocialBody": "Jedno ogłoszenie staje się postem na Facebooku, Instagramie i LinkedIn — automatycznie. Pro Automation obsługuje opisy, obrazy i cross-posting, więc spędzasz więcej czasu zamykając transakcje, a mniej kopiując treść.",
     "proSocialFeat1Title": "Opisy AI dla każdej platformy",
     "proSocialFeat1Body": "Każda sieć dostaje swój dostosowany post — nigdy ten sam ogólny tekst we wszystkich trzech.",
     "proSocialFeat2Title": "Cross-posting bez wysiłku",
-    "proSocialFeat2Body": "Połącz raz. Każda nowa oferta idzie na FB, IG i LinkedIn w momencie publikacji.",
+    "proSocialFeat2Body": "Połącz raz. Każde nowe ogłoszenie idzie na FB, IG i LinkedIn w momencie publikacji.",
     "proSocialFeat3Title": "Wbudowane śledzenie ruchu",
     "proSocialFeat3Body": "Linki z tagami UTM pokazują, która platforma przysłała każdy kontakt — prosto w Twoim panelu.",
     "proSocialCta": "Zobacz cennik Pro Automation"
   },
-  "pricing": {
-    "subscribe": "Subskrybuj",
-    "signInToSubscribe": "Zaloguj się, aby subskrybować",
-    "redirecting": "Przekierowanie do płatności…",
-    "subscribeError": "Nie udało się rozpocząć płatności. Spróbuj ponownie.",
-    "orgNamePrompt": "Jaka jest nazwa Twojej firmy lub Twoje imię i nazwisko jako agenta?"
+  "search": {
+    "heading": "Przeglądaj ogłoszenia",
+    "filtersHeading": "Filtry",
+    "queryLabel": "Słowo kluczowe",
+    "queryPlaceholder": "Plaża, garaż, basen…",
+    "cityLabel": "Miasto",
+    "countryLabel": "Kraj",
+    "countryAny": "Dowolny kraj",
+    "transactionLabel": "Typ",
+    "transactionAny": "Sprzedaż lub wynajem",
+    "minPrice": "Cena od",
+    "maxPrice": "Cena do",
+    "bedroomsLabel": "Sypialnie",
+    "bedsAny": "Dowolnie",
+    "applyFilters": "Zastosuj filtry",
+    "clearFilters": "Wyczyść",
+    "resultsCount_one": "1 ogłoszenie",
+    "resultsCount_few": "{count} ogłoszenia",
+    "resultsCount_many": "{count} ogłoszeń",
+    "resultsCount_other": "{count} ogłoszeń",
+    "resultsCountInArea_one": "1 ogłoszenie w tym obszarze",
+    "resultsCountInArea_few": "{count} ogłoszenia w tym obszarze",
+    "resultsCountInArea_many": "{count} ogłoszeń w tym obszarze",
+    "resultsCountInArea_other": "{count} ogłoszeń w tym obszarze",
+    "noResults": "Żadne ogłoszenie nie pasuje do tych filtrów.",
+    "noResultsHint": "Spróbuj rozszerzyć przedział cenowy lub usunąć część filtrów.",
+    "previousPage": "Poprzednia",
+    "nextPage": "Następna",
+    "viewList": "Lista",
+    "viewMap": "Mapa",
+    "bboxActive": "Pokazujemy ogłoszenia z tego obszaru mapy.",
+    "resetBbox": "Pokaż wszystkie wyniki"
+  },
+  "card": {
+    "viewListing": "Zobacz ogłoszenie"
+  },
+  "favorite": {
+    "add": "Dodaj do ulubionych",
+    "remove": "Usuń z ulubionych",
+    "saveLabel": "Zapisz",
+    "savedLabel": "Zapisane",
+    "error": "Nie udało się zapisać. Spróbuj ponownie.",
+    "save": "Zapisz",
+    "saved": "Zapisane",
+    "signInToSave": "Zaloguj się, aby zapisać"
+  },
+  "savedProperties": {
+    "heading": "Zapisane nieruchomości",
+    "subheading": "Ogłoszenia zapisane na później. Damy Ci znać, jeśli coś się zmieni.",
+    "emptyHeading": "Brak zapisanych nieruchomości",
+    "emptyBody": "Gdy znajdziesz miejsce, które Ci się spodoba, kliknij serce na ogłoszeniu, by je tu zapisać.",
+    "emptyCta": "Przeglądaj ogłoszenia"
+  },
+  "recentlyViewed": {
+    "heading": "Ostatnio oglądane"
   },
   "footer": {
     "privacy": "Prywatność",
@@ -89,13 +251,13 @@
     "sectionForBuyers": "Dla kupujących",
     "sectionForAgents": "Dla agentów",
     "sectionStayInTouch": "Bądź na bieżąco",
-    "aboutBody": "AHO to marketplace nieruchomości — prawdziwe oferty, prawdziwi kupujący, prawdziwi agenci, na całym świecie.",
+    "aboutBody": "AHO to marketplace nieruchomości — prawdziwe ogłoszenia, prawdziwi kupujący, prawdziwi agenci, na całym świecie.",
     "quickContact": "Masz pytanie? Napisz do nas.",
     "authStripHeading": "Zacznij w dwie minuty.",
-    "authStripBody": "Zapisuj oferty, otrzymuj alerty mailowe i kontaktuj się z agentami bezpośrednio.",
+    "authStripBody": "Zapisuj ogłoszenia, otrzymuj alerty mailowe i kontaktuj się z agentami bezpośrednio.",
     "authStripRegister": "Załóż konto",
     "authStripSignIn": "Zaloguj się",
-    "linkBrowseListings": "Przeglądaj oferty",
+    "linkBrowseListings": "Przeglądaj ogłoszenia",
     "linkBrowseByCountry": "Przeglądaj według kraju",
     "linkSavedSearches": "Zapisane wyszukiwania",
     "linkSavedProperties": "Ulubione",
@@ -104,7 +266,7 @@
     "linkSignUp": "Załóż konto agenta",
     "linkSignIn": "Zaloguj się",
     "newsletter": {
-      "body": "Nowe oferty, notatki rynkowe i aktualizacje produktu — mniej więcej raz w miesiącu.",
+      "body": "Nowe ogłoszenia, notatki rynkowe i aktualizacje produktu — mniej więcej raz w miesiącu.",
       "label": "Adres email",
       "placeholder": "ty@example.com",
       "submit": "Subskrybuj",
@@ -128,44 +290,6 @@
     "fr": "Français",
     "it": "Italiano"
   },
-  "socialTones": {
-    "label": "Ton wypowiedzi",
-    "tones": {
-      "luxury": {
-        "label": "Luksus",
-        "description": "Aspiracyjny i ekskluzywny — eksponuje rzadkość, prestiżowy adres, jakość wykonania i styl życia jako wyznacznik statusu."
-      },
-      "investment": {
-        "label": "Inwestycja",
-        "description": "Konkretny i liczbowy — eksponuje stopę zwrotu z najmu, wzrost wartości i pozycję rynkową."
-      },
-      "family": {
-        "label": "Rodzina",
-        "description": "Ciepły i konkretny — eksponuje szkoły, spacerowy zasięg, miejsce do życia i rytm codziennego dnia."
-      }
-    }
-  },
-  "priceTile": {
-    "approximateInLabel": "Około {value} w wybranej walucie"
-  },
-  "card": {
-    "viewListing": "Zobacz ofertę"
-  },
-  "favorite": {
-    "save": "Zapisz",
-    "saved": "Zapisane",
-    "signInToSave": "Zaloguj się, aby zapisać"
-  },
-  "savedProperties": {
-    "heading": "Zapisane oferty",
-    "subheading": "Oferty zapisane na później. Damy Ci znać, jeśli coś się zmieni.",
-    "emptyHeading": "Brak zapisanych ofert",
-    "emptyBody": "Gdy znajdziesz miejsce, które Ci się spodoba, kliknij serce na ofercie, by je tu zapisać.",
-    "emptyCta": "Przeglądaj oferty"
-  },
-  "recentlyViewed": {
-    "heading": "Ostatnio oglądane"
-  },
   "gallery": {
     "noPhotos": "Brak zdjęć",
     "openPhoto": "Powiększ zdjęcie",
@@ -177,13 +301,13 @@
   "property": {
     "translationPending": "Tłumaczenie polskie w toku — wyświetlamy oryginalną treść.",
     "bedrooms_one": "{count} sypialnia",
-    "bedrooms_other": "{count} sypialnie",
     "bedrooms_few": "{count} sypialnie",
     "bedrooms_many": "{count} sypialni",
+    "bedrooms_other": "{count} sypialni",
     "bathrooms_one": "{count} łazienka",
-    "bathrooms_other": "{count} łazienki",
     "bathrooms_few": "{count} łazienki",
     "bathrooms_many": "{count} łazienek",
+    "bathrooms_other": "{count} łazienek",
     "areaSqm": "{value} m²",
     "transactionType": {
       "sale": "Na sprzedaż",
@@ -308,7 +432,484 @@
         "trade": "Wymiana"
       }
     },
-    "similarHomesHeading": "Podobne oferty w okolicy"
+    "similarHomesHeading": "Podobne ogłoszenia w okolicy"
+  },
+  "reviews": {
+    "sectionHeading": "Opinie",
+    "writeReviewCta": "Napisz opinię",
+    "writeReviewSubheading": "Podziel się swoim doświadczeniem z tym agentem. Twoja opinia będzie widoczna po potwierdzeniu emailem i krótkiej moderacji.",
+    "ratingLabel": "Ocena",
+    "ratingStars_one": "{count} gwiazdka",
+    "ratingStars_few": "{count} gwiazdki",
+    "ratingStars_many": "{count} gwiazdek",
+    "ratingStars_other": "{count} gwiazdek",
+    "bodyLabel": "Twoja opinia",
+    "bodyPlaceholder": "Jak wyglądała współpraca z tym agentem? Konkrety pomogą przyszłym kupującym.",
+    "bodyMinHelp": "Minimum 50 znaków.",
+    "nameLabel": "Twoje imię",
+    "namePlaceholder": "Tak kupujący zobaczą Twoją opinię",
+    "emailLabel": "Email",
+    "emailHelp": "Wyślemy link potwierdzający. Twój email nigdy nie jest pokazywany publicznie.",
+    "submitButton": "Wyślij opinię",
+    "submittingButton": "Wysyłanie…",
+    "submitSuccess": "Dzięki! Sprawdź email i kliknij link potwierdzający, by opublikować opinię.",
+    "submitError": "Nie udało się wysłać opinii. Spróbuj ponownie.",
+    "selfReviewError": "Nie możesz oceniać własnego profilu.",
+    "noReviews": "Brak opinii — bądź pierwszą osobą, która podzieli się doświadczeniem.",
+    "verifyHeading": "Potwierdź swoją opinię",
+    "verifySuccess": "Dzięki! Twoja opinia trafiła do moderacji i pojawi się publicznie w ciągu 24 godzin.",
+    "verifyExpired": "Ten link potwierdzający wygasł lub został już użyty. Wyślij opinię ponownie, by otrzymać nowy link.",
+    "verifyInvalid": "Nie udało się potwierdzić tego linka. Mógł zostać już użyty albo jest uszkodzony.",
+    "verifyChecking": "Potwierdzamy Twoją opinię…",
+    "agentReplyHeading": "Odpowiedź agenta",
+    "agentReplyEditPlaceholder": "Napisz krótką, profesjonalną odpowiedź (10–2000 znaków).",
+    "agentReplyButton": "Wyślij odpowiedź",
+    "agentReplyUpdate": "Zaktualizuj odpowiedź",
+    "agentReplyClear": "Usuń odpowiedź",
+    "agentReplySaved": "Odpowiedź zapisana.",
+    "ratingAggregate": "{avg} z 5 · {count} opinii",
+    "ratingAggregate_one": "{avg} z 5 · 1 opinia",
+    "reportReviewCta": "Zgłoś",
+    "reportReason": "Powód",
+    "reportReason_spam": "Spam",
+    "reportReason_fake": "Fałszywa lub spreparowana",
+    "reportReason_defamatory": "Zniesławiająca lub obraźliwa",
+    "reportReason_inappropriate": "Nieodpowiednia treść",
+    "reportReason_duplicate": "Duplikat innej opinii",
+    "reportReason_other": "Inny",
+    "reportNotesLabel": "Dodatkowy kontekst (opcjonalnie)",
+    "reportSubmit": "Wyślij zgłoszenie",
+    "reportSuccess": "Dzięki — sprawdzimy.",
+    "reportError": "Nie udało się wysłać zgłoszenia. Spróbuj ponownie.",
+    "dashboardHeading": "Opinie",
+    "dashboardSubheading": "Opinie o Tobie i Twoje odpowiedzi.",
+    "dashboardEmpty": "Brak opinii. Gdy kupujący zaczną oceniać Twoją pracę, pojawią się tutaj.",
+    "dashboardStatusLabel_pending_verification": "Oczekuje potwierdzenia mailowego",
+    "dashboardStatusLabel_pending_moderation": "Oczekuje moderacji",
+    "dashboardStatusLabel_published": "Opublikowana",
+    "dashboardStatusLabel_rejected": "Odrzucona przez moderację",
+    "dashboardStatusLabel_hidden": "Ukryta przez moderację",
+    "moderationHeading": "Moderacja opinii",
+    "moderationSubheading": "Zatwierdzaj, odrzucaj, ukrywaj lub przywracaj opinie.",
+    "moderationEmpty": "Kolejka pusta.",
+    "moderationApprove": "Zatwierdź",
+    "moderationReject": "Odrzuć",
+    "moderationHide": "Ukryj",
+    "moderationUnhide": "Przywróć",
+    "moderationReports": "{count} otwartych zgłoszeń",
+    "moderationReports_one": "1 otwarte zgłoszenie"
+  },
+  "errors": {
+    "notFound": "Nie znaleziono ogłoszenia",
+    "notFoundBody": "Ogłoszenie, którego szukasz, jest niedostępne lub zostało usunięte."
+  },
+  "agentProfile": {
+    "headingTemplate": "{name}",
+    "subheadingTemplate": "Agent nieruchomości · {location}",
+    "subheadingNoLocation": "Agent nieruchomości w AHO",
+    "listingsHeading": "Aktywne ogłoszenia",
+    "listingsCount_one": "1 aktywne ogłoszenie",
+    "listingsCount_few": "{count} aktywne ogłoszenia",
+    "listingsCount_many": "{count} aktywnych ogłoszeń",
+    "listingsCount_other": "{count} aktywnych ogłoszeń",
+    "emptyHeading": "Brak aktywnych ogłoszeń",
+    "emptyBody": "{name} nie ma teraz aktywnych ogłoszeń w AHO.",
+    "browseAllCta": "Przeglądaj ogłoszenia z całego świata",
+    "websiteCta": "Odwiedź stronę",
+    "whatsappCta": "Napisz na WhatsApp",
+    "bioHeading": "O agencie",
+    "areasServedHeading": "Obsługiwane obszary",
+    "faqHeading": "Najczęściej zadawane pytania",
+    "statsLabel": "Statystyki sprzedaży",
+    "statSales12mo": "Sprzedaże w ostatnich 12 miesiącach",
+    "statTotalSales": "Łącznie sprzedanych",
+    "statPriceRange": "Zakres cen (3 lata)",
+    "statAvgPrice": "Średnia cena sprzedaży (3 lata)",
+    "recentSalesHeading": "Ostatnie sprzedaże",
+    "soldHeading": "Sprzedane nieruchomości",
+    "soldColAddress": "Nieruchomość",
+    "soldColDate": "Data finalizacji",
+    "soldColPrice": "Cena finalizacji",
+    "soldColSide": "Reprezentowana strona",
+    "soldSold": "Sprzedane",
+    "soldRented": "Wynajęte",
+    "sideBuyer": "Kupujący",
+    "sideSeller": "Sprzedający",
+    "sideBoth": "Obie strony"
+  },
+  "markSold": {
+    "buttonSale": "Oznacz jako sprzedane",
+    "buttonRent": "Oznacz jako wynajęte",
+    "headingSale": "Oznacz to ogłoszenie jako sprzedane",
+    "headingRent": "Oznacz to ogłoszenie jako wynajęte",
+    "subheading": "Cena finalizacji jest opcjonalna — pozostaw puste przy poufnych transakcjach.",
+    "date": "Data finalizacji",
+    "price": "Cena finalizacji",
+    "pricePlaceholder": "Pełne jednostki (np. 350000)",
+    "priceHelp": "Opcjonalne. Pozostaw puste przy poufnych transakcjach — ogłoszenie i tak trafi do Twoich sprzedaży.",
+    "side": "Reprezentowana strona",
+    "sideBuyer": "Kupujący",
+    "sideSeller": "Sprzedający",
+    "sideBoth": "Obie strony",
+    "notes": "Notatki finalizacyjne",
+    "notesPlaceholder": "Notatki wewnętrzne — nigdy nie są publikowane.",
+    "cancel": "Anuluj",
+    "confirm": "Potwierdź",
+    "errorInvalidPrice": "Wpisz dodatnią liczbę lub pozostaw puste.",
+    "errorForbidden": "Nie masz uprawnień do oznaczenia tego ogłoszenia jako sprzedanego.",
+    "errorUnauthenticated": "Twoja sesja wygasła. Zaloguj się ponownie."
+  },
+  "archiveListing": {
+    "archive": "Archiwizuj",
+    "restore": "Przywróć"
+  },
+  "countries": {
+    "eyebrow": "Cały świat",
+    "heading": "Przeglądaj według kraju",
+    "subheading": "Ogłoszenia nieruchomości na całym świecie. Wybierz kraj, by zobaczyć aktywne ogłoszenia i miasta, w których agenci AHO publikują.",
+    "searchPlaceholder": "Szukaj kraju lub miasta…",
+    "searchAriaLabel": "Szukaj według kraju lub miasta",
+    "searchNoResults": "Brak wyników. Spróbuj innego kraju lub miasta.",
+    "searchGroupCountries": "Kraje",
+    "searchGroupCities": "Miasta",
+    "listingsCount_one": "ogłoszenie",
+    "listingsCount_few": "ogłoszenia",
+    "listingsCount_many": "ogłoszeń",
+    "listingsCount_other": "ogłoszeń",
+    "emptyHeading": "Brak aktywnych ogłoszeń",
+    "emptyBody": "AHO jest otwarte dla agentów w każdym kraju. Katalog wypełnia się, gdy agenci zaczynają publikować ogłoszenia.",
+    "emptyAgentCta": "Publikuj jako agent",
+    "browseAllCta": "Przeglądaj ogłoszenia"
+  },
+  "countryLanding": {
+    "headingTemplate": "Nieruchomości w kraju: {country}",
+    "subheading": "Przeglądaj miasta w kraju {country}, w których agenci AHO publikują ogłoszenia.",
+    "breadcrumbCountries": "Kraje",
+    "citiesCount_one": "1 miasto z aktywnymi ogłoszeniami",
+    "citiesCount_few": "{count} miasta z aktywnymi ogłoszeniami",
+    "citiesCount_many": "{count} miast z aktywnymi ogłoszeniami",
+    "citiesCount_other": "{count} miast z aktywnymi ogłoszeniami",
+    "emptyHeading": "Brak ogłoszeń w {country}",
+    "emptyBody": "AHO jest otwarte dla agentów w {country}. Bądź wśród pierwszych.",
+    "emptyAgentCta": "Wystaw swoje nieruchomości",
+    "browseCountriesCta": "Przeglądaj inne kraje",
+    "viewAllInCountry": "Zobacz wszystkie ogłoszenia w {country}"
+  },
+  "cityLanding": {
+    "headingTemplate": "Nieruchomości w {city}, {country}",
+    "subheading": "Przeglądaj ogłoszenia nieruchomości w {city} od agentów korzystających z AHO.",
+    "resultsCount_one": "1 ogłoszenie w {city}",
+    "resultsCount_few": "{count} ogłoszenia w {city}",
+    "resultsCount_many": "{count} ogłoszeń w {city}",
+    "resultsCount_other": "{count} ogłoszeń w {city}",
+    "emptyHeading": "Brak ogłoszeń w {city}",
+    "emptyBody": "AHO jest otwarte dla agentów w {city}. Bądź wśród pierwszych.",
+    "emptyAgentCta": "Wystaw swoje nieruchomości",
+    "viewAllCta": "Zobacz wszystkie ogłoszenia",
+    "browseAllCta": "Przeglądaj ogłoszenia z całego świata"
+  },
+  "notFound": {
+    "heading": "Strona nie znaleziona",
+    "body": "Strona, której szukasz, nie istnieje lub została przeniesiona.",
+    "homeCta": "Powrót do strony głównej",
+    "browseCta": "Przeglądaj ogłoszenia"
+  },
+  "error": {
+    "heading": "Coś poszło nie tak",
+    "body": "Po naszej stronie wystąpił nieoczekiwany błąd. Spróbuj ponownie lub wróć do strony głównej.",
+    "retryCta": "Spróbuj ponownie",
+    "homeCta": "Powrót do strony głównej",
+    "details": "ID referencyjne: {digest}"
+  },
+  "onboarding": {
+    "activeHeading": "Subskrypcja aktywna — witamy w AHO",
+    "activeBody": "Twoja subskrypcja AHO Agent jest aktywna. Przejdź do panelu, by opublikować pierwsze ogłoszenie.",
+    "openDashboard": "Otwórz panel",
+    "pendingHeading": "Kończymy konfigurację…",
+    "pendingBody": "Otrzymaliśmy płatność. Aktywujemy Twoją subskrypcję — to zwykle zajmuje kilka sekund.",
+    "pendingNote": "Strona odświeży się automatycznie.",
+    "pendingTakingLong": "Nadal się ładuje? Odśwież stronę. Jeśli problem trwa, skontaktuj się z pomocą.",
+    "missingSession": "Nie znaleźliśmy Twojej sesji płatności. Jeśli właśnie zapłaciłeś, odśwież stronę; w przeciwnym razie zacznij od strony cennika.",
+    "backToPricing": "Powrót do cennika"
+  },
+  "dashboard": {
+    "navAriaLabel": "Sekcje panelu",
+    "navListings": "Moje ogłoszenia",
+    "navAnalytics": "Analityka",
+    "navSocial": "Social",
+    "navLeads": "Kontakty",
+    "navReviews": "Opinie",
+    "navSavedSearches": "Zapisane wyszukiwania",
+    "navFaqs": "FAQ",
+    "navProfile": "Profil",
+    "navBilling": "Rozliczenia",
+    "manageBilling": "Zarządzaj rozliczeniami",
+    "listingsHeading": "Moje ogłoszenia",
+    "newListing": "Nowe ogłoszenie",
+    "saveAsDraft": "Zapisz jako szkic",
+    "publishListing": "Opublikuj ogłoszenie",
+    "planUsage": "Opublikowane nieruchomości",
+    "planUsageRemaining_one": "Zostało {count} w planie",
+    "planUsageRemaining_few": "Zostało {count} w planie",
+    "planUsageRemaining_many": "Zostało {count} w planie",
+    "planUsageRemaining_other": "Zostało {count} w planie",
+    "planUsageUnlimited": "Nielimitowane ogłoszenia w tym planie",
+    "planUsageAtCap": "Limit planu osiągnięty — zarchiwizuj ogłoszenie albo podnieś plan, by dodać kolejne",
+    "listingsEmpty": "Nie opublikowałeś jeszcze żadnego ogłoszenia.",
+    "emptyHelp": "Dodaj pierwszą nieruchomość — tytuł, zdjęcia, cena, lokalizacja — a AHO opublikuje ją na publicznej stronie, stronie miasta i Twoim profilu agenta.",
+    "listingsEmptyCta": "Utwórz pierwsze ogłoszenie",
+    "createListingHeading": "Utwórz ogłoszenie",
+    "editListingHeading": "Edytuj ogłoszenie",
+    "saveDraft": "Zapisz jako szkic",
+    "publish": "Opublikuj",
+    "publishedAt": "Opublikowano {date}",
+    "noOrgHeading": "Nie masz jeszcze subskrypcji Agent",
+    "noOrgBody": "Wykup plan Agent, by publikować nieruchomości w AHO.",
+    "noOrgCta": "Zobacz cennik",
+    "table": {
+      "title": "Tytuł",
+      "status": "Status",
+      "city": "Miasto",
+      "price": "Cena",
+      "images": "Zdjęcia",
+      "updated": "Aktualizacja",
+      "actions": "Akcje"
+    },
+    "edit": "Edytuj",
+    "delete": "Usuń",
+    "status": {
+      "draft": "Szkic",
+      "active": "Aktywne",
+      "pending": "Oczekuje",
+      "sold": "Sprzedane",
+      "rented": "Wynajęte",
+      "archived": "Zarchiwizowane"
+    },
+    "leads": {
+      "heading": "Kontakty",
+      "empty": "Brak kontaktów.",
+      "emptyHint": "Gdy kupujący skontaktują się przez formularz lub WhatsApp, pojawią się tutaj.",
+      "viewProperty": "Zobacz nieruchomość",
+      "received": "Otrzymano {date}",
+      "noProperty": "(nieruchomość usunięta)",
+      "filterAll": "Wszystkie",
+      "filterNew": "Nowe",
+      "filterContacted": "W toku",
+      "filterClosed": "Zamknięte",
+      "noContact": "Brak danych kontaktowych",
+      "anonymous": "Anonimowy kontakt",
+      "source": {
+        "form": "Formularz kontaktowy",
+        "phone_click": "Kliknięcie telefonu",
+        "whatsapp_click": "Kliknięcie WhatsApp",
+        "email_click": "Kliknięcie emaila"
+      },
+      "leadStatus": {
+        "new": "Nowy",
+        "contacted": "Skontaktowano się",
+        "qualified": "Zakwalifikowany",
+        "won": "Wygrany",
+        "lost": "Utracony"
+      }
+    }
+  },
+  "dashboardFaqs": {
+    "heading": "Najczęściej zadawane pytania",
+    "subheading": "Odpowiadaj na typowe pytania kupujących. Każde FAQ pojawia się na Twoim publicznym profilu i jest sformatowane pod rich snippets Google. Użyj zakładek językowych, by dodać tłumaczenie w jednym z siedmiu języków AHO — wymagany jest co najmniej jeden, pozostałe są opcjonalne, a w razie braku tłumaczenia odwiedzającym pokażemy wersję angielską.",
+    "publishedTo": "Opublikowane w",
+    "addFaq": "Dodaj FAQ",
+    "save": "Zapisz zmiany",
+    "saving": "Zapisywanie…",
+    "publish": "Opublikuj FAQ",
+    "delete": "Usuń",
+    "savedHint": "Zapisano",
+    "emptyHint": "Brak FAQ. Dodaj pierwsze poniżej — popularne tematy: obsługiwane obszary, języki, czas reakcji, współpraca z zagranicznymi kupującymi, dokumenty potrzebne do zakupu.",
+    "localeTabsLabel": "Języki tłumaczeń",
+    "filledIndicator": "Tłumaczenie kompletne dla tego języka",
+    "questionLabel": "Pytanie ({locale})",
+    "answerLabel": "Odpowiedź ({locale})",
+    "placeholderQuestion": "Jakie obszary obsługujesz?",
+    "placeholderAnswer": "Pracuję głównie w Warszawie i Krakowie, z wybranymi ogłoszeniami w…",
+    "errorPartial": "Wypełnij pytanie i odpowiedź dla danego języka albo zostaw oba puste.",
+    "errorEmpty": "Dodaj co najmniej jeden język przed zapisem.",
+    "errorSaveFailed": "Nie udało się zapisać FAQ. Spróbuj ponownie lub odśwież stronę."
+  },
+  "editListing": {
+    "sectionCore": "Tytuł i opis",
+    "sectionPricing": "Cena",
+    "sectionDimensions": "Wymiary",
+    "sectionLocation": "Lokalizacja",
+    "sectionAmenities": "Udogodnienia",
+    "sectionFacts": "Cechy nieruchomości",
+    "factsExplainer": "Wszystkie pola są opcjonalne. Tylko wypełnione pola pojawią się publicznie.",
+    "titleEn": "Tytuł (po angielsku)",
+    "titleEs": "Tytuł (po hiszpańsku)",
+    "descriptionEn": "Opis (po angielsku)",
+    "descriptionEs": "Opis (po hiszpańsku)",
+    "price": "Cena",
+    "currency": "Waluta",
+    "pricePeriod": "Okres",
+    "pricePeriodNone": "Bez okresu",
+    "periodTotal": "Łącznie",
+    "periodMonthly": "Miesięcznie",
+    "periodWeekly": "Tygodniowo",
+    "periodNightly": "Za noc",
+    "bedrooms": "Sypialnie",
+    "bathrooms": "Łazienki",
+    "areaSqm": "Powierzchnia (m²)",
+    "lotSqm": "Działka (m²)",
+    "yearBuilt": "Rok budowy",
+    "addressLine": "Adres",
+    "neighborhood": "Dzielnica",
+    "postalCode": "Kod pocztowy",
+    "displayAddress": "Pokazuj pełny adres publicznie",
+    "amenitiesLabel": "Udogodnienia",
+    "amenitiesPlaceholder": "Dodaj udogodnienie (np. basen, winda)",
+    "amenitiesAdd": "Dodaj",
+    "save": "Zapisz zmiany",
+    "saving": "Zapisywanie…",
+    "saved": "Zapisano",
+    "priceInvalid": "Wpisz prawidłową cenę.",
+    "forbidden": "Nie masz uprawnień do edycji tego ogłoszenia.",
+    "genericError": "Nie udało się zapisać. Spróbuj ponownie."
+  },
+  "profileForm": {
+    "heading": "Twój profil agenta",
+    "subheading": "Kupujący widzą to na Twojej publicznej stronie agenta i przy każdej Twojej nieruchomości.",
+    "sectionIdentity": "Tożsamość",
+    "sectionContact": "Kontakt",
+    "sectionExpertise": "Specjalizacja",
+    "sectionLinks": "Linki zewnętrzne",
+    "fullName": "Imię i nazwisko",
+    "avatarUrl": "Zdjęcie profilowe",
+    "avatarHelp": "JPG, PNG lub WebP. Do 2 MB. Najlepiej zdjęcia kwadratowe.",
+    "avatarUpload": "Wgraj zdjęcie",
+    "avatarReplace": "Zmień zdjęcie",
+    "avatarRemove": "Usuń",
+    "avatarUploading": "Wgrywanie…",
+    "avatarTooLarge": "Plik przekracza 2 MB. Wybierz mniejszy obraz.",
+    "avatarBadType": "Akceptujemy tylko JPG, PNG i WebP.",
+    "avatarUploadFailed": "Wgrywanie nie powiodło się. Spróbuj ponownie.",
+    "bio": "O mnie",
+    "bioPlaceholder": "Krótko opisz swoje doświadczenie, obszary, w których działasz, i typ kupujących, których obsługujesz najlepiej.",
+    "phone": "Telefon (rozmowy / SMS)",
+    "whatsappPhone": "Numer WhatsApp",
+    "whatsappHelp": "Opcjonalnie. Jeśli inny niż telefon powyżej; w przeciwnym razie używamy go również do przycisku WhatsApp.",
+    "city": "Miasto",
+    "countryCode": "Kraj (kod ISO 2-literowy)",
+    "country": "Kraj",
+    "countryPlaceholder": "Wybierz kraj…",
+    "specialties": "Specjalizacje",
+    "specialtiesHelp": "Wybierz z sugestii lub dodaj własne. Kliknij tag, by go usunąć.",
+    "specialtyOptions": {
+      "first_time_buyers": "Pierwsi kupujący",
+      "luxury": "Luksus",
+      "relocation": "Relokacja",
+      "investment": "Inwestycje",
+      "short_term_rentals": "Najem krótkoterminowy",
+      "commercial": "Komercja",
+      "land": "Działki",
+      "new_construction": "Nowe inwestycje"
+    },
+    "addCustomSpecialty": "Dodaj własną…",
+    "languages": "Języki",
+    "addCustomLanguage": "Dodaj język…",
+    "websiteUrl": "Strona osobista",
+    "saveChanges": "Zapisz zmiany",
+    "saved": "Profil zapisany."
+  },
+  "dangerZone": {
+    "heading": "Strefa zagrożenia",
+    "subheading": "Nieodwracalne akcje konta.",
+    "deleteAccountTitle": "Usuń konto",
+    "deleteAccountBody": "Trwale usuwa Twój profil, ogłoszenia, zapisane wyszukiwania i opinie. Aktywne subskrypcje są natychmiast anulowane. Tej akcji nie da się cofnąć.",
+    "deleteAccountButton": "Usuń konto",
+    "confirmModalTitle": "Czy na pewno?",
+    "confirmModalBody": "To trwale usunie Twoje konto i wyloguje Cię. Aby potwierdzić, wpisz poniżej swój adres email.",
+    "whatGetsDeletedHeading": "Co zostanie usunięte:",
+    "whatGetsDeletedItems": "Twój profil, ogłoszenia (zarchiwizowane), zapisane wyszukiwania, Twoje opinie i aktywna subskrypcja (anulowana w Stripe).",
+    "whatStaysHeading": "Co zostaje zachowane:",
+    "whatStaysItems": "Anonimizowana historia kontaktów dla firm, do których należałeś, i zapisy rozliczeń Stripe (zgodnie z wymogami księgowymi).",
+    "confirmEmailLabel": "Wpisz email, by potwierdzić",
+    "confirmEmailPlaceholder": "ty@example.com",
+    "confirmButton": "Trwale usuń moje konto",
+    "cancelButton": "Anuluj",
+    "deletingState": "Usuwanie…",
+    "errorMismatch": "Ten email nie zgadza się z adresem na koncie.",
+    "errorStripe": "Nie udało się anulować subskrypcji w Stripe. Spróbuj ponownie za chwilę.",
+    "errorGeneric": "Coś poszło nie tak. Spróbuj ponownie lub skontaktuj się z pomocą.",
+    "successRedirecting": "Konto usunięte. Przekierowanie…"
+  },
+  "imageUploader": {
+    "heading": "Zdjęcia nieruchomości",
+    "dropHere": "Upuść zdjęcia tutaj",
+    "orClickHint": "albo użyj selektora — JPEG, PNG, WebP, HEIC, do 25 MB każde",
+    "selectFiles": "Wybierz pliki",
+    "limits": "Maksymalnie 30 zdjęć na ogłoszenie.",
+    "atCap": "Osiągnięto limit zdjęć (30). Usuń jedno, by wgrać kolejne.",
+    "statusPending": "Wgra się przy zapisie",
+    "statusUploading": "Wgrywanie…",
+    "statusConfirmed": "Wgrane",
+    "statusError": "Błąd",
+    "r2NotConfigured": "Magazyn obrazów nie jest jeszcze włączony na koncie. Endpointy API już istnieją; zaczniemy przyjmować pliki, gdy uruchomione zostanie Cloudflare R2."
+  },
+  "listingForm": {
+    "sectionBasics": "Podstawy",
+    "sectionLocation": "Lokalizacja",
+    "sectionDetails": "Szczegóły",
+    "sectionDescription": "Opis",
+    "transactionType": "Typ",
+    "propertyType": "Typ nieruchomości",
+    "titleEn": "Tytuł (po angielsku)",
+    "titleEs": "Tytuł (po hiszpańsku)",
+    "descriptionEn": "Opis (po angielsku)",
+    "descriptionEs": "Opis (po hiszpańsku)",
+    "atLeastOneLanguage": "Podaj co najmniej tytuł po angielsku lub hiszpańsku.",
+    "price": "Cena",
+    "currency": "Waluta",
+    "pricePeriod": "Okres",
+    "bedrooms": "Sypialnie",
+    "bathrooms": "Łazienki",
+    "areaSqm": "Powierzchnia (m²)",
+    "yearBuilt": "Rok budowy",
+    "addressLine": "Adres",
+    "neighborhood": "Dzielnica",
+    "city": "Miasto",
+    "stateRegion": "Województwo / region",
+    "countryCode": "Kraj (kod ISO 2-literowy)",
+    "countryPlaceholder": "Wybierz kraj…",
+    "postalCode": "Kod pocztowy",
+    "latitude": "Szerokość geograficzna",
+    "longitude": "Długość geograficzna",
+    "latLngHelp": "Opcjonalnie. Ogłoszenia ze współrzędnymi pojawiają się na mapie; bez nich nadal są wyszukiwalne.",
+    "displayAddress": "Pokazuj dokładny adres publicznie.",
+    "saved": "Zapisano.",
+    "publishedSuccess": "Ogłoszenie opublikowane.",
+    "amenitiesHeading": "Cechy nieruchomości",
+    "amenities": {
+      "parking": "Parking",
+      "pool": "Basen",
+      "garden": "Ogród",
+      "terrace": "Taras",
+      "balcony": "Balkon",
+      "jacuzzi": "Jacuzzi",
+      "gym": "Siłownia",
+      "security": "Ochrona 24h",
+      "air_conditioning": "Klimatyzacja",
+      "furnished": "Umeblowane",
+      "pet_friendly": "Przyjazne zwierzętom",
+      "basement": "Piwnica"
+    },
+    "publishAfterImages": "Zapisz teraz jako szkic, dodaj zdjęcia i opublikuj.",
+    "publishNeedsPhotos": "Wskazówka: dodaj co najmniej jedno zdjęcie przed publikacją.",
+    "errors": {
+      "titleRequired": "Tytuł w co najmniej jednym języku jest wymagany.",
+      "priceRequired": "Cena jest wymagana.",
+      "cityRequired": "Miasto jest wymagane.",
+      "countryRequired": "Kod kraju jest wymagany (ISO 2-literowy).",
+      "latRequired": "Szerokość geograficzna jest wymagana.",
+      "lngRequired": "Długość geograficzna jest wymagana."
+    }
   },
   "contact": {
     "heading": "Skontaktuj się z agentem",
@@ -329,14 +930,257 @@
       "rate_limited": "Wysłałeś już kilka wiadomości. Poczekaj chwilę przed wysłaniem kolejnej lub skontaktuj się przez WhatsApp."
     }
   },
+  "auth": {
+    "email": "Email",
+    "password": "Hasło",
+    "signInHeading": "Zaloguj się",
+    "signUpHeading": "Załóż konto",
+    "signInCta": "Zaloguj się",
+    "signingIn": "Logowanie…",
+    "signUpCta": "Załóż konto",
+    "signingUp": "Tworzenie konta…",
+    "signOut": "Wyloguj",
+    "noAccountQuestion": "Nie masz jeszcze konta?",
+    "haveAccountQuestion": "Masz już konto?",
+    "createOne": "Załóż konto",
+    "passwordHelp": "Co najmniej 8 znaków, jedna wielka litera i jedna cyfra.",
+    "acceptTerms": "Akceptuję <termsLink>Regulamin</termsLink> i <privacyLink>Politykę prywatności</privacyLink>.",
+    "marketingOptIn": "Wysyłajcie mi aktualizacje produktu i wskazówki na email.",
+    "checkYourEmailHeading": "Sprawdź email",
+    "checkYourEmailBody": "Wysłaliśmy link potwierdzający na {email}. Kliknij go, aby dokończyć zakładanie konta.",
+    "forgotPasswordLink": "Zapomniałeś hasła?",
+    "magicLinkAlt": "Zaloguj się magicznym linkiem",
+    "passwordSigninAlt": "Użyj emaila i hasła",
+    "forgot": {
+      "heading": "Zresetuj hasło",
+      "intro": "Podaj email z konta. Wyślemy Ci link do ustawienia nowego hasła.",
+      "submit": "Wyślij link resetujący",
+      "submitting": "Wysyłanie…",
+      "checkEmailHeading": "Sprawdź email",
+      "checkEmailBody": "Jeśli istnieje konto dla {email}, właśnie wysłaliśmy link do zresetowania hasła. Link jest ważny przez godzinę."
+    },
+    "reset": {
+      "heading": "Ustaw nowe hasło",
+      "intro": "Wpisz nowe hasło dla swojego konta.",
+      "newPassword": "Nowe hasło",
+      "submit": "Zaktualizuj hasło",
+      "submitting": "Aktualizacja…",
+      "success": "Hasło zaktualizowane. Jesteś zalogowany.",
+      "noSession": "Ten link resetujący wygasł lub został użyty. Poproś o nowy.",
+      "requestNewLink": "Poproś o nowy link"
+    },
+    "magic": {
+      "heading": "Zaloguj się magicznym linkiem",
+      "intro": "Podaj email, a wyślemy Ci link, którym zalogujesz się jednym kliknięciem.",
+      "submit": "Wyślij magiczny link",
+      "submitting": "Wysyłanie…",
+      "checkEmailHeading": "Sprawdź email",
+      "checkEmailBody": "Jeśli istnieje konto dla {email}, właśnie wysłaliśmy link do logowania. Link jest ważny przez dziesięć minut."
+    },
+    "error": {
+      "heading": "Problem z uwierzytelnieniem",
+      "body": "Nie udało się dokończyć logowania. Link mógł wygasnąć lub został już użyty.",
+      "bodyPkceMismatch": "Wygląda na to, że link otwarto w innej przeglądarce lub na innym urządzeniu niż to, na którym rozpoczęto logowanie. Otwórz link w tej samej przeglądarce, w której wpisałeś email — to ona przechowuje weryfikacyjny cookie.",
+      "tryAgainCta": "Wróć do logowania",
+      "details": "Szczegóły: {reason}"
+    },
+    "errors": {
+      "emailInvalid": "Podaj prawidłowy adres email.",
+      "passwordRequired": "Hasło jest wymagane.",
+      "min8": "Co najmniej 8 znaków.",
+      "needsUppercase": "Dodaj co najmniej jedną wielką literę.",
+      "needsNumber": "Dodaj co najmniej jedną cyfrę.",
+      "mustAcceptTerms": "Musisz zaakceptować Regulamin i Politykę prywatności.",
+      "pwned": "To hasło pojawiło się w znanych wyciekach danych. Wybierz inne.",
+      "generic": "Coś poszło nie tak. Spróbuj ponownie."
+    }
+  },
+  "savedSearches": {
+    "heading": "Zapisane wyszukiwania",
+    "empty": "Nie zapisałeś jeszcze żadnego wyszukiwania.",
+    "emptyHint": "Na stronie wyszukiwania kliknij \"Zapisz to wyszukiwanie\", by otrzymywać alerty mailowe o pasujących ogłoszeniach.",
+    "browseCta": "Przeglądaj ogłoszenia",
+    "savedOn": "Zapisano {date}",
+    "filterCity": "Miasto: {city}",
+    "filterTransaction": "Typ: {type}",
+    "filterPriceRange": "Cena: {min}–{max}",
+    "filterMinPrice": "Cena od: {min}",
+    "filterMaxPrice": "Cena do: {max}",
+    "filterBedsMin": "Sypialnie: {beds}+",
+    "filterKeyword": "Słowo kluczowe: \"{q}\"",
+    "viewResults": "Zobacz wyniki",
+    "deleteCta": "Usuń",
+    "alertsOn": "Alerty mailowe włączone",
+    "alertsOff": "Alerty mailowe wyłączone",
+    "alertsToggleOn": "Włącz alerty",
+    "alertsToggleOff": "Wyłącz alerty",
+    "saveButtonIdle": "Zapisz to wyszukiwanie",
+    "saveButtonSaving": "Zapisywanie…",
+    "saveButtonSaved": "Zapisano ✓",
+    "saveButtonAuth": "Zaloguj się, aby zapisać",
+    "saveButtonError": "Błąd zapisu",
+    "alertsBlocked": "Alerty mailowe zaczną działać, gdy AHO uruchomi obsługę emaili."
+  },
+  "metaConnect": {
+    "eyebrow": "Facebook + Instagram",
+    "heading": "Połącz konta Meta",
+    "statusConnected": "Połączono",
+    "explainerNotConnected": "Połącz swoje konto Facebook, by AHO mogło publikować Twoje ogłoszenia na Twoich Stronach i powiązanych kontach Instagram Business. Pełna kontrola po Twojej stronie — każdy post najpierw generujemy jako podgląd; nic nie idzie na żywo bez Twojej zgody.",
+    "explainerConnected": "Połączono jako {name}. Możemy publikować na poniższych Stronach i kontach Instagram Business w Twoim imieniu.",
+    "scopesNote": "Prosimy o uprawnienia: lista Twoich Stron, publikacja na Stronach, odczyt zaangażowania, lista i publikacja na powiązanych kontach Instagram Business. Długoterminowy token odświeżamy co 60 dni.",
+    "connectButton": "Połącz Facebook",
+    "reconnectButton": "Połącz ponownie / odśwież uprawnienia",
+    "facebookPagesHeading": "{count, plural, =1 {1 Strona Facebook} few {# Strony Facebook} many {# Stron Facebook} other {# Stron Facebook}}",
+    "instagramAccountsHeading": "{count, plural, =1 {1 konto Instagram Business} few {# konta Instagram Business} many {# kont Instagram Business} other {# kont Instagram Business}}",
+    "noPagesHint": "Połączyliśmy Twój profil Facebook, ale nie znaleźliśmy Stron, którymi zarządzasz. Najpierw utwórz lub przejmij Stronę Facebook, potem kliknij Połącz ponownie.",
+    "flashConnected": "Połączono. Widzimy {pages, plural, =0 {0 Stron} =1 {1 Stronę} few {# Strony} many {# Stron} other {# Stron}} oraz {ig, plural, =0 {0 kont Instagram Business} =1 {1 konto Instagram Business} few {# konta Instagram Business} many {# kont Instagram Business} other {# kont Instagram Business}} na Twoim koncie.",
+    "flashDenied": "Odmówiłeś uprawnień. AHO ich potrzebuje, by publikować w Twoim imieniu — spróbuj ponownie, gdy będziesz gotowy.",
+    "flashError": "Coś poszło nie tak podczas łączenia ({reason}). Spróbuj ponownie lub skontaktuj się z pomocą, jeśli problem się powtarza."
+  },
+  "socialTones": {
+    "label": "Ton wypowiedzi",
+    "tones": {
+      "luxury": {
+        "label": "Luksus",
+        "description": "Aspiracyjny i ekskluzywny — eksponuje rzadkość, prestiżowy adres, jakość wykonania i styl życia jako wyznacznik statusu."
+      },
+      "investment": {
+        "label": "Inwestycja",
+        "description": "Konkretny i liczbowy — eksponuje stopę zwrotu z najmu, wzrost wartości i pozycję rynkową."
+      },
+      "family": {
+        "label": "Rodzina",
+        "description": "Ciepły i konkretny — eksponuje szkoły, spacerowy zasięg, miejsce do życia i rytm codziennego dnia."
+      }
+    }
+  },
+  "social": {
+    "pageHeading": "Automatyzacja social media",
+    "pageSubheading": "Publikuj ogłoszenia na Facebooku, Instagramie i LinkedIn automatycznie.",
+    "lockedEyebrow": "Tylko Pro Automation",
+    "lockedHeading": "Automatyzacja social media jednym kliknięciem",
+    "lockedBody": "Zamień każde ogłoszenie w gotowe posty na Facebooka, Instagrama i LinkedIn — z opisami generowanymi przez AI i linkami sprowadzającymi kupujących z powrotem na Twoje ogłoszenie AHO.",
+    "platform": {
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn"
+    },
+    "features": {
+      "featAi": "Opisy generowane przez AI dla każdej platformy",
+      "featImages": "Automatyczny dobór zdjęć per platforma",
+      "featLinks": "Wbudowane linki do ogłoszeń AHO ze śledzeniem ruchu",
+      "featHistory": "Historia publikacji + ponawianie po błędzie"
+    },
+    "upgradeCta": "Przejdź na Pro Automation",
+    "upgradeNote": "$99/miesiąc lub $990/rok",
+    "unlockedEyebrow": "Pro Automation — Twój plan",
+    "unlockedHeading": "Automatyzacja social media — wkrótce online",
+    "unlockedBody": "Jesteś na Pro Automation. Wdrażamy proces połącz-i-publikuj etapami — kolejne sekcje pojawią się tu wraz z każdą fazą wdrożenia.",
+    "rollout": {
+      "rolloutOauth": "Połącz konta Facebook / Instagram / LinkedIn (Faza 4)",
+      "rolloutPreview": "Podgląd postów wygenerowanych przez AI przed publikacją (Faza 5)",
+      "rolloutPosting": "Asynchroniczna publikacja z ponawianiem i odświeżaniem tokenów (Faza 6)",
+      "rolloutHistory": "Historia publikacji z linkami zewnętrznymi i statusem (Faza 7)"
+    }
+  },
+  "manualShare": {
+    "eyebrow": "Udostępnianie ręczne",
+    "heading": "Udostępnij na swoich kanałach społecznościowych",
+    "body": "Gotowe opisy na Facebook, Instagram, LinkedIn i WhatsApp — kopiuj i wklej z telefonu lub laptopa.",
+    "openButton": "Pobierz tekst do udostępnienia",
+    "inlineButtonLabel": "Udostępnij",
+    "inlineButtonAria": "Udostępnij to ogłoszenie w social media",
+    "modalHeading": "Udostępnij to ogłoszenie",
+    "close": "Zamknij",
+    "tablistLabel": "Wybierz platformę",
+    "captionLabel": "Tekst opisu",
+    "copyCaption": "Skopiuj opis",
+    "copied": "Skopiowano!",
+    "openWhatsApp": "Otwórz w WhatsApp",
+    "tip": {
+      "facebook": "Wklej to na swojej Stronie lub w Grupie. Link wygeneruje bogaty podgląd po opublikowaniu.",
+      "instagram": "Instagram nie pozwala klikać linków w opisach — wklej tekst do posta i umieść URL w bio.",
+      "linkedin": "Najlepiej działa jako post osobisty albo udostępniony na stronie firmy.",
+      "whatsapp": "Stuknij \"Otwórz w WhatsApp\", by wybrać kontakt, albo skopiuj tekst i wyślij ręcznie."
+    }
+  },
+  "analytics": {
+    "heading": "Wyniki",
+    "subheading": "Jak kupujący angażują się w Twoje ogłoszenia.",
+    "statsAria": "Podsumowanie wyników",
+    "statViews": "Wyświetlenia",
+    "statLeads": "Kontakty",
+    "statFavorites": "Zapisy",
+    "statConversion": "Konwersja",
+    "past7d": "ostatnie 7 dni",
+    "past30d": "ostatnie 30 dni",
+    "past30dWindow": "okno 30 dni",
+    "topListingsHeading": "Najlepsze ogłoszenia — ostatnie 30 dni",
+    "colTitle": "Ogłoszenie",
+    "colCity": "Miasto",
+    "colViews": "Wyświetlenia",
+    "colLeads": "Kontakty",
+    "colFavorites": "Zapisy",
+    "colConv": "Konwersja",
+    "activityHeading": "Ostatnia aktywność",
+    "emptyHeading": "Tu pojawią się Twoje statystyki",
+    "emptyBody": "Gdy kupujący zaczną oglądać Twoje ogłoszenia, zobaczysz tu wyświetlenia, kontakty, zapisy i konwersję.",
+    "emptyCta": "Zarządzaj ogłoszeniami",
+    "eventType": {
+      "property_view": "Wyświetlenie",
+      "image_gallery_open": "Zdjęcia",
+      "whatsapp_click": "WhatsApp",
+      "phone_click": "Telefon",
+      "email_click": "Email",
+      "lead_form_submit": "Kontakt",
+      "favorite_add": "Zapis",
+      "share_click": "Udostępnienie"
+    },
+    "visitor": {
+      "auth": "zalogowany",
+      "anon": "gość"
+    },
+    "drilldown": {
+      "backToAll": "← Wszystkie ogłoszenia",
+      "headingPrefix": "Wyniki —",
+      "notFoundHeading": "Nie znaleziono ogłoszenia",
+      "notFoundBody": "To ogłoszenie mogło zostać usunięte, zarchiwizowane albo nie masz do niego dostępu.",
+      "viewPublic": "Zobacz publiczne ogłoszenie",
+      "viewListingActivityHeading": "Cała aktywność dla tego ogłoszenia",
+      "noActivity": "Brak zarejestrowanej aktywności.",
+      "noActivityHint": "Gdy odwiedzający obejrzą, zapiszą lub skontaktują się w sprawie tego ogłoszenia, zobaczysz tu każde zdarzenie."
+    },
+    "social": {
+      "heading": "Wyniki social media",
+      "tilesAria": "Podsumowanie wyników per platforma",
+      "reach": "Zasięg",
+      "leads": "Kontakty",
+      "cpl": "CPL",
+      "organic": "Organicznie",
+      "lastPost": "Ostatni post",
+      "lastPostNever": "—",
+      "posts": "posty",
+      "sparklineLabel": "Zasięg — ostatnie 30 dni",
+      "sparklineSrLabel": "Trend zasięgu z 30 dni",
+      "colDate": "Data",
+      "colPlatform": "Platforma",
+      "colReach": "Zasięg",
+      "colClicks": "Kliknięcia",
+      "colLeads": "Kontakty",
+      "colCpl": "CPL",
+      "emptyHeading": "Brak danych o wynikach social",
+      "emptyBody": "Połącz konta w sekcji Social, by zacząć śledzić zasięg, kontakty i koszt pozyskania kontaktu na ogłoszenie.",
+      "emptyCta": "Przejdź do Social"
+    }
+  },
   "forAgents": {
     "meta": {
       "title": "AHO dla agentów nieruchomości — opublikuj raz, dystrybuuj wszędzie",
-      "description": "AHO to platforma nieruchomości stworzona dla pracujących agentów. Jedno źródło prawdy na ofertę. Automatyczna publikacja na Facebook, Instagram i WhatsApp Business. Pro Automation $99/mies, 7-dniowy okres próbny."
+      "description": "AHO to platforma nieruchomości stworzona dla pracujących agentów. Jedno źródło prawdy na ogłoszenie. Automatyczna publikacja na Facebook, Instagram i WhatsApp Business. Pro Automation $99/mies, 7-dniowy okres próbny."
     },
     "hero": {
       "eyebrow": "Dla agentów nieruchomości",
-      "headline": "Twoje oferty na każdym kanale — przed 9 rano.",
+      "headline": "Twoje ogłoszenia na każdym kanale — przed 9 rano.",
       "sub": "AHO publikuje raz i automatycznie dystrybuuje na Facebooka, Instagrama i WhatsApp Business. Koniec żonglowania zakładkami.",
       "primaryCta": "Rozpocznij 7-dniowy okres próbny · $99/mies",
       "secondaryCta": "Zobacz pełny cennik"
@@ -344,21 +1188,21 @@
     "problem": {
       "heading": "Właśnie teraz…",
       "bullets": [
-        "Ręcznie kopiujesz tę samą ofertę na Facebooka, Instagrama, swoją stronę i listę rozsyłkową WhatsApp — każdą nieruchomość, za każdym razem.",
+        "Ręcznie kopiujesz to samo ogłoszenie na Facebooka, Instagrama, swoją stronę i listę rozsyłkową WhatsApp — każdą nieruchomość, za każdym razem.",
         "Kontakty przychodzą z pięciu kanałów. Tracisz dwa.",
         "Eksportujesz zdjęcia ponownie do każdej platformy — kwadrat dla IG, panorama dla FB, pion dla WhatsApp."
       ]
     },
     "solution": {
       "heading": "AHO upraszcza ten proces.",
-      "body": "Jedno źródło prawdy na każdą ofertę. Jedna skrzynka na wszystkie kontakty. Jedna subskrypcja, która zarządza dystrybucją społecznościową od początku do końca. Ty piszesz ofertę raz; AHO robi resztę."
+      "body": "Jedno źródło prawdy na każde ogłoszenie. Jedna skrzynka na wszystkie kontakty. Jedna subskrypcja, która zarządza dystrybucją społecznościową od początku do końca. Ty piszesz ogłoszenie raz; AHO robi resztę."
     },
     "features": {
       "heading": "Co dostajesz",
       "items": [
         {
           "title": "Opublikuj raz, wszędzie",
-          "body": "Połącz Facebooka, Instagrama i WhatsApp Business raz. Każda publikowana oferta automatycznie się rozprzestrzenia — z wariantami obrazów dopasowanymi do każdego kanału."
+          "body": "Połącz Facebooka, Instagrama i WhatsApp Business raz. Każde publikowane ogłoszenie automatycznie się rozprzestrzenia — z wariantami obrazów dopasowanymi do każdego kanału."
         },
         {
           "title": "Jedna skrzynka na wszystkie kontakty",
@@ -366,7 +1210,7 @@
         },
         {
           "title": "Dwujęzyczne SEO od ręki",
-          "body": "Każda oferta indeksowana po angielsku i hiszpańsku (z polskim, portugalskim, niemieckim, francuskim i włoskim na stronach marketingowych). Kupujący znajdują Cię w swoim języku."
+          "body": "Każde ogłoszenie indeksowane po angielsku i hiszpańsku (z polskim, portugalskim, niemieckim, francuskim i włoskim na stronach marketingowych). Kupujący znajdują Cię w swoim języku."
         }
       ]
     },
@@ -375,15 +1219,15 @@
       "steps": [
         {
           "title": "Zarejestruj się — 7 dni za darmo",
-          "body": "Bez karty kredytowej na start. Anuluj w dowolnym momencie podczas próbnego okresu — bez opłat."
+          "body": "Bez karty kredytowej na start. Anuluj w dowolnym momencie podczas okresu próbnego — bez opłat."
         },
         {
-          "title": "Dodaj pierwszą ofertę",
+          "title": "Dodaj pierwsze ogłoszenie",
           "body": "Zdjęcia, cena, cechy, opis. AHO automatycznie optymalizuje obrazy dla każdego kanału — kwadrat, panorama, pion."
         },
         {
           "title": "Połącz swoje socjale",
-          "body": "Jedno OAuth-kliknięcie dla Strony Facebook, Instagram Business, WhatsApp Business. Każda opublikowana oferta automatycznie idzie dalej."
+          "body": "Jedno OAuth-kliknięcie dla Strony Facebook, Instagram Business, WhatsApp Business. Każde opublikowane ogłoszenie automatycznie idzie dalej."
         }
       ]
     },
@@ -392,7 +1236,7 @@
       "price": "$99",
       "period": "/ miesiąc",
       "features": [
-        "Nielimitowane oferty",
+        "Nielimitowane ogłoszenia",
         "Auto-publikacja na FB + IG + WhatsApp Business",
         "Centralna skrzynka kontaktów",
         "Dwujęzyczne SEO + strona profilu agenta",
@@ -413,7 +1257,7 @@
         },
         {
           "q": "Czy mogę publikować w wielu językach?",
-          "a": "Tak. Każda oferta ma osobne pola dla treści po angielsku i hiszpańsku. Wpisujesz oba, AHO publikuje oba. Strony marketingowe lokalizują się też do PL/PT/DE/FR/IT."
+          "a": "Tak. Każde ogłoszenie ma osobne pola dla treści po angielsku i hiszpańsku. Wpisujesz oba, AHO publikuje oba. Strony marketingowe lokalizują się też do PL/PT/DE/FR/IT."
         },
         {
           "q": "Co się stanie, jeśli publikacja społecznościowa zawiedzie?",
@@ -434,26 +1278,26 @@
   "automation": {
     "meta": {
       "title": "Automatyzacja social media nieruchomości — publikuj raz, na FB, IG, WhatsApp | AHO",
-      "description": "AHO Pro Automation publikuje Twoją ofertę na Stronie Facebook, Instagram Business i WhatsApp Business — automatycznie. Natywna integracja Graph API, warianty obrazu na kanał, harmonogram + ponawianie. $99/mies z 7-dniowym okresem próbnym."
+      "description": "AHO Pro Automation publikuje Twoje ogłoszenie na Stronie Facebook, Instagram Business i WhatsApp Business — automatycznie. Natywna integracja Graph API, warianty obrazu na kanał, harmonogram + ponawianie. $99/mies z 7-dniowym okresem próbnym."
     },
     "hero": {
       "eyebrow": "Pro Automation",
       "headline": "Opublikuj raz. AHO wysyła na Facebooka, Instagrama i WhatsApp Business — automatycznie.",
-      "sub": "Sztandarowa funkcja AHO Pro. Jedno OAuth-kliknięcie łączy każdy kanał; każda opublikowana oferta dystrybuuje się sama.",
+      "sub": "Sztandarowa funkcja AHO Pro. Jedno OAuth-kliknięcie łączy każdy kanał; każde opublikowane ogłoszenie dystrybuuje się samo.",
       "primaryCta": "Rozpocznij okres próbny · $99/mies",
       "secondaryCta": "Porównaj wszystkie plany"
     },
     "problem": {
       "heading": "Ręczny proces, który zjada Twój tydzień",
       "bullets": [
-        "Ta sama oferta, pięć miejsc do publikacji. Na nieruchomość. Na język. Co tydzień.",
+        "To samo ogłoszenie, pięć miejsc do publikacji. Na nieruchomość. Na język. Co tydzień.",
         "Różne wymiary obrazów na każdą platformę. Eksportuj, kadruj, wgrywaj.",
-        "Ręczne harmonogramy się rozjeżdżają — oferta na FB we wtorek, na IG w czwartek. Kupujący widzą chaos."
+        "Ręczne harmonogramy się rozjeżdżają — ogłoszenie na FB we wtorek, na IG w czwartek. Kupujący widzą chaos."
       ]
     },
     "solution": {
       "heading": "Natywna automatyzacja. Nie narzędzie do re-publikacji.",
-      "body": "AHO łączy się bezpośrednio z API Graph Facebooka, Instagrama i WhatsApp Business. Twoja oferta publikuje się przez Twoje własne konta; my po prostu oszczędzamy Ci ręcznej roboty."
+      "body": "AHO łączy się bezpośrednio z API Graph Facebooka, Instagrama i WhatsApp Business. Twoje ogłoszenie publikuje się przez Twoje własne konta; my po prostu oszczędzamy Ci ręcznej roboty."
     },
     "features": {
       "heading": "Zbudowane pod prawdziwy proces",
@@ -480,7 +1324,7 @@
           "body": "Jedno OAuth-kliknięcie dla każdego: Strona Facebook, Instagram Business, WhatsApp Business. AHO przechowuje tokeny zaszyfrowane."
         },
         {
-          "title": "Opublikuj ofertę",
+          "title": "Opublikuj ogłoszenie",
           "body": "Ten sam formularz, ten sam proces. AHO obsługuje formatowanie i harmonogram per kanał."
         },
         {
@@ -497,7 +1341,7 @@
         "Auto-publikacja na Facebook + Instagram + WhatsApp Business",
         "Warianty obrazu per kanał (kwadrat / panorama / pion)",
         "Harmonogram + ponawianie + status w panelu",
-        "Nielimitowane oferty + skrzynka kontaktów + profil agenta",
+        "Nielimitowane ogłoszenia + skrzynka kontaktów + profil agenta",
         "7 dni za darmo — bez karty"
       ],
       "cta": "Rozpocznij okres próbny"
@@ -515,14 +1359,14 @@
         },
         {
           "q": "Czy mogę zaplanować publikacje?",
-          "a": "Tak. Ustaw harmonogram per kanał per oferta. Domyślnie: publikuj natychmiast. Możesz też rozłożyć kanały o godziny lub dni."
+          "a": "Tak. Ustaw harmonogram per kanał per ogłoszenie. Domyślnie: publikuj natychmiast. Możesz też rozłożyć kanały o godziny lub dni."
         },
         {
           "q": "Co jeśli publikacja zawiedzie?",
           "a": "AHO ponawia 3× z opóźnieniem. Jeśli nadal błąd, dostajesz mail + alert w panelu z dokładnym komunikatem platformy."
         },
         {
-          "q": "Czy mogę edytować opublikowaną ofertę?",
+          "q": "Czy mogę edytować opublikowane ogłoszenie?",
           "a": "Tak. Edycje wyzwalają aktualizację na każdym kanale (lub świeży post, jeśli platforma nie obsługuje edycji, jak WhatsApp Business)."
         }
       ]
@@ -535,20 +1379,20 @@
   },
   "saveTime": {
     "meta": {
-      "title": "Oszczędź 10+ godzin tygodniowo na ofertach | AHO dla agentów nieruchomości",
-      "description": "10 ofert × 5 platform × 8 minut = 400 minut tygodniowo. AHO robi to w 30 sekund. Pro Automation $99/mies z 7-dniowym okresem próbnym."
+      "title": "Oszczędź 10+ godzin tygodniowo na ogłoszeniach | AHO dla agentów nieruchomości",
+      "description": "10 ogłoszeń × 5 platform × 8 minut = 400 minut tygodniowo. AHO robi to w 30 sekund. Pro Automation $99/mies z 7-dniowym okresem próbnym."
     },
     "hero": {
       "eyebrow": "10 godzin tygodniowo, odzyskane",
-      "headline": "Przestań publikować tę samą ofertę pięć razy. Odzyskaj te godziny.",
-      "sub": "10 ofert × 5 platform × 8 minut = 400 minut tygodniowo zmarnowanych na re-publikację. AHO robi to w 30 sekund.",
+      "headline": "Przestań publikować to samo ogłoszenie pięć razy. Odzyskaj te godziny.",
+      "sub": "10 ogłoszeń × 5 platform × 8 minut = 400 minut tygodniowo zmarnowanych na re-publikację. AHO robi to w 30 sekund.",
       "primaryCta": "Rozpocznij okres próbny · $99/mies",
       "secondaryCta": "Jak to działa"
     },
     "problem": {
       "heading": "Matematyka jest brutalna.",
       "bullets": [
-        "10 ofert × 5 platform × 8 minut na każdą = 400 minut straconych tygodniowo na re-publikację.",
+        "10 ogłoszeń × 5 platform × 8 minut na każdą = 400 minut straconych tygodniowo na re-publikację.",
         "Re-pisanie per język — piszesz opis pod FB, potem pod IG, potem pod WhatsApp, potem dla anglojęzycznych, potem dla hiszpańskojęzycznych.",
         "Pogoń za kontaktami w 5 skrzynkach — wiadomości Facebook, DMy Instagram, wątki WhatsApp, mail, formularz. Tracisz dwa."
       ]
@@ -586,7 +1430,7 @@
           "body": "Jedno OAuth-kliknięcie dla każdego: Facebook, Instagram, WhatsApp Business. Zaszyfrowane, odwoływalne kiedy chcesz."
         },
         {
-          "title": "Opublikuj pierwszą ofertę",
+          "title": "Opublikuj pierwsze ogłoszenie",
           "body": "Zdjęcia + cena + opis. AHO robi resztę. 400 minut tygodniowo zamienia się w 30 sekund."
         }
       ]
@@ -599,7 +1443,7 @@
         "Czas zaoszczędzony: ~10 godzin tygodniowo, na agenta",
         "Auto-publikacja na FB + IG + WhatsApp Business",
         "Jedna skrzynka, każdy kanał",
-        "Nielimitowane oferty + profil agenta + dwujęzyczne SEO",
+        "Nielimitowane ogłoszenia + profil agenta + dwujęzyczne SEO",
         "7 dni za darmo — bez karty"
       ],
       "cta": "Rozpocznij okres próbny"
@@ -609,7 +1453,7 @@
       "items": [
         {
           "q": "Czy 10 godzin to realistyczna liczba?",
-          "a": "To górny limit. Niektórzy agenci oszczędzają więcej (słyszeliśmy 12+), inni mniej. Matematyka: 10 ofert × 5 platform × 8 min = 400 min/tydz. Twoja liczba zależy od wolumenu ofert i tego, jak dokładnie publikowałeś ręcznie."
+          "a": "To górny limit. Niektórzy agenci oszczędzają więcej (słyszeliśmy 12+), inni mniej. Matematyka: 10 ogłoszeń × 5 platform × 8 min = 400 min/tydz. Twoja liczba zależy od wolumenu ogłoszeń i tego, jak dokładnie publikowałeś ręcznie."
         },
         {
           "q": "Czy zachowuję własne konta społecznościowe?",
@@ -621,7 +1465,7 @@
         },
         {
           "q": "Jak szybko mogę się skonfigurować?",
-          "a": "Mniej niż 15 minut od rejestracji do pierwszej dystrybuowanej oferty: 5 min profil, 5 min połączenie kanałów, 5 min pierwsza oferta."
+          "a": "Mniej niż 15 minut od rejestracji do pierwszego dystrybuowanego ogłoszenia: 5 min profil, 5 min połączenie kanałów, 5 min pierwsze ogłoszenie."
         },
         {
           "q": "A jeśli potrzebuję pomocy?",
