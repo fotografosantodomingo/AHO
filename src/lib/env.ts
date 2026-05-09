@@ -60,6 +60,22 @@ const serverSchema = z.object({
   // and never reaches the client.
   META_APP_ID: z.string().optional(),
   META_APP_SECRET: z.string().optional(),
+  /** Graph API version override for the Meta Insights cron writer.
+   *  Optional — when unset, the writer uses the version pinned in
+   *  `src/lib/oauth/meta.ts` (`META_GRAPH_VERSION`). Lets ops bump the
+   *  Insights writer ahead of the OAuth surface (or vice versa) without
+   *  a code change. Format: `vNN.N` (e.g. `v18.0`, `v21.0`). */
+  META_GRAPH_API_VERSION: z
+    .string()
+    .regex(/^v\d+\.\d+$/, 'META_GRAPH_API_VERSION must look like v18.0')
+    .optional(),
+  /** Shared bearer secret for the cron-trigger HTTP routes
+   *  (`/api/cron/*`). The external scheduler (Cloudflare Worker on a
+   *  CRON trigger, GitHub Actions, or Upstash QStash) hits the route
+   *  with `Authorization: Bearer <CRON_SECRET>` and the route refuses
+   *  any other request. Same secret across LinkedIn + Meta + future
+   *  cron writers — coordinated naming so ops only rotates one value. */
+  CRON_SECRET: z.string().min(16).optional(),
   /** Facebook Login for Business — Configuration ID for the AHO app.
    *  Public identifier. The Configuration bundles permissions + login
    *  variant + access-token type (we use User access token; FB Pages
