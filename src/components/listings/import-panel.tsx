@@ -1,10 +1,15 @@
 'use client';
 
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { useLocale } from 'next-intl';
 import { ListingForm } from './listing-form';
 import { AMENITY_KEYS, type AmenityKey } from '@/lib/listings/amenities';
 import type { CreateListingInput } from '@/lib/listings/listing-schema';
+import {
+  enqueueVoiceImport,
+  flushVoiceQueueFromPage,
+  listVoiceImports,
+} from '@/lib/storage/voice-queue';
 
 interface ImportedFacts {
   detectedLanguage: string | null;
@@ -261,11 +266,102 @@ function VoiceImportCard({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [unsupported, setUnsupported] = useState(false);
+  const [queuedNotice, setQueuedNotice] = useState<string | null>(null);
+  const [queuedCount, setQueuedCount] = useState(0);
 
   const mediaRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
   const startedAtRef = useRef<number>(0);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const refreshQueueCount = useCallback(async () => {
+    try {
+      const items = await listVoiceImports();
+      setQueuedCount(items.length);
+    } catch {
+      /* IDB unavailable — keep 0 */
+    }
+  }, []);
+
+  // Ask the SW to flush the queue. Works whether or not the SW is
+  // controlling this page yet (postMessage is a no-op if no controller).
+  const askSwToFlush = useCallback(() => {
+    if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) {
+      return;
+    }
+    navigator.serviceWorker.ready
+      .then((reg) => {
+        reg.active?.postMessage({ type: 'aho:flush-voice-queue' });
+        // Optional: register for periodic Background Sync where supported.
+        // If the page-side path beats us to it that's fine.
+        const syncReg = (reg as ServiceWorkerRegistration & {
+          sync?: { register: (tag: string) => Promise<void> };
+        }).sync;
+        if (syncReg) {
+          syncReg.register('aho-voice-queue').catch(() => {
+            /* sync API can reject without permission — ignore */
+          });
+        }
+      })
+      .catch(() => {
+        /* no SW — page-side fallback below covers it */
+      });
+  }, []);
+
+  // Surface SW broadcast messages back into the panel, and re-render
+  // the queued counter / clear the inline notice when items drain.
+  useEffect(() => {
+    if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) {
+      return;
+    }
+    const onMessage = (event: MessageEvent) => {
+      const data = event.data as
+        | { type?: string; uploaded?: number; remaining?: number }
+        | null;
+      if (!data || typeof data !== 'object') return;
+      if (
+        data.type === 'aho:voice-queue-flushed' ||
+        data.type === 'aho:voice-queue-uploaded' ||
+        data.type === 'aho:voice-queue-dropped'
+      ) {
+        void refreshQueueCount();
+        if (
+          data.type === 'aho:voice-queue-flushed' &&
+          typeof data.uploaded === 'number' &&
+          data.uploaded > 0
+        ) {
+          setQueuedNotice(
+            `${data.uploaded} queued recording${data.uploaded === 1 ? '' : 's'} uploaded.`,
+          );
+        }
+      }
+    };
+    navigator.serviceWorker.addEventListener('message', onMessage);
+    return () =>
+      navigator.serviceWorker.removeEventListener('message', onMessage);
+  }, [refreshQueueCount]);
+
+  // On mount: count any recordings left in IDB from a previous session,
+  // then attempt a flush via the SW + a page-side fallback flush in
+  // parallel. Whichever path completes first wins; duplicates are rare
+  // and tolerated in MVP (see CONTENT_HUB_VISION follow-up scope).
+  useEffect(() => {
+    void refreshQueueCount();
+    if (typeof navigator !== 'undefined' && navigator.onLine) {
+      askSwToFlush();
+      void flushVoiceQueueFromPage().then(refreshQueueCount).catch(() => {
+        /* swallow — IDB or network may be unavailable */
+      });
+    }
+    const onOnline = () => {
+      askSwToFlush();
+      void flushVoiceQueueFromPage().then(refreshQueueCount).catch(() => {
+        /* swallow */
+      });
+    };
+    window.addEventListener('online', onOnline);
+    return () => window.removeEventListener('online', onOnline);
+  }, [askSwToFlush, refreshQueueCount]);
 
   // Detect browser support upfront so we can show a fallback message.
   useEffect(() => {
@@ -342,19 +438,72 @@ function VoiceImportCard({
     setError(null);
   }
 
+  async function queueRecording(blob: Blob, reason: 'offline' | 'fetch-failed'): Promise<void> {
+    try {
+      await enqueueVoiceImport({
+        blob,
+        locale,
+        metadata: { reason, capturedAt: Date.now() },
+      });
+      await refreshQueueCount();
+      setQueuedNotice(
+        reason === 'offline'
+          ? "Saved — we'll upload this when you're back online."
+          : "Network glitched. Saved — we'll retry when the connection's back.",
+      );
+      setAudioBlob(null);
+      if (audioUrl) URL.revokeObjectURL(audioUrl);
+      setAudioUrl(null);
+      setRecordingMs(0);
+      // Pre-emptively register a sync so the SW gets a wake-up when
+      // we're back on the network, even if the user closes the tab.
+      askSwToFlush();
+    } catch (e) {
+      // Last-resort: if IDB itself failed (private mode, full disk),
+      // we can't queue. Surface the underlying error so the agent can
+      // try again or copy the audio elsewhere.
+      setError(
+        `Couldn't save recording locally: ${e instanceof Error ? e.message : String(e)}`,
+      );
+    }
+  }
+
   async function submit(): Promise<void> {
     if (!audioBlob) return;
     setLoading(true);
     setError(null);
+    setQueuedNotice(null);
+
+    // Detect offline upfront — skip the fetch entirely so we don't
+    // burn a few seconds on an inevitable failure.
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      await queueRecording(audioBlob, 'offline');
+      setLoading(false);
+      return;
+    }
+
     try {
       const fd = new FormData();
       const filename = `voice-${Date.now()}.${extFor(audioBlob.type)}`;
       fd.append('file', audioBlob, filename);
       fd.append('locale', locale);
-      const res = await fetch('/api/listings/voice-import', {
-        method: 'POST',
-        body: fd,
-      });
+      let res: Response;
+      try {
+        res = await fetch('/api/listings/voice-import', {
+          method: 'POST',
+          body: fd,
+        });
+      } catch (networkErr) {
+        // TypeError from fetch = network died mid-request. Queue
+        // instead of erroring, same UX as offline-at-submit.
+        await queueRecording(audioBlob, 'fetch-failed');
+        setLoading(false);
+        // Avoid console-spamming production; only log once.
+        if (typeof console !== 'undefined') {
+          console.warn('[voice-import] queued after fetch failure', networkErr);
+        }
+        return;
+      }
       const raw = await res.text();
       type ApiResponse =
         | { facts: ImportedFacts; transcript: string }
@@ -371,6 +520,13 @@ function VoiceImportCard({
           json && 'error' in json && typeof json.error === 'string' ? json.error : null;
         const errMsg =
           json && 'message' in json && typeof json.message === 'string' ? json.message : null;
+        // 5xx? Treat like a transient fault — queue for retry rather
+        // than dead-ending the agent. 4xx (validation, file-too-large)
+        // we surface immediately; queueing wouldn't fix them.
+        if (res.status >= 500) {
+          await queueRecording(audioBlob, 'fetch-failed');
+          return;
+        }
         setError(translateVoiceError(errCode, errMsg, res.status));
         return;
       }
@@ -412,6 +568,15 @@ function VoiceImportCard({
           Walk out of the property, hit record, describe it in your own language. Whisper
           transcribes, Claude pulls out the facts. ~10 seconds after you stop.
         </p>
+        {queuedCount > 0 && (
+          <p
+            className="mt-2 rounded-card border border-amber-500/30 bg-amber-500/5 px-2 py-1 text-xs text-amber-800 dark:text-amber-300"
+            aria-live="polite"
+          >
+            {queuedCount} recording{queuedCount === 1 ? '' : 's'} queued —
+            will upload automatically when you&apos;re back online.
+          </p>
+        )}
       </header>
 
       {!audioBlob ? (
@@ -479,6 +644,14 @@ function VoiceImportCard({
           className="mt-3 rounded-card border border-red-500/30 bg-red-500/5 px-3 py-2 text-xs text-red-700 dark:text-red-300"
         >
           {error}
+        </p>
+      )}
+      {queuedNotice && !error && (
+        <p
+          className="mt-3 rounded-card border border-emerald-500/30 bg-emerald-500/5 px-3 py-2 text-xs text-emerald-800 dark:text-emerald-300"
+          aria-live="polite"
+        >
+          {queuedNotice}
         </p>
       )}
     </div>
