@@ -97,6 +97,19 @@ const serverSchema = z.object({
   // hit it ~30×/month per process. Optional — when missing, the
   // converter no-ops and price tiles render only the source currency.
   OPENEXCHANGERATES_APP_ID: z.string().optional(),
+  // LinkedIn Marketing API version. LinkedIn versions every endpoint
+  // by month (e.g. `202504`); our writer pins this header
+  // (`LinkedIn-Version`) per call. Bump after smoke-testing against
+  // a new month's API. Optional in env so unit tests don't need it;
+  // the cron route fails closed at runtime when missing.
+  LINKEDIN_API_VERSION: z.string().regex(/^\d{6}$/, 'YYYYMM').optional(),
+  // Shared bearer secret for cron-triggered API routes (LinkedIn /
+  // Meta insights writers, etc.). The external scheduler (GitHub
+  // Actions cron / cron-job.org) sends `Authorization: Bearer
+  // ${CRON_SECRET}`; a missing or mismatched value yields 401. Length
+  // requirement matches the random 32-byte minimum we generate via
+  // `openssl rand -hex 32`.
+  CRON_SECRET: z.string().min(32).optional(),
 });
 
 export type PublicEnv = z.infer<typeof publicSchema>;
