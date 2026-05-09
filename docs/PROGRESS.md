@@ -12,6 +12,62 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-08 — Master plan Phase 1: RLS pair + MFA + onboarding (3 of 4 agents shipped, locale-depth deferred)
+- **Frame:** PO said "continue with a master plan." Drafted a 4-phase
+  plan (Phase 1 = production-readiness sweep, Phase 2 = vision-aligned
+  features, Phase 3 = conversion + SEO, Phase 4 = platform depth) and
+  dispatched 4 parallel agents on Phase 1.
+- **What shipped (8 commits, 3 successful agents + 1 timeout):**
+  - **RLS pair for photo_import_failures** (`2db225f`): closes
+    CLAUDE.md hard rule #2 obligation from yesterday's merge. 23 test
+    cases across SELECT/INSERT/UPDATE/DELETE policies + admin
+    bypass. Mirrors existing `property-favorites.test.ts` patterns.
+  - **MFA enforcement + progressive lockout** (`d5d99b6`, `34bb5ff`,
+    `55f2ef5`, `fbeebaf`): migration 0039 adds `auth_failure_log`
+    table with RLS + SECURITY DEFINER `check_auth_lockout` /
+    `record_auth_failure` RPCs. Sign-in flow swapped from
+    browser-side `signInWithPassword` to a server-side
+    `/api/auth/signin` route so failure-counting + threshold logic
+    lives in one place. Lockout tiers: 5 fails / 10 min → 1 min
+    cooldown; 10 / 30 min → 15 min; 20 / 60 min → 24 h (manual
+    unlock). Admin accounts without verified MFA factor redirect to
+    `/[locale]/setup-mfa` (interstitial outside the dashboard layout
+    so the gate doesn't redirect-loop). 9 new unit tests on the pure
+    `evaluateLockout` function + RLS pair on the new table.
+  - **Onboarding wizard** (`276316a`): real first-run flow at
+    `/[locale]/onboarding/welcome` — 4 steps (welcome / public
+    profile / contact + social / first listing) with skip-for-now on
+    every non-final step. Persists via existing PUT /api/me/profile.
+    Plan-aware Pro Automation tease for free-tier accounts. Trust
+    line "Real agents already publishing" gated on a real query
+    (`organizations.public_slug IS NOT NULL`) so it stays honest per
+    rule #8. Bundled with PL pricing + priceTile namespace
+    translations from a parallel agent's partial run before timeout.
+- **What didn't ship (deferred to next session):**
+  - **Locale content depth for PT/DE/FR/IT** — A11 (locale-depth
+    agent) timed out partway through DE translation, having only
+    finished PL pricing + priceTile additions. PT/DE/FR/IT messages
+    files still have 22/47 namespaces vs. EN's 47. This needs a
+    coherent batch with native translator review, not unsupervised
+    parallelism.
+  - **Post-signup auto-redirect to /onboarding/welcome** — A12
+    judged it scope-creep without PO sign-off; current sign-up flow
+    lands users at /dashboard, dashboard bounces non-subscribers to
+    /pricing. Wizard is reachable via direct URL today.
+- **Test count:** 310 → 319 (9 new from auth lockout); RLS suites
+  separate counter (env-gated against the prod Supabase project per
+  RISKS R11; new RLS files mirror existing patterns 1:1).
+- **Commits:** `2db225f` RLS pair, `d5d99b6` / `34bb5ff` / `55f2ef5`
+  / `fbeebaf` MFA + lockout, `276316a` onboarding, plus 2 merge
+  commits. (8 total; A11 made 0 commits.)
+- **Next session should start with:** Phase 2 — background-sync
+  queue for offline voice imports, listing performance writer
+  pipelines (LinkedIn cron + Meta Insights cron stub). And the
+  deferred locale-depth work for PT/DE/FR/IT in a single coherent
+  pass with native translator review.
+
+---
+
 ## 2026-05-08 — Sprint 2/3 batch (4 parallel agents): Leaflet self-host + photo-import retry + OG fonts + performance dashboard
 - **Frame:** PO said "keep shipping autonomous all" after the previous
   4-agent batch merged. Dispatched 4 more isolated worktree agents on
