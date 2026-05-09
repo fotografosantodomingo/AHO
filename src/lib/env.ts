@@ -97,6 +97,15 @@ const serverSchema = z.object({
   // hit it ~30×/month per process. Optional — when missing, the
   // converter no-ops and price tiles render only the source currency.
   OPENEXCHANGERATES_APP_ID: z.string().optional(),
+  // Shared secret for cron-only API routes (e.g. the hourly photo-import
+  // dead-letter retry). The external scheduler — GitHub Actions cron or
+  // a tiny Cloudflare Worker — calls the route with
+  // `Authorization: Bearer ${CRON_SECRET}`; a missing or mismatched value
+  // yields 401. Length floor mirrors a 32-byte random secret encoded as
+  // hex (64 chars) — short enough to be optional without weakening the
+  // gate when set. Optional so build-time validation passes in
+  // environments that haven't wired the cron yet.
+  CRON_SECRET: z.string().min(32).optional(),
 });
 
 export type PublicEnv = z.infer<typeof publicSchema>;
