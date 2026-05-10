@@ -103,6 +103,14 @@ export const config = {
     //   - PWA root assets (sw.js, manifest.webmanifest) — service worker
     //     registration scope is `/`, so these must stay at the site root
     //     without a locale prefix.
-    '/((?!_next/static|_next/image|favicon\\.ico|icon|apple-icon|sitemap\\.xml|sitemap-images\\.xml|robots\\.txt|sw\\.js|manifest\\.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico)$|api/|auth/callback).*)',
+    //   - /leaflet/* — vendored Leaflet CSS + marker images; without the
+    //     exclusion, next-intl 307s `/leaflet/leaflet.css` → `/en/leaflet/
+    //     leaflet.css` which 404s, and the search-page map renders blank
+    //     because the tile layer has no styling. Same logic for `.css`
+    //     in general; safer to excluded the entire vendored dir.
+    //   - `.css` files anywhere — locale-prefixing a stylesheet has no
+    //     legitimate use case and breaks every static-CSS asset that
+    //     gets fetched outside `_next/static`.
+    '/((?!_next/static|_next/image|favicon\\.ico|icon|apple-icon|sitemap\\.xml|sitemap-images\\.xml|robots\\.txt|sw\\.js|manifest\\.webmanifest|leaflet/|.*\\.(?:css|svg|png|jpg|jpeg|gif|webp|avif|ico)$|api/|auth/callback).*)',
   ],
 };
