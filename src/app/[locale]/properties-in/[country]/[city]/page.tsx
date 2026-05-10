@@ -5,7 +5,6 @@ import { LOCALES, type Locale } from '@/i18n/config';
 import {
   citySlugToQuery,
   searchCityLanding,
-  type SearchListing,
 } from '@/lib/listings/search';
 import { ListingCard } from '@/components/listings/listing-card';
 import { precomputeApproxLabels } from '@/lib/currency/server';
@@ -16,6 +15,12 @@ import { publicEnv } from '@/lib/env';
 import { getCountryName } from '@/lib/i18n/countries';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getUserFavoriteIds } from '@/lib/listings/favorites';
+import {
+  buildBreadcrumbList,
+  buildItemList,
+  buildPlace,
+  serializeJsonLd,
+} from '@/lib/seo/jsonld';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -141,16 +146,6 @@ export default async function CityLandingPage({
     result.listings.map((l) => l.id),
   );
 
-  // JSON-LD ItemList for the listings on this page. Helps Google surface
-  // city pages with a rich-result list of properties.
-  const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
-  const jsonLd = buildItemListJsonLd({
-    listings: result.listings,
-    locale: typedLocale,
-    siteOrigin: site,
-    pageTitle: heading,
-  });
-
   // "View all" CTA — when there are too many listings to show inline, send
   // crawlers + users to /search with the city filter pre-applied.
   const allListingsHref = `/${locale}/${
@@ -161,11 +156,63 @@ export default async function CityLandingPage({
 
   const homePath = `/${locale}`;
 
+  // JSON-LD: three nodes for this surface.
+  //   1. Place — the city itself, with addressLocality + addressCountry
+  //      so Google can attach the page to its geo entity.
+  //   2. BreadcrumbList — Home > Country > City. Lets the SERP crumb
+  //      trail render the localized country/city names.
+  //   3. ItemList — the listings shown on the page. Filtered to entries
+  //      with a resolvable detail URL (slug present in either locale).
+  const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
+  const cityPagePath =
+    typedLocale === 'es'
+      ? `/${locale}/inmuebles-en/${country}/${city}`
+      : `/${locale}/properties-in/${country}/${city}`;
+  const cityPageUrl = `${site}${cityPagePath}`;
+  const countryPageUrl = `${site}/${locale}/${
+    typedLocale === 'es' ? 'inmuebles-en' : 'properties-in'
+  }/${country}`;
+  const subheading = t('subheading', { city: canonicalCity });
+
+  const placeLd = buildPlace({
+    name: `${canonicalCity}, ${canonicalCountry}`,
+    city: canonicalCity,
+    countryCode: country.toUpperCase(),
+    url: cityPageUrl,
+    description: subheading,
+  });
+  const breadcrumbLd = buildBreadcrumbList([
+    { name: 'AHO', url: `${site}/${locale}` },
+    { name: canonicalCountry, url: countryPageUrl },
+    { name: canonicalCity, url: cityPageUrl },
+  ]);
+  const itemListLd = buildItemList({
+    name: heading,
+    id: `${cityPageUrl}#listings`,
+    entries: result.listings.map((l) => {
+      const slug = typedLocale === 'es' ? l.slugEs ?? l.slugEn : l.slugEn ?? l.slugEs;
+      const path = typedLocale === 'es' ? 'propiedades' : 'properties';
+      if (!slug) return null;
+      return {
+        url: `${site}/${locale}/${path}/${slug}-${l.shortId}`,
+        name: (typedLocale === 'es' ? l.titleEs : l.titleEn) ?? l.titleEn ?? l.titleEs ?? undefined,
+      };
+    }),
+  });
+
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(placeLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(itemListLd) }}
       />
       <main>
         <LocationSubBar
@@ -256,32 +303,3 @@ export default async function CityLandingPage({
   );
 }
 
-function buildItemListJsonLd({
-  listings,
-  locale,
-  siteOrigin,
-  pageTitle,
-}: {
-  listings: SearchListing[];
-  locale: Locale;
-  siteOrigin: string;
-  pageTitle: string;
-}) {
-  const items = listings.map((l, idx) => {
-    const slug = locale === 'es' ? l.slugEs ?? l.slugEn : l.slugEn ?? l.slugEs;
-    const path = locale === 'es' ? 'propiedades' : 'properties';
-    const url = slug ? `${siteOrigin}/${locale}/${path}/${slug}-${l.shortId}` : null;
-    return {
-      '@type': 'ListItem',
-      position: idx + 1,
-      url,
-    };
-  });
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: pageTitle,
-    numberOfItems: listings.length,
-    itemListElement: items,
-  };
-}

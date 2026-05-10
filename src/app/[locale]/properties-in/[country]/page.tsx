@@ -8,6 +8,12 @@ import { DotGrid } from '@/components/ui/dot-grid';
 import { EmptyState } from '@/components/ui/empty-state';
 import { LocationSubBar } from '@/components/location-sub-bar';
 import { publicEnv } from '@/lib/env';
+import {
+  buildBreadcrumbList,
+  buildItemList,
+  buildPlace,
+  serializeJsonLd,
+} from '@/lib/seo/jsonld';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -91,8 +97,56 @@ export default async function CountryLandingPage({
   const browseHref = `/${locale}/${typedLocale === 'es' ? 'buscar' : 'search'}?country=${cc}`;
   const pricingHref = `/${locale}/${typedLocale === 'es' ? 'precios' : 'pricing'}`;
 
+  // JSON-LD nodes — Place (the country) + BreadcrumbList + ItemList of
+  // its cities. Mirrors the shape used on the city landing one level
+  // deeper. Cities with zero active listings still appear in result.cities
+  // when the country has any listings; the ItemList is honest about
+  // whatever's there. Empty country (no cities at all) emits a Place +
+  // Breadcrumb but no ItemList — schema.org doesn't reject ItemList:0,
+  // but skipping it avoids polluting GSC with "list with 0 items".
+  const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
+  const countryUrl = `${site}/${locale}/${
+    typedLocale === 'es' ? 'inmuebles-en' : 'properties-in'
+  }/${cc.toLowerCase()}`;
+  const placeLd = buildPlace({
+    name: display,
+    countryCode: cc,
+    url: countryUrl,
+    description: t('subheading', { country: display }),
+  });
+  const breadcrumbLd = buildBreadcrumbList([
+    { name: 'AHO', url: `${site}/${locale}` },
+    { name: t('breadcrumbCountries'), url: `${site}${countriesPath}` },
+    { name: display, url: countryUrl },
+  ]);
+  const itemListLd =
+    result.cities.length > 0
+      ? buildItemList({
+          name: t('headingTemplate', { country: display }),
+          id: `${countryUrl}#cities`,
+          entries: result.cities.map((row) => ({
+            url: `${site}${cityHref(row.citySlug)}`,
+            name: row.city,
+          })),
+        })
+      : null;
+
   return (
     <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(placeLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbLd) }}
+      />
+      {itemListLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(itemListLd) }}
+        />
+      )}
       <LocationSubBar
         locale={typedLocale}
         countryCode={cc}
