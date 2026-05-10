@@ -199,6 +199,16 @@ export const PATHNAMES = {
     ...en5('/agents/[slug]'),
   },
   '/admin': '/admin',
+  // Admin subtree — same single-string path across every locale (admin
+  // URLs are internal moderation, not user-facing SEO surfaces, so we
+  // don't translate the segments). Registered explicitly so the locale
+  // switcher's `getPathname()` resolves them cleanly instead of falling
+  // back to home (QA-2026-05-10 P0 #6). `/admin/reviews` was already
+  // registered below; keep it grouped with the rest of /admin/* here so
+  // a future contributor sees the full subtree in one block.
+  '/admin/orgs': '/admin/orgs',
+  '/admin/leads': '/admin/leads',
+  '/admin/users': '/admin/users',
   // MFA enrollment interstitial for admin accounts. Lives outside
   // /dashboard so the dashboard-layout MFA gate can redirect to it
   // without looping. Same path across locales — admin/security
