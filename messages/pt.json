@@ -283,59 +283,59 @@
   },
   "forAgents": {
     "meta": {
-      "title": "AHO para corretores de imóveis — publique uma vez, distribua em todos os canais",
-      "description": "AHO é a plataforma imobiliária para corretores em atividade. Uma única fonte de verdade por anúncio. Publicação automática no Facebook, Instagram e WhatsApp Business. Pro Automation $99/mês, teste grátis de 7 dias."
+      "title": "AHO para corretores de imóveis — da nota de voz a 21 posts sociais com um clique",
+      "description": "Pare de publicar imóveis plataforma por plataforma. Dite uma nota de voz: AHO transforma em anúncio bilíngue e 21 posts sociais ajustados a cada plataforma, todos com seu link AHO. Pro Automation $99/mês, 7 dias grátis."
     },
     "hero": {
       "eyebrow": "Para corretores de imóveis",
-      "headline": "Seus anúncios, em todos os canais — antes das 9 da manhã.",
-      "sub": "AHO publica uma vez e distribui automaticamente para Facebook, Instagram e WhatsApp Business. Pare de pular entre abas.",
-      "primaryCta": "Iniciar teste grátis de 7 dias · $99/mês",
-      "secondaryCta": "Ver planos completos"
+      "headline": "Pare de publicar imóveis um por um. Comece a anunciar globalmente com um único clique.",
+      "sub": "Dite uma nota de voz ao sair do imóvel. Antes de chegar ao carro, a AHO já tem seu anúncio bilíngue no ar e 21 posts sociais prontos — todos com o link do seu anúncio AHO.",
+      "primaryCta": "Iniciar teste grátis",
+      "secondaryCta": "Veja como funciona"
     },
     "problem": {
-      "heading": "Agora mesmo você está…",
+      "heading": "O que devora a sua semana",
       "bullets": [
-        "Republicando manualmente o mesmo anúncio no Facebook, Instagram, seu site e uma lista de transmissão WhatsApp — cada propriedade, todas as vezes.",
-        "Recebendo contatos por cinco canais. Você perde dois.",
-        "Reexportando fotos para a proporção de cada plataforma. Quadrado para IG, paisagem para FB, vertical para WhatsApp."
+        "Mesmo anúncio, quatro plataformas, cada uma exige um comprimento, tom e estilo de hashtags diferente. Ou você escreve uma vez e publica mal — ou escreve quatro vezes e perde o dia.",
+        "Compradores internacionais (poloneses na Espanha, alemães na Itália, americanos na RD) nunca veem seus imóveis porque tudo é publicado só no seu idioma local.",
+        "Dados do setor: corretores gastam 5–10 horas por semana escrevendo posts. A maioria fica em uma plataforma porque fazer quatro multiplica o trabalho — e perde 3–5× mais leads."
       ]
     },
     "solution": {
-      "heading": "AHO simplifica o fluxo.",
-      "body": "Uma fonte de verdade por anúncio. Uma caixa de entrada para todos os contatos. Uma assinatura que cuida da distribuição social de ponta a ponta. Você escreve o anúncio uma vez; AHO faz o resto."
+      "heading": "Voz na entrada. Anúncio bilíngue. 21 posts. 60 segundos.",
+      "body": "AHO é um hub inteligente de distribuição de conteúdo para profissionais imobiliários. Toque no microfone, fale o imóvel no seu idioma. O Whisper transcreve, o Claude extrai os fatos estruturados e o rascunho do seu anúncio aparece em advertisehomes.online antes de você chegar ao carro. Depois, um toque gera 21 posts sociais ajustados — Facebook, Instagram, LinkedIn × sete idiomas — cada um com a URL do seu anúncio AHO embutida."
     },
     "features": {
-      "heading": "O que você ganha",
+      "heading": "Três coisas que tornam a AHO diferente",
       "items": [
         {
-          "title": "Publique uma vez, em todos os lugares",
-          "body": "Conecte Facebook, Instagram e WhatsApp Business uma só vez. Cada anúncio publicado se distribui automaticamente — com variantes de imagem por canal geradas em tempo real."
+          "title": "Fale (Speak it)",
+          "body": "Importação por voz para o corretor em movimento. Dite um imóvel em português, espanhol, inglês — Whisper transcreve, Claude extrai preço, área, quartos, localização, comodidades, e pré-preenche o formulário do anúncio. Colar URL de Idealista ou OLX funciona da mesma forma."
         },
         {
-          "title": "Uma caixa para todos os contatos",
-          "body": "Formulários, cliques no WhatsApp, respostas por e-mail — tudo entra no painel AHO. Responda uma vez."
+          "title": "Venda (Sell it)",
+          "body": "Uma URL AHO embutida em cada post social. Compradores clicam no Facebook, Instagram ou LinkedIn e caem na sua página — e no seu formulário de contato. Os leads vão para uma única caixa AHO que você de fato responde, em vez de cinco DMs que você perde."
         },
         {
-          "title": "SEO bilíngue de fábrica",
-          "body": "Cada anúncio indexado em inglês e espanhol (com polonês, português, alemão, francês e italiano nas páginas de marketing). Compradores te encontram no idioma deles."
+          "title": "Meça (Track it)",
+          "body": "Painel de desempenho por anúncio com alcance real e número de leads por plataforma e por idioma. A IA destaca o que funciona: \"Sua variante de IG-Reel em polonês gera 3× mais leads que a versão de FB. Continue usando.\""
         }
       ]
     },
     "howItWorks": {
-      "heading": "Como funciona",
+      "heading": "De nota de voz a 21 posts sociais em 60 segundos",
       "steps": [
         {
-          "title": "Cadastre-se — teste grátis de 7 dias",
-          "body": "Sem cartão de crédito para começar. Cancele a qualquer momento durante o teste sem cobrança."
+          "title": "Fale o imóvel",
+          "body": "Toque em \"Novo anúncio\" no telefone e dite: \"Apartamento de dois quartos, 50 m², perto do metrô Wilanowska, 850 mil.\" Ou cole uma URL de concorrente. Ou preencha o formulário você mesmo — escolha sua. AHO suporta os três modos de entrada."
         },
         {
-          "title": "Adicione seu primeiro anúncio",
-          "body": "Fotos, preço, características, descrição. AHO otimiza imagens por canal — quadrado, paisagem, vertical — automaticamente."
+          "title": "Revise e publique",
+          "body": "AHO devolve um rascunho pré-preenchido em menos de 30 segundos. Edite o que quiser, adicione fotos, toque em Publicar. Seu anúncio entra no ar em advertisehomes.online com URL permanente — bilíngue quando os dois idiomas estão escritos, em um idioma com flag clara de \"tradução pendente\" quando não."
         },
         {
-          "title": "Conecte suas redes",
-          "body": "Um clique OAuth para Página Facebook, Instagram Business, WhatsApp Business. Cada anúncio publicado se distribui automaticamente."
+          "title": "Gere 21 posts sociais",
+          "body": "Toque em \"Gerar posts sociais.\" AHO produz 21 variantes ajustadas — três plataformas (Facebook, Instagram, LinkedIn) × sete idiomas (EN/ES/PL/PT/DE/FR/IT). Cada variante respeita os limites de caracteres da plataforma, usa a voz de marketer nativo do idioma e embute a URL do seu anúncio AHO. Hoje: copiar e colar; em breve, publicação em um clique assim que a Meta App Review aprovar a integração."
         }
       ]
     },
@@ -344,42 +344,66 @@
       "price": "$99",
       "period": "/ mês",
       "features": [
-        "Anúncios ilimitados",
-        "Auto-publicação para FB + IG + WhatsApp Business",
-        "Caixa de entrada centralizada",
-        "SEO bilíngue + página de perfil de corretor",
-        "Teste grátis 7 dias — sem cartão"
+        "Anúncios ilimitados, importação por voz + URL + manual",
+        "21 variantes de post social por anúncio (3 plataformas × 7 idiomas)",
+        "Caixa centralizada de leads + painel de desempenho por anúncio",
+        "Teste grátis 7 dias — sem cartão para começar"
       ],
-      "cta": "Iniciar teste grátis"
+      "cta": "Ver planos completos"
     },
     "faq": {
-      "heading": "Perguntas frequentes",
+      "heading": "Perguntas que corretores realmente fazem",
       "items": [
         {
-          "q": "Preciso de cartão para começar?",
-          "a": "Não. O teste de 7 dias não exige cartão. Adicione um antes do dia 7 para manter sua assinatura ativa."
+          "q": "Quanto tempo leva para configurar?",
+          "a": "Menos de 15 minutos do cadastro até o primeiro anúncio no ar: 5 minutos para o perfil de corretor, 5 minutos para o primeiro anúncio (ou 30 segundos por voz), 5 minutos para copiar o primeiro lote de posts sociais. Conectar Facebook / Instagram para publicação em um clique adiciona um OAuth a mais cada — essa parte sai quando a Meta App Review aprovar a integração."
         },
         {
-          "q": "Quais redes sociais são suportadas?",
-          "a": "Página Facebook + Instagram Business + WhatsApp Business na v1. LinkedIn está no roadmap."
-        },
-        {
-          "q": "Posso publicar em vários idiomas?",
-          "a": "Sim. Cada anúncio tem campos separados para inglês e espanhol. Digite ambos, AHO publica ambos. Páginas de marketing também localizam para PL/PT/DE/FR/IT."
-        },
-        {
-          "q": "E se uma publicação falhar?",
-          "a": "AHO refaz automaticamente com backoff. Se o erro persistir (conta suspensa, regra de conteúdo), você recebe e-mail + alerta no painel com a mensagem exata."
+          "q": "E se eu não for técnico?",
+          "a": "Se você sabe gravar uma mensagem de voz, sabe usar a AHO. O fluxo de voz é um botão. O formulário do anúncio são os mesmos campos que você escreveria no papel. Os posts vêm pré-escritos — você só revisa e publica. Suporte em info@advertisehomes.online — respondemos em um dia útil."
         },
         {
           "q": "Posso cancelar quando quiser?",
-          "a": "Sim. Cancele pelo Portal do Cliente Stripe — o acesso continua até o fim do período de cobrança."
+          "a": "Sim. Cancele pelo Portal do Cliente Stripe em dois cliques — seu acesso continua até o fim do ciclo de cobrança e você mantém anúncios, leads e histórico de analytics. Sem ligação de retenção, sem pesquisa de \"motivos para ficar\"."
+        },
+        {
+          "q": "Quais plataformas vocês suportam?",
+          "a": "v1 gera posts para Facebook, Instagram (feed + Reels) e LinkedIn — três plataformas em sete idiomas, 21 variantes por anúncio. Hoje: copiar e colar nas suas contas. Em breve (após Meta App Review): publicação em um clique para Página Facebook, Instagram Business e WhatsApp Business. TikTok e YouTube Shorts no roadmap."
+        },
+        {
+          "q": "Onde a AHO opera?",
+          "a": "No mundo todo. A plataforma está no ar com soft-beta na República Dominicana e na Polônia — esses são os dois primeiros mercados de onde recrutamos corretores. Anúncios, perfis de corretor e páginas de cidade renderizam em inglês e espanhol; a superfície de marketing (esta página inclusive) localiza também para polonês, português, alemão, francês e italiano para que compradores estrangeiros te encontrem no idioma deles."
+        },
+        {
+          "q": "Como funciona a importação por voz?",
+          "a": "Você fala no seu idioma nativo — português, espanhol, inglês, qualquer um dos sete idiomas AHO. O OpenAI Whisper transcreve o áudio (ele lida bem com nomes de rua, valores em metros quadrados e jargão imobiliário). O Claude lê a transcrição e extrai fatos estruturados: preço, quartos, banheiros, área, localização, comodidades, descrição. AHO pré-preenche o formulário. Você revisa, edita o que estiver fora, publica. Tempo total: tipicamente 30–60 segundos para a parte de IA, mais o tempo que você levar para adicionar fotos."
+        }
+      ]
+    },
+    "trustStrip": {
+      "heading": "Sinais honestos",
+      "items": [
+        {
+          "label": "HTTPS em tudo",
+          "detail": "TLS emitido pela Cloudflare, HSTS preload, somente cifras modernas."
+        },
+        {
+          "label": "Alinhado ao GDPR",
+          "detail": "Bases legais documentadas (Art. 6), janela de 72 h em incidentes, exportação e exclusão de dados sob solicitação."
+        },
+        {
+          "label": "No ar em RD + PL",
+          "detail": "Soft-beta na República Dominicana e Polônia. Expansão global segue a demanda dos corretores."
+        },
+        {
+          "label": "Apenas anúncios reais",
+          "detail": "Sem anúncios de demonstração, sem fotos de banco, sem corretores fictícios. Quando a plataforma está vazia, ela mostra vazia."
         }
       ]
     },
     "finalCta": {
-      "heading": "Pare o trabalho manual. Comece seu teste hoje.",
-      "sub": "Pro Automation, $99/mês. Teste grátis 7 dias. Cancele quando quiser.",
+      "heading": "Seu próximo anúncio pode estar no ar em 60 segundos.",
+      "sub": "Pro Automation, $99/mês. Teste grátis de 7 dias — sem cartão para começar. Cancele quando quiser.",
       "cta": "Iniciar teste grátis"
     }
   },

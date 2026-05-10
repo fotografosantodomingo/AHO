@@ -1235,59 +1235,59 @@
   },
   "forAgents": {
     "meta": {
-      "title": "AHO for real estate agents — publish once, distribute everywhere",
-      "description": "AHO is a real-estate platform built for working agents. One source of truth per listing. Auto-publishing to Facebook, Instagram, and WhatsApp Business. Pro Automation $99/mo, 7-day free trial."
+      "title": "AHO for real estate agents — voice in, 21 social posts out, in one click",
+      "description": "Stop posting listings one platform at a time. Dictate a voice note, AHO turns it into a bilingual listing plus 21 platform-tuned social posts that all link back to you. Pro Automation $99/mo, 7-day free trial."
     },
     "hero": {
       "eyebrow": "For real estate agents",
-      "headline": "Your listings, on every channel — by 9 AM.",
-      "sub": "AHO publishes once and distributes to Facebook, Instagram, and WhatsApp Business automatically. Stop juggling tabs.",
-      "primaryCta": "Start 7-day free trial · $99/mo",
-      "secondaryCta": "See full pricing"
+      "headline": "Stop posting listings one platform at a time. Start advertising globally with one click.",
+      "sub": "Dictate a voice note as you leave the property. By the time you reach the car, AHO has a bilingual listing live and 21 social posts ready to publish — every one of them linking back to you.",
+      "primaryCta": "Start free trial",
+      "secondaryCta": "See how it works"
     },
     "problem": {
-      "heading": "Right now you're…",
+      "heading": "What's eating your week",
       "bullets": [
-        "Manually re-posting the same listing to Facebook, Instagram, your website, and a WhatsApp broadcast list — every property, every time.",
-        "Receiving leads across five channels. You miss two of them.",
-        "Re-exporting photos for each platform's aspect ratio. Square for IG, landscape for FB, vertical for WhatsApp."
+        "Same listing, four platforms, each demands a different length, tone, and hashtag style. Write it once and post badly — or write it four times and burn the day.",
+        "International buyers (Polish in Spain, Germans in Italy, Americans in DR) never see your listings because everything is in your local language only.",
+        "Industry data: agents spend 5–10 hours a week writing social posts. Most stop at one platform because doing four multiplies the work — and skips the 3–5× lead lift."
       ]
     },
     "solution": {
-      "heading": "AHO collapses the workflow.",
-      "body": "One source of truth for every listing. One inbox for every lead. One subscription that handles social distribution end to end. You write the listing once; AHO does the rest."
+      "heading": "Voice in. Bilingual listing. 21 posts. 60 seconds.",
+      "body": "AHO is an intelligent content-distribution hub for real-estate professionals. Tap the mic, speak the property in your own language. Whisper transcribes, Claude extracts the structured facts, and your listing draft is on advertisehomes.online before you reach your car. Then one tap generates 21 platform-tuned, locale-native social posts — Facebook, Instagram, LinkedIn × seven languages — every single one with your AHO listing URL embedded."
     },
     "features": {
-      "heading": "What you get",
+      "heading": "Three things that make AHO different",
       "items": [
         {
-          "title": "Post once, publish everywhere",
-          "body": "Connect Facebook, Instagram, and WhatsApp Business once. Every listing you publish auto-distributes — with per-channel image variants generated on the fly."
+          "title": "Speak it",
+          "body": "Voice-import for the on-the-move agent. Dictate a property in Polish, Spanish, English — Whisper transcribes, Claude extracts price, area, beds, location, amenities, and pre-fills your listing form. URL paste from otodom or idealista works the same way."
         },
         {
-          "title": "One inbox for every lead",
-          "body": "Contact-form submissions, WhatsApp click-to-chats, email replies — all funnel into your AHO dashboard. Reply once."
+          "title": "Sell it",
+          "body": "One AHO listing URL embedded in every social post. Buyers click from Facebook, Instagram or LinkedIn and land on your page — and your contact form. Leads route into one AHO inbox you actually answer, instead of five DMs you miss."
         },
         {
-          "title": "Bilingual SEO out of the box",
-          "body": "Every listing indexed in English and Spanish (with Polish, Portuguese, German, French, Italian on the marketing surface). Buyers find you in their language."
+          "title": "Track it",
+          "body": "Per-listing performance dashboard with real reach and lead numbers per platform per locale. The AI surfaces what's working: \"Your IG-Reel variant in Polish is generating 3× more leads than the FB version. Keep using it.\""
         }
       ]
     },
     "howItWorks": {
-      "heading": "How it works",
+      "heading": "From voice note to 21 social posts in 60 seconds",
       "steps": [
         {
-          "title": "Sign up — 7-day free trial",
-          "body": "No credit card to start. Cancel any time during the trial without charge."
+          "title": "Speak the property",
+          "body": "Tap \"New listing\" on your phone and dictate: \"Two-bed apartment, 50 m², close to Wilanowska metro, 850k.\" Or paste a competitor URL. Or fill the form yourself — your choice. AHO supports all three input modes."
         },
         {
-          "title": "Add your first listing",
-          "body": "Photos, price, features, description. AHO optimizes images per channel — square, landscape, vertical — automatically."
+          "title": "Review and publish",
+          "body": "AHO returns a pre-filled listing draft in under 30 seconds. Edit anything, add photos, hit Publish. Your listing goes live at advertisehomes.online with a permanent URL — bilingual content where both languages are written, single-language with a clear translation flag where they aren't."
         },
         {
-          "title": "Connect your socials",
-          "body": "One OAuth click each for Facebook Page, Instagram Business, WhatsApp Business. Then every published listing distributes automatically."
+          "title": "Generate 21 social posts",
+          "body": "Tap \"Generate social posts.\" AHO produces 21 platform-tuned variants — three platforms (Facebook, Instagram, LinkedIn) × seven languages (EN/ES/PL/PT/DE/FR/IT). Each variant respects platform character budgets, uses native marketer voice for its locale, and embeds your AHO listing URL. Copy-paste today; one-click publish as Meta App Review approves."
         }
       ]
     },
@@ -1296,42 +1296,66 @@
       "price": "$99",
       "period": "/ month",
       "features": [
-        "Unlimited listings",
-        "Auto-publish to FB + IG + WhatsApp Business",
-        "Centralized lead inbox",
-        "Bilingual SEO + agent profile page",
-        "7-day free trial — no card required"
+        "Unlimited listings, voice + URL + manual import",
+        "21 social-post variants per listing (3 platforms × 7 locales)",
+        "Centralized lead inbox + per-listing performance dashboard",
+        "7-day free trial — no card required to start"
       ],
-      "cta": "Start free trial"
+      "cta": "See full pricing"
     },
     "faq": {
-      "heading": "Frequently asked questions",
+      "heading": "Questions agents actually ask",
       "items": [
         {
-          "q": "Do I need a credit card to start?",
-          "a": "No. The 7-day trial doesn't require a card. Add one any time before day 7 to keep your subscription active."
+          "q": "How long does it take to set up?",
+          "a": "Under 15 minutes from signup to your first listing live: 5 minutes to fill in your agent profile, 5 minutes to publish your first listing (or 30 seconds via voice), 5 minutes to copy your first batch of social posts. Connecting Facebook / Instagram for one-click publishing adds another OAuth click each — that piece ships once Meta App Review approves the integration."
         },
         {
-          "q": "Which social platforms are supported?",
-          "a": "Facebook Page + Instagram Business + WhatsApp Business in v1. LinkedIn is on the roadmap."
-        },
-        {
-          "q": "Can I publish in multiple languages?",
-          "a": "Yes. Each listing has separate fields for English and Spanish content. Type both, AHO publishes both. Marketing pages also localize to PL/PT/DE/FR/IT."
-        },
-        {
-          "q": "What happens if a social post fails?",
-          "a": "AHO retries automatically with backoff. If the failure is persistent (account suspended, content rule violation), you get an email and a dashboard alert with the exact error."
+          "q": "What if I'm not technical?",
+          "a": "If you can record a voicemail, you can use AHO. The voice flow is one button. The listing form is the same fields you'd write on paper. The social posts are pre-written — you just review and post. We answer support email at info@advertisehomes.online within one business day."
         },
         {
           "q": "Can I cancel any time?",
-          "a": "Yes. Cancel from the Stripe Customer Portal — access continues to the end of your billing period."
+          "a": "Yes. Cancel from the Stripe Customer Portal in two clicks — your access continues until the end of your current billing period and you keep your listings, leads, and analytics history. No retention call, no \"reasons-to-stay\" survey."
+        },
+        {
+          "q": "Which platforms do you support?",
+          "a": "v1 generates posts for Facebook, Instagram (feed + Reels) and LinkedIn — three platforms across seven locales for 21 variants per listing. Today: copy-paste to your accounts. Soon (post Meta App Review): one-click publish to Facebook Page, Instagram Business, and WhatsApp Business. TikTok and YouTube Shorts are on the roadmap."
+        },
+        {
+          "q": "Where does AHO operate?",
+          "a": "Worldwide. The platform is live with a soft-beta in the Dominican Republic and Poland — those are the two markets we're recruiting first agents from. Listings, agent profiles and city pages render in English and Spanish; the marketing surface (this page included) localizes to Polish, Portuguese, German, French and Italian so foreign buyers find you in their language."
+        },
+        {
+          "q": "How does the voice import work?",
+          "a": "You speak in your native language — Polish, Spanish, English, any of the seven AHO locales. OpenAI Whisper transcribes the audio (it handles street names, square-meter values and real-estate jargon well). Claude reads the transcript and pulls structured facts: price, beds, baths, area, location, amenities, description. AHO then pre-fills the listing form. You review, edit anything that's off, hit Publish. Total time: typically 30–60 seconds for the AI portion, plus however long you take to add photos."
+        }
+      ]
+    },
+    "trustStrip": {
+      "heading": "Honest signals",
+      "items": [
+        {
+          "label": "HTTPS everywhere",
+          "detail": "Cloudflare-issued TLS, HSTS preload, modern cipher suites only."
+        },
+        {
+          "label": "GDPR-aligned",
+          "detail": "Lawful bases documented per Art. 6, 72-hour breach window, data export and erasure on request."
+        },
+        {
+          "label": "Live in DR + PL",
+          "detail": "Soft-beta in the Dominican Republic and Poland. Worldwide rollout follows agent demand."
+        },
+        {
+          "label": "Real listings only",
+          "detail": "No seeded demo listings, no stock photos, no placeholder agents. When the platform is empty, it shows empty."
         }
       ]
     },
     "finalCta": {
-      "heading": "Stop the manual work. Start your free trial today.",
-      "sub": "Pro Automation, $99/mo. 7-day free trial. Cancel any time.",
+      "heading": "Your next listing could be live in 60 seconds.",
+      "sub": "Pro Automation, $99/mo. 7-day free trial — no credit card required to start. Cancel any time.",
       "cta": "Start free trial"
     }
   },
