@@ -66,6 +66,8 @@
     "currentPlan": "Twój obecny plan",
     "subscribe": "Subskrybuj",
     "signInToSubscribe": "Zaloguj się, aby subskrybować",
+    "upgradeTo": "Przejdź na {tier}",
+    "downgradeTo": "Zmień na {tier}",
     "redirecting": "Przekierowanie do płatności…",
     "subscribeError": "Nie udało się rozpocząć płatności. Spróbuj ponownie.",
     "orgNamePrompt": "Jaka jest nazwa Twojej firmy lub Twoje imię i nazwisko jako agenta?",
@@ -108,7 +110,7 @@
     "monthlyPrice": "$29 / miesiąc",
     "annualPrice": "$290 / rok",
     "annualSavings": "~17% taniej niż miesięcznie",
-    "trialNote": "7 dni okresu próbnego przy planie miesięcznym. Anuluj przed jego końcem, by uniknąć opłaty.",
+    "trialNote": "Anuluj w dowolnym momencie z Portalu Klienta Stripe — rozliczenia kończą się wraz z bieżącym okresem.",
     "features": {
       "listings": "Do 5 aktywnych ogłoszeń",
       "social": "Udostępnianie jednym kliknięciem na Facebook + Instagram",
@@ -128,7 +130,7 @@
     "priceSubheading": "/ miesiąc",
     "annualPill": "Zaoszczędź ~17% z planem rocznym",
     "featuresHeading": "Wszystko, czego potrzebujesz do publikacji",
-    "trialBadge": "7 dni za darmo",
+    "trialBadge": "Anuluj kiedy chcesz",
     "faqHeading": "Najczęściej zadawane pytania",
     "faq1Q": "Czy mogę anulować w dowolnym momencie?",
     "faq1A": "Tak. Otwórz Portal Klienta Stripe z poziomu panelu i anuluj w dwóch kliknięciach. Dostęp zachowujesz do końca okresu rozliczeniowego.",
@@ -170,7 +172,7 @@
     "howHeading": "Jak działa AHO",
     "howSubheading": "Od ogłoszenia do kontaktu w trzech krokach. Zbudowane dla agentów, którzy nie chcą ręcznie publikować na pięciu sieciach społecznościowych co tydzień.",
     "howStep1Title": "Subskrybuj i utwórz ogłoszenie",
-    "howStep1Body": "$29 miesięcznie, 7 dni za darmo, anuluj kiedy chcesz przez Portal Klienta Stripe.",
+    "howStep1Body": "$29 miesięcznie, anuluj kiedy chcesz przez Portal Klienta Stripe.",
     "howStep2Title": "Opublikuj swoje ogłoszenia",
     "howStep2Body": "Tytuł, zdjęcia, cena, lokalizacja — dwujęzycznie EN/ES. Do 5 aktywnych ogłoszeń na planie Agent.",
     "howStep3Title": "Dotrzyj do kupujących wszędzie",
@@ -1176,13 +1178,13 @@
   "forAgents": {
     "meta": {
       "title": "AHO dla agentów nieruchomości — z notatki głosowej do 21 postów społecznościowych",
-      "description": "Przestań publikować ogłoszenia na każdej platformie z osobna. Podyktuj notatkę głosową — AHO zamieni ją w dwujęzyczne ogłoszenie i 21 dopasowanych postów społecznościowych z linkiem do Twojej oferty. Pro Automation $99/mies., 7 dni za darmo."
+      "description": "Przestań publikować ogłoszenia na każdej platformie z osobna. Podyktuj notatkę głosową — AHO zamieni ją w dwujęzyczne ogłoszenie i 21 dopasowanych postów społecznościowych z linkiem do Twojej oferty. Pro Automation $99/mies. Anuluj kiedy chcesz."
     },
     "hero": {
       "eyebrow": "Dla agentów nieruchomości",
       "headline": "Przestań wrzucać oferty platforma po platformie. Zacznij reklamować się globalnie jednym kliknięciem.",
       "sub": "Podyktuj notatkę głosową, kiedy wychodzisz z mieszkania. Zanim dojdziesz do auta, AHO ma już dwujęzyczne ogłoszenie online i 21 gotowych postów społecznościowych — każdy z linkiem do Twojej oferty.",
-      "primaryCta": "Rozpocznij okres próbny",
+      "primaryCta": "Subskrybuj — $99/mc",
       "secondaryCta": "Zobacz, jak to działa"
     },
     "problem": {
@@ -1239,7 +1241,7 @@
         "Nielimitowane ogłoszenia, import głosowy + URL + ręczny",
         "21 wariantów postów społecznościowych na ogłoszenie (3 platformy × 7 języków)",
         "Centralna skrzynka leadów + panel wyników na ogłoszenie",
-        "7 dni za darmo — bez karty na start"
+        "Anuluj kiedy chcesz z Portalu Klienta Stripe"
       ],
       "cta": "Zobacz pełny cennik"
     },
@@ -1295,20 +1297,20 @@
     },
     "finalCta": {
       "heading": "Twoje następne ogłoszenie może być online za 60 sekund.",
-      "sub": "Pro Automation, $99/mies. 7 dni za darmo — bez karty na start. Anuluj kiedy chcesz.",
-      "cta": "Rozpocznij okres próbny"
+      "sub": "Pro Automation, $99/mies. Anuluj kiedy chcesz.",
+      "cta": "Subskrybuj — $99/mc"
     }
   },
   "automation": {
     "meta": {
       "title": "Automatyzacja social media nieruchomości — publikuj raz, na FB, IG, WhatsApp | AHO",
-      "description": "AHO Pro Automation publikuje Twoje ogłoszenie na Stronie Facebook, Instagram Business i WhatsApp Business — automatycznie. Natywna integracja Graph API, warianty obrazu na kanał, harmonogram + ponawianie. $99/mies z 7-dniowym okresem próbnym."
+      "description": "AHO Pro Automation publikuje Twoje ogłoszenie na Stronie Facebook, Instagram Business i WhatsApp Business — automatycznie. Natywna integracja Graph API, warianty obrazu na kanał, harmonogram + ponawianie. $99/mies. Anuluj kiedy chcesz."
     },
     "hero": {
       "eyebrow": "Pro Automation",
       "headline": "Opublikuj raz. AHO wysyła na Facebooka, Instagrama i WhatsApp Business — automatycznie.",
       "sub": "Sztandarowa funkcja AHO Pro. Jedno OAuth-kliknięcie łączy każdy kanał; każde opublikowane ogłoszenie dystrybuuje się samo.",
-      "primaryCta": "Rozpocznij okres próbny · $99/mies",
+      "primaryCta": "Subskrybuj — $99/mc",
       "secondaryCta": "Porównaj wszystkie plany"
     },
     "problem": {
@@ -1366,9 +1368,9 @@
         "Warianty obrazu per kanał (kwadrat / panorama / pion)",
         "Harmonogram + ponawianie + status w panelu",
         "Nielimitowane ogłoszenia + skrzynka kontaktów + profil agenta",
-        "7 dni za darmo — bez karty"
+        "Anuluj kiedy chcesz z Portalu Klienta Stripe"
       ],
-      "cta": "Rozpocznij okres próbny"
+      "cta": "Subskrybuj — $99/mc"
     },
     "faq": {
       "heading": "Najczęstsze pytania",
@@ -1397,20 +1399,20 @@
     },
     "finalCta": {
       "heading": "Połącz raz. Dystrybuuj na zawsze.",
-      "sub": "Pro Automation, $99/mies. 7 dni za darmo. Anuluj kiedy chcesz.",
-      "cta": "Rozpocznij okres próbny"
+      "sub": "Pro Automation, $99/mies. Anuluj kiedy chcesz.",
+      "cta": "Subskrybuj — $99/mc"
     }
   },
   "saveTime": {
     "meta": {
       "title": "Oszczędź 10+ godzin tygodniowo na ogłoszeniach | AHO dla agentów nieruchomości",
-      "description": "10 ogłoszeń × 5 platform × 8 minut = 400 minut tygodniowo. AHO robi to w 30 sekund. Pro Automation $99/mies z 7-dniowym okresem próbnym."
+      "description": "10 ogłoszeń × 5 platform × 8 minut = 400 minut tygodniowo. AHO robi to w 30 sekund. Pro Automation $99/mies. Anuluj kiedy chcesz."
     },
     "hero": {
       "eyebrow": "10 godzin tygodniowo, odzyskane",
       "headline": "Przestań publikować to samo ogłoszenie pięć razy. Odzyskaj te godziny.",
       "sub": "10 ogłoszeń × 5 platform × 8 minut = 400 minut tygodniowo zmarnowanych na re-publikację. AHO robi to w 30 sekund.",
-      "primaryCta": "Rozpocznij okres próbny · $99/mies",
+      "primaryCta": "Subskrybuj — $99/mc",
       "secondaryCta": "Jak to działa"
     },
     "problem": {
@@ -1446,8 +1448,8 @@
       "heading": "Trzy kroki do odzyskania weekendu",
       "steps": [
         {
-          "title": "Zarejestruj się — 7 dni za darmo",
-          "body": "Bez karty. Skonfiguruj profil agenta w mniej niż 5 minut."
+          "title": "Zarejestruj się",
+          "body": "Subskrybuj Pro Automation — $99/mc, anuluj kiedy chcesz. Skonfiguruj profil agenta w mniej niż 5 minut."
         },
         {
           "title": "Połącz swoje kanały",
@@ -1468,9 +1470,9 @@
         "Auto-publikacja na FB + IG + WhatsApp Business",
         "Jedna skrzynka, każdy kanał",
         "Nielimitowane ogłoszenia + profil agenta + dwujęzyczne SEO",
-        "7 dni za darmo — bez karty"
+        "Anuluj kiedy chcesz z Portalu Klienta Stripe"
       ],
-      "cta": "Rozpocznij okres próbny"
+      "cta": "Subskrybuj — $99/mc"
     },
     "faq": {
       "heading": "Najczęstsze pytania",
@@ -1498,9 +1500,9 @@
       ]
     },
     "finalCta": {
-      "heading": "Odzyskaj weekendy. Rozpocznij okres próbny już dziś.",
-      "sub": "Pro Automation, $99/mies. 7 dni za darmo. Anuluj kiedy chcesz.",
-      "cta": "Rozpocznij okres próbny"
+      "heading": "Odzyskaj weekendy. Subskrybuj już dziś.",
+      "sub": "Pro Automation, $99/mies. Anuluj kiedy chcesz.",
+      "cta": "Subskrybuj — $99/mc"
     }
   }
 }
