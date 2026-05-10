@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { getCountryCities } from '@/lib/listings/countries';
 import { getCountryName } from '@/lib/i18n/countries';
 import { DotGrid } from '@/components/ui/dot-grid';
@@ -39,23 +40,28 @@ export async function generateMetadata({
   const title = t('headingTemplate', { country: display });
   const description = t('subheading', { country: display });
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
-  const enPath = `/en/properties-in/${cc.toLowerCase()}`;
-  const esPath = `/es/inmuebles-en/${cc.toLowerCase()}`;
+  const safeCountry = cc.toLowerCase();
+  const buildPath = (lc: Locale) => {
+    const stem = localePath(lc, '/properties-in/[country]').replace('/[country]', '');
+    return `${stem}/${safeCountry}`;
+  };
+  const languages: Record<string, string> = {};
+  for (const lc of LOCALES) {
+    languages[lc] = `${site}${buildPath(lc)}`;
+  }
+  languages['x-default'] = `${site}${buildPath('en')}`;
+  const canonical = `${site}${buildPath(typedLocale)}`;
 
   return {
     title,
     description,
     alternates: {
-      canonical: typedLocale === 'es' ? `${site}${esPath}` : `${site}${enPath}`,
-      languages: {
-        en: `${site}${enPath}`,
-        es: `${site}${esPath}`,
-        'x-default': `${site}${enPath}`,
-      },
+      canonical,
+      languages,
     },
     openGraph: {
       type: 'website',
-      url: typedLocale === 'es' ? `${site}${esPath}` : `${site}${enPath}`,
+      url: canonical,
       title,
       description,
     },
@@ -91,11 +97,13 @@ export default async function CountryLandingPage({
   const result = await getCountryCities(cc);
 
   const homePath = `/${locale}`;
-  const countriesPath = `/${locale}/${typedLocale === 'es' ? 'paises' : 'countries'}`;
+  const countriesPath = localePath(typedLocale, '/countries');
+  const cityStem = localePath(typedLocale, '/properties-in/[country]/[city]')
+    .replace('/[country]/[city]', '');
   const cityHref = (citySlug: string) =>
-    `/${locale}/${typedLocale === 'es' ? 'inmuebles-en' : 'properties-in'}/${cc.toLowerCase()}/${citySlug}`;
-  const browseHref = `/${locale}/${typedLocale === 'es' ? 'buscar' : 'search'}?country=${cc}`;
-  const pricingHref = `/${locale}/${typedLocale === 'es' ? 'precios' : 'pricing'}`;
+    `${cityStem}/${cc.toLowerCase()}/${citySlug}`;
+  const browseHref = `${localePath(typedLocale, '/search')}?country=${cc}`;
+  const pricingHref = localePath(typedLocale, '/pricing');
 
   // JSON-LD nodes — Place (the country) + BreadcrumbList + ItemList of
   // its cities. Mirrors the shape used on the city landing one level
@@ -105,9 +113,11 @@ export default async function CountryLandingPage({
   // Breadcrumb but no ItemList — schema.org doesn't reject ItemList:0,
   // but skipping it avoids polluting GSC with "list with 0 items".
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
-  const countryUrl = `${site}/${locale}/${
-    typedLocale === 'es' ? 'inmuebles-en' : 'properties-in'
-  }/${cc.toLowerCase()}`;
+  const countryStem = localePath(typedLocale, '/properties-in/[country]').replace(
+    '/[country]',
+    '',
+  );
+  const countryUrl = `${site}${countryStem}/${cc.toLowerCase()}`;
   const placeLd = buildPlace({
     name: display,
     countryCode: cc,

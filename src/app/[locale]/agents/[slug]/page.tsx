@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { fetchAgentProfile } from '@/lib/listings/search';
 import { fetchPublishedReviewsForAgent } from '@/lib/reviews/queries';
 import { precomputeApproxLabels } from '@/lib/currency/server';
@@ -61,9 +62,14 @@ export async function generateMetadata({
   // Search engines follow the canonical and consolidate ranking on
   // the public_slug URL.
   const canonicalSlug = result.org.publicSlug ?? slug;
-  const enPath = `/en/agents/${canonicalSlug}`;
-  const esPath = `/es/agentes/${canonicalSlug}`;
-  const canonical = typedLocale === 'es' ? `${site}${esPath}` : `${site}${enPath}`;
+  const buildAgentPath = (lc: Locale) =>
+    localePath(lc, '/agents/[slug]').replace('[slug]', canonicalSlug);
+  const languages: Record<string, string> = {};
+  for (const lc of LOCALES) {
+    languages[lc] = `${site}${buildAgentPath(lc)}`;
+  }
+  languages['x-default'] = `${site}${buildAgentPath('en')}`;
+  const canonical = `${site}${buildAgentPath(typedLocale)}`;
 
   const description =
     (typedLocale === 'es' ? result.org.descriptionEs : result.org.descriptionEn) ??
@@ -76,11 +82,7 @@ export async function generateMetadata({
     description,
     alternates: {
       canonical,
-      languages: {
-        en: `${site}${enPath}`,
-        es: `${site}${esPath}`,
-        'x-default': `${site}${enPath}`,
-      },
+      languages,
     },
     openGraph: {
       type: 'profile',
@@ -111,8 +113,9 @@ export default async function AgentProfilePage({
   // SEO URL with a 301-equivalent redirect. Search engines consolidate
   // and humans see the readable URL in their address bar.
   if (result.org.publicSlug && slug !== result.org.publicSlug) {
-    const pathSeg = typedLocale === 'es' ? 'agentes' : 'agents';
-    redirect(`/${typedLocale}/${pathSeg}/${result.org.publicSlug}`);
+    redirect(
+      localePath(typedLocale, '/agents/[slug]').replace('[slug]', result.org.publicSlug),
+    );
   }
 
   const t = await getTranslations({ locale, namespace: 'agentProfile' });
@@ -166,7 +169,7 @@ export default async function AgentProfilePage({
     ? t('subheadingTemplate', { location })
     : t('subheadingNoLocation');
 
-  const browseAllHref = `/${locale}/${typedLocale === 'es' ? 'buscar' : 'search'}`;
+  const browseAllHref = localePath(typedLocale, '/search');
 
   // JSON-LD: schema.org RealEstateAgent for agent-tier orgs, Organization
   // for agency/expert. Both inherit name + description + url + sameAs.
@@ -177,9 +180,7 @@ export default async function AgentProfilePage({
   // `slug` here is the canonical form, but the explicit `??` keeps it
   // robust if the redirect path ever changes.)
   const canonicalSlug = result.org.publicSlug ?? slug;
-  const profileUrl = `${site}/${locale}/${
-    typedLocale === 'es' ? 'agentes' : 'agents'
-  }/${canonicalSlug}`;
+  const profileUrl = `${site}${localePath(typedLocale, '/agents/[slug]').replace('[slug]', canonicalSlug)}`;
   // Build sameAs[] from all surfaced socials so search engines can
   // confidently knit the Knowledge Panel together. Empty array stays
   // omitted because schema.org rejects sameAs:[].
@@ -261,7 +262,7 @@ export default async function AgentProfilePage({
 
   // BreadcrumbList JSON-LD — Home > Agents (directory) > {Name}.
   // Separate node from the agent JSON-LD so each tracks its own validity.
-  const agentsDirHref = `${site}/${locale}/${typedLocale === 'es' ? 'agentes' : 'agents'}`;
+  const agentsDirHref = `${site}${localePath(typedLocale, '/agents/[slug]').replace('/[slug]', '')}`;
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -669,9 +670,11 @@ export default async function AgentProfilePage({
                     const slug = (typedLocale === 'es' ? l.slugEs : l.slugEn) ?? l.slugEn ?? l.slugEs;
                     const titleStr =
                       (typedLocale === 'es' ? l.titleEs : l.titleEn) ?? l.titleEn ?? l.titleEs ?? '—';
-                    const path = slug
-                      ? `/${typedLocale}/${typedLocale === 'es' ? 'propiedades' : 'properties'}/${slug}-${l.shortId}`
-                      : null;
+                    const propertyStem = localePath(typedLocale, '/properties/[slug]').replace(
+                      '/[slug]',
+                      '',
+                    );
+                    const path = slug ? `${propertyStem}/${slug}-${l.shortId}` : null;
                     return (
                       <tr key={l.id}>
                         <td className="px-3 py-2">

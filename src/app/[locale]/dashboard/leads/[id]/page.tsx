@@ -132,12 +132,20 @@ export default async function LeadDetailPage({
       ? property.slug_es ?? property.slug_en
       : property.slug_en ?? property.slug_es
     : null;
+  const propertyStem = localePath(typedLocale, '/properties/[slug]').replace(
+    '/[slug]',
+    '',
+  );
+  const dashboardPropertiesStem = localePath(
+    typedLocale,
+    '/dashboard/properties/[id]',
+  ).replace('/[id]', '');
   const publicPropertyHref =
     property && propertySlug && property.status === 'active'
-      ? `/${locale}/${typedLocale === 'es' ? 'propiedades' : 'properties'}/${propertySlug}-${property.short_id}`
+      ? `${propertyStem}/${propertySlug}-${property.short_id}`
       : null;
   const editPropertyHref = property
-    ? `/${locale}/${typedLocale === 'es' ? 'panel/propiedades' : 'dashboard/properties'}/${property.id}`
+    ? `${dashboardPropertiesStem}/${property.id}`
     : null;
 
   // Primary image: prefer is_primary=true, then lowest position, then first.

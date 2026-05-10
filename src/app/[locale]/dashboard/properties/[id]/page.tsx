@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { PublishButton } from '@/components/listings/publish-button';
 import { ImageUploader } from '@/components/listings/image-uploader';
@@ -64,9 +65,13 @@ export default async function EditListingPage({
 
   // Path to the public listing (only useful when status='active' AND a slug exists for this locale).
   const slugForLocale = typedLocale === 'es' ? listing.slug_es : listing.slug_en;
+  const propertyStem = localePath(typedLocale, '/properties/[slug]').replace(
+    '/[slug]',
+    '',
+  );
   const publicPath =
     listing.status === 'active' && slugForLocale
-      ? `/${typedLocale}/${typedLocale === 'es' ? 'propiedades' : 'properties'}/${slugForLocale}-${listing.short_id}`
+      ? `${propertyStem}/${slugForLocale}-${listing.short_id}`
       : null;
 
   return (

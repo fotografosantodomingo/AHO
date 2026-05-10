@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { getCountriesIndex, getGlobalSearchIndex } from '@/lib/listings/countries';
 import { DotGrid } from '@/components/ui/dot-grid';
 import { CountryCityCombobox } from '@/components/listings/country-city-combobox';
@@ -19,22 +20,22 @@ export async function generateMetadata({
   if (!LOCALES.includes(locale as Locale)) return {};
   const t = await getTranslations({ locale, namespace: 'countries' });
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
-  const enPath = '/en/countries';
-  const esPath = '/es/paises';
+  const languages: Record<string, string> = {};
+  for (const lc of LOCALES) {
+    languages[lc] = `${site}${localePath(lc, '/countries')}`;
+  }
+  languages['x-default'] = `${site}${localePath('en', '/countries')}`;
+  const canonical = `${site}${localePath(locale as Locale, '/countries')}`;
   return {
     title: t('heading'),
     description: t('subheading'),
     alternates: {
-      canonical: locale === 'es' ? `${site}${esPath}` : `${site}${enPath}`,
-      languages: {
-        en: `${site}${enPath}`,
-        es: `${site}${esPath}`,
-        'x-default': `${site}${enPath}`,
-      },
+      canonical,
+      languages,
     },
     openGraph: {
       type: 'website',
-      url: locale === 'es' ? `${site}${esPath}` : `${site}${enPath}`,
+      url: canonical,
       title: t('heading'),
       description: t('subheading'),
     },

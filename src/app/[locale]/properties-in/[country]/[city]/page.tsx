@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import {
   citySlugToQuery,
   searchCityLanding,
@@ -157,11 +158,10 @@ export default async function CityLandingPage({
 
   // "View all" CTA — when there are too many listings to show inline, send
   // crawlers + users to /search with the city filter pre-applied.
-  const allListingsHref = `/${locale}/${
-    typedLocale === 'es' ? 'buscar' : 'search'
-  }?city=${encodeURIComponent(canonicalCity)}`;
-  const browseAllHref = `/${locale}/${typedLocale === 'es' ? 'buscar' : 'search'}`;
-  const pricingHref = `/${locale}/${typedLocale === 'es' ? 'precios' : 'pricing'}`;
+  const searchHref = localePath(typedLocale, '/search');
+  const allListingsHref = `${searchHref}?city=${encodeURIComponent(canonicalCity)}`;
+  const browseAllHref = searchHref;
+  const pricingHref = localePath(typedLocale, '/pricing');
 
   const homePath = `/${locale}`;
 
@@ -173,14 +173,14 @@ export default async function CityLandingPage({
   //   3. ItemList — the listings shown on the page. Filtered to entries
   //      with a resolvable detail URL (slug present in either locale).
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
-  const cityPagePath =
-    typedLocale === 'es'
-      ? `/${locale}/inmuebles-en/${country}/${city}`
-      : `/${locale}/properties-in/${country}/${city}`;
-  const cityPageUrl = `${site}${cityPagePath}`;
-  const countryPageUrl = `${site}/${locale}/${
-    typedLocale === 'es' ? 'inmuebles-en' : 'properties-in'
-  }/${country}`;
+  const cityStem = localePath(typedLocale, '/properties-in/[country]/[city]')
+    .replace('/[country]/[city]', '');
+  const countryStem = localePath(typedLocale, '/properties-in/[country]').replace(
+    '/[country]',
+    '',
+  );
+  const cityPageUrl = `${site}${cityStem}/${country}/${city}`;
+  const countryPageUrl = `${site}${countryStem}/${country}`;
   const subheading = t('subheading', { city: canonicalCity });
 
   const placeLd = buildPlace({
@@ -198,15 +198,20 @@ export default async function CityLandingPage({
   const itemListLd = buildItemList({
     name: heading,
     id: `${cityPageUrl}#listings`,
-    entries: result.listings.map((l) => {
-      const slug = typedLocale === 'es' ? l.slugEs ?? l.slugEn : l.slugEn ?? l.slugEs;
-      const path = typedLocale === 'es' ? 'propiedades' : 'properties';
-      if (!slug) return null;
-      return {
-        url: `${site}/${locale}/${path}/${slug}-${l.shortId}`,
-        name: (typedLocale === 'es' ? l.titleEs : l.titleEn) ?? l.titleEn ?? l.titleEs ?? undefined,
-      };
-    }),
+    entries: (() => {
+      const propertyStem = localePath(typedLocale, '/properties/[slug]').replace(
+        '/[slug]',
+        '',
+      );
+      return result.listings.map((l) => {
+        const slug = typedLocale === 'es' ? l.slugEs ?? l.slugEn : l.slugEn ?? l.slugEs;
+        if (!slug) return null;
+        return {
+          url: `${site}${propertyStem}/${slug}-${l.shortId}`,
+          name: (typedLocale === 'es' ? l.titleEs : l.titleEn) ?? l.titleEn ?? l.titleEs ?? undefined,
+        };
+      });
+    })(),
   });
 
   return (

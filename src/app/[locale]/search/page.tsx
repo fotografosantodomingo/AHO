@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import {
   buildSearchUrl,
   parseFilters,
@@ -102,12 +103,9 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
     const url = new URL(`http://x${buildSearchUrl(typedLocale, filters)}`);
     return url.search.replace(/^\?/, '');
   })();
-  const listViewHref = `/${locale}/${typedLocale === 'es' ? 'buscar' : 'search'}${
-    filterQs ? `?${filterQs}` : ''
-  }`;
-  const mapViewHref = `/${locale}/${typedLocale === 'es' ? 'buscar' : 'search'}?${
-    filterQs ? `${filterQs}&` : ''
-  }view=map`;
+  const searchHref = localePath(typedLocale, '/search');
+  const listViewHref = `${searchHref}${filterQs ? `?${filterQs}` : ''}`;
+  const mapViewHref = `${searchHref}?${filterQs ? `${filterQs}&` : ''}view=map`;
 
   // JSON-LD: WebSite + SearchAction so Google can render the sitelinks
   // search box on branded SERPs ("AHO" → searchbox in the result). The
@@ -122,13 +120,11 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
   const tSite = await getTranslations({ locale, namespace: 'site' });
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
   const homeUrl = `${site}/${locale}`;
-  const searchPath =
-    typedLocale === 'es' ? 'buscar' : 'search';
   const websiteLd = buildWebSite({
     name: tSite('name'),
     url: homeUrl,
     inLanguage: typedLocale,
-    searchUrlTemplate: `${site}/${locale}/${searchPath}?q={search_term_string}`,
+    searchUrlTemplate: `${site}${searchHref}?q={search_term_string}`,
   });
 
   return (

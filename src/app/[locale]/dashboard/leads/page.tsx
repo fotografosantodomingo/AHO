@@ -154,18 +154,21 @@ export default async function LeadsPage({
                 ? lead.property.slug_es ?? lead.property.slug_en
                 : lead.property.slug_en ?? lead.property.slug_es
               : null;
+            const propertyStem = localePath(typedLocale, '/properties/[slug]').replace(
+              '/[slug]',
+              '',
+            );
+            const dashboardPropertiesStem = localePath(
+              typedLocale,
+              '/dashboard/properties/[id]',
+            ).replace('/[id]', '');
             const propertyHref =
               lead.property && propertySlug && lead.property.status === 'active'
-                ? `/${locale}/${
-                    typedLocale === 'es' ? 'propiedades' : 'properties'
-                  }/${propertySlug}-${lead.property.short_id}`
+                ? `${propertyStem}/${propertySlug}-${lead.property.short_id}`
                 : null;
-            const editHref =
-              lead.property
-                ? `/${locale}/${
-                    typedLocale === 'es' ? 'panel/propiedades' : 'dashboard/properties'
-                  }/${lead.property.id}`
-                : null;
+            const editHref = lead.property
+              ? `${dashboardPropertiesStem}/${lead.property.id}`
+              : null;
 
             const hasContact = !!(lead.contact_name || lead.contact_email || lead.contact_phone);
 

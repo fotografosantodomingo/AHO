@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import {
   daysAgo,
@@ -89,12 +90,16 @@ export default async function PropertyAnalyticsPage({
     ? await getPerformanceForListing(supabase, property.id as string)
     : null;
 
-  const analyticsBackHref = `/${typedLocale}/${typedLocale === 'es' ? 'panel/estadisticas' : 'dashboard/analytics'}`;
+  const analyticsBackHref = localePath(typedLocale, '/dashboard/analytics');
   const slugForLocale =
     typedLocale === 'es' ? property.slug_es : property.slug_en;
+  const propertyStem = localePath(typedLocale, '/properties/[slug]').replace(
+    '/[slug]',
+    '',
+  );
   const publicHref =
     property.status === 'active' && slugForLocale
-      ? `/${typedLocale}/${typedLocale === 'es' ? 'propiedades' : 'properties'}/${slugForLocale}-${property.short_id}`
+      ? `${propertyStem}/${slugForLocale}-${property.short_id}`
       : null;
 
   return (

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { fetchOwnReviews } from '@/lib/reviews/queries';
 import { AgentReviewsClient } from '@/components/reviews/agent-reviews-client';
@@ -34,10 +35,8 @@ export default async function AgentReviewsPage({
   const { data: userResult } = await supabase.auth.getUser();
   if (!userResult.user) {
     redirect(
-      `/${locale}/${
-        typedLocale === 'es' ? 'iniciar-sesion' : 'signin'
-      }?next=${encodeURIComponent(
-        `/${locale}/${typedLocale === 'es' ? 'panel/resenas' : 'dashboard/reviews'}`,
+      `${localePath(typedLocale, '/signin')}?next=${encodeURIComponent(
+        localePath(typedLocale, '/dashboard/reviews'),
       )}`,
     );
   }
