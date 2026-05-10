@@ -12,6 +12,75 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-10 — Phase 4 follow-up: docs page + FR depth + P0 fixes from QA report (disk-pressure cap)
+- **Frame:** PO asked for: bugs (catalogue), documentation (footer
+  link, all locales), agent-dashboard languages (is FR dashboard
+  available?), and "v1.1+ scope" + "PO-action items".
+- **What shipped:**
+  - **`/[locale]/docs` documentation route** (`747050f`, `c8bdde0`,
+    `1da21ae`): server component with sticky ToC sidebar
+    (collapsible `<details>` on mobile). Three audience sections —
+    For buyers (5 sub-anchors), For agents (11), For admins (6). All
+    copy in new `docs.*` namespace. Footer "Documentation" link in
+    all 7 locales (slugs translated per locale: `/docs` /
+    `/documentacion` / `/dokumentacja` / `/documentacao` /
+    `/dokumentation` / `/documentation` / `/documentazione`).
+    Hand-translated EN+ES; PL/PT/DE/FR/IT inherit EN via existing
+    deepMerge (native translation is a documented follow-up).
+  - **FR signed-in dashboard depth** (`e909e1a`): closed the 22
+    missing top-level namespaces on signed-in surfaces. ~430 keys
+    translated to native French (formal `vous`, FR real-estate
+    vocabulary, BR-style price format, ICU plurals preserved). Now
+    French agents see French chrome on every dashboard page;
+    parity check shows zero non-`docs.*` keys missing. Same
+    pattern needs to repeat for PT/DE/IT.
+  - **QA bug-hunt report** (`c956957`): `docs/QA_REPORT_2026-05-10
+    .md` with **56 findings** — 6 P0, 25 P1, 14 P2, 11 P3. Read-
+    only catalogue across buyer / agent / admin flows. Top P0:
+    hero search uses `.eq('city')` (case-exact, silently broken),
+    lead-routing post-signin redirect built wrong path (404 on ES),
+    robots.txt didn't block /search + /admin for marketing
+    locales, at-cap "New listing" button still navigated, photo-
+    import-failures GET 500'd on non-UUID id, admin sub-routes
+    missing from PATHNAMES.
+  - **All 6 P0 bugs FIXED** (`76c258e`, `b746e25`, `571a345`,
+    `7b4917a`, `c3b2f51`, `2263b68`): atomic per-bug commits +
+    8 new unit tests (case-insensitive city search, robots locale
+    coverage, photo-import-failures uuid validation). 437/437 tests
+    pass.
+- **What didn't ship (disk constraint blocked further work):**
+  - **PT/DE/IT signed-in dashboard depth** — same pattern as FR,
+    ~430 keys per locale × 3 locales. PT agent dispatched + failed
+    on disk exhaustion (host APFS Time Machine local snapshots
+    eating 220 GB; only 132 MB usable). Deferred to next session
+    after PO frees disk (`tmutil deletelocalsnapshots`).
+  - **Docs `docs.*` namespace native translation for PL/PT/DE/FR/
+    IT** — currently EN fallback. Needs a native-translator pass.
+  - **P1 (25) / P2 (14) / P3 (11) fixes from the QA report** —
+    triaged but not fixed. Highest-impact P1s worth a dispatch:
+    23+ files use `locale === 'es' ? ... : ...` instead of
+    `getPathname()`; admin `/users` + `/orgs` issue N+1 count
+    queries; `translatePathForLocale` regex only matches `(en|es)`
+    so the auth-callback re-localisation is broken for the 5
+    marketing locales.
+  - **PO-actions doc** (DNS records / Brevo DKIM / ToS polish
+    suggestions) — planned but disk blocked dispatch.
+  - **v1.1+ scope** — Premium tier, Agency tier, Expert tier,
+    native mobile, SAML SSO. Multi-week supervised work each;
+    deferred for explicit PO direction on which one first.
+- **Test count:** 429 → 437 (8 new across the P0 fix batch).
+- **Commits this session:** 11 (3 docs, 1 FR depth, 1 QA report,
+  6 P0 fixes) + 4 merge commits = 15 total.
+- **Next session should start with:** ensure disk is freed
+  (`tmutil deletelocalsnapshots / 1` to drop snapshots older than
+  1 day, OR delete files in `~/Library/Caches`). Then dispatch in
+  this order: (a) PT depth (single agent, JSON-only, no
+  `pnpm install`), (b) DE depth, (c) IT depth, (d) docs
+  translation for the 5 marketing locales, (e) P1 fix batch,
+  (f) PO-actions doc.
+
+---
+
 ## 2026-05-09 — Master plan Phase 4: admin KPIs + lead routing + review cron + lead detail page
 - **Frame:** Phase 4 of the master plan — platform depth. 4 parallel
   agents on admin operations console, lead-routing rules engine,
