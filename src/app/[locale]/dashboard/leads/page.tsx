@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
@@ -94,6 +95,7 @@ export default async function LeadsPage({
   const filterPathBase = `/${locale}/${
     locale === 'es' ? 'panel/contactos' : 'dashboard/leads'
   }`;
+  const leadDetailPath = (leadId: string) => `${filterPathBase}/${leadId}`;
   const filterTab = (key: FilterKey, label: string) => {
     const isActive = filterKey === key;
     const href = key === 'all' ? filterPathBase : `${filterPathBase}?filter=${key}`;
@@ -163,15 +165,28 @@ export default async function LeadsPage({
             return (
               <li
                 key={lead.id}
-                className="rounded-card border border-border bg-surface p-4 shadow-whisper dark:bg-surface-deep"
+                className="group rounded-card border border-border bg-surface p-4 shadow-whisper transition hover:border-border-strong dark:bg-surface-deep"
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div className="space-y-1 min-w-0 flex-1">
+                  {/* Whole-row link target — nested anchors / form controls
+                      below override (the property link + the status select
+                      sit OUTSIDE this Link to keep their click semantics
+                      intact). Visible affordance: the title font-weight
+                      shifts on hover so the row reads as actionable. */}
+                  <Link
+                    href={leadDetailPath(lead.id)}
+                    className="space-y-1 min-w-0 flex-1 outline-none focus-visible:ring-2 focus-visible:ring-action/40 rounded-md"
+                    aria-label={
+                      hasContact && lead.contact_name
+                        ? lead.contact_name
+                        : t('anonymous')
+                    }
+                  >
                     <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
                       {tSource(lead.source)} · {dateFormatter.format(new Date(lead.created_at))}
                     </p>
                     <p className="text-sm">
-                      <strong>
+                      <strong className="group-hover:underline">
                         {hasContact ? lead.contact_name ?? '—' : t('anonymous')}
                       </strong>
                       {(lead.contact_email || lead.contact_phone) && (
@@ -181,36 +196,38 @@ export default async function LeadsPage({
                       )}
                     </p>
                     {lead.message && (
-                      <p className="mt-2 whitespace-pre-line text-sm">{lead.message}</p>
-                    )}
-                    {(propertyHref || editHref) && (
-                      <p className="mt-2 text-xs">
-                        {propertyHref && (
-                          <a className="underline" href={propertyHref}>
-                            {propertyTitle}
-                          </a>
-                        )}
-                        {!propertyHref && editHref && (
-                          <a className="underline" href={editHref}>
-                            {propertyTitle}
-                          </a>
-                        )}
-                        {propertyHref && editHref && (
-                          <>
-                            {' · '}
-                            <a className="text-helper underline" href={editHref}>
-                              edit
-                            </a>
-                          </>
-                        )}
+                      <p className="mt-2 whitespace-pre-line text-sm line-clamp-3">
+                        {lead.message}
                       </p>
                     )}
-                  </div>
+                  </Link>
                   <div className="flex flex-col items-end gap-1 shrink-0">
                     <StatusBadge status={lead.status} label={tStatus(lead.status)} />
                     <LeadStatusSelect leadId={lead.id} initialStatus={lead.status} />
                   </div>
                 </div>
+                {(propertyHref || editHref) && (
+                  <p className="mt-2 text-xs">
+                    {propertyHref && (
+                      <a className="underline" href={propertyHref}>
+                        {propertyTitle}
+                      </a>
+                    )}
+                    {!propertyHref && editHref && (
+                      <a className="underline" href={editHref}>
+                        {propertyTitle}
+                      </a>
+                    )}
+                    {propertyHref && editHref && (
+                      <>
+                        {' · '}
+                        <a className="text-helper underline" href={editHref}>
+                          edit
+                        </a>
+                      </>
+                    )}
+                  </p>
+                )}
               </li>
             );
           })}
