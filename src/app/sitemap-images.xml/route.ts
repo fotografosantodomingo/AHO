@@ -1,6 +1,10 @@
 import { publicEnv } from '@/lib/env';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { buildImageUrl } from '@/lib/listings/image-url';
+import {
+  buildImageEntriesForListing,
+  MAX_IMAGES_PER_LISTING,
+  type SitemapImageRow,
+} from '@/lib/seo/image-sitemap';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -11,9 +15,26 @@ export const dynamic = 'force-dynamic';
  * Per Google Image Sitemap protocol:
  * https://developers.google.com/search/docs/crawling-indexing/sitemaps/image-sitemaps
  *
- * Each property URL gets one or more `<image:image>` children listing its
- * uploaded photos. Google Image Search uses these to surface property
- * photos directly in image-search results (Zillow / Redfin / Realtor pattern).
+ * Each property URL gets one or more `<image:image>` children listing
+ * its uploaded photos (capped at `MAX_IMAGES_PER_LISTING` — the hero +
+ * a handful of room shots is enough; the gallery itself is crawlable
+ * from the property page once Googlebot lands there). Google Image
+ * Search uses these to surface property photos directly in image-search
+ * results (Zillow / Redfin / Realtor pattern).
+ *
+ * Each `<image:image>` carries:
+ *   - `<image:loc>`     — the Cloudflare Images `public` variant URL
+ *                          (`https://imagedelivery.net/{hash}/{id}/public`),
+ *                          or the R2 object URL when CF Images isn't
+ *                          configured yet.
+ *   - `<image:title>`   — the listing's locale-appropriate title (every
+ *                          image gets some context, even on legacy
+ *                          uploads with no alt text recorded).
+ *   - `<image:caption>` — the per-image alt text in the URL's locale,
+ *                          falling back to the other locale's alt text
+ *                          when only one is filled in (pragmatic — a
+ *                          cross-locale caption beats no caption for
+ *                          image search).
  *
  * **Manual XML route (not Next.js's `generateSitemaps()`)** — the typed
  * sitemap-index API requires Node runtime via `generateStaticParams()`,
@@ -51,15 +72,6 @@ interface PropertyRow {
   organizations: { slug: string } | { slug: string }[] | null;
 }
 
-interface ImageRow {
-  property_id: string;
-  cf_image_id: string | null;
-  r2_key: string | null;
-  alt_text_en: string | null;
-  alt_text_es: string | null;
-  position: number;
-}
-
 function escapeXml(s: string): string {
   return s
     .replace(/&/g, '&amp;')
@@ -90,8 +102,11 @@ export async function GET(): Promise<Response> {
   );
 
   // Batch-fetch images for all listings in this set. Confirmed only.
+  // Limit to MAX_IMAGES_PER_LISTING per property would require a
+  // window-function query; cheaper to over-fetch a bit and let the
+  // per-listing helper apply the cap.
   const propertyIds = cleanRows.map((r) => r.id);
-  const imagesByProperty = new Map<string, ImageRow[]>();
+  const imagesByProperty = new Map<string, SitemapImageRow[]>();
   if (propertyIds.length > 0) {
     const { data: imgRows } = await supabase
       .from('property_images')
@@ -102,10 +117,13 @@ export async function GET(): Promise<Response> {
       .eq('upload_status', 'confirmed')
       .order('position', { ascending: true });
 
-    for (const img of (imgRows ?? []) as (ImageRow & {
-      upload_status: string;
-    })[]) {
+    for (const img of (imgRows ?? []) as Array<
+      SitemapImageRow & { property_id: string; upload_status: string }
+    >) {
       const arr = imagesByProperty.get(img.property_id) ?? [];
+      // Bail early once we've collected enough for the cap. Saves
+      // memory + serialization cost on listings with many photos.
+      if (arr.length >= MAX_IMAGES_PER_LISTING) continue;
       arr.push(img);
       imagesByProperty.set(img.property_id, arr);
     }
@@ -127,6 +145,14 @@ export async function GET(): Promise<Response> {
       if (!slug) continue;
       const path = locale === 'es' ? 'propiedades' : 'properties';
       const loc = `${site}/${locale}/${path}/${slug}-${row.short_id}`;
+      const listingTitle = locale === 'es' ? row.title_es : row.title_en;
+
+      const entries = buildImageEntriesForListing({
+        images,
+        locale,
+        listingTitle: listingTitle ?? null,
+      });
+      if (entries.length === 0) continue;
 
       lines.push('  <url>');
       lines.push(`    <loc>${escapeXml(loc)}</loc>`);
@@ -135,22 +161,18 @@ export async function GET(): Promise<Response> {
         lines.push(`    <lastmod>${escapeXml(lastMod)}</lastmod>`);
       }
 
-      for (const img of images) {
-        const url = buildImageUrl({
-          cfImageId: img.cf_image_id,
-          r2Key: img.r2_key,
-          variant: 'public',
-        });
-        if (!url) continue;
-        const alt =
-          (locale === 'es' ? img.alt_text_es : img.alt_text_en) ??
-          img.alt_text_en ??
-          img.alt_text_es ??
-          ((locale === 'es' ? row.title_es : row.title_en) ?? '');
+      for (const entry of entries) {
         lines.push('    <image:image>');
-        lines.push(`      <image:loc>${escapeXml(url)}</image:loc>`);
-        if (alt) {
-          lines.push(`      <image:caption>${escapeXml(alt)}</image:caption>`);
+        lines.push(`      <image:loc>${escapeXml(entry.loc)}</image:loc>`);
+        if (entry.title) {
+          lines.push(
+            `      <image:title>${escapeXml(entry.title)}</image:title>`,
+          );
+        }
+        if (entry.caption) {
+          lines.push(
+            `      <image:caption>${escapeXml(entry.caption)}</image:caption>`,
+          );
         }
         lines.push('    </image:image>');
       }
