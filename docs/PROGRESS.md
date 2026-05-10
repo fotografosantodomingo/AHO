@@ -12,6 +12,101 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-09 — Master plan Phase 2: BG-sync + 3 cron writers (LinkedIn / Meta / photo-import retry)
+- **Frame:** Phase 2 of the master plan. Dispatched 4 parallel
+  agents on infrastructure-leaning work in different file domains
+  (no cross-file conflicts at the source-code level; one shared env
+  var was added independently and dedup-resolved).
+- **What shipped (12 commits + 3 merges + 1 dedup):**
+  - **Background-sync queue for offline voice imports**
+    (`f08eb3d`, `d5266ff`): IndexedDB helpers (`voice-queue.ts`)
+    persist the audio Blob + locale + metadata when the agent is
+    offline at submit time. SW v3 (bumped from v2) listens for
+    `sync` event AND a page-side `aho:flush-voice-queue` message;
+    walks the queue and POSTs each item on reconnect. Retry policy:
+    4xx → drop after 3 attempts, 5xx + network → up to 5 attempts.
+    SW broadcasts back per-item `voice-queue-uploaded` /
+    `voice-queue-dropped` / `voice-queue-flushed` so the panel can
+    surface the import-result toast as if the upload had been live.
+    VoiceImportCard now shows "Saved — will upload when you're back
+    online" on enqueue + a persistent "X recordings queued"
+    indicator.
+  - **LinkedIn Marketing API insights cron** (`dac9726`, `5e9cb07`):
+    `/api/cron/linkedin-insights` route — Edge runtime,
+    bearer-guarded via shared `CRON_SECRET`. Iterates
+    `ad_platform_tokens` rows where `platform = 'linkedin' AND
+    revoked_at IS NULL`, decrypts via `get_decrypted_access_token`
+    RPC, calls `organizationalEntityShareStatistics` +
+    `socialMetadata` with monthly `LinkedIn-Version` header, upserts
+    `listing_post_metrics` rows. Stubbed: `listLinkedInSharesForToken`
+    returns `[]` until the listing↔shareUrn mapping table ships.
+    12 unit tests on the mapper + auth guard.
+  - **Meta Insights API cron** (`a82272b`, `eabec47`):
+    `/api/cron/meta-insights` — same shape, FB Graph + IG Graph
+    endpoints. Found and corrected platform-name ambiguity: the
+    `ad_platform_tokens.platform` column uses `'meta'` (not
+    `'meta_facebook'` / `'meta_instagram'` as the brief suggested);
+    the `listing_post_metrics.platform` column uses network-specific
+    `'facebook'` / `'instagram'`. Mappers emit the network-specific
+    strings. Same-day idempotency via explicit
+    `delete-where-today-then-insert` because migration 0038's unique
+    index is expression-based (`date_trunc('day', captured_at)`) and
+    PostgREST `.upsert({ onConflict })` can't target that. 23 unit
+    tests on the mappers + auth guard.
+  - **Photo-import dead-letter retry cron** (`25d32de`, `9c314a4`,
+    `4bb13fb`): pipeline extracted from the import-photos route to
+    `src/lib/listings/photo-import-pipeline.ts` so both the
+    user-facing endpoint and the cron use the same fetch + R2 + CF
+    Images flow. `/api/cron/photo-import-retry` runs hourly, picks
+    50 oldest unresolved failures with `attempts < 5 AND
+    last_failed_at < now() - interval '15 minutes'`. Increments
+    `attempts` per cron tick (not per in-call retry); rows hitting 5
+    naturally fall out of the work queue while staying visible in
+    the agent UI (no schema change needed). 8 unit tests on
+    `planRetryActions` + auth gate.
+  - **env dedup** (`ed7fbbb`): A14 + A15 each independently added
+    `CRON_SECRET` to env.ts (one with `min(16)`, one with `min(32)`)
+    — TS object-literal duplicate-property error after auto-merge.
+    Resolved to the stricter `min(32)` matching `openssl rand -hex
+    32`. Plus one true text-conflict on the same key when A16
+    merged, manually resolved.
+- **Cron infrastructure decision:** all three cron routes use
+  bearer-guarded HTTP endpoints (Path A from the brief) instead of
+  separate Cloudflare Workers with `[[triggers.crons]]`. Simpler —
+  no separate Worker deploy. External scheduler (GitHub Actions
+  cron + repo-secret bearer, or cron-job.org) hits each daily
+  (insights writers) or hourly (photo-import retry).
+- **What works after this session:**
+  - Voice recording made offline survives the trip back into
+    coverage; auto-uploads as if the agent had been online.
+  - Insights writer pipelines exist and are correct against current
+    Meta + LinkedIn API shapes — they ship as stubs that flip live
+    once Meta App Review approves and the LinkedIn social-posts
+    mapping table is added (Sprint 3 follow-up).
+  - Photo-import dead-letter rows now have an automatic retry path
+    instead of relying solely on agents to re-attempt manually.
+- **Held back / not in this batch:**
+  - Stripe webhook replay fixture harness — too interconnected for
+    parallel agents; needs a single supervised session.
+  - Long-term RLS refactor on `organization_members` — refactor
+    risk; one supervised session.
+  - Locale depth for PT/DE/FR/IT (still deferred from Phase 1).
+- **Test count:** 319 → 362 (43 new across LinkedIn 12 + Meta 23 +
+  photo-import retry 8). All pass; typecheck clean; lint no new
+  warnings.
+- **Commits:** `f08eb3d` BG-queue, `d5266ff` voice-import offline,
+  `a82272b` `eabec47` Meta cron + tests, `dac9726` `5e9cb07`
+  LinkedIn cron + tests, `25d32de` `9c314a4` `4bb13fb` photo-import
+  pipeline + cron + tests, `ed7fbbb` env dedup, plus 3 merge
+  commits. (12 + 3 + 1 = 16 total.)
+- **Next session should start with:** Phase 3 — landing page polish
+  across `/for-agents` + `/automation` + `/save-time` per locale,
+  more OG image variations, structured-data depth. OR Phase 4
+  (admin tools, lead routing). Locale-depth PT/DE/FR/IT remains
+  deferred for a coherent native-translator pass.
+
+---
+
 ## 2026-05-08 — Master plan Phase 1: RLS pair + MFA + onboarding (3 of 4 agents shipped, locale-depth deferred)
 - **Frame:** PO said "continue with a master plan." Drafted a 4-phase
   plan (Phase 1 = production-readiness sweep, Phase 2 = vision-aligned
