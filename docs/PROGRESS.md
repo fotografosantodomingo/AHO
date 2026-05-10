@@ -12,6 +12,97 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-09 — Master plan Phase 3: SEO + conversion depth (4 parallel agents)
+- **Frame:** Phase 3 of the master plan — conversion + SEO. 4 agents
+  on JSON-LD depth, sitemap polish, per-listing OG with photo embed,
+  and the /for-agents landing page. Each agent told explicitly which
+  files NOT to touch — merge conflicts limited to a single env.ts
+  resolution, all four branches auto-merged otherwise.
+- **What shipped (11 commits + 4 merges):**
+  - **JSON-LD structured data depth** (`67f6c67` `62d6e0d` `5b13999`
+    `7b59e74` `6ed7949`): new `src/lib/seo/jsonld.ts` helper
+    (`Organization` / `WebSite` / `SearchAction` / `Place` /
+    `BreadcrumbList` / `ItemList` / `Product` / `Offer` builders).
+    Added to homepage (Organization + WebSite + SearchAction), search
+    page (WebSite + SearchAction for sitelinks searchbox), country +
+    city pages (Place + BreadcrumbList + ItemList — ItemList omitted
+    when 0 items per rule #8), pricing page (Product per plan with
+    Offer × 2 — monthly + annual). Agent profile schema audited as
+    already complete (richer than brief required: aggregateRating,
+    areaServed, knowsLanguage, sameAs, telephone all gated on
+    honest-emptiness). 11 unit tests covering breadcrumb position,
+    ItemList URL filtering, SearchAction template validation, XSS-
+    safe `</script>` escape.
+  - **Sitemap depth** (`ee45965` `23799fd` `3a635e7`): per-URL
+    `hreflang` via `MetadataRoute.Sitemap.alternates.languages` (all
+    7 locales for marketing chrome + acquisition landings;
+    EN+ES+x-default for content pages — bilingual data model
+    doesn't justify septalingual surfacing). `lastModified`
+    precision: properties = max(updated_at, published_at), city =
+    max listing in city, country = max listing in country, agent =
+    max(org.updated_at, all listings). New `src/app/sitemap-
+    index.xml/route.ts` for future per-locale splits; robots.ts
+    points at the index. Image sitemap deepened with `<image:title>`
+    + per-image alt with cross-locale fallback, 5-photo cap per
+    listing. Fixture-filter audit (RISKS R11) confirms both layers
+    still defended. 24 unit tests on sitemap-helpers + image-sitemap.
+  - **Per-listing OG image with photo embed** (`7aca6cb`):
+    `properties/[slug]/opengraph-image.tsx` now fetches the listing's
+    primary CF Images photo (`og` variant), inlines as
+    `data:image/jpeg;base64,…` (more reliable on Edge than passing
+    remote URLs to Satori), renders full-bleed with a
+    transparent→78%-black gradient overlay + textShadow + bg-pill
+    scrims for legibility against any photo brightness. Bottom-left:
+    price (56px bold) + city/country (28px). Top-right: AHO mark
+    pill. Bottom-right: beds·baths·m² chip with inverted scheme.
+    Three-tier graceful fallback: photo fails → text-only with
+    price; property fails → bare AHO card. Same Inter Bold from
+    `/public/fonts/inter-700.woff2`.
+  - **/for-agents landing page real content** (`36e0afb` `3d8deb5`):
+    page rewritten from stub to a real conversion surface — vision
+    anchor (#vision scroll target), 3 pillars (Speak it / Sell it /
+    Track it), 6-question FAQ (already-existing FAQPage JSON-LD
+    auto-matches the new questions in each locale), trust strip
+    with honest signals only (HTTPS / GDPR / "Live in DR + PL"
+    only). Native hand-translated copy across all 7 locales — no
+    Google-Translate quality output. Server-component-rendered, FAQ
+    uses native `<details>/<summary>` so it works without JS. Primary
+    + final CTAs route to `/signup` (trial), secondary CTA anchors
+    to #vision.
+- **What works after this session:**
+  - Every public surface that Google cares about now ships rich
+    structured data — pricing + city + country + agent pages all
+    have schema.org JSON-LD that meets the rich-results eligibility
+    bar (price snippets, breadcrumbs, sitelinks searchbox).
+  - Sitemap is hreflang-tagged so Google picks the right locale for
+    each query origin, lastmod precision means refreshed listings
+    surface in the index within hours instead of days.
+  - Social-share previews of any listing now feature the actual
+    property photo with price + location overlay — major
+    conversion lift for the Content Hub flow (every social caption
+    embeds the AHO URL, every URL has a real-photo OG card).
+  - /for-agents is now a real landing page in 7 locales with
+    Content-Hub-vision narrative, ready to convert SEO-driven
+    traffic to Pro Automation trials.
+- **Test count:** 362 → 402 (40 new across A17 11 + A18 24 + A19/20
+  ~5). All pass; typecheck clean; lint no new warnings.
+- **Commits:** `67f6c67` jsonld helper, `62d6e0d` city+country JSON-
+  LD, `5b13999` search SearchAction, `7b59e74` pricing Product,
+  `6ed7949` homepage WebSite/Org, `ee45965` sitemap hreflang+
+  lastmod, `23799fd` image-sitemap depth, `3a635e7` sitemap-index,
+  `7aca6cb` per-listing OG photo, `36e0afb` /for-agents landing,
+  `3d8deb5` forAgents i18n rewrite, plus 4 merge commits. (15
+  total.)
+- **Next session should start with:** Phase 4 (admin tools, lead
+  routing engine, review-collection polish) OR the deferred locale-
+  depth pass for PT/DE/FR/IT (still has 22/47 namespaces vs EN's
+  47, needs a coherent native-translator session). Stripe webhook
+  replay fixture harness + long-term RLS refactor on
+  `organization_members` also still on the deck for a single
+  supervised session each.
+
+---
+
 ## 2026-05-09 — Master plan Phase 2: BG-sync + 3 cron writers (LinkedIn / Meta / photo-import retry)
 - **Frame:** Phase 2 of the master plan. Dispatched 4 parallel
   agents on infrastructure-leaning work in different file domains
