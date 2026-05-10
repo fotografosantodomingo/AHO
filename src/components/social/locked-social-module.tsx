@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 
 interface Props {
   locale: Locale;
@@ -31,7 +32,7 @@ export async function LockedSocialModule({ locale, size = 'full' }: Props) {
   const t = await getTranslations({ locale, namespace: 'social' });
   // Focus the pricing page on the Pro Automation tier — the user is
   // looking AT the social dashboard, comparing 3 tiers would be noise.
-  const pricingHref = `/${locale}/${locale === 'es' ? 'precios' : 'pricing'}?focus=pro_automation`;
+  const pricingHref = `${localePath(locale, '/pricing')}?focus=pro_automation`;
 
   const headingClass =
     size === 'full'

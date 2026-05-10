@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import type { SearchFilters as Filters } from '@/lib/listings/search';
 import type { Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { getCountryName } from '@/lib/i18n/countries';
 
 interface Props {
@@ -29,7 +30,7 @@ interface Props {
 export async function SearchFilters({ locale, filters, countryOptions }: Props) {
   const t = await getTranslations({ locale, namespace: 'search' });
   const tProperty = await getTranslations({ locale, namespace: 'property' });
-  const action = `/${locale}/${locale === 'es' ? 'buscar' : 'search'}`;
+  const action = localePath(locale, '/search');
 
   // Force-include the selected country if it's not in the index — keeps
   // the URL value rendering selected instead of silently flipping to

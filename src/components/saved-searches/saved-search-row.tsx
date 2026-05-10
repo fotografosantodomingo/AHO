@@ -7,6 +7,7 @@ import {
   toggleSavedSearchNotify,
 } from '@/lib/saved-searches/actions';
 import type { Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 
 interface SavedSearchRowProps {
   id: string;
@@ -49,7 +50,7 @@ export function SavedSearchRow({
   // Build the search-page URL preserving the saved filters. Same shape
   // as buildSearchUrl but inline so this component stays client-side
   // (server modules can't be imported here).
-  const searchPath = locale === 'es' ? 'buscar' : 'search';
+  const searchHref = localePath(locale, '/search');
   const params = new URLSearchParams();
   if (typeof filters.q === 'string') params.set('q', filters.q);
   if (typeof filters.city === 'string') params.set('city', filters.city);
@@ -62,7 +63,7 @@ export function SavedSearchRow({
   if (typeof filters.bedsMin === 'number')
     params.set('beds_min', String(filters.bedsMin));
   const qs = params.toString();
-  const viewUrl = `/${locale}/${searchPath}${qs ? `?${qs}` : ''}`;
+  const viewUrl = `${searchHref}${qs ? `?${qs}` : ''}`;
 
   const filterChips: string[] = [];
   if (typeof filters.q === 'string')

@@ -5,6 +5,7 @@ import { sendEmail } from '@/lib/email/brevo';
 import { renderReviewVerificationEmail } from '@/lib/email/templates/review-verification';
 import { generateVerificationToken, REVIEW_TOKEN_TTL_MS } from '@/lib/reviews/token';
 import { narrowContentLocale, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/locale-path';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -278,10 +279,13 @@ function buildVerifyUrl(args: {
   propertyShortId: string;
   token: string;
 }): string {
-  // ES uses /agentes; EN uses /agents. Mirrors the i18n pathnames map.
-  const segment = args.locale === 'es' ? 'agentes' : 'agents';
+  // Resolve via PATHNAMES → /agents or /agentes by locale (#7).
+  const stem = localePath(args.locale as Locale, '/agents/[slug]').replace(
+    '/[slug]',
+    '',
+  );
   const u = new URL(
-    `${args.siteUrl.replace(/\/$/, '')}/${args.locale}/${segment}/${args.agentSlug}`,
+    `${args.siteUrl.replace(/\/$/, '')}${stem}/${args.agentSlug}`,
   );
   u.searchParams.set('req', args.token);
   u.searchParams.set('property', args.propertyShortId);

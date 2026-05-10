@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getStripeClient } from '@/lib/billing/stripe';
 import { publicEnv } from '@/lib/env';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/locale-path';
 
 const PortalRequestSchema = z
   .object({
@@ -121,10 +122,9 @@ export async function POST(req: NextRequest) {
   const stripe = getStripeClient();
   const pub = publicEnv();
   try {
-    const dashboardSegment = locale === 'es' ? 'panel' : 'dashboard';
     const params: Parameters<typeof stripe.billingPortal.sessions.create>[0] = {
       customer: sub.stripe_customer_id,
-      return_url: `${pub.NEXT_PUBLIC_SITE_URL}/${locale}/${dashboardSegment}`,
+      return_url: `${pub.NEXT_PUBLIC_SITE_URL}${localePath(locale, '/dashboard')}`,
     };
     if (flow === 'subscription_update') {
       // Stripe requires the subscription id for the change-plan flow.

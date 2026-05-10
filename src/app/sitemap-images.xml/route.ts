@@ -1,5 +1,6 @@
 import { publicEnv } from '@/lib/env';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { localePath } from '@/i18n/locale-path';
 import {
   buildImageEntriesForListing,
   MAX_IMAGES_PER_LISTING,
@@ -143,8 +144,8 @@ export async function GET(): Promise<Response> {
     for (const locale of ['en', 'es'] as const) {
       const slug = locale === 'es' ? row.slug_es : row.slug_en;
       if (!slug) continue;
-      const path = locale === 'es' ? 'propiedades' : 'properties';
-      const loc = `${site}/${locale}/${path}/${slug}-${row.short_id}`;
+      const stem = localePath(locale, '/properties/[slug]').replace('/[slug]', '');
+      const loc = `${site}${stem}/${slug}-${row.short_id}`;
       const listingTitle = locale === 'es' ? row.title_es : row.title_en;
 
       const entries = buildImageEntriesForListing({

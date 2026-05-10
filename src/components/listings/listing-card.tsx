@@ -6,6 +6,7 @@ import { buildImageUrl } from '@/lib/listings/image-url';
 import { getCountryName } from '@/lib/i18n/countries';
 import type { SearchListing } from '@/lib/listings/search';
 import type { Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { FavoriteButton } from './favorite-button';
 
 interface ListingCardProps {
@@ -62,8 +63,8 @@ export function ListingCard({
   const finalSlug = slug ?? fallbackSlug;
   if (!finalSlug) return null;
 
-  const pathSegment = locale === 'es' ? 'propiedades' : 'properties';
-  const href = `/${locale}/${pathSegment}/${finalSlug}-${listing.shortId}`;
+  const stem = localePath(locale, '/properties/[slug]').replace('/[slug]', '');
+  const href = `${stem}/${finalSlug}-${listing.shortId}`;
 
   const imageUrl = buildImageUrl({
     cfImageId: listing.primaryImageId,

@@ -3,7 +3,11 @@ import { z } from 'zod';
 import { getStripeClient } from './stripe';
 import { publicEnv } from '@/lib/env';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { LOCALES } from '@/i18n/config';
+import { LOCALES, type Locale } from '@/i18n/config';
+// Pure path resolver — `@/i18n/routing` would pull next-intl/navigation
+// and break the Vitest harness for any caller that imports from
+// `lib/billing/`.
+import { localePath } from '@/i18n/locale-path';
 
 /**
  * Stripe Checkout session creation for the AHO Agent paid tier.
@@ -119,8 +123,8 @@ export async function createAgentCheckoutSession(
         aho_plan: input.plan,
       },
     },
-    success_url: `${pub.NEXT_PUBLIC_SITE_URL}/${input.locale}/${input.locale === 'es' ? 'inicio/bienvenida' : 'onboarding/welcome'}?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${pub.NEXT_PUBLIC_SITE_URL}/${input.locale}/${input.locale === 'es' ? 'precios' : 'pricing'}?canceled=1`,
+    success_url: `${pub.NEXT_PUBLIC_SITE_URL}${localePath(input.locale as Locale, '/onboarding/welcome')}?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${pub.NEXT_PUBLIC_SITE_URL}${localePath(input.locale as Locale, '/pricing')}?canceled=1`,
     automatic_tax: { enabled: true },
     allow_promotion_codes: true,
   });

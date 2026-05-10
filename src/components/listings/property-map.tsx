@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Map as LeafletMap } from 'leaflet';
 import type { SearchListing } from '@/lib/listings/search';
 import type { Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { countryCentroid } from '@/lib/listings/country-centroids';
 import type { BboxView } from '@/lib/listings/bbox-url';
 
@@ -350,7 +351,10 @@ export function PropertyMap({
         maxClusterRadius: 60,
       });
 
-      const pathSegment = locale === 'es' ? 'propiedades' : 'properties';
+      const propertyStem = localePath(locale, '/properties/[slug]').replace(
+        '/[slug]',
+        '',
+      );
       // Pass the whole leaflet module — `divIcon` is on the namespace
       // export. The runtime L (from `Lmod.default`) is the same object,
       // but the type lookup goes via the module not the default.
@@ -359,7 +363,7 @@ export function PropertyMap({
       for (const p of pinned) {
         const l = p.listing;
         const slug = locale === 'es' ? l.slugEs ?? l.slugEn : l.slugEn ?? l.slugEs;
-        const href = slug ? `/${locale}/${pathSegment}/${slug}-${l.shortId}` : null;
+        const href = slug ? `${propertyStem}/${slug}-${l.shortId}` : null;
         const title =
           (locale === 'es' ? l.titleEs : l.titleEn) ?? l.titleEn ?? l.titleEs ?? '—';
         const popupHtml = href

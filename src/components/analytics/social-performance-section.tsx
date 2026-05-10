@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import type {
   ListingPerformance,
   PerformancePlatformTile,
@@ -32,7 +33,7 @@ interface Props {
 export async function SocialPerformanceSection({ locale, performance }: Props) {
   const t = await getTranslations({ locale, namespace: 'analytics' });
   const tSocial = await getTranslations({ locale, namespace: 'social' });
-  const socialHref = `/${locale}/${locale === 'es' ? 'panel/social' : 'dashboard/social'}`;
+  const socialHref = localePath(locale, '/dashboard/social');
 
   return (
     <section

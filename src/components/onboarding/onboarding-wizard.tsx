@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { CountrySelect } from '@/components/forms/country-select';
 import type { Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 
 /**
  * Multi-step first-run onboarding wizard for newly-signed-up agents.
@@ -95,23 +96,19 @@ export function OnboardingWizard({ initial, planTier, hasLiveAgents }: Props) {
   const [linkedinUrl, setLinkedinUrl] = useState(initial.linkedinUrl ?? '');
 
   const dashboardPath = useMemo(
-    () => `/${locale}/${locale === 'es' ? 'panel' : 'dashboard'}`,
+    () => localePath(locale as Locale, '/dashboard'),
     [locale],
   );
   const newListingPath = useMemo(
-    () =>
-      `/${locale}/${
-        locale === 'es' ? 'panel/propiedades/nuevo' : 'dashboard/properties/new'
-      }`,
+    () => localePath(locale as Locale, '/dashboard/properties/new'),
     [locale],
   );
   const socialPath = useMemo(
-    () =>
-      `/${locale}/${locale === 'es' ? 'panel/social' : 'dashboard/social'}`,
+    () => localePath(locale as Locale, '/dashboard/social'),
     [locale],
   );
   const pricingPath = useMemo(
-    () => `/${locale}/${locale === 'es' ? 'precios' : 'pricing'}`,
+    () => localePath(locale as Locale, '/pricing'),
     [locale],
   );
 

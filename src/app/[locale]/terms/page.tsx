@@ -6,6 +6,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 
 export const runtime = 'edge';
 
@@ -24,7 +25,7 @@ export async function generateMetadata({
         ? 'Términos de Servicio de AHO — quién puede usar la plataforma, obligaciones de los agentes y compradores, suscripciones, contenido y limitación de responsabilidad.'
         : 'AHO Terms of Service — who can use the platform, agent and buyer obligations, subscriptions, content, and limitations of liability.',
     alternates: {
-      canonical: `/${locale}/${locale === 'es' ? 'terminos' : 'terms'}`,
+      canonical: localePath(locale as Locale, '/terms'),
       languages: {
         en: '/en/terms',
         es: '/es/terminos',
