@@ -98,12 +98,18 @@ create index if not exists idx_listing_post_metrics_listing_captured
 -- expression lets the cron job retry within the same day without
 -- creating duplicate rows; the next day's run inserts a new row for
 -- the time-series.
+--
+-- IMMUTABILITY: `date_trunc('day', timestamptz)` is NOT IMMUTABLE
+-- because the result depends on the session timezone. Postgres
+-- refuses to use it in a unique index. Casting to UTC first via
+-- `AT TIME ZONE 'UTC'` returns a `timestamp` (without TZ) and the
+-- resulting `::date` is deterministic — IMMUTABLE.
 create unique index if not exists ux_listing_post_metrics_daily
   on public.listing_post_metrics (
     listing_id,
     platform,
     post_external_id,
-    (date_trunc('day', captured_at))
+    (((captured_at at time zone 'UTC'))::date)
   );
 
 create trigger listing_post_metrics_updated_at
