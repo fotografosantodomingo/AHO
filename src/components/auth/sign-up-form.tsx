@@ -5,6 +5,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { useLocale } from 'next-intl';
+import type { Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { SignUpSchema, type SignUpInput } from '@/lib/auth/schemas';
 import { isPasswordPwned } from '@/lib/auth/hibp';
@@ -65,7 +67,7 @@ export function SignUpForm() {
     //   - Subscribed agent → lands on dashboard (their listings)
     //   - Free user → bounced to /pricing (the right next step)
     // Either way we don't drop them on the marketing homepage.
-    const dashPath = `/${locale}/${locale === 'es' ? 'panel' : 'dashboard'}`;
+    const dashPath = localePath(locale as Locale, '/dashboard');
     const { error } = await supabase.auth.signUp({
       email: values.email,
       password: values.password,
@@ -172,7 +174,7 @@ export function SignUpForm() {
             termsLink: (chunks) => (
               <a
                 className="text-action underline-offset-2 hover:underline dark:text-action-dark"
-                href={`/${locale}/${locale === 'es' ? 'terminos' : 'terms'}`}
+                href={localePath(locale as Locale, '/terms')}
                 target="_blank"
                 rel="noopener"
               >
@@ -182,7 +184,7 @@ export function SignUpForm() {
             privacyLink: (chunks) => (
               <a
                 className="text-action underline-offset-2 hover:underline dark:text-action-dark"
-                href={`/${locale}/${locale === 'es' ? 'privacidad' : 'privacy'}`}
+                href={localePath(locale as Locale, '/privacy')}
                 target="_blank"
                 rel="noopener"
               >

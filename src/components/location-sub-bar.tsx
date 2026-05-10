@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 
 interface Props {
   locale: Locale;
@@ -38,9 +39,13 @@ export async function LocationSubBar({
   const t = await getTranslations({ locale, namespace: 'locationSubBar' });
 
   const cc = countryCode.toLowerCase();
-  const segment = locale === 'es' ? 'inmuebles-en' : 'properties-in';
-  const countryHref = `/${locale}/${segment}/${cc}`;
-  const allCountriesHref = `/${locale}/${locale === 'es' ? 'paises' : 'countries'}`;
+  // Resolve segments via localePath against PATHNAMES (#7).
+  const countryStem = localePath(locale, '/properties-in/[country]').replace(
+    '/[country]',
+    '',
+  );
+  const countryHref = `${countryStem}/${cc}`;
+  const allCountriesHref = localePath(locale, '/countries');
 
   return (
     <nav

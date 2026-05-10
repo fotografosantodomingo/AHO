@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { LocaleToggle } from '@/components/locale-toggle';
 import { NewsletterForm } from './newsletter-form';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
@@ -53,46 +54,24 @@ export async function SiteFooter({ locale }: Props) {
     // Footer must not break the layout if Supabase hiccups.
   }
 
-  const buyHref = `/${locale}/${locale === 'es' ? 'buscar' : 'search'}`;
-  const countriesHref = `/${locale}/${locale === 'es' ? 'paises' : 'countries'}`;
-  const savedSearchesHref = `/${locale}/${locale === 'es' ? 'busquedas-guardadas' : 'saved-searches'}`;
-  const pricingHref = `/${locale}/${locale === 'es' ? 'precios' : 'pricing'}`;
-  const signupHref = `/${locale}/${locale === 'es' ? 'registrarse' : 'signup'}`;
-  const signinHref = `/${locale}/${locale === 'es' ? 'iniciar-sesion' : 'signin'}`;
-  // Per-locale landing-page slugs — the slug IS the keyword Google
-  // indexes against, so each locale gets its own translated form
-  // (mirrors src/i18n/config.ts PATHNAMES['/for-agents']).
-  const forAgentsSlug: Record<string, string> = {
-    en: 'for-agents',
-    es: 'para-agentes',
-    pl: 'dla-agentow',
-    pt: 'para-agentes-imobiliarios',
-    de: 'fuer-makler',
-    fr: 'pour-agents',
-    it: 'per-agenti',
-  };
-  const forAgentsHref = `/${locale}/${forAgentsSlug[locale] ?? 'for-agents'}`;
-  const privacyHref = `/${locale}/privacy`;
-  const termsHref = `/${locale}/${locale === 'es' ? 'terminos' : 'terms'}`;
-  // Documentation page slug per locale — mirrors PATHNAMES['/docs'] in
-  // src/i18n/config.ts. Marketing locales (PL/PT/DE/FR/IT) get their
-  // own translated slug because "documentation" in your own language is
-  // the natural URL form for a help/guide page.
-  const docsSlug: Record<string, string> = {
-    en: 'docs',
-    es: 'documentacion',
-    pl: 'dokumentacja',
-    pt: 'documentacao',
-    de: 'dokumentation',
-    fr: 'documentation',
-    it: 'documentazione',
-  };
-  const docsHref = `/${locale}/${docsSlug[locale] ?? 'docs'}`;
+  // All footer links derive from PATHNAMES via `localePath()` — adding a
+  // new ES (or marketing-locale) segment to PATHNAMES propagates here
+  // automatically. See QA report 2026-05-10 #7.
+  const buyHref = localePath(locale, '/search');
+  const countriesHref = localePath(locale, '/countries');
+  const savedSearchesHref = localePath(locale, '/saved-searches');
+  const pricingHref = localePath(locale, '/pricing');
+  const signupHref = localePath(locale, '/signup');
+  const signinHref = localePath(locale, '/signin');
+  const forAgentsHref = localePath(locale, '/for-agents');
+  const privacyHref = localePath(locale, '/privacy');
+  const termsHref = localePath(locale, '/terms');
+  const docsHref = localePath(locale, '/docs');
 
   // Reusable shape for column links — same JSX rendered both inside the
   // mobile accordion and inside the desktop column. Pulling into a const
   // avoids duplicating the JSX twice per section.
-  const savedPropertiesHref = `/${locale}/${locale === 'es' ? 'inmuebles-guardados' : 'saved-properties'}`;
+  const savedPropertiesHref = localePath(locale, '/saved-properties');
   const buyersLinks = (
     <ul className="space-y-2 text-sm">
       <li><a href={buyHref} className="footer-link">{t('linkBrowseListings')}</a></li>

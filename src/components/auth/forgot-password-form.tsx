@@ -4,6 +4,8 @@ import { useCallback, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocale, useTranslations } from 'next-intl';
+import type { Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { EmailOnlySchema, type EmailOnlyInput } from '@/lib/auth/schemas';
 import {
@@ -38,7 +40,7 @@ export function ForgotPasswordForm() {
   async function onSubmit(values: EmailOnlyInput) {
     setServerError(null);
     const supabase = getSupabaseBrowserClient();
-    const resetPath = `/${locale}/${locale === 'es' ? 'restablecer-contrasena' : 'reset-password'}`;
+    const resetPath = localePath(locale as Locale, '/reset-password');
     const { error } = await supabase.auth.resetPasswordForEmail(values.email, {
       redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(resetPath)}`,
       // Required when Supabase Auth → Captcha is enabled. Ignored

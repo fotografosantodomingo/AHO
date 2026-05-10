@@ -5,6 +5,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
+import type { Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { ResetPasswordSchema, type ResetPasswordInput } from '@/lib/auth/schemas';
 import { isPasswordPwned } from '@/lib/auth/hibp';
@@ -71,7 +73,7 @@ export function ResetPasswordForm() {
     // Land them in the dashboard. Fall back to home if the dashboard would
     // bounce (no org membership).
     setTimeout(() => {
-      router.push(`/${locale}/${locale === 'es' ? 'panel' : 'dashboard'}`);
+      router.push(localePath(locale as Locale, '/dashboard'));
     }, 1200);
   }
 
@@ -80,7 +82,7 @@ export function ResetPasswordForm() {
   }
 
   if (!hasSession) {
-    const forgotPath = `/${locale}/${locale === 'es' ? 'recuperar-contrasena' : 'forgot-password'}`;
+    const forgotPath = localePath(locale as Locale, '/forgot-password');
     return (
       <div role="status" className="space-y-3">
         <p className="text-sm text-ink-muted dark:text-ink-inverse-muted">

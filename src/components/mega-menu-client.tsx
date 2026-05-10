@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { Menu, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { CurrencyPicker } from '@/components/currency-picker';
 
 interface NavItem {
@@ -88,11 +89,11 @@ export function MegaMenuClient({
     return () => window.removeEventListener('keydown', onKey);
   }, [open]);
 
-  const signInHref = `/${locale}/${locale === 'es' ? 'iniciar-sesion' : 'signin'}`;
-  const signUpHref = `/${locale}/${locale === 'es' ? 'registrarse' : 'signup'}`;
-  const dashboardHref = `/${locale}/${locale === 'es' ? 'panel' : 'dashboard'}`;
-  const savedSearchesHref = `/${locale}/${locale === 'es' ? 'busquedas-guardadas' : 'saved-searches'}`;
-  const savedPropertiesHref = `/${locale}/${locale === 'es' ? 'inmuebles-guardados' : 'saved-properties'}`;
+  const signInHref = localePath(locale, '/signin');
+  const signUpHref = localePath(locale, '/signup');
+  const dashboardHref = localePath(locale, '/dashboard');
+  const savedSearchesHref = localePath(locale, '/saved-searches');
+  const savedPropertiesHref = localePath(locale, '/saved-properties');
 
   const overlay = (
     <div

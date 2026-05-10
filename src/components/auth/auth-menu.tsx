@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { SignOutButton } from './sign-out-button';
 import type { Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 
 /**
  * Server Component header menu — renders sign-in / sign-up links when the
@@ -31,13 +32,13 @@ export async function AuthMenu({ locale }: { locale: Locale }) {
       <div className="flex items-center gap-2 text-sm">
         <a
           className="hover:underline"
-          href={`/${locale}/${locale === 'es' ? 'iniciar-sesion' : 'signin'}`}
+          href={localePath(locale, '/signin')}
         >
           {t('signInCta')}
         </a>
         <a
           className="btn-primary h-9 px-3"
-          href={`/${locale}/${locale === 'es' ? 'registrarse' : 'signup'}`}
+          href={localePath(locale, '/signup')}
         >
           {t('signUpCta')}
         </a>
@@ -45,13 +46,9 @@ export async function AuthMenu({ locale }: { locale: Locale }) {
     );
   }
 
-  const dashboardHref = `/${locale}/${locale === 'es' ? 'panel' : 'dashboard'}`;
-  const savedSearchesHref = `/${locale}/${
-    locale === 'es' ? 'busquedas-guardadas' : 'saved-searches'
-  }`;
-  const savedPropertiesHref = `/${locale}/${
-    locale === 'es' ? 'inmuebles-guardados' : 'saved-properties'
-  }`;
+  const dashboardHref = localePath(locale, '/dashboard');
+  const savedSearchesHref = localePath(locale, '/saved-searches');
+  const savedPropertiesHref = localePath(locale, '/saved-properties');
 
   return (
     <div className="flex items-center gap-3 text-sm">

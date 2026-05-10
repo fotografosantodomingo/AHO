@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { defaultCurrencyForLocale } from '@/lib/currency/rates';
 import { AuthMenu } from '@/components/auth/auth-menu';
@@ -66,9 +67,9 @@ export async function SiteHeader({ locale }: Props) {
     profileCurrency?.toUpperCase() ||
     defaultCurrencyForLocale(locale);
 
-  const searchPath = `/${locale}/${locale === 'es' ? 'buscar' : 'search'}`;
-  const pricingPath = `/${locale}/${locale === 'es' ? 'precios' : 'pricing'}`;
-  const countriesPath = `/${locale}/${locale === 'es' ? 'paises' : 'countries'}`;
+  const searchPath = localePath(locale, '/search');
+  const pricingPath = localePath(locale, '/pricing');
+  const countriesPath = localePath(locale, '/countries');
 
   const navItems: { href: string; label: string }[] = [
     { href: `${searchPath}?transaction=sale`, label: t('buy') },
