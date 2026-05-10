@@ -143,17 +143,30 @@ export default async function DashboardListingsPage({
         <h1 className="font-brand text-2xl font-semibold tracking-tight md:text-[26px] md:leading-[1.19]">
           {t('listingsHeading')}
         </h1>
-        <a
-          href={planAtCapDisabled ? '#' : newListingPath}
-          aria-disabled={planAtCapDisabled || undefined}
-          className={`inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium shadow-whisper transition ${
-            planAtCapDisabled
-              ? 'cursor-not-allowed bg-border-strong/20 text-helper'
-              : 'bg-action text-white hover:bg-action-active dark:bg-action-dark dark:text-surface-deep'
-          }`}
-        >
-          {t('newListing')}
-        </a>
+        {/* At-cap rendering swaps the anchor for a `<button disabled>`
+            so the click cannot navigate at all. Browsers ignore
+            `aria-disabled` on <a> elements and follow the href, so the
+            previous markup let at-cap users still hit the new-listing
+            form despite the visual disabled treatment. RLS still
+            rejects the create on the server — this just keeps the UX
+            honest (QA-2026-05-10 P0 #4). */}
+        {planAtCapDisabled ? (
+          <button
+            type="button"
+            disabled
+            aria-label={t('planUsageAtCap')}
+            className="inline-flex h-9 cursor-not-allowed items-center rounded-lg bg-border-strong/20 px-3 text-sm font-medium text-helper shadow-whisper"
+          >
+            {t('newListing')}
+          </button>
+        ) : (
+          <a
+            href={newListingPath}
+            className="inline-flex h-9 items-center rounded-lg bg-action px-3 text-sm font-medium text-white shadow-whisper transition hover:bg-action-active dark:bg-action-dark dark:text-surface-deep"
+          >
+            {t('newListing')}
+          </a>
+        )}
       </header>
 
       {/* Plan tracker — shows for every org. Hidden if listingCap is null
