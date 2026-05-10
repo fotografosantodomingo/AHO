@@ -2046,5 +2046,22 @@
     "voiceQueuedFetchFailed": "La rete ha avuto un problema. Salvato — riproveremo quando torna la connessione.",
     "voiceQueuedUploadedOne": "{count} registrazione in coda caricata.",
     "voiceQueuedUploadedOther": "{count} registrazioni in coda caricate."
+  },
+  "adminLeads": {
+    "title": "Admin · Contatti · AHO",
+    "heading": "Contatti ({count})",
+    "filterAll": "Tutti",
+    "filterNew": "Nuovi",
+    "filterContacted": "Contattati",
+    "filterQualified": "Qualificati",
+    "filterWon": "Vinti",
+    "filterLost": "Persi",
+    "empty": "Nessun contatto corrisponde a questo filtro.",
+    "anonymous": "(anonimo)",
+    "propertyRemoved": "(immobile rimosso)",
+    "reveal": "Mostra",
+    "revealing": "Mostrando…",
+    "revealEmailAria": "Mostra e-mail — scrive una voce nell'audit log",
+    "revealPhoneAria": "Mostra telefono — scrive una voce nell'audit log"
   }
 }

@@ -2043,5 +2043,22 @@
     "voiceQueuedFetchFailed": "Network glitched. Saved — we'll retry when the connection's back.",
     "voiceQueuedUploadedOne": "{count} queued recording uploaded.",
     "voiceQueuedUploadedOther": "{count} queued recordings uploaded."
+  },
+  "adminLeads": {
+    "title": "Admin · Leads · AHO",
+    "heading": "Leads ({count})",
+    "filterAll": "All",
+    "filterNew": "New",
+    "filterContacted": "Contacted",
+    "filterQualified": "Qualified",
+    "filterWon": "Won",
+    "filterLost": "Lost",
+    "empty": "No leads match this filter.",
+    "anonymous": "(anonymous)",
+    "propertyRemoved": "(property removed)",
+    "reveal": "Reveal",
+    "revealing": "Revealing…",
+    "revealEmailAria": "Reveal email — writes an audit log entry",
+    "revealPhoneAria": "Reveal phone — writes an audit log entry"
   }
 }

@@ -1,15 +1,26 @@
-import { setRequestLocale } from 'next-intl/server';
+import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getCountryName } from '@/lib/i18n/countries';
+import { maskEmail, maskPhone } from '@/lib/admin/pii-mask';
+import { RevealPii } from '@/components/admin/reveal-pii';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
-export const metadata = {
-  title: 'Admin · Leads · AHO',
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'adminLeads' });
+  return {
+    title: t('title'),
+    robots: { index: false, follow: false },
+  };
+}
 
 interface AdminLead {
   id: string;
@@ -33,6 +44,7 @@ interface AdminLead {
   org: {
     name: string;
     slug: string;
+    public_slug: string | null;
   } | null;
 }
 
@@ -49,6 +61,15 @@ type StatusFilter = (typeof STATUS_FILTERS)[number];
  * (layout's auth gate).
  *
  * Joins property + org so each row carries the listing context.
+ *
+ * **PII masking** (QA report 2026-05-10 P1 #21): contact_email +
+ * contact_phone are masked at render time and revealed via the
+ * RevealPii client component, which posts to
+ * /api/admin/leads/[id]/reveal. That endpoint writes an `audit_log`
+ * entry (`kind = 'admin.lead.pii_reveal'`) with the calling admin's
+ * id, the lead id, and which field was revealed. Combined with the
+ * existing "every admin reads everything" model, this turns the
+ * potentially-juicy leak surface into one that's accountable.
  */
 export default async function AdminLeadsPage({
   params,
@@ -62,6 +83,8 @@ export default async function AdminLeadsPage({
   const typedLocale = locale as Locale;
   setRequestLocale(typedLocale);
 
+  const t = await getTranslations({ locale, namespace: 'adminLeads' });
+
   const sp = await searchParams;
   const rawStatus = sp.status ?? 'all';
   const statusFilter: StatusFilter = (
@@ -74,7 +97,7 @@ export default async function AdminLeadsPage({
   let query = supabase
     .from('leads')
     .select(
-      'id, property_id, org_id, source, status, contact_name, contact_email, contact_phone, message, language, created_at, properties(short_id, title_en, title_es, city, country_code), organizations(name, slug)',
+      'id, property_id, org_id, source, status, contact_name, contact_email, contact_phone, message, language, created_at, properties(short_id, title_en, title_es, city, country_code), organizations(name, slug, public_slug)',
     )
     .order('created_at', { ascending: false })
     .limit(200);
@@ -112,10 +135,8 @@ export default async function AdminLeadsPage({
 
   const filterTab = (key: StatusFilter, label: string) => {
     const isActive = statusFilter === key;
-    const href =
-      key === 'all'
-        ? `/${locale}/admin/leads`
-        : `/${locale}/admin/leads?status=${key}`;
+    const adminLeadsHref = `/${locale}/admin/leads`;
+    const href = key === 'all' ? adminLeadsHref : `${adminLeadsHref}?status=${key}`;
     return (
       <a
         key={key}
@@ -135,21 +156,21 @@ export default async function AdminLeadsPage({
     <>
       <div className="flex items-center justify-between">
         <h1 className="font-brand text-2xl font-semibold tracking-tight md:text-[26px] md:leading-[1.19]">
-          Leads ({leads.length})
+          {t('heading', { count: leads.length })}
         </h1>
         <nav className="flex flex-wrap gap-1" aria-label="Status filter">
-          {filterTab('all', 'All')}
-          {filterTab('new', 'New')}
-          {filterTab('contacted', 'Contacted')}
-          {filterTab('qualified', 'Qualified')}
-          {filterTab('won', 'Won')}
-          {filterTab('lost', 'Lost')}
+          {filterTab('all', t('filterAll'))}
+          {filterTab('new', t('filterNew'))}
+          {filterTab('contacted', t('filterContacted'))}
+          {filterTab('qualified', t('filterQualified'))}
+          {filterTab('won', t('filterWon'))}
+          {filterTab('lost', t('filterLost'))}
         </nav>
       </div>
 
       {leads.length === 0 ? (
         <div className="rounded-card border border-dashed border-border-strong/60 p-10 text-center text-sm text-ink-muted dark:text-ink-inverse-muted">
-          No leads match this filter.
+          {t('empty')}
         </div>
       ) : (
         <ul className="space-y-3">
@@ -158,7 +179,7 @@ export default async function AdminLeadsPage({
               (typedLocale === 'es' ? lead.property?.title_es : lead.property?.title_en) ??
               lead.property?.title_en ??
               lead.property?.title_es ??
-              '(property removed)';
+              t('propertyRemoved');
             const propertyCity = lead.property
               ? `${lead.property.city}, ${getCountryName(lead.property.country_code, typedLocale)}`
               : null;
@@ -167,6 +188,12 @@ export default async function AdminLeadsPage({
               lead.contact_email ||
               lead.contact_phone
             );
+            const orgHref = lead.org
+              ? localePath(typedLocale, '/agents/[slug]').replace(
+                  '[slug]',
+                  lead.org.public_slug ?? lead.org.slug,
+                )
+              : null;
             return (
               <li
                 key={lead.id}
@@ -180,13 +207,27 @@ export default async function AdminLeadsPage({
                     </p>
                     <p className="text-sm">
                       <strong>
-                        {hasContact ? lead.contact_name ?? '—' : '(anonymous)'}
+                        {hasContact ? lead.contact_name ?? '—' : t('anonymous')}
                       </strong>
                       {(lead.contact_email || lead.contact_phone) && (
-                        <span className="ml-2 text-helper">
-                          {[lead.contact_email, lead.contact_phone]
-                            .filter(Boolean)
-                            .join(' · ')}
+                        <span className="ml-2 inline-flex flex-wrap items-center gap-2 text-helper">
+                          {lead.contact_email && (
+                            <RevealPii
+                              leadId={lead.id}
+                              field="email"
+                              masked={maskEmail(lead.contact_email)}
+                            />
+                          )}
+                          {lead.contact_email && lead.contact_phone && (
+                            <span aria-hidden="true">·</span>
+                          )}
+                          {lead.contact_phone && (
+                            <RevealPii
+                              leadId={lead.id}
+                              field="phone"
+                              masked={maskPhone(lead.contact_phone)}
+                            />
+                          )}
                         </span>
                       )}
                     </p>
@@ -194,8 +235,8 @@ export default async function AdminLeadsPage({
                       <p className="mt-2 whitespace-pre-line text-sm">{lead.message}</p>
                     )}
                     <p className="mt-2 text-xs">
-                      {lead.org && (
-                        <a className="underline" href={`/${locale}/agents/${lead.org.slug}`}>
+                      {orgHref && lead.org && (
+                        <a className="underline" href={orgHref}>
                           {lead.org.name}
                         </a>
                       )}

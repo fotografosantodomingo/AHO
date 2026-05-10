@@ -2046,5 +2046,22 @@
     "voiceQueuedFetchFailed": "A rede falhou. Salvo — vamos tentar de novo quando a conexão voltar.",
     "voiceQueuedUploadedOne": "{count} gravação enviada.",
     "voiceQueuedUploadedOther": "{count} gravações enviadas."
+  },
+  "adminLeads": {
+    "title": "Admin · Contatos · AHO",
+    "heading": "Contatos ({count})",
+    "filterAll": "Todos",
+    "filterNew": "Novos",
+    "filterContacted": "Contatados",
+    "filterQualified": "Qualificados",
+    "filterWon": "Ganhos",
+    "filterLost": "Perdidos",
+    "empty": "Nenhum contato corresponde a este filtro.",
+    "anonymous": "(anônimo)",
+    "propertyRemoved": "(imóvel removido)",
+    "reveal": "Mostrar",
+    "revealing": "Mostrando…",
+    "revealEmailAria": "Mostrar e-mail — registra uma entrada no audit log",
+    "revealPhoneAria": "Mostrar telefone — registra uma entrada no audit log"
   }
 }

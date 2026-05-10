@@ -2046,5 +2046,22 @@
     "voiceQueuedFetchFailed": "Netzwerk hat ausgesetzt. Gespeichert — wir versuchen erneut, sobald die Verbindung zurück ist.",
     "voiceQueuedUploadedOne": "{count} Aufnahme aus der Warteschlange hochgeladen.",
     "voiceQueuedUploadedOther": "{count} Aufnahmen aus der Warteschlange hochgeladen."
+  },
+  "adminLeads": {
+    "title": "Admin · Anfragen · AHO",
+    "heading": "Anfragen ({count})",
+    "filterAll": "Alle",
+    "filterNew": "Neu",
+    "filterContacted": "Kontaktiert",
+    "filterQualified": "Qualifiziert",
+    "filterWon": "Gewonnen",
+    "filterLost": "Verloren",
+    "empty": "Keine Anfragen passen zu diesem Filter.",
+    "anonymous": "(anonym)",
+    "propertyRemoved": "(Anzeige entfernt)",
+    "reveal": "Anzeigen",
+    "revealing": "Wird angezeigt…",
+    "revealEmailAria": "E-Mail anzeigen — schreibt einen Audit-Log-Eintrag",
+    "revealPhoneAria": "Telefon anzeigen — schreibt einen Audit-Log-Eintrag"
   }
 }

@@ -2066,5 +2066,22 @@
     "voiceQueuedFetchFailed": "Sieć padła. Zapisane — spróbujemy ponownie, gdy wróci połączenie.",
     "voiceQueuedUploadedOne": "Wgrano {count} zakolejkowane nagranie.",
     "voiceQueuedUploadedOther": "Wgrano {count} zakolejkowanych nagrań."
+  },
+  "adminLeads": {
+    "title": "Admin · Kontakty · AHO",
+    "heading": "Kontakty ({count})",
+    "filterAll": "Wszystkie",
+    "filterNew": "Nowe",
+    "filterContacted": "Skontaktowane",
+    "filterQualified": "Zakwalifikowane",
+    "filterWon": "Wygrane",
+    "filterLost": "Stracone",
+    "empty": "Brak kontaktów pasujących do tego filtra.",
+    "anonymous": "(anonimowy)",
+    "propertyRemoved": "(nieruchomość usunięta)",
+    "reveal": "Pokaż",
+    "revealing": "Pokazywanie…",
+    "revealEmailAria": "Pokaż e-mail — zapisuje wpis do dziennika audytu",
+    "revealPhoneAria": "Pokaż telefon — zapisuje wpis do dziennika audytu"
   }
 }

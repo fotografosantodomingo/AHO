@@ -2043,5 +2043,22 @@
     "voiceQueuedFetchFailed": "La red falló. Guardado — reintentaremos cuando vuelva la conexión.",
     "voiceQueuedUploadedOne": "{count} grabación en cola subida.",
     "voiceQueuedUploadedOther": "{count} grabaciones en cola subidas."
+  },
+  "adminLeads": {
+    "title": "Admin · Contactos · AHO",
+    "heading": "Contactos ({count})",
+    "filterAll": "Todos",
+    "filterNew": "Nuevos",
+    "filterContacted": "Contactados",
+    "filterQualified": "Calificados",
+    "filterWon": "Ganados",
+    "filterLost": "Perdidos",
+    "empty": "No hay contactos que coincidan con este filtro.",
+    "anonymous": "(anónimo)",
+    "propertyRemoved": "(propiedad eliminada)",
+    "reveal": "Mostrar",
+    "revealing": "Mostrando…",
+    "revealEmailAria": "Mostrar e-mail — registra una entrada en el log de auditoría",
+    "revealPhoneAria": "Mostrar teléfono — registra una entrada en el log de auditoría"
   }
 }

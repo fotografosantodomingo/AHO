@@ -2046,5 +2046,22 @@
     "voiceQueuedFetchFailed": "Le réseau a flanché. Enregistré — on réessaiera quand la connexion reviendra.",
     "voiceQueuedUploadedOne": "{count} enregistrement en attente téléchargé.",
     "voiceQueuedUploadedOther": "{count} enregistrements en attente téléchargés."
+  },
+  "adminLeads": {
+    "title": "Admin · Contacts · AHO",
+    "heading": "Contacts ({count})",
+    "filterAll": "Tous",
+    "filterNew": "Nouveaux",
+    "filterContacted": "Contactés",
+    "filterQualified": "Qualifiés",
+    "filterWon": "Gagnés",
+    "filterLost": "Perdus",
+    "empty": "Aucun contact ne correspond à ce filtre.",
+    "anonymous": "(anonyme)",
+    "propertyRemoved": "(annonce supprimée)",
+    "reveal": "Afficher",
+    "revealing": "Affichage…",
+    "revealEmailAria": "Afficher l'e-mail — écrit une entrée dans le journal d'audit",
+    "revealPhoneAria": "Afficher le téléphone — écrit une entrée dans le journal d'audit"
   }
 }
