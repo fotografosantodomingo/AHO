@@ -12,6 +12,11 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getUserFavoriteIds } from '@/lib/listings/favorites';
 import { RecentlyViewed } from '@/components/listings/recently-viewed';
 import { ProAutomationSection } from '@/components/home/pro-automation-section';
+import {
+  buildOrganization,
+  buildWebSite,
+  serializeJsonLd,
+} from '@/lib/seo/jsonld';
 
 export const runtime = 'edge';
 
@@ -74,43 +79,35 @@ export default async function HomePage({
   //   2. WebSite + SearchAction (lets Google surface a site-search box
   //      directly in the SERP for branded queries — sitelinks searchbox).
   // Per HANDOFF.md §16: structured data is part of the SEO baseline, and
-  // the homepage is where these top-level graphs belong.
+  // the homepage is where these top-level graphs belong. We deliberately
+  // do NOT emit a 1-crumb BreadcrumbList — the homepage is the root, and
+  // a BreadcrumbList of length 1 reads as a SERP misconfiguration to
+  // crawlers. Country / city pages emit the full crumb chain instead.
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
   const homeUrl = `${site}/${locale}`;
-  const organizationLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
+  const organizationLd = buildOrganization({
     name: tSite('name'),
     alternateName: tSite('tagline'),
     url: homeUrl,
     description: tSite('description'),
     logo: `${site}/icon.svg`,
-  };
-  const websiteLd = {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
+  });
+  const websiteLd = buildWebSite({
     name: tSite('name'),
     url: homeUrl,
     inLanguage: locale === 'es' ? 'es' : 'en',
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: `${site}${searchPath}?q={search_term_string}`,
-      },
-      'query-input': 'required name=search_term_string',
-    },
-  };
+    searchUrlTemplate: `${site}${searchPath}?q={search_term_string}`,
+  });
 
   return (
     <main>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(organizationLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(websiteLd) }}
       />
 
       {/* Hero. Body bg in BOTH modes (light: surface-muted; dark:
