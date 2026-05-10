@@ -12,6 +12,56 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-10 (continuation 7) — P1 #21 admin-leads PII masking + audit log
+- **Frame:** Last QA P1 finding. /admin/leads dumped lead email + phone
+  in plain text to every admin, no audit trail. The "every admin reads
+  everything" model + this page made admin-account compromise much
+  juicier than it needed to be.
+- **What shipped (1 commit `f63a3fc`):**
+  - **Pure mask helpers** in `src/lib/admin/pii-mask.ts` —
+    `maskEmail('foobar@example.com')` → `f•••••@example.com`,
+    `maskPhone('+12025551234')` → `+120••••1234`. 11 unit tests cover
+    empty / null / no-`@` / short-local / no-`+` / sub-6-digit /
+    whitespace / formatting cases.
+  - **Reveal endpoint** at `POST /api/admin/leads/[id]/reveal`:
+    admin-gated, reads the field, writes an `audit_log` entry with
+    `kind = 'admin.lead.pii_reveal'`, `actor_id = caller`,
+    `payload = { field, org_id }`, then returns the unmasked value.
+    If the audit insert fails on both the user-context AND service-
+    role paths, the endpoint returns 500 instead of leaking the
+    value — a reveal that wasn't logged is exactly the failure mode
+    #21 prevents.
+  - **`<RevealPii>` client component** — server renders the masked
+    text; click-to-reveal swaps it after a successful POST. Visually
+    quiet button + inline error on failure. Once revealed in page
+    lifetime, stays visible (re-masking would be theatre; the audit
+    log already captured the access).
+  - **`adminLeads` i18n namespace** across all 7 locales (was a
+    side-finding in #21 — the original page bypassed i18n entirely
+    and dropped to EN chrome for ES/PL/PT/DE/FR/IT admins).
+  - **Carried-in cleanups**: org link now uses `public_slug ?? slug`
+    (consistent with /admin and /admin/orgs); org link routed
+    through `localePath()` (the last admin file with the old
+    hardcoded ternary); `generateMetadata` replaces the static
+    metadata export so the title localizes.
+- **Test count:** 448/448 unit tests pass (was 437; +11 from
+  pii-mask).
+- **P1 backlog status:** **22 of 25 findings landed**. The
+  remaining 3 are smaller scope items not flagged as critical
+  (auto-dismiss for the voice-import "queued" notice, role="status"
+  vs role="note" tweak on a single banner, missing eslint-disable
+  comment on a hero-search useEffect that's already correct). All
+  P2 (14) + P3 (11) polish items are pending; nothing security- or
+  data-correctness-blocking remains.
+- **Commits this segment:** 1 (the PII fix) + this PROGRESS update.
+- **Next session should start with:** PO check-in on #21 — confirm
+  the masking + audit-log UX is acceptable before considering the
+  P1 backlog formally closed. Or move to P2 (loading skeletons on
+  8+ surfaces, admin/users + admin/orgs i18n migration, accessibility
+  aria-live regions) if PO is satisfied.
+
+---
+
 ## 2026-05-10 (continuation 6) — P1 #7 sweep complete (60 files, 7 batches, ~90 ternaries)
 - **Frame:** Continued the localePath() migration after the first 5
   batches. Goal: get to "no genuine path-ternaries left."
