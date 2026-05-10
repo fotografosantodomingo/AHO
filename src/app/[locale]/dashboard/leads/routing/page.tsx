@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { getPathname } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { RoutingRuleForm } from '@/components/leads/routing-rule-form';
 import { RoutingRuleRowActions } from '@/components/leads/routing-rule-row-actions';
@@ -155,13 +156,23 @@ export default async function LeadRoutingPage({
   const supabase = await createServerSupabaseClient();
   const { data: userResult } = await supabase.auth.getUser();
   if (!userResult.user) {
-    redirect(
-      `/${locale}/${
-        locale === 'es' ? 'iniciar-sesion' : 'signin'
-      }?next=${encodeURIComponent(
-        `/${locale}/${locale === 'es' ? 'panel/contactos/routing' : 'dashboard/leads/routing'}`,
-      )}`,
-    );
+    // Build the post-signin `next` and the signin path itself via
+    // `getPathname()` so they always match the registered PATHNAMES.
+    // Bug history: this page was hard-coding `panel/contactos/routing`
+    // for ES, but the registered ES path is
+    // `panel/contactos/enrutamiento` (PATHNAMES, src/i18n/config.ts) —
+    // so post-signin redirect landed users on a 404. Going through
+    // getPathname removes the duplicated mapping.
+    const typedLocale = locale as Locale;
+    const next = getPathname({
+      href: '/dashboard/leads/routing',
+      locale: typedLocale,
+    });
+    const signinPath = getPathname({
+      href: '/signin',
+      locale: typedLocale,
+    });
+    redirect(`/${locale}${signinPath}?next=${encodeURIComponent(`/${locale}${next}`)}`);
   }
 
   // Resolve the caller's owning org. The dashboard layout has already
