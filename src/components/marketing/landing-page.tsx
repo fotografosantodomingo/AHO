@@ -30,6 +30,13 @@ export interface LandingFaqItem {
   a: string;
 }
 
+export interface LandingTrustItem {
+  /** Short label, e.g. "GDPR-aligned". */
+  label: string;
+  /** One-line plain-language explanation, e.g. "Stored in the EU."  */
+  detail: string;
+}
+
 export interface LandingCopy {
   hero: {
     eyebrow: string;
@@ -69,6 +76,13 @@ export interface LandingCopy {
     heading: string;
     sub: string;
     cta: string;
+  };
+  /** Optional honest-signals strip (SSL / GDPR / launch markets etc.).
+   *  Rendered between FAQ and final CTA when present. Honest signals
+   *  only — no fabricated stats, no fake testimonials (CLAUDE.md #8). */
+  trustStrip?: {
+    heading: string;
+    items: LandingTrustItem[];
   };
 }
 
@@ -180,8 +194,10 @@ export function LandingPage({
         </div>
       </section>
 
-      {/* How it works */}
-      <section className="border-b border-border">
+      {/* How it works — id="vision" anchors the hero "See how it works"
+          secondary CTA on the for-agents landing page. Other consumers
+          (automation/save-time) get the anchor for free; harmless. */}
+      <section id="vision" className="scroll-mt-20 border-b border-border">
         <div className="mx-auto max-w-5xl px-6 py-16 md:py-20">
           <h2 className="font-brand text-2xl font-semibold tracking-tight md:text-3xl">
             {copy.howItWorks.heading}
@@ -261,6 +277,34 @@ export function LandingPage({
           </div>
         </div>
       </section>
+
+      {/* Trust strip — honest signals only (CLAUDE.md #8). Rendered
+          only when the consuming page provides copy for it; we never
+          fabricate testimonials, agent counts, or "trusted by" logos. */}
+      {copy.trustStrip ? (
+        <section className="border-b border-border bg-surface-band/40 dark:bg-surface-deep/30">
+          <div className="mx-auto max-w-5xl px-6 py-12 md:py-16">
+            <h2 className="text-center font-brand text-base font-semibold uppercase tracking-[0.13em] text-helper">
+              {copy.trustStrip.heading}
+            </h2>
+            <ul className="mt-8 grid gap-6 sm:grid-cols-2 md:grid-cols-4">
+              {copy.trustStrip.items.map((it, i) => (
+                <li
+                  key={i}
+                  className="flex flex-col items-start gap-1 rounded-card border border-border bg-surface px-4 py-4 shadow-whisper dark:bg-surface-deep"
+                >
+                  <span className="font-brand text-sm font-semibold tracking-tight">
+                    {it.label}
+                  </span>
+                  <span className="text-xs leading-relaxed text-ink-muted dark:text-ink-inverse-muted">
+                    {it.detail}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null}
 
       {/* Final CTA */}
       <section className="bg-surface-deep text-ink-inverse dark:bg-surface dark:text-ink">

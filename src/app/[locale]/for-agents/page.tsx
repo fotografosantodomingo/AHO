@@ -59,14 +59,20 @@ export default async function ForAgentsPage({
     siteUrl: site,
   });
 
-  // Pricing-focus deep-link: every CTA on this page points at the
-  // Pro Automation tier specifically (not the 3-tier comparison).
+  // Conversion-focused routing for /for-agents:
+  //   - primary + final CTAs → /signup (start free trial)
+  //   - hero secondary CTA   → #vision anchor (scroll to "How it works")
+  //   - pricing teaser CTA   → /pricing?focus=pro_automation (full plan compare)
+  // Per the Content Hub Vision page brief: top-of-funnel conversion is the
+  // free-trial signup, not the pricing-page deep-link. Pricing teaser still
+  // hands off to /pricing for visitors who need the full plan comparison.
   const pricingFocusHref = `/${typedLocale}/${
     typedLocale === 'es'
       ? 'precios?focus=pro_automation'
       : 'pricing?focus=pro_automation'
   }`;
-  const pricingHref = `/${typedLocale}/${typedLocale === 'es' ? 'precios' : 'pricing'}`;
+  const signupHref = `/${typedLocale}/${typedLocale === 'es' ? 'registrarse' : 'signup'}`;
+  const visionAnchor = '#vision';
 
   const copy: LandingCopy = {
     hero: {
@@ -107,6 +113,10 @@ export default async function ForAgentsPage({
       heading: t('finalCta.heading'),
       sub: t('finalCta.sub'),
       cta: t('finalCta.cta'),
+    },
+    trustStrip: {
+      heading: t('trustStrip.heading'),
+      items: t.raw('trustStrip.items') as Array<{ label: string; detail: string }>,
     },
   };
 
@@ -207,8 +217,8 @@ export default async function ForAgentsPage({
       />
       <LandingPage
         copy={copy}
-        primaryCtaHref={pricingFocusHref}
-        secondaryCtaHref={pricingHref}
+        primaryCtaHref={signupHref}
+        secondaryCtaHref={visionAnchor}
         pricingCtaHref={pricingFocusHref}
       />
     </>
