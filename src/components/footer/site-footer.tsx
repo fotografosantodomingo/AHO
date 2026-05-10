@@ -36,6 +36,10 @@ interface Props {
  */
 export async function SiteFooter({ locale }: Props) {
   const t = await getTranslations({ locale, namespace: 'footer' });
+  // The Documentation link's label lives in the new `docs` namespace
+  // (which is per-locale translated and falls back to EN via the
+  // request-time deepMerge for marketing locales without a translation).
+  const tDocs = await getTranslations({ locale, namespace: 'docs' });
 
   // Resolve auth so the anon-only "Sign in / Register" CTA strip can
   // hide itself for signed-in users. Server-component side; the footer
@@ -70,6 +74,20 @@ export async function SiteFooter({ locale }: Props) {
   const forAgentsHref = `/${locale}/${forAgentsSlug[locale] ?? 'for-agents'}`;
   const privacyHref = `/${locale}/privacy`;
   const termsHref = `/${locale}/${locale === 'es' ? 'terminos' : 'terms'}`;
+  // Documentation page slug per locale — mirrors PATHNAMES['/docs'] in
+  // src/i18n/config.ts. Marketing locales (PL/PT/DE/FR/IT) get their
+  // own translated slug because "documentation" in your own language is
+  // the natural URL form for a help/guide page.
+  const docsSlug: Record<string, string> = {
+    en: 'docs',
+    es: 'documentacion',
+    pl: 'dokumentacja',
+    pt: 'documentacao',
+    de: 'dokumentation',
+    fr: 'documentation',
+    it: 'documentazione',
+  };
+  const docsHref = `/${locale}/${docsSlug[locale] ?? 'docs'}`;
 
   // Reusable shape for column links — same JSX rendered both inside the
   // mobile accordion and inside the desktop column. Pulling into a const
@@ -96,6 +114,11 @@ export async function SiteFooter({ locale }: Props) {
   const aboutBlock = (
     <div className="space-y-3 text-sm">
       <p className="text-ink-inverse-muted">{t('aboutBody')}</p>
+      <p>
+        <a href={docsHref} className="footer-link">
+          {tDocs('footerLink')}
+        </a>
+      </p>
       <p>
         <a href={`mailto:${SUPPORT_EMAIL}`} className="footer-link">
           {t('quickContact')}
