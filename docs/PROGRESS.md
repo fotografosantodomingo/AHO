@@ -12,6 +12,41 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-10 (continuation 4) — P1 #11 import-panel i18n (largest remaining)
+- **Frame:** Last big-ticket item from the QA P1 backlog. The new-
+  listing import panel — both the URL and voice lanes plus the post-
+  import banner and all error translators — was hardcoded English.
+- **What shipped (1 commit):**
+  - **`7a5f571` fix(p1): import-panel → importPanel i18n** — adds a
+    new `importPanel` namespace with 49 keys across all 7 locales,
+    refactors `import-panel.tsx` to use `useTranslations()` instead of
+    inline copy, and rewrites the error translators (`translateUrlError`,
+    `translateVoiceError`) to take the next-intl translator as an
+    argument so the error-code → message map stays pure but localized.
+    `hostnameOf()` widened to accept a localized voice-note label so
+    the post-import banner reads natively in every language.
+  - Native ICU-style plural alternates (separate `*One` / `*Other`
+    keys, component selects) for photo-found and queued-recording
+    counts — matches existing pattern in PL/PT depth.
+  - Translation tone: ES informal tú, PL informal ty / RODO-aligned,
+    PT-BR você / corretor, DE formal Sie, FR formal vous, IT formal
+    Lei.
+- **Parity:** all 7 locales at 0 missing keys vs EN.
+- **Test count:** 437/437 unit tests pass; typecheck clean; lint shows
+  only the 3 pre-existing `_unused` warnings.
+- **Commits this segment:** 1.
+- **P1 backlog status:** 19 of 25 findings now landed. Remaining:
+  - #7 centralize `getPathname()` across 23+ files (cross-codebase
+    refactor; mechanical but big).
+  - #21 admin-leads PII masking (UX redesign).
+  - Plus the P2/P3 polish items (14 + 11) which are pure cosmetic.
+- **Next session should start with:** P1 #7 (centralize
+  `getPathname()`) as the last meaningful P1 win, OR start picking
+  off P2 polish items (loading boundaries, admin i18n, accessibility
+  aria-live regions).
+
+---
+
 ## 2026-05-10 (continuation 3) — Migrations 0038–0044 applied to production
 - **Frame:** PO authorized "aply migratin yuo have access" — applied via the
   migration runner using `SUPABASE_POOLER_URL` from `.env.local`.
