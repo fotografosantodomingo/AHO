@@ -6,18 +6,22 @@ Last updated: 2026-05-10
 
 ---
 
-## 1. Apply migration 0043 to Supabase (1 minute) — **NEW THIS SESSION**
+## 1. Apply migrations 0043 + 0044 to Supabase (2 minutes) — **NEW THIS SESSION**
 
-**Why it matters now:** The favorite-toggle code on `main` (commit `4c4c112`) records a `favorite_remove` event on the un-favorite path. The DB still has the old enum (no `favorite_remove`). Until the migration is applied, every un-favorite click logs a `[favorite] event record failed` warning in the Cloudflare Pages function log. The favorite toggle itself still works — RLS doesn't block; the analytics insert silently fails — but per-property metrics will under-count un-favorites and the warning log noise grows.
+**Why it matters now:**
+
+- **0043** — favorite-toggle code records `favorite_remove` events. Until the enum is widened, every un-favorite logs a `[favorite] event record failed` warning. The toggle itself still works; only the analytics insert fails silently.
+- **0044** — `/admin/users` and `/admin/orgs` now call grouped-count RPCs instead of firing one (or two) HEAD queries per row. Until the RPCs exist, both pages render with `0` in the Members / Active listings columns — visible but recoverable; one refresh after the migration runs fixes it.
 
 **How to apply:**
 
 ```bash
 set -a && source .env.local && set +a && \
-  pnpm tsx scripts/migrate.ts 0043
+  pnpm tsx scripts/migrate.ts 0043 && \
+  pnpm tsx scripts/migrate.ts 0044
 ```
 
-Or via Supabase Studio → SQL editor → paste the contents of `src/db/migrations/0043_favorite_remove_event.sql` → Run. The migration is idempotent (`drop constraint if exists` + `add constraint`).
+Or via Supabase Studio → SQL editor → paste each file in `src/db/migrations/` → Run. Both are idempotent (`create or replace` for the RPCs; `drop … if exists` + `add` for the enum).
 
 ---
 

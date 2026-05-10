@@ -82,18 +82,19 @@ export default async function AdminUsersPage({
 
   const baseRows = (rows ?? []) as Omit<AdminUser, 'org_membership_count'>[];
 
-  // Count org memberships per user — same HEAD-query pattern used on
-  // /admin/orgs. Bounded to the 500 rows we just fetched so this is an
-  // O(N) round-trip set, not unbounded.
-  const users: AdminUser[] = await Promise.all(
-    baseRows.map(async (u) => {
-      const { count } = await supabase
-        .from('organization_members')
-        .select('org_id', { count: 'exact', head: true })
-        .eq('user_id', u.id);
-      return { ...u, org_membership_count: count ?? 0 };
-    }),
-  );
+  // Single grouped query via RPC (migration 0044) instead of one HEAD
+  // count per user. Pre-migration / pre-deploy fall-back: if the RPC
+  // doesn't exist yet, every user shows membership_count = 0 — visible
+  // but recoverable; a refresh after the migration runs fixes it.
+  const { data: countRows } = await supabase.rpc('admin_user_membership_counts');
+  const countMap = new Map<string, number>();
+  for (const r of (countRows ?? []) as Array<{ user_id: string; membership_count: number }>) {
+    countMap.set(r.user_id, Number(r.membership_count));
+  }
+  const users: AdminUser[] = baseRows.map((u) => ({
+    ...u,
+    org_membership_count: countMap.get(u.id) ?? 0,
+  }));
 
   const dateFormatter = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',

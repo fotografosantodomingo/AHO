@@ -62,30 +62,35 @@ export default async function AdminOrgsPage({
 
   const orgsBase = rows ?? [];
 
-  // Count members + active listings per org. Two parallel HEAD queries
-  // (count='exact') keep this O(orgs*2) round-trips total — fine for an
-  // admin page with bounded orgs.
-  const orgs: AdminOrg[] = await Promise.all(
-    orgsBase.map(async (o) => {
-      const [{ count: memberCount }, { count: listingCount }] = await Promise.all([
-        supabase
-          .from('organization_members')
-          .select('user_id', { count: 'exact', head: true })
-          .eq('org_id', o.id),
-        supabase
-          .from('properties')
-          .select('id', { count: 'exact', head: true })
-          .eq('org_id', o.id)
-          .eq('status', 'active')
-          .not('published_at', 'is', null),
-      ]);
-      return {
-        ...(o as Omit<AdminOrg, 'member_count' | 'active_listing_count'>),
-        member_count: memberCount ?? 0,
-        active_listing_count: listingCount ?? 0,
-      };
-    }),
-  );
+  // Single grouped RPC call (migration 0044) replaces the previous
+  // 2× per-org HEAD-count fan-out (up to 1000 round-trips on a 500-org
+  // page). Pre-migration fall-back: RPC absence yields zero counts —
+  // visible but recoverable.
+  const { data: countRows } = await supabase.rpc('admin_org_counts');
+  const countMap = new Map<
+    string,
+    { member_count: number; active_listing_count: number }
+  >();
+  for (const r of (countRows ?? []) as Array<{
+    org_id: string;
+    member_count: number;
+    active_listing_count: number;
+  }>) {
+    countMap.set(r.org_id, {
+      member_count: Number(r.member_count),
+      active_listing_count: Number(r.active_listing_count),
+    });
+  }
+  const orgs: AdminOrg[] = orgsBase.map((o) => {
+    const counts = countMap.get((o as { id: string }).id) ?? {
+      member_count: 0,
+      active_listing_count: 0,
+    };
+    return {
+      ...(o as Omit<AdminOrg, 'member_count' | 'active_listing_count'>),
+      ...counts,
+    };
+  });
 
   const dateFormatter = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
