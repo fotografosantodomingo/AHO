@@ -407,6 +407,14 @@ export const properties = pgTable('properties', {
   imageCount: integer('image_count').notNull().default(0),
   latitude: numeric('latitude'),
   longitude: numeric('longitude'),
+
+  // Review-request log (migration 0041). Stamped by the daily cron at
+  // /api/cron/review-requests when the post-sale review-request email
+  // is dispatched. NULL = eligible for the cron; non-NULL = already
+  // requested (idempotent skip). The recipient email is captured at
+  // send-time from the matching lead row for audit.
+  reviewRequestSentAt: timestamp('review_request_sent_at', { withTimezone: true }),
+  reviewRequestRecipientEmail: citext('review_request_recipient_email'),
 });
 
 export type Property = typeof properties.$inferSelect;
