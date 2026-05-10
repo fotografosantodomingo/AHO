@@ -12,6 +12,87 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-09 — Master plan Phase 4: admin KPIs + lead routing + review cron + lead detail page
+- **Frame:** Phase 4 of the master plan — platform depth. 4 parallel
+  agents on admin operations console, lead-routing rules engine,
+  review-collection automation, and the missing per-lead detail page.
+- **What shipped (16 commits):**
+  - **Admin dashboard depth** (`5173a7a`): real KPI strip on `/admin`
+    — active subscriptions, MRR (USD-only with annual/12 normalization),
+    new signups (7d), active listings, agent/agency org count. All
+    queries via `createAdminClient()`, results `number | null` so
+    failures suppress the tile rather than render fake 0s. Pending-
+    moderation badge gated on count > 0 (silent when clean). 24h
+    activity feed backed by the existing `audit_log` table from
+    migration 0013. Honest-empty per rule #8; no fake numbers
+    anywhere. Skipped i18n correctly — admin layout is English-only
+    by established convention.
+  - **Lead routing rules engine** (`c97a5be`, `fde1d7c`, `cb6986c`,
+    `7b916b4`, `6add36f`): migration 0040 adds `lead_routing_rules`
+    (jsonb conditions: city / country_code / language / property_type;
+    jsonb action: assign or round_robin) + `lead_routing_state`
+    (cursor table — O(1) state per org). RLS: org owner/manager
+    SELECT/INSERT/UPDATE/DELETE; agent SELECT-only (read-only debug
+    surface "why did I get this lead?"). Pure-function engine
+    `applyRoutingRules(rules, lead, currentAssignment)` defensively
+    handles cursor drift (out-of-range / NaN). Wired into
+    `/api/leads` route with soft-fall-back to legacy attribution
+    (`property.created_by`) on any error — solo-agent flow
+    unchanged. UI under `/dashboard/leads/routing`
+    (org-owner-managed, not platform admin) with rule CRUD form.
+    15 unit tests on the engine + RLS pair.
+  - **Review-collection email cron** (`64f1be6`, `02f26f1`,
+    `c90206e`): migration 0041 adds 2 columns on `properties`
+    (`review_request_sent_at`, `review_request_recipient_email`)
+    plus partial index for the cron's hot SELECT. `/api/cron/review-
+    requests` runs daily at 08:00 UTC, finds sold listings 14-90
+    days old without prior request, sends magic-link email via
+    Brevo, stamps audit columns. Buyer email pulled from most-recent
+    `leads.contact_email` for the listing — no fabrication when none
+    found (skipped + counted in summary). 12 new unit tests on the
+    eligibility planner + auth gate.
+  - **Per-lead detail page** (`60b8c27`, `654819c`, `6d2f379`,
+    `2fb38b1`): `/dashboard/leads/[id]` — was missing entirely.
+    Discovered `leads.notes` already existed since migration 0009;
+    migration 0042 is an idempotent safety net via `add column if
+    not exists`. New `PUT /api/leads/[id]/notes` route with
+    8000-char Zod cap. Client islands: `LeadNotesEditor`
+    (blur-auto-save) + `LeadQuickStatusButton` (won/lost
+    one-click). Foreign-org leads collapse to 404 via
+    `.maybeSingle()` + `notFound()`. Inbox list rows now wrapped in
+    `<Link>` to detail. ES path `/panel/contactos/[id]` registered.
+- **Merge resolution:** A22 + A24 both touched `src/i18n/config.ts`
+  (one added `/dashboard/leads/routing`, the other
+  `/dashboard/leads/[id]`). Manual conflict resolution — both kept
+  side by side, ES localized to `/panel/contactos/enrutamiento` and
+  `/panel/contactos/[id]`.
+- **What works after this session:**
+  - Admins can open `/admin` and see real operational KPIs at a
+    glance — subscription count, MRR, signups this week, listings,
+    agents, plus a pending-moderation badge.
+  - Agency owners can configure lead routing: e.g. "leads from
+    Mexico City go to Maria; everywhere else round-robin across the
+    other 3 agents". Solo-agent flow unchanged (zero rules → legacy
+    attribution).
+  - Sold listings automatically trigger review-request emails 14-90
+    days post-sale — closes the cold-start review loop.
+  - Agents can drill into any lead from the inbox and add private
+    notes that auto-save on blur, plus mark won/lost with one
+    click.
+- **Test count:** 402 → 429 (27 new across A22 15 + A23 12). All
+  pass; typecheck clean; lint no new warnings.
+- **Migrations added:** 0040 (lead_routing_rules), 0041
+  (review_request log on properties), 0042 (idempotent leads.notes
+  safety net).
+- **Commits:** 13 feature commits + 3 merges = 16 total.
+- **Next session should start with:** any of the still-deferred
+  supervised items — Stripe webhook replay fixture harness,
+  long-term RLS refactor on `organization_members`, locale-depth
+  pass for the remaining 22 namespaces on signed-in surfaces in
+  PT/DE/FR/IT.
+
+---
+
 ## 2026-05-09 — Master plan Phase 3: SEO + conversion depth (4 parallel agents)
 - **Frame:** Phase 3 of the master plan — conversion + SEO. 4 agents
   on JSON-LD depth, sitemap polish, per-listing OG with photo embed,
