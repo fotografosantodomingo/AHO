@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { sanitizeNext } from '@/lib/auth/redirect';
 import { SignInForm } from '@/components/auth/sign-in-form';
@@ -62,7 +63,7 @@ export default async function SignInPage({ params, searchParams }: PageProps) {
             {t('noAccountQuestion')}{' '}
             <a
               className="text-action underline-offset-2 hover:underline dark:text-action-dark"
-              href={`/${locale}/${locale === 'es' ? 'registrarse' : 'signup'}`}
+              href={localePath(locale as Locale, '/signup')}
             >
               {t('createOne')}
             </a>
@@ -70,23 +71,20 @@ export default async function SignInPage({ params, searchParams }: PageProps) {
 
           <div className="mt-6">
             <SignInForm
-              next={
-                next ??
-                `/${locale}/${locale === 'es' ? 'panel' : 'dashboard'}`
-              }
+              next={next ?? localePath(locale as Locale, '/dashboard')}
             />
           </div>
 
           <div className="mt-6 flex flex-col items-start gap-2 border-t border-border pt-5 text-sm">
             <a
               className="text-helper underline-offset-2 hover:text-action hover:underline dark:hover:text-action-dark"
-              href={`/${locale}/${locale === 'es' ? 'recuperar-contrasena' : 'forgot-password'}`}
+              href={localePath(locale as Locale, '/forgot-password')}
             >
               {t('forgotPasswordLink')}
             </a>
             <a
               className="text-helper underline-offset-2 hover:text-action hover:underline dark:hover:text-action-dark"
-              href={`/${locale}/${locale === 'es' ? 'enlace-magico' : 'magic-link'}${
+              href={`${localePath(locale as Locale, '/magic-link')}${
                 next ? `?next=${encodeURIComponent(next)}` : ''
               }`}
             >

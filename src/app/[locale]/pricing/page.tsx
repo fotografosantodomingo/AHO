@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { PricingTiers } from '@/components/billing/pricing-tiers';
 import { DotGrid } from '@/components/ui/dot-grid';
@@ -87,12 +88,13 @@ export default async function PricingPage({
       ? focusRaw
       : null;
 
-  const signInNext = `/${locale}/${locale === 'es' ? 'precios' : 'pricing'}${
+  const typedLocale = locale as Locale;
+  const signInNext = `${localePath(typedLocale, '/pricing')}${
     focusTier ? `?focus=${focusTier}` : ''
   }`;
-  const signInPath = `/${locale}/${locale === 'es' ? 'iniciar-sesion' : 'signin'}?next=${encodeURIComponent(signInNext)}`;
-  const dashboardPath = `/${locale}/${locale === 'es' ? 'panel' : 'dashboard'}`;
-  const fullPricingHref = `/${locale}/${locale === 'es' ? 'precios' : 'pricing'}`;
+  const signInPath = `${localePath(typedLocale, '/signin')}?next=${encodeURIComponent(signInNext)}`;
+  const dashboardPath = localePath(typedLocale, '/dashboard');
+  const fullPricingHref = localePath(typedLocale, '/pricing');
 
   const faqItems = [1, 2, 3, 4] as const;
 
@@ -105,7 +107,7 @@ export default async function PricingPage({
   // emit all three Products — focus is a UX layer, not a SEO one;
   // crawlers should always see the full catalog.
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
-  const pricingUrl = `${site}/${locale}/${locale === 'es' ? 'precios' : 'pricing'}`;
+  const pricingUrl = `${site}${fullPricingHref}`;
   const tierKeys: Array<'agent' | 'plus' | 'pro_automation'> = ['agent', 'plus', 'pro_automation'];
   const productLds = tierKeys.map((tier) =>
     buildProduct({

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { fetchSavedProperties } from '@/lib/listings/favorites';
 import { precomputeApproxLabels } from '@/lib/currency/server';
@@ -55,14 +56,14 @@ export default async function SavedPropertiesPage({
   const supabase = await createServerSupabaseClient();
   const { data: userResult } = await supabase.auth.getUser();
   if (!userResult.user) {
-    const here = `/${locale}/${locale === 'es' ? 'inmuebles-guardados' : 'saved-properties'}`;
-    const signinPath = `/${locale}/${locale === 'es' ? 'iniciar-sesion' : 'signin'}`;
+    const here = localePath(typedLocale, '/saved-properties');
+    const signinPath = localePath(typedLocale, '/signin');
     redirect(`${signinPath}?next=${encodeURIComponent(here)}`);
   }
 
   const t = await getTranslations({ locale, namespace: 'savedProperties' });
   const listings = await fetchSavedProperties(supabase, userResult.user.id);
-  const browseHref = `/${locale}/${locale === 'es' ? 'buscar' : 'search'}`;
+  const browseHref = localePath(typedLocale, '/search');
 
   // Currency conversion + favorite set — every card on this page is
   // favorited by definition, so we can short-circuit the lookup.

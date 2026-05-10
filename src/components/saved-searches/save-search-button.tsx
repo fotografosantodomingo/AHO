@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { saveSearch } from '@/lib/saved-searches/actions';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 
 interface SaveSearchButtonProps {
   /** Filter state that will be persisted on click. */
@@ -30,8 +31,11 @@ export function SaveSearchButton({ filters, isAuthenticated }: SaveSearchButtonP
   const [state, setState] = useState<'idle' | 'saved' | 'error'>('idle');
 
   if (!isAuthenticated) {
-    const signinHref = `/${locale}/${locale === 'es' ? 'iniciar-sesion' : 'signin'}?next=${encodeURIComponent(
-      `/${locale}/${locale === 'es' ? 'buscar' : 'search'}`,
+    const safeLocale: Locale = LOCALES.includes(locale as Locale)
+      ? (locale as Locale)
+      : 'en';
+    const signinHref = `${localePath(safeLocale, '/signin')}?next=${encodeURIComponent(
+      localePath(safeLocale, '/search'),
     )}`;
     return (
       <a

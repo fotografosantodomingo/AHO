@@ -1,5 +1,6 @@
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { searchListings } from '@/lib/listings/search';
 import { getHomepageStats } from '@/lib/listings/stats';
 import { precomputeApproxLabels } from '@/lib/currency/server';
@@ -32,12 +33,17 @@ export default async function HomePage({
 
   const t = await getTranslations({ locale, namespace: 'home' });
   const tSite = await getTranslations({ locale, namespace: 'site' });
-  const searchPath = `/${locale}/${locale === 'es' ? 'buscar' : 'search'}`;
-  const pricingPath = `/${locale}/${locale === 'es' ? 'precios' : 'pricing'}`;
-  // City-landing route stem per locale. ES has its own segment; the
-  // marketing locales share the EN one per PATHNAMES. The hero form
-  // appends `/{country}/{city}` when both are selected (#31).
-  const cityLandingStem = `/${locale}/${typedLocale === 'es' ? 'inmuebles-en' : 'properties-in'}`;
+  const searchPath = localePath(typedLocale, '/search');
+  const pricingPath = localePath(typedLocale, '/pricing');
+  // City-landing route stem per locale. The hero form appends
+  // `/{country}/{city}` after this string when both are selected
+  // (#31). Derived from the `/properties-in/[country]` PATHNAMES
+  // entry by stripping the param tail — keeps a single source of
+  // truth (PATHNAMES) for the localized segment.
+  const cityLandingStem = localePath(typedLocale, '/properties-in/[country]').replace(
+    '/[country]',
+    '',
+  );
 
   const [featured, stats] = await Promise.all([
     searchListings(

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { SavedSearchRow } from '@/components/saved-searches/saved-search-row';
 
@@ -57,8 +58,8 @@ export default async function SavedSearchesPage({
   const { data: userResult } = await supabase.auth.getUser();
   if (!userResult.user) {
     redirect(
-      `/${locale}/${locale === 'es' ? 'iniciar-sesion' : 'signin'}?next=${encodeURIComponent(
-        `/${locale}/${locale === 'es' ? 'busquedas-guardadas' : 'saved-searches'}`,
+      `${localePath(typedLocale, '/signin')}?next=${encodeURIComponent(
+        localePath(typedLocale, '/saved-searches'),
       )}`,
     );
   }
@@ -69,7 +70,7 @@ export default async function SavedSearchesPage({
     .order('created_at', { ascending: false });
 
   const t = await getTranslations({ locale, namespace: 'savedSearches' });
-  const browseHref = `/${locale}/${typedLocale === 'es' ? 'buscar' : 'search'}`;
+  const browseHref = localePath(typedLocale, '/search');
 
   if (error) {
     return (

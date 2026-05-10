@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { SignUpForm } from '@/components/auth/sign-up-form';
 import { DotGrid, HeroGlow } from '@/components/ui/dot-grid';
@@ -58,7 +59,7 @@ export default async function SignUpPage({
             {t('haveAccountQuestion')}{' '}
             <a
               className="text-action underline-offset-2 hover:underline dark:text-action-dark"
-              href={`/${locale}/${locale === 'es' ? 'iniciar-sesion' : 'signin'}`}
+              href={localePath(locale as Locale, '/signin')}
             >
               {t('signInCta')}
             </a>

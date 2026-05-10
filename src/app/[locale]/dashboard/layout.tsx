@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { adminMfaSetupPath, getAdminMfaState } from '@/lib/auth/admin-mfa';
 import { BillingPortalButton } from '@/components/billing/billing-portal-button';
@@ -34,12 +35,13 @@ export default async function DashboardLayout({
   if (!LOCALES.includes(locale as Locale)) return null;
   setRequestLocale(locale);
 
+  const typedLocale = locale as Locale;
   const supabase = await createServerSupabaseClient();
   const { data: userResult } = await supabase.auth.getUser();
   if (!userResult.user) {
-    const dashboardPath = `/${locale}/${locale === 'es' ? 'panel' : 'dashboard'}`;
+    const dashboardPath = localePath(typedLocale, '/dashboard');
     redirect(
-      `/${locale}/${locale === 'es' ? 'iniciar-sesion' : 'signin'}?next=${encodeURIComponent(dashboardPath)}`,
+      `${localePath(typedLocale, '/signin')}?next=${encodeURIComponent(dashboardPath)}`,
     );
   }
 
@@ -60,19 +62,17 @@ export default async function DashboardLayout({
 
   if (!memberships || memberships.length === 0) {
     // Registered user without an Agent subscription. Bounce to /pricing.
-    redirect(`/${locale}/${locale === 'es' ? 'precios' : 'pricing'}`);
+    redirect(localePath(typedLocale, '/pricing'));
   }
 
   const t = await getTranslations({ locale, namespace: 'dashboard' });
-  const propertiesPath = `/${locale}/${locale === 'es' ? 'panel/propiedades' : 'dashboard/properties'}`;
-  const analyticsPath = `/${locale}/${locale === 'es' ? 'panel/estadisticas' : 'dashboard/analytics'}`;
-  const socialPath = `/${locale}/${locale === 'es' ? 'panel/social' : 'dashboard/social'}`;
-  const leadsPath = `/${locale}/${locale === 'es' ? 'panel/contactos' : 'dashboard/leads'}`;
-  const reviewsPath = `/${locale}/${locale === 'es' ? 'panel/resenas' : 'dashboard/reviews'}`;
-  const savedSearchesPath = `/${locale}/${
-    locale === 'es' ? 'busquedas-guardadas' : 'saved-searches'
-  }`;
-  const profilePath = `/${locale}/${locale === 'es' ? 'panel/perfil' : 'dashboard/profile'}`;
+  const propertiesPath = localePath(typedLocale, '/dashboard/properties');
+  const analyticsPath = localePath(typedLocale, '/dashboard/analytics');
+  const socialPath = localePath(typedLocale, '/dashboard/social');
+  const leadsPath = localePath(typedLocale, '/dashboard/leads');
+  const reviewsPath = localePath(typedLocale, '/dashboard/reviews');
+  const savedSearchesPath = localePath(typedLocale, '/saved-searches');
+  const profilePath = localePath(typedLocale, '/dashboard/profile');
 
   // Mobile nav items — same set as desktop sidebar, rendered through
   // a native-select dropdown via <DashboardMobileNav>. Order kept

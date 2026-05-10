@@ -14,3 +14,9 @@ export const routing = defineRouting({
 
 export const { Link, redirect, usePathname, useRouter, getPathname } =
   createNavigation(routing);
+
+// Re-export `localePath` from a pure module so consumers can keep
+// importing from `@/i18n/routing` without pulling next-intl/navigation
+// into Vitest unit tests (which can't resolve next/navigation in the
+// test runtime). The implementation lives in `./locale-path`.
+export { localePath } from './locale-path';

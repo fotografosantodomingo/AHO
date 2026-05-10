@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale, narrowContentLocale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import {
   fetchListingContact,
   fetchPropertyByShortId,
@@ -122,8 +123,11 @@ export default async function PropertyDetailPage({
   // single URL even when titles change.
   const canonicalSlug = typedLocale === 'es' ? property.slugEs : property.slugEn;
   if (canonicalSlug && canonicalSlug !== parsed.slugPart) {
-    const pathSegment = typedLocale === 'es' ? 'propiedades' : 'properties';
-    redirect(`/${typedLocale}/${pathSegment}/${canonicalSlug}-${property.shortId}`);
+    // Build via localePath against the registered `/properties/[slug]`
+    // PATHNAMES entry, then interpolate the slug — keeps the segment
+    // ('propiedades' / 'properties') a single source of truth.
+    const stem = localePath(typedLocale, '/properties/[slug]').replace('/[slug]', '');
+    redirect(`${stem}/${canonicalSlug}-${property.shortId}`);
   }
 
   const t = await getTranslations({ locale: typedLocale, namespace: 'property' });
@@ -181,8 +185,11 @@ export default async function PropertyDetailPage({
   // existing /properties-in/[country] and /properties-in/[country]/[city]
   // surfaces respectively.
   const { NEXT_PUBLIC_SITE_URL: _site } = publicEnv();
-  const breadcrumbCountrySegment = typedLocale === 'es' ? 'inmuebles-en' : 'properties-in';
-  const countryLanding = `${_site}/${typedLocale}/${breadcrumbCountrySegment}/${property.countryCode.toLowerCase()}`;
+  const countryLandingStem = localePath(typedLocale, '/properties-in/[country]').replace(
+    '/[country]',
+    '',
+  );
+  const countryLanding = `${_site}${countryLandingStem}/${property.countryCode.toLowerCase()}`;
   const citySlugified = property.city
     .toLowerCase()
     .normalize('NFD')
@@ -367,7 +374,7 @@ export default async function PropertyDetailPage({
                   bedrooms: property.bedrooms,
                   bathrooms: property.bathrooms,
                   areaSqm: property.areaSqm,
-                  baseUrl: `${_site}/${typedLocale}/${typedLocale === 'es' ? 'propiedades' : 'properties'}/${canonicalSlug ?? parsed.slugPart}-${property.shortId}`,
+                  baseUrl: `${_site}${localePath(typedLocale, '/properties/[slug]').replace('/[slug]', '')}/${canonicalSlug ?? parsed.slugPart}-${property.shortId}`,
                   locale: typedLocale,
                   campaign: 'visitor_share',
                 }}

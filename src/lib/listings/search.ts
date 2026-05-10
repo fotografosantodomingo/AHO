@@ -5,6 +5,10 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { TRANSACTION_TYPES } from '@/db/schema';
 import type { Locale } from '@/i18n/config';
+// Pure path resolver; importing from `@/i18n/routing` would pull
+// next-intl/navigation → next/navigation, which fails to resolve in
+// the Vitest harness for this server-only library.
+import { localePath } from '@/i18n/locale-path';
 
 interface PrimaryImage {
   cfImageId: string | null;
@@ -798,7 +802,7 @@ export function buildSearchUrl(
   locale: Locale,
   filters: Partial<SearchFilters>,
 ): string {
-  const path = `/${locale}/${locale === 'es' ? 'buscar' : 'search'}`;
+  const path = localePath(locale, '/search');
   const params = new URLSearchParams();
   if (filters.q) params.set('q', filters.q);
   if (filters.city) params.set('city', filters.city);

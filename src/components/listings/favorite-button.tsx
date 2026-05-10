@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Heart } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 
 interface Props {
   propertyId: string;
@@ -59,7 +60,7 @@ export function FavoriteButton({
 
     if (!isAuthed) {
       const here = typeof window !== 'undefined' ? window.location.pathname + window.location.search : '/';
-      const signinPath = `/${locale}/${locale === 'es' ? 'iniciar-sesion' : 'signin'}`;
+      const signinPath = localePath(locale, '/signin');
       router.push(`${signinPath}?next=${encodeURIComponent(here)}`);
       return;
     }
