@@ -1,4 +1,6 @@
 import { getLocale, getTranslations } from 'next-intl/server';
+import { type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 
 export const runtime = 'edge';
 
@@ -18,7 +20,7 @@ export default async function LocalizedNotFound() {
   const locale = await getLocale();
   const t = await getTranslations({ locale, namespace: 'notFound' });
   const homeHref = `/${locale}`;
-  const searchHref = `/${locale}/${locale === 'es' ? 'buscar' : 'search'}`;
+  const searchHref = localePath(locale as Locale, '/search');
 
   return (
     <main className="mx-auto flex min-h-[60vh] max-w-xl flex-col items-center justify-center px-6 py-16 text-center">

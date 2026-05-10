@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { WelcomePoller } from '@/components/billing/welcome-poller';
 import {
@@ -71,10 +72,11 @@ export default async function OnboardingWelcomePage({
   const { session_id } = await searchParams;
   const t = await getTranslations({ locale, namespace: 'onboarding' });
 
-  const welcomePath = `/${locale}/${locale === 'es' ? 'inicio/bienvenida' : 'onboarding/welcome'}`;
-  const signInPath = `/${locale}/${locale === 'es' ? 'iniciar-sesion' : 'signin'}`;
-  const pricingPath = `/${locale}/${locale === 'es' ? 'precios' : 'pricing'}`;
-  const dashboardPath = `/${locale}/${locale === 'es' ? 'panel' : 'dashboard'}`;
+  const typedLocale = locale as Locale;
+  const welcomePath = localePath(typedLocale, '/onboarding/welcome');
+  const signInPath = localePath(typedLocale, '/signin');
+  const pricingPath = localePath(typedLocale, '/pricing');
+  const dashboardPath = localePath(typedLocale, '/dashboard');
 
   const supabase = await createServerSupabaseClient();
   const { data: userResult } = await supabase.auth.getUser();

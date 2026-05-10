@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { adminMfaSetupPath, getAdminMfaState } from '@/lib/auth/admin-mfa';
 
@@ -41,9 +42,10 @@ export default async function AdminLayout({
   const supabase = await createServerSupabaseClient();
   const { data: userResult } = await supabase.auth.getUser();
   if (!userResult.user) {
+    const typedLocale = locale as Locale;
     redirect(
-      `/${locale}/${locale === 'es' ? 'iniciar-sesion' : 'signin'}?next=${encodeURIComponent(
-        `/${locale}/admin`,
+      `${localePath(typedLocale, '/signin')}?next=${encodeURIComponent(
+        localePath(typedLocale, '/admin'),
       )}`,
     );
   }
