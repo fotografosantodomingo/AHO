@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { ListingForm } from './listing-form';
 import { AMENITY_KEYS, type AmenityKey } from '@/lib/listings/amenities';
 import type { CreateListingInput } from '@/lib/listings/listing-schema';
@@ -57,6 +57,7 @@ type Mode = 'choose' | 'manual' | 'imported';
  */
 export function ImportPanel({ successRedirectBase }: Props) {
   const locale = useLocale();
+  const t = useTranslations('importPanel');
   const [mode, setMode] = useState<Mode>('choose');
   const [facts, setFacts] = useState<ImportedFacts | null>(null);
   const [importMethod, setImportMethod] =
@@ -74,30 +75,38 @@ export function ImportPanel({ successRedirectBase }: Props) {
     // listing). Anything beyond can be uploaded manually after save.
     const photoUrlsToImport = facts.photoUrls.slice(0, 15);
     const truncated = facts.photoUrls.length - photoUrlsToImport.length;
+    let bannerHeading: string;
+    if (importMethod === 'voice') {
+      bannerHeading = facts.detectedLanguage
+        ? t('bannerVoiceWithLang', { lang: facts.detectedLanguage.toUpperCase() })
+        : t('bannerVoiceNoLang');
+    } else {
+      bannerHeading = t('bannerUrl', { host: hostnameOf(facts.sourceUrl, t('voiceHost')) });
+    }
+    const photosKey = (() => {
+      if (photoUrlsToImport.length === 0) return null;
+      const isOne = photoUrlsToImport.length === 1;
+      if (truncated > 0) {
+        return t(isOne ? 'bannerPhotosFoundOfTotalOne' : 'bannerPhotosFoundOfTotalOther', {
+          count: photoUrlsToImport.length,
+          total: facts.photoUrls.length,
+        });
+      }
+      return t(isOne ? 'bannerPhotosFoundOne' : 'bannerPhotosFoundOther', {
+        count: photoUrlsToImport.length,
+      });
+    })();
+    const truncatedCopy = truncated > 0
+      ? t(truncated === 1 ? 'bannerPhotosTruncatedOne' : 'bannerPhotosTruncatedOther', { extra: truncated })
+      : null;
     return (
       <div className="space-y-4">
         <div className="rounded-card border border-emerald-500/30 bg-emerald-500/5 p-4 text-sm text-emerald-800 dark:text-emerald-300">
-          <p className="font-semibold">
-            {importMethod === 'voice'
-              ? `Imported from your voice note${facts.detectedLanguage ? ` (detected ${facts.detectedLanguage.toUpperCase()})` : ''}.`
-              : `Imported from ${hostnameOf(facts.sourceUrl)}.`}
-          </p>
+          <p className="font-semibold">{bannerHeading}</p>
           <p className="mt-1">
-            Review the pre-filled fields below and edit anything that needs adjusting.
-            {photoUrlsToImport.length > 0 && (
-              <>
-                {' '}Found <strong>{photoUrlsToImport.length}</strong>
-                {truncated > 0 ? ` of ${facts.photoUrls.length}` : ''} photo
-                {photoUrlsToImport.length === 1 ? '' : 's'} on the source — they&apos;ll be
-                imported automatically when you save.
-                {truncated > 0 && (
-                  <>
-                    {' '}({truncated} extra will be skipped — upload them manually after save
-                    if you want them.)
-                  </>
-                )}
-              </>
-            )}
+            {t('bannerReview')}
+            {photosKey && <> {photosKey}</>}
+            {truncatedCopy && <> {truncatedCopy}</>}
           </p>
         </div>
         <ListingForm
@@ -136,7 +145,7 @@ export function ImportPanel({ successRedirectBase }: Props) {
           onClick={() => setMode('manual')}
           className="text-sm text-helper underline-offset-2 hover:text-ink hover:underline dark:hover:text-ink-inverse"
         >
-          Skip — fill the form manually
+          {t('skipManual')}
         </button>
       </div>
     </div>
@@ -148,6 +157,7 @@ export function ImportPanel({ successRedirectBase }: Props) {
 // =============================================================================
 
 function UrlImportCard({ onSuccess }: { onSuccess: (f: ImportedFacts) => void }) {
+  const t = useTranslations('importPanel');
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -170,9 +180,7 @@ function UrlImportCard({ onSuccess }: { onSuccess: (f: ImportedFacts) => void })
       try {
         json = JSON.parse(raw) as ApiResponse;
       } catch {
-        setError(
-          `Server didn't respond with JSON (HTTP ${res.status}). Try again, or use a different URL.`,
-        );
+        setError(t('urlErrNotJson', { status: res.status }));
         return;
       }
       if (!res.ok || !json || !('facts' in json)) {
@@ -180,7 +188,7 @@ function UrlImportCard({ onSuccess }: { onSuccess: (f: ImportedFacts) => void })
           json && 'error' in json && typeof json.error === 'string' ? json.error : null;
         const errMsg =
           json && 'message' in json && typeof json.message === 'string' ? json.message : null;
-        setError(translateUrlError(errCode, errMsg, res.status));
+        setError(translateUrlError(errCode, errMsg, res.status, t));
         return;
       }
       onSuccess(json.facts);
@@ -198,22 +206,19 @@ function UrlImportCard({ onSuccess }: { onSuccess: (f: ImportedFacts) => void })
     >
       <header className="mb-3">
         <p className="text-xs font-semibold uppercase tracking-wider text-helper">
-          🔗 Option 1
+          {t('urlEyebrow')}
         </p>
         <h2 className="mt-1 font-brand text-lg font-semibold tracking-tight">
-          Import from a URL
+          {t('urlHeading')}
         </h2>
-        <p className="mt-1 text-xs text-helper">
-          Paste any portal URL — otodom, idealista, immobilienscout24, leboncoin, an agency
-          website. We&apos;ll fill the form for you in ~10 seconds.
-        </p>
+        <p className="mt-1 text-xs text-helper">{t('urlSubheading')}</p>
       </header>
       <div className="flex flex-col gap-2">
         <input
           type="url"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://www.otodom.pl/pl/oferta/..."
+          placeholder={t('urlPlaceholder')}
           className="rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm shadow-whisper outline-hidden focus:ring-3 focus:ring-action dark:bg-surface-deep dark:focus:ring-action-dark"
           required
           maxLength={2000}
@@ -223,7 +228,7 @@ function UrlImportCard({ onSuccess }: { onSuccess: (f: ImportedFacts) => void })
           disabled={loading || url.trim().length === 0}
           className="btn-primary inline-flex h-10 items-center justify-center disabled:opacity-50"
         >
-          {loading ? 'Importing…' : 'Import from URL'}
+          {loading ? t('urlImporting') : t('urlImport')}
         </button>
       </div>
       {error && (
@@ -238,13 +243,19 @@ function UrlImportCard({ onSuccess }: { onSuccess: (f: ImportedFacts) => void })
   );
 }
 
-function translateUrlError(code: string | null, raw: string | null | undefined, status: number): string {
-  if (code === 'source_blocks_scraping')
-    return `That portal blocks scrapers (Cloudflare / AWS WAF / DataDome). Zillow, Redfin, Realtor.com all block. Try otodom, idealista, immobilienscout24, leboncoin, or an agency website.`;
-  if (code === 'invalid_url') return 'That URL looks malformed.';
-  if (code === 'internal_url') return 'That URL points to a local address — not allowed.';
-  if (code === 'fetch_failed') return 'Couldn\'t fetch that page (timeout / 404 / oversized).';
-  if (code === 'extract_failed') return 'We fetched but couldn\'t parse the facts. Try a different URL.';
+type Translator = ReturnType<typeof useTranslations<'importPanel'>>;
+
+function translateUrlError(
+  code: string | null,
+  raw: string | null | undefined,
+  status: number,
+  t: Translator,
+): string {
+  if (code === 'source_blocks_scraping') return t('urlErrSourceBlocks');
+  if (code === 'invalid_url') return t('urlErrInvalid');
+  if (code === 'internal_url') return t('urlErrInternal');
+  if (code === 'fetch_failed') return t('urlErrFetch');
+  if (code === 'extract_failed') return t('urlErrExtract');
   return raw ?? `HTTP ${status}`;
 }
 
@@ -259,6 +270,7 @@ function VoiceImportCard({
   locale: string;
   onSuccess: (f: ImportedFacts) => void;
 }) {
+  const t = useTranslations('importPanel');
   const [recording, setRecording] = useState(false);
   const [recordingMs, setRecordingMs] = useState(0);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
@@ -331,7 +343,10 @@ function VoiceImportCard({
           data.uploaded > 0
         ) {
           setQueuedNotice(
-            `${data.uploaded} queued recording${data.uploaded === 1 ? '' : 's'} uploaded.`,
+            t(
+              data.uploaded === 1 ? 'voiceQueuedUploadedOne' : 'voiceQueuedUploadedOther',
+              { count: data.uploaded },
+            ),
           );
         }
       }
@@ -339,7 +354,7 @@ function VoiceImportCard({
     navigator.serviceWorker.addEventListener('message', onMessage);
     return () =>
       navigator.serviceWorker.removeEventListener('message', onMessage);
-  }, [refreshQueueCount]);
+  }, [refreshQueueCount, t]);
 
   // On mount: count any recordings left in IDB from a previous session,
   // then attempt a flush via the SW + a page-side fallback flush in
@@ -414,8 +429,8 @@ function VoiceImportCard({
     } catch (e) {
       setError(
         e instanceof Error
-          ? `Microphone access failed: ${e.message}`
-          : 'Microphone access failed',
+          ? t('voiceErrMicAccess', { message: e.message })
+          : t('voiceErrMicAccessNoMsg'),
       );
     }
   }
@@ -447,9 +462,7 @@ function VoiceImportCard({
       });
       await refreshQueueCount();
       setQueuedNotice(
-        reason === 'offline'
-          ? "Saved — we'll upload this when you're back online."
-          : "Network glitched. Saved — we'll retry when the connection's back.",
+        t(reason === 'offline' ? 'voiceQueuedOffline' : 'voiceQueuedFetchFailed'),
       );
       setAudioBlob(null);
       if (audioUrl) URL.revokeObjectURL(audioUrl);
@@ -463,7 +476,7 @@ function VoiceImportCard({
       // we can't queue. Surface the underlying error so the agent can
       // try again or copy the audio elsewhere.
       setError(
-        `Couldn't save recording locally: ${e instanceof Error ? e.message : String(e)}`,
+        t('voiceErrIdb', { message: e instanceof Error ? e.message : String(e) }),
       );
     }
   }
@@ -512,7 +525,7 @@ function VoiceImportCard({
       try {
         json = JSON.parse(raw) as ApiResponse;
       } catch {
-        setError(`Server didn't respond with JSON (HTTP ${res.status}).`);
+        setError(t('voiceErrNotJson', { status: res.status }));
         return;
       }
       if (!res.ok || !json || !('facts' in json)) {
@@ -527,7 +540,7 @@ function VoiceImportCard({
           await queueRecording(audioBlob, 'fetch-failed');
           return;
         }
-        setError(translateVoiceError(errCode, errMsg, res.status));
+        setError(translateVoiceError(errCode, errMsg, res.status, t));
         return;
       }
       onSuccess(json.facts);
@@ -542,15 +555,12 @@ function VoiceImportCard({
     return (
       <div className="rounded-card border border-border bg-surface p-5 dark:bg-surface-deep">
         <p className="text-xs font-semibold uppercase tracking-wider text-helper">
-          🎙 Option 2
+          {t('voiceEyebrow')}
         </p>
         <h2 className="mt-1 font-brand text-lg font-semibold tracking-tight">
-          Dictate a voice note
+          {t('voiceHeading')}
         </h2>
-        <p className="mt-2 text-sm text-helper">
-          This browser doesn&apos;t support recording from the microphone. Use Chrome / Safari /
-          Firefox on a phone or laptop, or pick another option.
-        </p>
+        <p className="mt-2 text-sm text-helper">{t('voiceUnsupportedBody')}</p>
       </div>
     );
   }
@@ -559,22 +569,21 @@ function VoiceImportCard({
     <div className="flex h-full flex-col rounded-card border border-border bg-surface p-5 shadow-whisper dark:bg-surface-deep">
       <header className="mb-3">
         <p className="text-xs font-semibold uppercase tracking-wider text-helper">
-          🎙 Option 2
+          {t('voiceEyebrow')}
         </p>
         <h2 className="mt-1 font-brand text-lg font-semibold tracking-tight">
-          Dictate a voice note
+          {t('voiceHeading')}
         </h2>
-        <p className="mt-1 text-xs text-helper">
-          Walk out of the property, hit record, describe it in your own language. Whisper
-          transcribes, Claude pulls out the facts. ~10 seconds after you stop.
-        </p>
+        <p className="mt-1 text-xs text-helper">{t('voiceSubheading')}</p>
         {queuedCount > 0 && (
           <p
             className="mt-2 rounded-card border border-amber-500/30 bg-amber-500/5 px-2 py-1 text-xs text-amber-800 dark:text-amber-300"
             aria-live="polite"
           >
-            {queuedCount} recording{queuedCount === 1 ? '' : 's'} queued —
-            will upload automatically when you&apos;re back online.
+            {t(
+              queuedCount === 1 ? 'voiceQueuedCountOne' : 'voiceQueuedCountOther',
+              { count: queuedCount },
+            )}
           </p>
         )}
       </header>
@@ -587,7 +596,7 @@ function VoiceImportCard({
               onClick={startRecording}
               className="btn-primary inline-flex h-10 items-center justify-center"
             >
-              ● Start recording
+              {t('voiceStart')}
             </button>
           ) : (
             <button
@@ -595,19 +604,16 @@ function VoiceImportCard({
               onClick={stopRecording}
               className="inline-flex h-10 items-center justify-center rounded-full bg-red-600 px-5 text-sm font-medium text-white transition hover:bg-red-700"
             >
-              ■ Stop ({formatMs(recordingMs)})
+              {t('voiceStop', { time: formatMs(recordingMs) })}
             </button>
           )}
           {recording && (
             <p className="text-center text-xs text-helper">
-              Recording… speak naturally. Tap <strong>Stop</strong> when you&apos;re done.
+              {t('voiceRecordingHint')}
             </p>
           )}
           {!recording && (
-            <p className="text-center text-xs text-helper">
-              Tip: cover bedrooms / bathrooms / area / city / price / standout features.
-              ~30 seconds is plenty.
-            </p>
+            <p className="text-center text-xs text-helper">{t('voiceIdleTip')}</p>
           )}
         </div>
       ) : (
@@ -624,7 +630,7 @@ function VoiceImportCard({
               disabled={loading}
               className="btn-primary inline-flex h-10 items-center justify-center disabled:opacity-50"
             >
-              {loading ? 'Transcribing…' : 'Use this recording'}
+              {loading ? t('voiceTranscribing') : t('voiceUseRecording')}
             </button>
             <button
               type="button"
@@ -632,7 +638,7 @@ function VoiceImportCard({
               disabled={loading}
               className="inline-flex h-10 items-center justify-center rounded-lg border border-border-strong bg-surface px-4 text-sm transition hover:bg-black/5 disabled:opacity-50 dark:bg-surface-deep dark:hover:bg-white/5"
             >
-              Re-record
+              {t('voiceReRecord')}
             </button>
           </div>
         </div>
@@ -658,13 +664,16 @@ function VoiceImportCard({
   );
 }
 
-function translateVoiceError(code: string | null, raw: string | null | undefined, status: number): string {
-  if (code === 'transcription_failed')
-    return 'Whisper couldn\'t transcribe that recording. Try again with clearer audio.';
-  if (code === 'file_too_large') return 'Recording over the 10-minute limit. Re-record shorter.';
-  if (code === 'voice_extract_failed')
-    return 'We transcribed but couldn\'t parse listing facts from it. Try a more structured description (cover bedrooms / area / city / price).';
-  if (code === 'unsupported_audio_type') return 'Audio format not supported by Whisper.';
+function translateVoiceError(
+  code: string | null,
+  raw: string | null | undefined,
+  status: number,
+  t: Translator,
+): string {
+  if (code === 'transcription_failed') return t('voiceErrTranscription');
+  if (code === 'file_too_large') return t('voiceErrTooLarge');
+  if (code === 'voice_extract_failed') return t('voiceErrExtract');
+  if (code === 'unsupported_audio_type') return t('voiceErrUnsupportedAudio');
   return raw ?? `HTTP ${status}`;
 }
 
@@ -718,8 +727,8 @@ function factsToFormDefaults(facts: ImportedFacts): Partial<CreateListingInput> 
   };
 }
 
-function hostnameOf(u: string): string {
-  if (u.startsWith('voice:')) return 'voice note';
+function hostnameOf(u: string, voiceLabel: string): string {
+  if (u.startsWith('voice:')) return voiceLabel;
   try {
     return new URL(u).hostname;
   } catch {
