@@ -712,6 +712,39 @@
         "qualified": "Zakwalifikowany",
         "won": "Wygrany",
         "lost": "Utracony"
+      },
+      "detail": {
+        "backToInbox": "Wróć do skrzynki",
+        "sourceProperty": "Z nieruchomości",
+        "sourceWhatsApp": "Z WhatsAppa",
+        "sourcePhone": "Z kliknięcia w telefon",
+        "sourceEmail": "Z kliknięcia w e-mail",
+        "sourceForm": "Z formularza kontaktowego",
+        "messageHeading": "Wiadomość",
+        "noMessage": "Brak wiadomości.",
+        "propertyHeading": "Nieruchomość",
+        "viewListing": "Zobacz ofertę",
+        "editListing": "Edytuj ofertę",
+        "notesHeading": "Notatki wewnętrzne",
+        "notesHint": "Widoczne tylko dla Twojego zespołu. Auto-zapis po kliknięciu poza pole.",
+        "notesPlaceholder": "Dodaj prywatną notatkę o tym kontakcie — kontekst, kolejne kroki, data follow-upu…",
+        "notesSaving": "Zapisywanie…",
+        "notesSaved": "Zapisano",
+        "notesError": "Nie udało się zapisać. Spróbuj ponownie.",
+        "timelineHeading": "Aktywność",
+        "timelineCreated": "Otrzymano kontakt",
+        "timelineUpdated": "Ostatnia aktualizacja",
+        "actionsHeading": "Szybkie akcje",
+        "actionCall": "Zadzwoń",
+        "actionEmail": "E-mail",
+        "actionWhatsApp": "WhatsApp",
+        "actionMarkWon": "Oznacz jako wygrany",
+        "actionMarkLost": "Oznacz jako stracony",
+        "whatsappPrefill": "Cześć {name}, dziękuję za zainteresowanie {title}. Kiedy jest dobry moment na rozmowę?",
+        "whatsappPrefillNoName": "Cześć, dziękuję za zainteresowanie {title}. Kiedy jest dobry moment na rozmowę?",
+        "noContact": "Brak danych kontaktowych przy tym zgłoszeniu.",
+        "notFound": "Nie znaleziono kontaktu.",
+        "notFoundHint": "Mógł zostać usunięty albo należy do innej organizacji."
       }
     }
   },
@@ -995,6 +1028,30 @@
       "mustAcceptTerms": "Musisz zaakceptować Regulamin i Politykę prywatności.",
       "pwned": "To hasło pojawiło się w znanych wyciekach danych. Wybierz inne.",
       "generic": "Coś poszło nie tak. Spróbuj ponownie."
+    },
+    "lockout": {
+      "cooldown_1m": "Zbyt wiele nieudanych prób logowania. Spróbuj ponownie za {minutes, plural, one {# minutę} few {# minuty} many {# minut} other {# minut}}.",
+      "cooldown_15m": "Zbyt wiele nieudanych prób logowania. Spróbuj ponownie za {minutes, plural, one {# minutę} few {# minuty} many {# minut} other {# minut}}.",
+      "lockout_24h": "To konto jest tymczasowo zablokowane z powodu powtarzających się nieudanych logowań. Skontaktuj się z pomocą, jeśli potrzebujesz dostępu wcześniej."
+    },
+    "mfa": {
+      "badge": "Bezpieczeństwo",
+      "setupHeading": "Skonfiguruj uwierzytelnianie dwuskładnikowe",
+      "introAdmin": "Konta administracyjne muszą używać kodu jednorazowego z aplikacji uwierzytelniającej, żeby się zalogować. Dodaj generator kodów do swojego konta, aby kontynuować.",
+      "introOptional": "Dodaj jednorazowy kod z aplikacji uwierzytelniającej dla dodatkowej warstwy ochrony.",
+      "step1Title": "Zainstaluj aplikację uwierzytelniającą",
+      "step1Body": "Użyj Google Authenticator, 1Password, Authy lub dowolnej aplikacji kompatybilnej z TOTP.",
+      "step2Title": "Zeskanuj ten kod QR",
+      "qrAlt": "Kod QR dla aplikacji uwierzytelniającej",
+      "manualEntry": "Lub wpisz ten sekret ręcznie:",
+      "step3Title": "Wpisz 6-cyfrowy kod",
+      "step3Body": "Wpisz aktualny kod pokazywany przez Twoją aplikację uwierzytelniającą.",
+      "verifyCta": "Zweryfikuj i zakończ",
+      "verifying": "Weryfikowanie…",
+      "preparing": "Przygotowywanie kodu…",
+      "success": "Uwierzytelnianie dwuskładnikowe jest włączone. Przekierowuję…",
+      "errorBadCode": "Ten kod nie pasuje. Spróbuj kolejny pokazany przez aplikację.",
+      "errorGeneric": "Nie udało się rozpocząć konfiguracji MFA. Odśwież stronę, żeby spróbować ponownie."
     }
   },
   "savedSearches": {
@@ -1504,5 +1561,427 @@
       "sub": "Pro Automation, $99/mies. Anuluj kiedy chcesz.",
       "cta": "Subskrybuj — $99/mc"
     }
+  },
+  "docs": {
+    "footerLink": "Dokumentacja",
+    "meta": {
+      "title": "Dokumentacja — AHO",
+      "description": "Pisany przewodnik dla kupujących, agentów i administratorów AHO. Wyszukiwanie, zapisywanie, kontakt, publikowanie, dystrybucja, moderacja."
+    },
+    "heading": "Dokumentacja",
+    "intro": "Trzy grupy odbiorców, trzy przewodniki. Wybierz ten, który pasuje do tego, jak korzystasz z AHO. Każda sekcja prowadzi do faktycznych miejsc w produkcie, więc możesz śledzić instrukcje na żywo, będąc zalogowanym.",
+    "lastUpdated": "Ostatnia aktualizacja: 2026-05-10",
+    "toc": {
+      "heading": "Na tej stronie",
+      "buyers": "Dla kupujących",
+      "agents": "Dla agentów",
+      "admins": "Dla administratorów"
+    },
+    "buyers": {
+      "heading": "Dla kupujących",
+      "intro": "Nie potrzebujesz konta, żeby przeglądać oferty. Konto jest potrzebne dopiero, gdy chcesz zapisywać wyszukiwania, dodawać oferty do ulubionych i kontaktować się z agentami. Cała strona kupującego jest darmowa — to agenci płacą za publikowanie, kupujący nigdy nie płacą AHO.",
+      "sections": [
+        {
+          "id": "buyers-search",
+          "title": "Szukanie nieruchomości",
+          "body": [
+            "Strona wyszukiwania to miejsce, w którym kupujący spędzają najwięcej czasu. Wpisz miasto, dzielnicę albo kod pocztowy w pole wyszukiwania, lub przesuwaj i przybliżaj mapę — lista wyników odświeża się do tego, co aktualnie widać na mapie.",
+            "Filtruj po cenie, liczbie sypialni, typie nieruchomości i typie oferty (sprzedaż lub wynajem). Ceny wyświetlają się w walucie wybranej u góry strony; pierwotną wartością jest cena ustawiona przez agenta.",
+            "Puste wyniki są uczciwe: gdy nic nie pasuje do twoich filtrów, strona to mówi wprost. Nigdy nie wymyślamy demonstracyjnych ofert, żeby zapełnić miejsce."
+          ],
+          "links": [
+            {
+              "label": "Otwórz wyszukiwarkę",
+              "href": "search"
+            },
+            {
+              "label": "Przeglądaj według kraju",
+              "href": "countries"
+            }
+          ]
+        },
+        {
+          "id": "buyers-save",
+          "title": "Zapisywanie nieruchomości i wyszukiwań",
+          "body": [
+            "Naciśnij ikonę serca na karcie oferty albo na stronie szczegółów, żeby dodać ją do ulubionych. Ulubione zostają przypisane do twojej przeglądarki nawet zanim się zalogujesz; po założeniu konta anonimowe ulubione łączą się z kontem, więc nic nie tracisz.",
+            "Zapisane wyszukiwania to coś innego: to zapisany zestaw filtrów, który uruchamiamy ponownie za ciebie. Otwórz wyszukiwanie, które ci się podoba, kliknij „Zapisz to wyszukiwanie\", nadaj mu nazwę i wybierz, czy chcesz dostawać podsumowania mailowe, gdy pojawią się nowe wyniki. Wyszukiwaniami zarządzasz — zmieniasz nazwę, edytujesz filtry, zmieniasz częstotliwość podsumowań, usuwasz — ze strony Zapisane wyszukiwania."
+          ],
+          "links": [
+            {
+              "label": "Zapisane nieruchomości",
+              "href": "saved-properties"
+            },
+            {
+              "label": "Zapisane wyszukiwania",
+              "href": "saved-searches"
+            }
+          ]
+        },
+        {
+          "id": "buyers-contact",
+          "title": "Kontakt z agentem",
+          "body": [
+            "Każda oferta ma formularz kontaktowy po prawej stronie (lub pod zdjęciami na telefonie). Wypełnij imię, e-mail, opcjonalnie telefon i wiadomość; agent dostaje to do swojej skrzynki, a ty dostajesz kopię na maila.",
+            "Przekazujemy twoją wiadomość agentowi i tylko agentowi. Nigdy nie sprzedajemy ani nie udostępniamy danych kontaktowych podmiotom trzecim. Formularz jest chroniony przez Cloudflare Turnstile i tzw. „pułapkę miodową\", żeby blokować boty — w praktyce prawie nigdy nie zobaczysz wyzwania.",
+            "Jeśli wolisz zadzwonić albo napisać na WhatsAppie, profil agenta zawiera bezpośrednie kanały, jakie sam dodał."
+          ],
+          "links": [
+            {
+              "label": "Przeglądaj oferty, żeby znaleźć agenta",
+              "href": "search"
+            }
+          ]
+        },
+        {
+          "id": "buyers-language-currency",
+          "title": "Język i waluta",
+          "body": [
+            "Język interfejsu zmienisz w przełączniku w prawym górnym rogu i na dole każdej strony. AHO działa w siedmiu językach: angielskim, hiszpańskim, polskim, portugalskim, niemieckim, francuskim i włoskim. Treść samych ofert pisze agent — pojawia się w językach, w których ją napisał (zwykle angielski i/lub hiszpański na starcie). Nigdy nie tłumaczymy automatycznie treści ofert.",
+            "Waluta jest niezależna od języka. Wybierz preferowaną walutę z tego samego miejsca; ceny przeliczają się na bieżąco po aktualnym kursie, podczas gdy pierwotna cena oferty pozostaje bez zmian. Formatowanie zależy od ustawionego języka — €1.250.000 po hiszpańsku, $1,250,000 po angielsku."
+          ],
+          "links": []
+        },
+        {
+          "id": "buyers-account",
+          "title": "Konto, bezpieczeństwo i prywatność",
+          "body": [
+            "Załóż konto przez e-mail + hasło, Google albo magic link. Reset hasła jest samoobsługowy ze strony logowania. Z poziomu pulpitu możesz włączyć uwierzytelnianie dwuskładnikowe (TOTP) — zalecane, jeśli zapisujesz wrażliwe wyszukiwania.",
+            "Wszystkie twoje dane należą do ciebie. Konto możesz usunąć w dowolnej chwili ze strony Profil w pulpicie; usunięcie kaskadowo obejmuje ulubione, zapisane wyszukiwania, wysłane formularze kontaktowe i opinie. Dane rozliczeniowe (jeśli używasz AHO również jako agent) są anonimizowane, ale przechowywane tam, gdzie wymaga tego prawo podatkowe.",
+            "Pełna polityka prywatności zawiera szczegółową rozpiskę: co przechowujemy, dlaczego i jak długo."
+          ],
+          "links": [
+            {
+              "label": "Polityka prywatności",
+              "href": "privacy"
+            },
+            {
+              "label": "Regulamin",
+              "href": "terms"
+            },
+            {
+              "label": "Zaloguj się",
+              "href": "signin"
+            },
+            {
+              "label": "Załóż konto",
+              "href": "signup"
+            }
+          ]
+        }
+      ]
+    },
+    "agents": {
+      "heading": "Dla agentów",
+      "intro": "Agenci wykupują abonament, żeby publikować oferty. Najniższy plan stawia cię na platformie; wyższe plany odblokowują automatyzację dystrybucji w mediach społecznościowych, która zamienia jedną ofertę w 21 postów dopasowanych do każdej platformy. Wszystko poniżej zakłada, że już się zarejestrowałeś — jeśli jeszcze nie, sprawdź stronę cennika.",
+      "sections": [
+        {
+          "id": "agents-setup",
+          "title": "Pierwsze uruchomienie: abonament, onboarding, profil, pierwsza oferta",
+          "body": [
+            "Wykup plan ze strony cennika. Przejdziesz przez Stripe Checkout (kartą testową lub prawdziwą, w zależności od planu), a potem wrócisz na stronę powitalną, gdzie kreator onboardingu przeprowadzi cię przez trzy krótkie kroki: dane organizacji, twój profil agenta i pierwsza oferta.",
+            "Pomiń każdy krok, którego nie możesz teraz ukończyć — dokończysz później z poziomu pulpitu. Kreator onboardingu istnieje po to, żeby skrócić drogę między „właśnie zapłaciłem\" a „mam aktywną ofertę\", a nie po to, żeby blokować dostęp do pulpitu.",
+            "Po onboardingu pulpit staje się centralą wszystkiego: nieruchomości, kontakty, posty społecznościowe, analityka, rozliczenia."
+          ],
+          "links": [
+            {
+              "label": "Cennik i plany",
+              "href": "pricing"
+            },
+            {
+              "label": "Załóż konto",
+              "href": "signup"
+            },
+            {
+              "label": "Powitanie / onboarding",
+              "href": "onboarding"
+            },
+            {
+              "label": "Pulpit",
+              "href": "dashboard"
+            }
+          ]
+        },
+        {
+          "id": "agents-import-lanes",
+          "title": "Trzy sposoby dodania oferty: URL, głos, ręcznie",
+          "body": [
+            "Import z URL: wklej link z konkurencyjnego portalu (otodom, idealista, inne), a AHO pobiera publiczne pola, ściąga zdjęcia i wstępnie wypełnia formularz oferty. Ty przeglądasz, edytujesz i publikujesz.",
+            "Import głosowy: kliknij mikrofon w widoku nowej oferty i podyktuj nieruchomość w swoim języku. Whisper transkrybuje; Claude wyciąga cenę, metraż, liczbę pokoi, lokalizację, udogodnienia; formularz wypełnia się sam. Zaprojektowane dla agentów wychodzących z prezentacji — zanim wsiądziesz do auta, szkic jest gotowy.",
+            "Ręcznie: klasyczny formularz. Wpisz każde pole, przeciągnij zdjęcia, napisz opis. Zawsze dostępny jako rozwiązanie awaryjne, gdy któryś z importów źle zachowa się na nietypowym źródle."
+          ],
+          "links": [
+            {
+              "label": "Nowa oferta",
+              "href": "dashboard-new-property"
+            }
+          ]
+        },
+        {
+          "id": "agents-photos",
+          "title": "Wytyczne dotyczące zdjęć",
+          "body": [
+            "Oryginały trafiają do Cloudflare R2; AHO generuje warianty wyświetlania w Cloudflare Images. Zalecane oryginały to 2400 px po dłuższym boku lub więcej, JPEG albo WebP, do 10 MB każde. Akceptujemy do 30 zdjęć na ofertę.",
+            "Kolejność ma znaczenie: pierwsze zdjęcie jest okładką, która pojawia się na kartach wyników i w postach społecznościowych. Zmień kolejność przeciągając z poziomu strony edycji oferty.",
+            "Zgodnie z zasadą platformy o danych tylko prawdziwych dopuszczamy wyłącznie zdjęcia faktycznej nieruchomości. Żadnych zdjęć stockowych, żadnych pokoi wygenerowanych przez AI, żadnych „przykładowych\" zdjęć z innego mieszkania. Oferty łamiące tę zasadę są usuwane przez moderatorów bez ostrzeżenia."
+          ],
+          "links": [
+            {
+              "label": "Twoje nieruchomości",
+              "href": "dashboard-properties"
+            }
+          ]
+        },
+        {
+          "id": "agents-edit-flow",
+          "title": "Edycja oferty",
+          "body": [
+            "Otwórz ofertę ze strony Nieruchomości w pulpicie. Ekran edycji odzwierciedla formularz nowej oferty: zakładki języków (EN / ES) na górze, siatka zdjęć poniżej i ustrukturyzowane pola na cenę, adres, atrybuty oraz dwujęzyczne opisy.",
+            "Zapis jest natychmiastowy. Każdy zapis aktualizuje publiczne updated_at oferty, co sygnalizuje wyszukiwarce i harmonogramowi dystrybucji społecznościowej, że treść jest świeża.",
+            "Zarchiwizuj ofertę, gdy nie jest już na sprzedaż, ale chcesz zachować historię. Zarchiwizowane oferty zostają w pulpicie przez 90 dni, a potem są usuwane, chyba że je przywrócisz."
+          ],
+          "links": [
+            {
+              "label": "Twoje nieruchomości",
+              "href": "dashboard-properties"
+            }
+          ]
+        },
+        {
+          "id": "agents-leads",
+          "title": "Skrzynka kontaktów i routing",
+          "body": [
+            "Każde wypełnienie formularza kontaktowego na twojej ofercie trafia do skrzynki Kontakty. Każda pozycja pokazuje imię kupującego, e-mail, opcjonalny telefon, treść wiadomości, ofertę, którą oglądał, i jednoczęściowy przycisk odpowiedzi otwierający klienta pocztowego z gotowym tematem.",
+            "Reguły routingu kontaktów pozwalają przekierować przychodzące zgłoszenia do współpracowników na podstawie tagów oferty albo obszaru geograficznego — przydatne, gdy zespół to więcej niż jedna osoba. Reguły działają po stronie serwera, zanim zostanie wysłane powiadomienie e-mail.",
+            "Pusta skrzynka? Naprawdę jest pusta. Nigdy nie podsiewamy demo-kontaktów."
+          ],
+          "links": [
+            {
+              "label": "Skrzynka kontaktów",
+              "href": "dashboard-leads"
+            },
+            {
+              "label": "Reguły routingu kontaktów",
+              "href": "dashboard-leads-routing"
+            }
+          ]
+        },
+        {
+          "id": "agents-social",
+          "title": "Siatka społecznościowa i tony",
+          "body": [
+            "W planie Pro Automation strona Social pokazuje siatkę 3 × 7: trzy platformy (Facebook, Instagram, LinkedIn) razy siedem języków. Dla każdej nowej oferty AHO generuje wariant dopasowany do platformy i języka w każdej komórce — łącznie 21 postów.",
+            "Każdy wariant jest edytowalny. Możesz wybrać inny ton (ciepły, faktograficzny, hype, profesjonalny) dla każdej platformy; zapamiętujemy ostatni wybór jako domyślny dla kolejnej oferty na tej samej platformie.",
+            "Posty zawierają twój link do oferty AHO, więc kontakty wracają do twojej skrzynki. Do czasu zatwierdzenia w Meta App Review publikacja działa metodą kopiuj-wklej; jednoklikowa publikacja włącza się automatycznie po zatwierdzeniu na podłączonym kanale."
+          ],
+          "links": [
+            {
+              "label": "Dystrybucja społecznościowa",
+              "href": "dashboard-social"
+            }
+          ]
+        },
+        {
+          "id": "agents-performance",
+          "title": "Pulpit wyników",
+          "body": [
+            "Strona Analityka pokazuje rzeczywiste zasięgi i liczby kontaktów per oferta, per platforma, per język. Agregujemy z Meta i LinkedIn Insights API (gdzie podłączyłeś konta) plus własne tagi po stronie serwera — kliknięcia i formularze kontaktowe.",
+            "Liczby są uczciwe: puste, dopóki nie ma danych, i nigdy nie ekstrapolujemy. Analityka per oferta otwiera się ze strony Nieruchomości albo bezpośrednio z przeglądu analityki."
+          ],
+          "links": [
+            {
+              "label": "Przegląd analityki",
+              "href": "dashboard-analytics"
+            }
+          ]
+        },
+        {
+          "id": "agents-channels",
+          "title": "Łączenie kont społecznościowych",
+          "body": [
+            "Otwórz stronę Social i kliknij „Połącz Facebook\", „Połącz Instagram\", „Połącz LinkedIn\". Każda kliknięta opcja otwiera OAuth platformy w wyskakującym oknie; po sukcesie AHO przechowuje zaszyfrowany token dostępu i ID strony/profilu, na które masz uprawnienia.",
+            "Połączenie możesz w każdej chwili odwołać z tej samej strony; token zostaje natychmiast usunięty. Prosimy tylko o zakresy uprawnień potrzebne do publikacji twoich własnych postów ofertowych i odczytu ich statystyk — żadnej listy znajomych, żadnego dostępu do konta reklamowego.",
+            "Dopóki Meta App Review jest w trakcie, przycisk połączenia działa dla trybu kopiuj-wklej, ale przełącznik auto-publikacji jest wyłączony."
+          ],
+          "links": [
+            {
+              "label": "Dystrybucja społecznościowa",
+              "href": "dashboard-social"
+            }
+          ]
+        },
+        {
+          "id": "agents-billing",
+          "title": "Rozliczenia i zmiany planu",
+          "body": [
+            "Subskrypcję zarządzasz ze strony Profil w pulpicie. Przycisk „Otwórz portal rozliczeń\" przekazuje cię do hostowanego Customer Portal Stripe, gdzie aktualizujesz dane karty, pobierasz faktury, zmieniasz plany albo anulujesz.",
+            "Anulowanie wchodzi w życie z końcem bieżącego okresu rozliczeniowego — twoje oferty pozostają aktywne do tego momentu. Ponowna subskrypcja przywraca wszystko tam, gdzie skończyłeś.",
+            "Podatek (VAT, sales tax) jest obsługiwany automatycznie przez Stripe Tax na podstawie kraju rozliczeniowego."
+          ],
+          "links": [
+            {
+              "label": "Profil i rozliczenia",
+              "href": "dashboard-profile"
+            }
+          ]
+        },
+        {
+          "id": "agents-sold",
+          "title": "Oznaczenie oferty jako sprzedanej i prośba o opinię",
+          "body": [
+            "Gdy transakcja zostaje zamknięta, otwórz ofertę i użyj „Oznacz jako sprzedane/wynajęte\". Wpisz datę zamknięcia, opcjonalną cenę zamknięcia i którą stronę reprezentowałeś (kupującego, sprzedającego, obie). Oferta przechodzi do twojego archiwum sprzedanych i pokazuje plakietkę „Sprzedane\" przez 30 dni.",
+            "Jeśli e-mail kupującego jest w transakcji, AHO może wysłać mu jednoklikową prośbę o opinię 7 dni po zamknięciu. Opinie są podwójnie weryfikowane: e-mail musi pasować do rekordu transakcji, a token w linku potwierdza, że to właściwa osoba."
+          ],
+          "links": [
+            {
+              "label": "Twoje opinie",
+              "href": "dashboard-reviews"
+            }
+          ]
+        },
+        {
+          "id": "agents-mfa",
+          "title": "Uwierzytelnianie dwuskładnikowe (TOTP)",
+          "body": [
+            "Włącz TOTP ze strony Profil. Zeskanuj kod QR aplikacją Google Authenticator, 1Password, Authy lub dowolną kompatybilną z TOTP, a potem wpisz 6-cyfrowy kod, żeby potwierdzić.",
+            "Po włączeniu każde logowanie pyta o świeży kod. Zapisz kody zapasowe wyświetlone na ekranie — to droga awaryjna, gdy zgubisz telefon. Możemy ci pomóc w resecie tylko po weryfikacji tożsamości; nie wyłączamy MFA na życzenie."
+          ],
+          "links": [
+            {
+              "label": "Skonfiguruj MFA",
+              "href": "setup-mfa"
+            }
+          ]
+        }
+      ]
+    },
+    "admins": {
+      "heading": "Dla administratorów",
+      "intro": "Dostęp administracyjny jest nadawany ręcznie przez AHO i chroniony obowiązkowym MFA. Strefa admina znajduje się pod /admin i pokazuje pełny obraz wszystkich organizacji na platformie.",
+      "sections": [
+        {
+          "id": "admins-layout",
+          "title": "Układ strefy",
+          "body": [
+            "Strefa admina to prosty układ z górną nawigacją. Od lewej do prawej: KPI, Moderacja, Organizacje, Użytkownicy, Kontakty, Opinie, Dziennik audytu. Każda sekcja to pojedyncza strona ładowana po stronie serwera; nie ma osobnych klienckich aplikacji administracyjnych do utrzymywania.",
+            "Każde działanie admina trafia do dziennika audytu. Nie ma drogi „poza protokołem\"."
+          ],
+          "links": [
+            {
+              "label": "Strona główna admina",
+              "href": "admin"
+            }
+          ]
+        },
+        {
+          "id": "admins-kpis",
+          "title": "Pasek KPI",
+          "body": [
+            "Pasek na stronie głównej pokazuje kluczowe liczby: aktywne subskrypcje per plan, oferty opublikowane w ostatnich 7 dniach, kontakty rozesłane w ostatnich 7 dniach, MRR, sygnały churn (oczekujące anulacje).",
+            "Liczby są wyliczane na żądanie z danych produkcyjnych — bez cache, bez estymacji. Gdy coś wygląda dziwnie, kliknij dalej, zamiast odświeżać."
+          ],
+          "links": []
+        },
+        {
+          "id": "admins-moderation",
+          "title": "Kolejka moderacji",
+          "body": [
+            "Nowe oferty, edytowane opisy z wysokim wynikiem „nietypowej treści\" oraz zgłoszone oferty trafiają do kolejki moderacji. Każda pozycja pokazuje pełną ofertę tak, jak wyglądałaby publicznie, plus pasek boczny z akcjami: zatwierdź, odrzuć z powodem, zawieś agenta.",
+            "Powody odrzucenia są szablonowe (brak prawdziwych zdjęć, duplikat, treści zabronione itd.) i wracają do agenta w jego pulpicie i mailem. Zawieszenia są natychmiastowe; oferty agenta znikają z widoku publicznego do momentu cofnięcia zawieszenia."
+          ],
+          "links": []
+        },
+        {
+          "id": "admins-orgs",
+          "title": "Organizacje, użytkownicy, kontakty, opinie",
+          "body": [
+            "Każda z tych zakładek to ekran lista-z-detalem. Filtruj i sortuj po potrzebnych kolumnach; kliknij wpis, żeby zobaczyć pełny rekord i dostępne akcje. Ekran organizacji pokazuje plan agenta, status rozliczeń, liczbę ofert i przycisk otwierający klienta Stripe w nowej karcie.",
+            "Ekran użytkowników pozwala adminom zresetować MFA użytkownikowi, który stracił urządzenie — tylko po weryfikacji tożsamości i z zapisem do audytu.",
+            "Ekran kontaktów pokazuje decyzje routingu (która reguła zadziałała, kto otrzymał). Ekran opinii pokazuje opinie czekające na moderację i pozwala zatwierdzić, odrzucić lub dopisać notatkę moderatora."
+          ],
+          "links": []
+        },
+        {
+          "id": "admins-audit",
+          "title": "Dziennik audytu",
+          "body": [
+            "Każde administracyjne działanie zapisujące — zatwierdzenie, odrzucenie, zawieszenie, reset MFA, interwencja w rozliczeniach — pojawia się w dzienniku audytu z timestampem, autorem, celem i payloadem JSON tego, co się zmieniło. Filtruj po autorze albo celu, żeby prześledzić jeden ślad.",
+            "Dziennik audytu jest tylko-do-dopisywania na poziomie bazy. Nawet admini nie mogą usuwać wpisów; jedynym sposobem korekty jest dodanie wpisu kompensującego."
+          ],
+          "links": []
+        },
+        {
+          "id": "admins-escalation",
+          "title": "Ścieżki eskalacji",
+          "body": [
+            "Wszystko, czego nie rozwiążesz w aplikacji — spory płatnicze, wnioski prawne, incydenty bezpieczeństwa, podejrzenia nadużyć platformy — eskaluj na info@advertisehomes.online. Załącz ID wpisu z dziennika audytu (lub URL ekranu i timestamp), żeby dyżurny inżynier mógł od razu podchwycić kontekst.",
+            "Incydenty bezpieczeństwa mają zegar 72 godzin RODO: powiadom dotkniętych użytkowników w ciągu 72 godzin od momentu, gdy o nich się dowiesz, udokumentuj oś czasu, złóż zgłoszenie do regulatora."
+          ],
+          "links": [
+            {
+              "label": "Polityka prywatności",
+              "href": "privacy"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "onboardingWizard": {
+    "errors": {
+      "invalidInput": "Któreś pole jest niepoprawne. Sprawdź adresy URL (muszą zaczynać się od https://) i numery telefonów.",
+      "unauthenticated": "Twoja sesja wygasła. Zaloguj się ponownie.",
+      "generic": "Coś poszło nie tak. Spróbuj jeszcze raz."
+    },
+    "stepLabel": "Krok {current} z {total}",
+    "progressAria": "Postęp onboardingu: krok {current} z {total}",
+    "back": "Wstecz",
+    "skip": "Pomiń na razie",
+    "saving": "Zapisywanie…",
+    "saveAndContinue": "Zapisz i kontynuuj",
+    "getStarted": "Zaczynamy",
+    "finishToDashboard": "Zakończ i przejdź do pulpitu",
+    "softFunnelNote": "Do każdego z tych pól możesz wrócić później z poziomu profilu w pulpicie.",
+    "welcomeHeading": "Witaj w AHO",
+    "welcomeBody": "Skonfigurujmy Twój profil, żeby kupujący mogli Cię znaleźć i się z Tobą skontaktować. Zajmie to około trzech minut — każdy krok jest opcjonalny i można do niego wrócić.",
+    "welcomeBullet1": "Uzupełnij swój publiczny profil agenta (stronę, którą widzą kupujący)",
+    "welcomeBullet2": "Dodaj WhatsAppa i linki społecznościowe, żeby kontakty docierały szybko",
+    "welcomeBullet3": "Wystaw pierwszą nieruchomość — z URL, głosowo lub ręcznie",
+    "trustSsl": "Szyfrowane podczas przesyłu",
+    "trustGdpr": "Zgodne z RODO",
+    "trustHasAgents": "Prawdziwi agenci już publikują",
+    "profileHeading": "Twój publiczny profil",
+    "profileSubheading": "Te pola pojawiają się na Twojej stronie /agents/{slug} oraz przy każdej publikowanej ofercie.",
+    "fullName": "Imię i nazwisko",
+    "fullNameHint": "Kupujący widzą to na Twoim profilu i przy ofertach — użyj nazwy, pod którą działasz.",
+    "city": "Miasto",
+    "country": "Kraj",
+    "countryPlaceholder": "Wybierz kraj…",
+    "locationHint": "Używamy Twojego miasta i kraju, żeby pokazywać Cię w lokalnym wyszukiwaniu i polecać kupującym z tego rynku.",
+    "languages": "Języki, którymi rozmawiasz z klientami",
+    "languagesHint": "Kupujący filtrują agentów po języku. Kliknij sugestię, żeby dodać; kliknij plakietkę, żeby usunąć.",
+    "bio": "O Tobie",
+    "bioPlaceholder": "Krótko opisz swoje doświadczenie, obszary, które obsługujesz i jakim kupującym najlepiej służysz.",
+    "bioHint": "Wystarczy bio na dwa zdania. Możesz to dopracować później na stronie profilu.",
+    "connectHeading": "Pozostań w kontakcie z kontaktami",
+    "connectSubheading": "WhatsApp to najszybszy sposób, w jaki kupujący docierają do agentów w Ameryce Łacińskiej i Europie. Linki społecznościowe trafiają do Twojego publicznego profilu.",
+    "whatsappPhone": "Numer WhatsApp",
+    "whatsappHint": "Opcjonalne, ale mocno zalecane. Oferty pokazują przycisk WhatsApp jednym tapnięciem, gdy ten numer jest ustawiony.",
+    "socialLinksHint": "Opcjonalne. Każdy link dodaje ikonę społecznościową do Twojego publicznego profilu.",
+    "autoPostHeading": "Auto-publikacja nowych ofert w mediach społecznościowych",
+    "autoPostBody": "W planie Pro Automation AHO może opublikować każdą nową ofertę na podłączonych kontach Meta (Facebook + Instagram) jednym kliknięciem.",
+    "autoPostCta": "Połącz konta społecznościowe",
+    "listingHeading": "Dodaj pierwszą nieruchomość",
+    "listingSubheading": "Trzy sposoby dodania oferty — wybierz ten, który pasuje do Twojego stylu pracy.",
+    "listingLane1": "Wklej URL — automatycznie wyciągamy zdjęcia, cenę i szczegóły",
+    "listingLane2": "Podyktuj opis — głos-na-ofertę parsuje go w pola strukturalne",
+    "listingLane3": "Albo wypełnij formularz ręcznie dla pełnej kontroli",
+    "addFirstListing": "Dodaj pierwszą nieruchomość",
+    "upgradeNudgeHeading": "Wybierz płatny plan, gdy będziesz gotowy",
+    "upgradeNudgeBody": "Możesz przeglądać w darmowym wariancie. Żeby publikować oferty, sprawdź plan, który pasuje do Twojego wolumenu.",
+    "upgradeNudgeCta": "Zobacz cennik",
+    "proAutomationHeading": "Myślisz o Pro Automation?",
+    "proAutomationBody": "Gdy publikujesz pięć lub więcej ofert, Pro Automation zwraca się sam: dystrybucja jednym kliknięciem na Facebook + Instagram dla każdej nowej nieruchomości.",
+    "proAutomationCta": "Porównaj plany"
   }
 }

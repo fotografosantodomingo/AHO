@@ -332,7 +332,10 @@
     "factsSectionCommunity": "Condomínio",
     "factsSectionLocation": "Localização",
     "factsSectionFinancial": "Financeiro",
-    "factsBool": { "yes": "Sim", "no": "Não" },
+    "factsBool": {
+      "yes": "Sim",
+      "no": "Não"
+    },
     "factsField": {
       "bedrooms": "Quartos",
       "bathrooms": "Banheiros",
@@ -373,14 +376,55 @@
       "amenities": "Comodidades"
     },
     "featuresEnum": {
-      "parkingType": { "garage": "Garagem", "carport": "Cobertura", "street": "Rua", "lot": "Estacionamento", "none": "Nenhum" },
-      "heatingFuel": { "electric": "Elétrico", "gas": "Gás", "oil": "Óleo", "solar": "Solar", "wood": "Lenha", "none": "Nenhum" },
-      "cooling": { "central": "Central", "split": "Split", "window": "Janela", "evaporative": "Evaporativo", "none": "Nenhum" },
-      "water": { "public": "Pública", "well": "Poço", "cistern": "Cisterna", "truck": "Caminhão-pipa" },
-      "sewer": { "public": "Esgoto público", "septic": "Fossa séptica", "none": "Nenhum" },
-      "hoaFeePeriod": { "monthly": "mês", "annual": "ano" },
-      "petPolicy": { "allowed": "Permitido", "restricted": "Restrito", "none": "Não permitido" },
-      "listingTerm": { "cash": "À vista", "mortgage": "Financiamento", "owner_financing": "Financiamento direto", "lease_to_own": "Aluguel com opção de compra", "trade": "Permuta" }
+      "parkingType": {
+        "garage": "Garagem",
+        "carport": "Cobertura",
+        "street": "Rua",
+        "lot": "Estacionamento",
+        "none": "Nenhum"
+      },
+      "heatingFuel": {
+        "electric": "Elétrico",
+        "gas": "Gás",
+        "oil": "Óleo",
+        "solar": "Solar",
+        "wood": "Lenha",
+        "none": "Nenhum"
+      },
+      "cooling": {
+        "central": "Central",
+        "split": "Split",
+        "window": "Janela",
+        "evaporative": "Evaporativo",
+        "none": "Nenhum"
+      },
+      "water": {
+        "public": "Pública",
+        "well": "Poço",
+        "cistern": "Cisterna",
+        "truck": "Caminhão-pipa"
+      },
+      "sewer": {
+        "public": "Esgoto público",
+        "septic": "Fossa séptica",
+        "none": "Nenhum"
+      },
+      "hoaFeePeriod": {
+        "monthly": "mês",
+        "annual": "ano"
+      },
+      "petPolicy": {
+        "allowed": "Permitido",
+        "restricted": "Restrito",
+        "none": "Não permitido"
+      },
+      "listingTerm": {
+        "cash": "À vista",
+        "mortgage": "Financiamento",
+        "owner_financing": "Financiamento direto",
+        "lease_to_own": "Aluguel com opção de compra",
+        "trade": "Permuta"
+      }
     },
     "similarHomesHeading": "Imóveis similares próximos"
   },
@@ -1553,6 +1597,371 @@
       "heading": "Recupere seus fins de semana. Assine hoje.",
       "sub": "Pro Automation, $99/mês. Cancele quando quiser.",
       "cta": "Assinar — $99/mês"
+    }
+  },
+  "docs": {
+    "footerLink": "Documentação",
+    "meta": {
+      "title": "Documentação — AHO",
+      "description": "Guia escrito para compradores, corretores e administradores que usam AHO. Buscar, salvar, contatar, anunciar, distribuir, moderar."
+    },
+    "heading": "Documentação",
+    "intro": "Três públicos, três guias. Escolha o que combina com a forma como você usa o AHO. Cada seção leva à tela real dentro do produto, então você pode acompanhar enquanto está logado.",
+    "lastUpdated": "Última atualização: 10/05/2026",
+    "toc": {
+      "heading": "Nesta página",
+      "buyers": "Para compradores",
+      "agents": "Para corretores",
+      "admins": "Para administradores"
+    },
+    "buyers": {
+      "heading": "Para compradores",
+      "intro": "Você não precisa de conta para navegar. Precisa de uma para salvar buscas, favoritar anúncios e contatar corretores. Toda a experiência do comprador é gratuita — corretores pagam para anunciar, compradores nunca pagam ao AHO.",
+      "sections": [
+        {
+          "id": "buyers-search",
+          "title": "Buscando um imóvel",
+          "body": [
+            "A página de busca é onde a maioria dos compradores passa o tempo. Digite uma cidade, bairro ou CEP no campo de busca, ou navegue e dê zoom no mapa — a lista de resultados se atualiza para o que estiver visível no mapa.",
+            "Filtre por preço, quartos, tipo de imóvel e tipo de anúncio (venda ou aluguel). Os preços aparecem na moeda escolhida no topo da página; o valor base é o preço definido pelo corretor.",
+            "Resultados vazios são honestos: quando nada combina com seus filtros, a página diz isso. Nunca inventamos anúncios de demonstração para preencher espaço."
+          ],
+          "links": [
+            {
+              "label": "Abrir busca",
+              "href": "search"
+            },
+            {
+              "label": "Navegar por país",
+              "href": "countries"
+            }
+          ]
+        },
+        {
+          "id": "buyers-save",
+          "title": "Salvando imóveis e buscas",
+          "body": [
+            "Toque no ícone de coração em qualquer card ou página de detalhe para favoritar. Os favoritos ficam ligados ao seu navegador mesmo antes de você se cadastrar; ao criar conta, seus favoritos anônimos se mesclam com a conta para você não perder nada.",
+            "Buscas salvas são diferentes: é um conjunto de filtros guardado que rodamos de novo para você. Abra uma busca que goste, clique em \"Salvar esta busca\", dê um nome e escolha se quer receber resumos por e-mail quando aparecerem novos resultados. Você gerencia tudo — renomear, editar filtros, mudar a frequência, excluir — pela página Buscas salvas."
+          ],
+          "links": [
+            {
+              "label": "Imóveis salvos",
+              "href": "saved-properties"
+            },
+            {
+              "label": "Buscas salvas",
+              "href": "saved-searches"
+            }
+          ]
+        },
+        {
+          "id": "buyers-contact",
+          "title": "Entrando em contato com um corretor",
+          "body": [
+            "Cada anúncio tem um formulário de contato à direita (ou abaixo das fotos no celular). Preencha nome, e-mail, telefone opcional e mensagem; o corretor recebe na caixa de entrada dele e você recebe uma cópia por e-mail.",
+            "Repassamos sua mensagem ao corretor e somente ao corretor. Nunca vendemos nem compartilhamos dados de contato com terceiros. O formulário é protegido por Cloudflare Turnstile e por uma armadilha invisível para barrar bots — na prática você quase nunca verá um desafio.",
+            "Se preferir ligar ou mandar mensagem no WhatsApp, a página do corretor lista os canais diretos que ele adicionou."
+          ],
+          "links": [
+            {
+              "label": "Navegar anúncios para encontrar um corretor",
+              "href": "search"
+            }
+          ]
+        },
+        {
+          "id": "buyers-language-currency",
+          "title": "Idioma e moeda",
+          "body": [
+            "Mude o idioma da interface no seletor no canto superior direito e no rodapé de cada página. O AHO está em sete idiomas: inglês, espanhol, polonês, português, alemão, francês, italiano. O conteúdo dos anúncios é escrito pelo corretor — aparece nos idiomas em que ele escreveu (geralmente inglês e/ou espanhol no lançamento). Nunca traduzimos automaticamente o texto dos anúncios.",
+            "A moeda é independente do idioma. Escolha sua moeda preferida no mesmo lugar; os preços recalculam com taxas de câmbio em tempo real, enquanto o preço base do anúncio fica inalterado. A formatação segue seu idioma — €1.250.000 em espanhol, $1,250,000 em inglês."
+          ],
+          "links": []
+        },
+        {
+          "id": "buyers-account",
+          "title": "Conta, segurança e privacidade",
+          "body": [
+            "Crie uma conta com e-mail + senha, Google ou link mágico. A redefinição de senha é self-service na página de login. Você pode ativar autenticação em dois fatores (TOTP) pelo painel — recomendado se você salva buscas sensíveis.",
+            "Todos os seus dados são seus. Você pode excluir sua conta a qualquer momento pela página Perfil no painel; isso apaga em cascata seus favoritos, buscas salvas, mensagens de contato e avaliações. Registros de cobrança (se você também usa o AHO como corretor) são anonimizados, mas mantidos onde a lei tributária exige.",
+            "Leia a política de privacidade completa para um detalhamento linha a linha do que armazenamos, por que e por quanto tempo."
+          ],
+          "links": [
+            {
+              "label": "Política de privacidade",
+              "href": "privacy"
+            },
+            {
+              "label": "Termos de serviço",
+              "href": "terms"
+            },
+            {
+              "label": "Entrar",
+              "href": "signin"
+            },
+            {
+              "label": "Criar conta",
+              "href": "signup"
+            }
+          ]
+        }
+      ]
+    },
+    "agents": {
+      "heading": "Para corretores",
+      "intro": "Corretores assinam para anunciar. O plano mais baixo coloca você na plataforma; os planos mais altos liberam a automação de distribuição em redes sociais que transforma um anúncio em 21 posts ajustados por plataforma. Tudo abaixo assume que você já se cadastrou — veja a página de preços se ainda não.",
+      "sections": [
+        {
+          "id": "agents-setup",
+          "title": "Primeira configuração: assinar, onboarding, perfil, primeiro anúncio",
+          "body": [
+            "Assine pela página de preços. Você passa pelo Stripe Checkout (cartão de teste ou real, dependendo do plano), depois volta para a página de boas-vindas onde o assistente de onboarding guia em três passos curtos: dados da organização, seu perfil de corretor e seu primeiro anúncio.",
+            "Pule qualquer passo que não consegue completar agora — você termina depois pelo painel. O assistente de onboarding existe para encurtar a distância entre \"acabei de pagar\" e \"tenho um anúncio no ar\", não para bloquear acesso ao painel.",
+            "Após o onboarding, seu painel vira o centro de tudo: imóveis, contatos, posts sociais, analytics, cobrança."
+          ],
+          "links": [
+            {
+              "label": "Preços e planos",
+              "href": "pricing"
+            },
+            {
+              "label": "Cadastrar",
+              "href": "signup"
+            },
+            {
+              "label": "Boas-vindas / onboarding",
+              "href": "onboarding"
+            },
+            {
+              "label": "Painel",
+              "href": "dashboard"
+            }
+          ]
+        },
+        {
+          "id": "agents-import-lanes",
+          "title": "Três formas de adicionar um anúncio: URL, voz, manual",
+          "body": [
+            "Importação por URL: cole um link de um portal concorrente (otodom, idealista, outros) e o AHO extrai os campos públicos, baixa as fotos e pré-preenche o formulário. Você revisa, edita e publica.",
+            "Importação por voz: toque o microfone na tela de novo anúncio e dite o imóvel no seu idioma. O Whisper transcreve; o Claude extrai preço, área, quartos, localização, comodidades; o formulário se pré-preenche. Pensado para corretores saindo de uma visita — quando você chega ao carro, o rascunho está pronto.",
+            "Manual: o formulário clássico. Digite cada campo, arraste fotos, escreva a descrição. Sempre disponível como plano B quando uma das vias automáticas se confunde com uma fonte incomum."
+          ],
+          "links": [
+            {
+              "label": "Novo anúncio",
+              "href": "dashboard-new-property"
+            }
+          ]
+        },
+        {
+          "id": "agents-photos",
+          "title": "Diretrizes de fotos",
+          "body": [
+            "Originais sobem para o Cloudflare R2; o AHO gera variantes de exibição no Cloudflare Images. Originais recomendados: 2400 px no lado maior ou mais, JPEG ou WebP, até 10 MB cada. Aceitamos até 30 fotos por anúncio.",
+            "A ordem importa: a primeira foto é a capa que aparece nos cards de resultado e nos posts sociais. Arraste para reordenar pela página de edição do anúncio.",
+            "Pela regra de dados-reais-só da plataforma, só são permitidas fotos do imóvel real. Sem fotos de banco de imagens, sem ambientes gerados por IA, sem fotos \"representativas\" de outra unidade. Anúncios que violam isso são removidos por moderadores sem aviso."
+          ],
+          "links": [
+            {
+              "label": "Seus imóveis",
+              "href": "dashboard-properties"
+            }
+          ]
+        },
+        {
+          "id": "agents-edit-flow",
+          "title": "Editando um anúncio",
+          "body": [
+            "Abra um anúncio pela página Imóveis no painel. A tela de edição espelha o formulário de novo anúncio: abas de idioma (EN / ES) no topo, grade de fotos abaixo e campos estruturados para preço, endereço, atributos e descrições bilíngues.",
+            "O salvamento é imediato. Cada save atualiza o updated_at público do anúncio, o que sinaliza para a busca e para o agendador de distribuição social que o conteúdo está fresco.",
+            "Arquive um anúncio quando ele não está mais à venda mas você quer manter o histórico. Anúncios arquivados ficam no painel por 90 dias e depois são excluídos, a não ser que sejam restaurados."
+          ],
+          "links": [
+            {
+              "label": "Seus imóveis",
+              "href": "dashboard-properties"
+            }
+          ]
+        },
+        {
+          "id": "agents-leads",
+          "title": "Caixa de contatos e roteamento",
+          "body": [
+            "Cada envio de formulário em um dos seus anúncios cai na caixa Contatos. Cada item mostra nome do comprador, e-mail, telefone opcional, mensagem, anúncio que estava vendo e um botão de resposta de um clique que abre seu cliente de e-mail com o assunto pré-preenchido.",
+            "Regras de roteamento de contatos permitem encaminhar contatos a colegas com base em tags do anúncio ou área geográfica — útil quando seu time é mais de uma pessoa. As regras rodam no servidor antes do e-mail de notificação ser enviado.",
+            "Caixa vazia? Está vazia mesmo. Nunca semeamos contatos de demonstração."
+          ],
+          "links": [
+            {
+              "label": "Caixa de contatos",
+              "href": "dashboard-leads"
+            },
+            {
+              "label": "Regras de roteamento",
+              "href": "dashboard-leads-routing"
+            }
+          ]
+        },
+        {
+          "id": "agents-social",
+          "title": "Grade social e tons",
+          "body": [
+            "No Pro Automation, a página Social mostra uma grade 3 × 7: três plataformas (Facebook, Instagram, LinkedIn) por sete idiomas. Para cada anúncio novo, o AHO gera uma variante ajustada à plataforma e nativa do idioma em cada célula — 21 posts no total.",
+            "Cada variante é editável. Você escolhe um tom diferente (caloroso, factual, hype, profissional) por plataforma; guardamos sua última escolha como padrão para o próximo anúncio nessa plataforma.",
+            "Os posts incluem o link do seu anúncio AHO para que os contatos voltem para sua caixa. Até a aprovação no Meta App Review, a publicação é copiar-e-colar; a publicação em um clique liga automaticamente quando a aprovação for concedida em um canal conectado."
+          ],
+          "links": [
+            {
+              "label": "Distribuição social",
+              "href": "dashboard-social"
+            }
+          ]
+        },
+        {
+          "id": "agents-performance",
+          "title": "Painel de desempenho",
+          "body": [
+            "A página Analytics mostra alcance real e número de contatos por anúncio, por plataforma, por idioma. Agregamos das APIs de insights da Meta e do LinkedIn (onde você conectou contas) mais o tracking server-side próprio do AHO de cliques e formulários.",
+            "Os números são honestos: vazios até existir dado e nunca extrapolamos. Analytics por anúncio abrem pela página Imóveis ou direto na visão geral de analytics."
+          ],
+          "links": [
+            {
+              "label": "Visão geral de analytics",
+              "href": "dashboard-analytics"
+            }
+          ]
+        },
+        {
+          "id": "agents-channels",
+          "title": "Conectando contas sociais",
+          "body": [
+            "Abra a página Social e siga os botões \"Conectar Facebook\", \"Conectar Instagram\", \"Conectar LinkedIn\". Cada um abre o fluxo OAuth da plataforma em um popup; ao dar certo, o AHO guarda um token de acesso criptografado e o id da página/perfil que você autorizou.",
+            "Você pode revogar uma conexão a qualquer momento pela mesma página; o token é apagado na hora. Pedimos só os escopos necessários para publicar seus próprios posts de anúncio e ler os insights deles — sem lista de amigos, sem acesso a conta de anúncios.",
+            "Enquanto o Meta App Review está pendente, o botão de conectar funciona para o fluxo copiar-e-colar, mas o switch de auto-publicação fica desativado."
+          ],
+          "links": [
+            {
+              "label": "Distribuição social",
+              "href": "dashboard-social"
+            }
+          ]
+        },
+        {
+          "id": "agents-billing",
+          "title": "Cobrança e mudanças de plano",
+          "body": [
+            "Gerencie sua assinatura pela página Perfil no painel. O botão \"Abrir portal de cobrança\" entrega você ao Customer Portal hospedado da Stripe, onde atualiza dados do cartão, baixa faturas, troca de plano ou cancela.",
+            "O cancelamento entra em vigor no fim do ciclo atual de cobrança — seus anúncios ficam no ar até lá. Reassinar reabre tudo onde você parou.",
+            "Imposto (VAT, sales tax) é tratado automaticamente pelo Stripe Tax com base no seu país de cobrança."
+          ],
+          "links": [
+            {
+              "label": "Perfil e cobrança",
+              "href": "dashboard-profile"
+            }
+          ]
+        },
+        {
+          "id": "agents-sold",
+          "title": "Marcando um anúncio como vendido e pedindo avaliação",
+          "body": [
+            "Quando o negócio fecha, abra o anúncio e use \"Marcar como vendido/alugado\". Informe a data de fechamento, preço opcional de fechamento e qual lado você representou (comprador, vendedor, ambos). O anúncio passa para o seu arquivo de vendidos e mostra um selo \"Vendido\" por 30 dias.",
+            "Se o e-mail do comprador estiver no negócio, o AHO pode enviar a ele um pedido de avaliação de um clique 7 dias após o fechamento. As avaliações são duplamente verificadas: o e-mail precisa bater com o registro do negócio e um link tokenizado confirma que é a pessoa certa."
+          ],
+          "links": [
+            {
+              "label": "Suas avaliações",
+              "href": "dashboard-reviews"
+            }
+          ]
+        },
+        {
+          "id": "agents-mfa",
+          "title": "Autenticação em dois fatores (TOTP)",
+          "body": [
+            "Ative TOTP pela página Perfil. Escaneie o QR code com Google Authenticator, 1Password, Authy ou qualquer app compatível com TOTP, depois digite o código de 6 dígitos para confirmar.",
+            "Uma vez ativado, todo login pede um código novo. Salve os códigos de backup mostrados na tela — são o caminho de recuperação se você perder o celular. Podemos ajudar com a redefinição só com prova de identidade; não dá para burlar MFA por capricho."
+          ],
+          "links": [
+            {
+              "label": "Configurar MFA",
+              "href": "setup-mfa"
+            }
+          ]
+        }
+      ]
+    },
+    "admins": {
+      "heading": "Para administradores",
+      "intro": "Acesso de admin é concedido manualmente pela AHO e protegido por MFA obrigatório. A área admin fica em /admin e mostra o quadro completo de todas as organizações na plataforma.",
+      "sections": [
+        {
+          "id": "admins-layout",
+          "title": "Visão geral do layout",
+          "body": [
+            "A área admin é um layout simples com top-nav. Da esquerda para a direita: KPIs, Moderação, Organizações, Usuários, Contatos, Avaliações, Audit log. Cada seção é uma página única que carrega no servidor; não há apps client-side admin para manter sincronizados.",
+            "Toda ação de admin é gravada no audit log. Não existe caminho extraoficial."
+          ],
+          "links": [
+            {
+              "label": "Home admin",
+              "href": "admin"
+            }
+          ]
+        },
+        {
+          "id": "admins-kpis",
+          "title": "Faixa de KPIs",
+          "body": [
+            "A faixa da home mostra os números de manchete: assinaturas ativas por plano, anúncios publicados nos últimos 7 dias, contatos roteados nos últimos 7 dias, MRR, sinais de churn (cancelamentos pendentes).",
+            "Os números são calculados na hora a partir dos dados de produção — sem cache, sem estimativa. Quando algo parecer estranho, clique para a tela detalhada em vez de recarregar."
+          ],
+          "links": []
+        },
+        {
+          "id": "admins-moderation",
+          "title": "Fila de moderação",
+          "body": [
+            "Anúncios novos, descrições editadas com pontuação alta de \"conteúdo incomum\" e anúncios denunciados caem na fila de moderação. Cada item mostra o anúncio completo como ele apareceria publicamente, mais uma barra lateral com ações: aprovar, rejeitar com motivo, suspender o corretor.",
+            "Os motivos de rejeição são templated (sem fotos reais, anúncio duplicado, conteúdo proibido, etc.) e voltam para o corretor no painel dele e por e-mail. Suspensões são imediatas; os anúncios do corretor somem da visão pública até a suspensão ser revogada."
+          ],
+          "links": []
+        },
+        {
+          "id": "admins-orgs",
+          "title": "Organizações, usuários, contatos, avaliações",
+          "body": [
+            "Cada uma é uma tela lista-com-detalhe. Filtre e ordene pelas colunas que precisar; clique em uma entrada para ver o registro completo e as ações possíveis. A tela de Organização mostra o plano do corretor, status de cobrança, contagem de anúncios e um botão para abrir o cliente Stripe em uma aba nova.",
+            "A tela de Usuários permite que admins resetem MFA de um usuário que perdeu o aparelho — só após verificação de identidade e a ação fica no audit log.",
+            "A tela de Contatos mostra as decisões de roteamento (qual regra disparou, quem recebeu). A tela de Avaliações mostra avaliações aguardando moderação e permite aprovar, rejeitar ou anexar uma nota de moderador."
+          ],
+          "links": []
+        },
+        {
+          "id": "admins-audit",
+          "title": "Audit log",
+          "body": [
+            "Toda escrita admin — aprovação, rejeição, suspensão, reset de MFA, intervenção em cobrança — aparece no audit log com timestamp, ator, alvo e payload JSON do que mudou. Filtre por ator ou alvo para investigar uma trilha única.",
+            "O audit log é append-only no nível de banco. Nem admins podem apagar entradas; a única forma de corrigir um registro é adicionar uma entrada compensatória."
+          ],
+          "links": []
+        },
+        {
+          "id": "admins-escalation",
+          "title": "Caminhos de escalonamento",
+          "body": [
+            "Para qualquer coisa que você não consegue resolver no app — disputas de pagamento, pedidos legais, incidentes de segurança, suspeita de abuso da plataforma — escalone para info@advertisehomes.online. Inclua o id da entrada do audit log (ou a URL da tela e timestamp) para que o engenheiro de plantão pegue seu contexto na hora.",
+            "Incidentes de segurança seguem o relógio de 72 horas do GDPR/LGPD: notifique usuários afetados em até 72 horas após tomar conhecimento, documente a linha do tempo, faça a notificação ao regulador."
+          ],
+          "links": [
+            {
+              "label": "Política de privacidade",
+              "href": "privacy"
+            }
+          ]
+        }
+      ]
     }
   }
 }

@@ -409,8 +409,17 @@
     "bathrooms_one": "{count} Bad",
     "bathrooms_other": "{count} Bäder",
     "areaSqm": "{value} m²",
-    "transactionType": { "sale": "Zum Verkauf", "rent": "Zur Miete", "short_term": "Kurzzeitmiete" },
-    "pricePeriod": { "total": "", "monthly": "/ Monat", "weekly": "/ Woche", "nightly": "/ Nacht" },
+    "transactionType": {
+      "sale": "Zum Verkauf",
+      "rent": "Zur Miete",
+      "short_term": "Kurzzeitmiete"
+    },
+    "pricePeriod": {
+      "total": "",
+      "monthly": "/ Monat",
+      "weekly": "/ Woche",
+      "nightly": "/ Nacht"
+    },
     "contactAgent": "Makler kontaktieren",
     "seeFullProfile": "Vollständiges Profil auf AHO ansehen",
     "chatOnWhatsapp": "WhatsApp-Chat",
@@ -429,30 +438,99 @@
     "factsSectionCommunity": "Gemeinschaft",
     "factsSectionLocation": "Lage",
     "factsSectionFinancial": "Finanzielles",
-    "factsBool": { "yes": "Ja", "no": "Nein" },
+    "factsBool": {
+      "yes": "Ja",
+      "no": "Nein"
+    },
     "factsField": {
-      "bedrooms": "Schlafzimmer", "bathrooms": "Bäder", "area": "Wohnfläche", "lotSize": "Grundstücksfläche",
-      "yearBuilt": "Baujahr", "propertyType": "Objekttyp", "stories": "Etagen", "basement": "Keller",
-      "petPolicy": "Haustiere", "lastRenovationYear": "Letzte Renovierung", "exteriorMaterial": "Fassade",
-      "roofType": "Dach", "water": "Wasser", "sewer": "Abwasser", "solar": "Solarenergie",
-      "communityFee": "Hausgeld", "communityFeePeriod": "Periode", "gated": "Geschlossene Anlage",
-      "securitySystem": "Alarmanlage", "communityAmenities": "Anlage-Ausstattung",
-      "neighborhood": "Stadtteil", "cityRegion": "Stadt / Region", "schoolDistrict": "Schulbezirk",
-      "distanceToBeach": "Entfernung zum Strand", "publicTransit": "ÖPNV in der Nähe",
-      "propertyTaxAnnual": "Jährliche Grundsteuer", "listingTerms": "Akzeptierte Bedingungen",
-      "parkingSpaces": "Stellplätze", "parkingType": "Stellplatztyp", "heating": "Heizung",
-      "cooling": "Klimaanlage", "flooring": "Bodenbelag", "laundryInUnit": "Waschmaschine in Einheit",
-      "furnished": "Möbliert", "balcony": "Balkon", "terrace": "Terrasse", "amenities": "Ausstattung"
+      "bedrooms": "Schlafzimmer",
+      "bathrooms": "Bäder",
+      "area": "Wohnfläche",
+      "lotSize": "Grundstücksfläche",
+      "yearBuilt": "Baujahr",
+      "propertyType": "Objekttyp",
+      "stories": "Etagen",
+      "basement": "Keller",
+      "petPolicy": "Haustiere",
+      "lastRenovationYear": "Letzte Renovierung",
+      "exteriorMaterial": "Fassade",
+      "roofType": "Dach",
+      "water": "Wasser",
+      "sewer": "Abwasser",
+      "solar": "Solarenergie",
+      "communityFee": "Hausgeld",
+      "communityFeePeriod": "Periode",
+      "gated": "Geschlossene Anlage",
+      "securitySystem": "Alarmanlage",
+      "communityAmenities": "Anlage-Ausstattung",
+      "neighborhood": "Stadtteil",
+      "cityRegion": "Stadt / Region",
+      "schoolDistrict": "Schulbezirk",
+      "distanceToBeach": "Entfernung zum Strand",
+      "publicTransit": "ÖPNV in der Nähe",
+      "propertyTaxAnnual": "Jährliche Grundsteuer",
+      "listingTerms": "Akzeptierte Bedingungen",
+      "parkingSpaces": "Stellplätze",
+      "parkingType": "Stellplatztyp",
+      "heating": "Heizung",
+      "cooling": "Klimaanlage",
+      "flooring": "Bodenbelag",
+      "laundryInUnit": "Waschmaschine in Einheit",
+      "furnished": "Möbliert",
+      "balcony": "Balkon",
+      "terrace": "Terrasse",
+      "amenities": "Ausstattung"
     },
     "featuresEnum": {
-      "parkingType": { "garage": "Garage", "carport": "Carport", "street": "Straße", "lot": "Parkplatz", "none": "Keine" },
-      "heatingFuel": { "electric": "Strom", "gas": "Gas", "oil": "Öl", "solar": "Solar", "wood": "Holz", "none": "Keine" },
-      "cooling": { "central": "Zentral", "split": "Split-Anlage", "window": "Fenstergerät", "evaporative": "Verdunstungskühler", "none": "Keine" },
-      "water": { "public": "Öffentlich", "well": "Brunnen", "cistern": "Zisterne", "truck": "Tankwagen-Lieferung" },
-      "sewer": { "public": "Öffentlich", "septic": "Klärgrube", "none": "Keine" },
-      "hoaFeePeriod": { "monthly": "Monat", "annual": "Jahr" },
-      "petPolicy": { "allowed": "Erlaubt", "restricted": "Eingeschränkt", "none": "Nicht erlaubt" },
-      "listingTerm": { "cash": "Bar", "mortgage": "Hypothek", "owner_financing": "Verkäuferfinanzierung", "lease_to_own": "Mietkauf", "trade": "Tausch" }
+      "parkingType": {
+        "garage": "Garage",
+        "carport": "Carport",
+        "street": "Straße",
+        "lot": "Parkplatz",
+        "none": "Keine"
+      },
+      "heatingFuel": {
+        "electric": "Strom",
+        "gas": "Gas",
+        "oil": "Öl",
+        "solar": "Solar",
+        "wood": "Holz",
+        "none": "Keine"
+      },
+      "cooling": {
+        "central": "Zentral",
+        "split": "Split-Anlage",
+        "window": "Fenstergerät",
+        "evaporative": "Verdunstungskühler",
+        "none": "Keine"
+      },
+      "water": {
+        "public": "Öffentlich",
+        "well": "Brunnen",
+        "cistern": "Zisterne",
+        "truck": "Tankwagen-Lieferung"
+      },
+      "sewer": {
+        "public": "Öffentlich",
+        "septic": "Klärgrube",
+        "none": "Keine"
+      },
+      "hoaFeePeriod": {
+        "monthly": "Monat",
+        "annual": "Jahr"
+      },
+      "petPolicy": {
+        "allowed": "Erlaubt",
+        "restricted": "Eingeschränkt",
+        "none": "Nicht erlaubt"
+      },
+      "listingTerm": {
+        "cash": "Bar",
+        "mortgage": "Hypothek",
+        "owner_financing": "Verkäuferfinanzierung",
+        "lease_to_own": "Mietkauf",
+        "trade": "Tausch"
+      }
     },
     "similarHomesHeading": "Ähnliche Objekte in der Nähe"
   },
@@ -1520,5 +1598,370 @@
     "saveButtonAuth": "Zum Speichern anmelden",
     "saveButtonError": "Speichern fehlgeschlagen",
     "alertsBlocked": "E-Mail-Benachrichtigungen starten, sobald AHO seinen E-Mail-Versand fertig konfiguriert hat."
+  },
+  "docs": {
+    "footerLink": "Dokumentation",
+    "meta": {
+      "title": "Dokumentation — AHO",
+      "description": "Schriftlicher Leitfaden für Käufer, Makler und Administratoren von AHO. Suchen, Speichern, Kontaktieren, Inserieren, Verteilen, Moderieren."
+    },
+    "heading": "Dokumentation",
+    "intro": "Drei Zielgruppen, drei Leitfäden. Wählen Sie den, der zu Ihrer Nutzung von AHO passt. Jeder Abschnitt verlinkt auf die jeweilige Stelle im Produkt, sodass Sie eingeloggt mitlesen können.",
+    "lastUpdated": "Zuletzt aktualisiert: 10.05.2026",
+    "toc": {
+      "heading": "Auf dieser Seite",
+      "buyers": "Für Käufer",
+      "agents": "Für Makler",
+      "admins": "Für Administratoren"
+    },
+    "buyers": {
+      "heading": "Für Käufer",
+      "intro": "Ein Konto brauchen Sie zum Stöbern nicht. Sie brauchen eines, um Suchen zu speichern, Anzeigen zu favorisieren und Makler zu kontaktieren. Die gesamte Käufer-Erfahrung ist kostenlos — Makler zahlen für die Veröffentlichung, Käufer zahlen AHO nie.",
+      "sections": [
+        {
+          "id": "buyers-search",
+          "title": "Eine Immobilie suchen",
+          "body": [
+            "Auf der Suchseite verbringen die meisten Käufer ihre Zeit. Geben Sie Stadt, Stadtteil oder Postleitzahl ins Suchfeld ein oder verschieben und zoomen Sie die Karte — die Trefferliste aktualisiert sich auf das, was gerade auf der Karte sichtbar ist.",
+            "Filtern Sie nach Preis, Schlafzimmern, Immobilientyp und Angebotstyp (Kauf oder Miete). Preise erscheinen in der oben gewählten Währung; der Basiswert ist der vom Makler gesetzte Preis.",
+            "Leere Ergebnisse sind ehrlich: Wenn nichts zu Ihren Filtern passt, sagt die Seite das. Wir erfinden keine Demo-Anzeigen, um Platz zu füllen."
+          ],
+          "links": [
+            {
+              "label": "Suche öffnen",
+              "href": "search"
+            },
+            {
+              "label": "Nach Land stöbern",
+              "href": "countries"
+            }
+          ]
+        },
+        {
+          "id": "buyers-save",
+          "title": "Immobilien und Suchen speichern",
+          "body": [
+            "Tippen Sie auf das Herz-Symbol auf einer Anzeigenkarte oder Detailseite, um zu favorisieren. Favoriten bleiben an Ihren Browser gebunden, auch bevor Sie sich anmelden; sobald Sie ein Konto erstellen, fließen Ihre anonymen Favoriten in Ihr Konto ein, damit Sie nichts verlieren.",
+            "Gespeicherte Suchen sind etwas anderes: Es ist ein gespeicherter Filter-Satz, den wir für Sie wieder ausführen. Öffnen Sie eine Suche, die Ihnen gefällt, klicken Sie auf „Diese Suche speichern\", benennen Sie sie und wählen Sie, ob Sie E-Mail-Übersichten zu neuen Treffern erhalten möchten. Sie verwalten alles — umbenennen, Filter bearbeiten, Frequenz ändern, löschen — auf der Seite Gespeicherte Suchen."
+          ],
+          "links": [
+            {
+              "label": "Gespeicherte Immobilien",
+              "href": "saved-properties"
+            },
+            {
+              "label": "Gespeicherte Suchen",
+              "href": "saved-searches"
+            }
+          ]
+        },
+        {
+          "id": "buyers-contact",
+          "title": "Einen Makler kontaktieren",
+          "body": [
+            "Jede Anzeige hat ein Kontaktformular auf der rechten Seite (oder unter den Fotos auf dem Smartphone). Tragen Sie Name, E-Mail, optional Telefon und eine Nachricht ein; der Makler erhält sie in seinem Posteingang und Sie erhalten eine Kopie per E-Mail.",
+            "Wir leiten Ihre Nachricht ausschließlich an den Makler weiter. Wir verkaufen oder teilen Kontaktdaten nie mit Dritten. Das Formular ist durch Cloudflare Turnstile und einen Honeypot gegen Bots geschützt — in der Praxis sehen Sie fast nie eine Challenge.",
+            "Wenn Sie lieber anrufen oder per WhatsApp schreiben, listet die Maklerseite die direkten Kanäle, die der Makler hinterlegt hat."
+          ],
+          "links": [
+            {
+              "label": "Anzeigen durchstöbern, um einen Makler zu finden",
+              "href": "search"
+            }
+          ]
+        },
+        {
+          "id": "buyers-language-currency",
+          "title": "Sprache und Währung",
+          "body": [
+            "Wechseln Sie die Oberflächensprache über den Schalter oben rechts und am Ende jeder Seite. AHO erscheint in sieben Sprachen: Englisch, Spanisch, Polnisch, Portugiesisch, Deutsch, Französisch, Italienisch. Der Anzeigeninhalt selbst wird vom Makler verfasst — er erscheint in den Sprachen, in denen er ihn geschrieben hat (zum Start meist Englisch und/oder Spanisch). Anzeigentexte übersetzen wir nie automatisch.",
+            "Die Währung ist unabhängig von der Sprache. Wählen Sie Ihre bevorzugte Währung an derselben Stelle; Preise werden mit Live-Kursen umgerechnet, während der zugrunde liegende Anzeigenpreis unverändert bleibt. Die Formatierung folgt Ihrer Sprache — €1.250.000 auf Spanisch, $1,250,000 auf Englisch."
+          ],
+          "links": []
+        },
+        {
+          "id": "buyers-account",
+          "title": "Konto, Sicherheit und Datenschutz",
+          "body": [
+            "Erstellen Sie ein Konto mit E-Mail + Passwort, Google oder Magic Link. Das Zurücksetzen des Passworts ist Self-Service auf der Anmeldeseite. Im Dashboard können Sie Zwei-Faktor-Authentifizierung (TOTP) aktivieren — empfohlen, wenn Sie sensible Suchen speichern.",
+            "Alle Ihre Daten gehören Ihnen. Sie können Ihr Konto jederzeit auf der Profilseite im Dashboard löschen; das umfasst Ihre Favoriten, gespeicherten Suchen, Kontaktformular-Einsendungen und Bewertungen. Abrechnungsdatensätze (falls Sie AHO auch als Makler nutzen) werden anonymisiert, aber dort aufbewahrt, wo es das Steuerrecht verlangt.",
+            "In der vollständigen Datenschutzerklärung steht Zeile für Zeile, was wir speichern, warum und wie lange."
+          ],
+          "links": [
+            {
+              "label": "Datenschutzerklärung",
+              "href": "privacy"
+            },
+            {
+              "label": "Nutzungsbedingungen",
+              "href": "terms"
+            },
+            {
+              "label": "Anmelden",
+              "href": "signin"
+            },
+            {
+              "label": "Konto erstellen",
+              "href": "signup"
+            }
+          ]
+        }
+      ]
+    },
+    "agents": {
+      "heading": "Für Makler",
+      "intro": "Makler abonnieren, um Anzeigen zu veröffentlichen. Der niedrigste Tarif bringt Sie auf die Plattform; höhere Tarife schalten die Social-Media-Verteilautomatik frei, die aus einer Anzeige 21 plattformspezifische Beiträge macht. Alles unten setzt voraus, dass Sie sich bereits registriert haben — sonst sehen Sie sich die Tarifseite an.",
+      "sections": [
+        {
+          "id": "agents-setup",
+          "title": "Erstes Setup: Abonnieren, Onboarding, Profil, erste Anzeige",
+          "body": [
+            "Schließen Sie das Abo auf der Tarifseite ab. Sie durchlaufen Stripe Checkout (Test- oder Echtkarte, je nach Tarif), kommen dann auf die Willkommensseite, wo der Onboarding-Assistent Sie in drei kurzen Schritten führt: Organisationsdaten, Maklerprofil und erste Anzeige.",
+            "Überspringen Sie jeden Schritt, den Sie jetzt nicht abschließen können — Sie holen das später im Dashboard nach. Der Onboarding-Assistent existiert, um die Lücke zwischen „gerade bezahlt\" und „habe eine Live-Anzeige\" zu verkürzen, nicht um den Dashboard-Zugang zu blockieren.",
+            "Nach dem Onboarding ist das Dashboard die Zentrale für alles Weitere: Immobilien, Anfragen, Social-Posts, Analytics, Abrechnung."
+          ],
+          "links": [
+            {
+              "label": "Tarife und Pläne",
+              "href": "pricing"
+            },
+            {
+              "label": "Registrieren",
+              "href": "signup"
+            },
+            {
+              "label": "Willkommen / Onboarding",
+              "href": "onboarding"
+            },
+            {
+              "label": "Dashboard",
+              "href": "dashboard"
+            }
+          ]
+        },
+        {
+          "id": "agents-import-lanes",
+          "title": "Drei Wege, eine Anzeige zu erstellen: URL, Sprache, manuell",
+          "body": [
+            "URL-Import: Fügen Sie einen Link aus einem Konkurrenzportal (otodom, idealista, andere) ein, und AHO scrapt die öffentlichen Felder, lädt die Fotos und füllt das Anzeigenformular vor. Sie prüfen, bearbeiten und veröffentlichen.",
+            "Sprach-Import: Tippen Sie auf das Mikrofon im Neuanzeigen-Bildschirm und diktieren Sie die Immobilie in Ihrer Sprache. Whisper transkribiert; Claude extrahiert Preis, Fläche, Zimmerzahl, Lage, Ausstattung; das Formular füllt sich vor. Gedacht für Makler, die gerade aus einer Besichtigung kommen — bis Sie am Auto sind, ist der Entwurf fertig.",
+            "Manuell: das klassische Formular. Tippen Sie jedes Feld, ziehen Sie Fotos hinein, schreiben Sie die Beschreibung. Immer als Notlösung verfügbar, wenn ein Import bei einer ungewöhnlichen Quelle stolpert."
+          ],
+          "links": [
+            {
+              "label": "Neue Anzeige",
+              "href": "dashboard-new-property"
+            }
+          ]
+        },
+        {
+          "id": "agents-photos",
+          "title": "Fotorichtlinien",
+          "body": [
+            "Originale werden auf Cloudflare R2 hochgeladen; AHO leitet Anzeigevarianten in Cloudflare Images ab. Empfohlene Originale: 2400 px an der langen Kante oder mehr, JPEG oder WebP, unter 10 MB pro Datei. Wir akzeptieren bis zu 30 Fotos pro Anzeige.",
+            "Die Reihenfolge zählt: Das erste Foto ist das Coverbild auf den Trefferkarten und in den Social-Posts. Auf der Bearbeitungsseite ziehen Sie zum Umsortieren.",
+            "Gemäß der Echte-Daten-Regel der Plattform sind nur Fotos der tatsächlichen Immobilie erlaubt. Keine Stockfotos, keine KI-generierten Räume, keine „repräsentativen\" Bilder einer anderen Wohnung. Anzeigen, die das verletzen, werden von Moderatoren ohne Vorwarnung entfernt."
+          ],
+          "links": [
+            {
+              "label": "Ihre Immobilien",
+              "href": "dashboard-properties"
+            }
+          ]
+        },
+        {
+          "id": "agents-edit-flow",
+          "title": "Eine Anzeige bearbeiten",
+          "body": [
+            "Öffnen Sie eine Anzeige über die Seite Immobilien im Dashboard. Der Bearbeitungsbildschirm spiegelt das Neuanzeigen-Formular: Sprach-Tabs (EN / ES) oben, Fotoraster unten, strukturierte Felder für Preis, Adresse, Attribute und zweisprachige Beschreibungen.",
+            "Speichern wirkt sofort. Jeder Speichervorgang setzt den öffentlichen updated_at der Anzeige neu, was Suche und Verteilplaner signalisiert, dass der Inhalt frisch ist.",
+            "Archivieren Sie eine Anzeige, wenn sie nicht mehr verfügbar ist, Sie aber die Historie behalten wollen. Archivierte Anzeigen bleiben 90 Tage im Dashboard und werden dann gelöscht, sofern Sie sie nicht wiederherstellen."
+          ],
+          "links": [
+            {
+              "label": "Ihre Immobilien",
+              "href": "dashboard-properties"
+            }
+          ]
+        },
+        {
+          "id": "agents-leads",
+          "title": "Anfragen-Posteingang und Routing",
+          "body": [
+            "Jede Kontaktformular-Einsendung auf einer Ihrer Anzeigen landet im Anfragen-Posteingang. Jeder Eintrag zeigt Name, E-Mail, optional Telefon, Nachricht, die Anzeige, die der Käufer betrachtet hat, und eine Ein-Klick-Antwort, die Ihren E-Mail-Client mit vorausgefülltem Betreff öffnet.",
+            "Anfragen-Routing-Regeln leiten eingehende Anfragen anhand von Anzeigen-Tags oder geografischer Region an Kollegen weiter — nützlich, wenn Ihr Team mehr als eine Person ist. Regeln laufen serverseitig, bevor die Benachrichtigungs-E-Mail rausgeht.",
+            "Leerer Posteingang? Er ist wirklich leer. Wir säen nie Demo-Anfragen."
+          ],
+          "links": [
+            {
+              "label": "Anfragen-Posteingang",
+              "href": "dashboard-leads"
+            },
+            {
+              "label": "Anfragen-Routing-Regeln",
+              "href": "dashboard-leads-routing"
+            }
+          ]
+        },
+        {
+          "id": "agents-social",
+          "title": "Social-Raster und Tonalitäten",
+          "body": [
+            "Im Pro Automation zeigt die Social-Seite ein 3 × 7-Raster: drei Plattformen (Facebook, Instagram, LinkedIn) mal sieben Sprachen. Für jede neue Anzeige erzeugt AHO eine plattformspezifische, sprachnahe Variante in jeder Zelle — insgesamt 21 Posts.",
+            "Jede Variante ist editierbar. Sie können je Plattform eine andere Tonalität wählen (warm, sachlich, hype, professionell); wir merken uns Ihre letzte Wahl als Standard für die nächste Anzeige auf dieser Plattform.",
+            "Die Posts enthalten den Link zu Ihrer AHO-Anzeige, sodass Anfragen in Ihrem Posteingang ankommen. Bis das Meta App Review durch ist, läuft das Veröffentlichen per Copy-Paste; Ein-Klick-Veröffentlichung schaltet sich automatisch frei, sobald die Freigabe für einen verbundenen Kanal vorliegt."
+          ],
+          "links": [
+            {
+              "label": "Social-Distribution",
+              "href": "dashboard-social"
+            }
+          ]
+        },
+        {
+          "id": "agents-performance",
+          "title": "Performance-Dashboard",
+          "body": [
+            "Die Analytics-Seite zeigt echte Reichweite und Anfragenzahlen pro Anzeige, pro Plattform, pro Sprache. Wir aggregieren aus den Insights-APIs von Meta und LinkedIn (wo Sie Konten verbunden haben) plus AHOs eigenem serverseitigem Tracking von Klicks und Kontaktformularen.",
+            "Die Zahlen sind ehrlich: leer, bis Daten da sind, und wir extrapolieren nie. Per-Anzeige-Analytics öffnen Sie über die Seite Immobilien oder direkt aus der Analytics-Übersicht."
+          ],
+          "links": [
+            {
+              "label": "Analytics-Übersicht",
+              "href": "dashboard-analytics"
+            }
+          ]
+        },
+        {
+          "id": "agents-channels",
+          "title": "Social-Konten verbinden",
+          "body": [
+            "Öffnen Sie die Social-Seite und folgen Sie den Schaltflächen „Facebook verbinden\", „Instagram verbinden\", „LinkedIn verbinden\". Jede öffnet den OAuth-Flow der Plattform in einem Popup; bei Erfolg speichert AHO ein verschlüsseltes Access-Token und die Seiten-/Profil-ID, die Sie autorisiert haben.",
+            "Sie können eine Verbindung jederzeit auf derselben Seite widerrufen; das Token wird sofort gelöscht. Wir fordern nur die Berechtigungen an, die zum Veröffentlichen Ihrer eigenen Anzeigen-Posts und zum Lesen ihrer Insights nötig sind — keine Freundeslisten, kein Werbekonto-Zugriff.",
+            "Solange das Meta App Review läuft, funktioniert die Verbinden-Schaltfläche für den Copy-Paste-Flow, der Auto-Publish-Schalter ist deaktiviert."
+          ],
+          "links": [
+            {
+              "label": "Social-Distribution",
+              "href": "dashboard-social"
+            }
+          ]
+        },
+        {
+          "id": "agents-billing",
+          "title": "Abrechnung und Tarifwechsel",
+          "body": [
+            "Verwalten Sie Ihr Abo auf der Profilseite im Dashboard. Die Schaltfläche „Abrechnungsportal öffnen\" leitet Sie an den gehosteten Stripe Customer Portal weiter, wo Sie Kartendaten ändern, Rechnungen herunterladen, den Tarif wechseln oder kündigen.",
+            "Die Kündigung wird zum Ende der laufenden Abrechnungsperiode wirksam — Ihre Anzeigen bleiben bis dahin live. Beim erneuten Abonnieren öffnet sich alles wieder dort, wo Sie aufgehört haben.",
+            "Die Steuer (USt., Sales Tax) wird automatisch von Stripe Tax basierend auf Ihrem Abrechnungsland behandelt."
+          ],
+          "links": [
+            {
+              "label": "Profil und Abrechnung",
+              "href": "dashboard-profile"
+            }
+          ]
+        },
+        {
+          "id": "agents-sold",
+          "title": "Eine Anzeige als verkauft markieren und um eine Bewertung bitten",
+          "body": [
+            "Wenn der Deal abgeschlossen ist, öffnen Sie die Anzeige und nutzen Sie „Als verkauft/vermietet markieren\". Geben Sie das Abschlussdatum, optional den Abschlusspreis und die Seite an, die Sie vertreten haben (Käufer, Verkäufer, beide). Die Anzeige wandert in Ihr Verkaufs-Archiv und zeigt 30 Tage lang ein „Verkauft\"-Abzeichen.",
+            "Wenn die Käufer-E-Mail im Deal hinterlegt ist, kann AHO 7 Tage nach Abschluss eine Ein-Klick-Bewertungsanfrage senden. Bewertungen werden doppelt verifiziert: Die E-Mail muss zum Deal-Datensatz passen, und ein tokenisierter Link bestätigt, dass es die richtige Person ist."
+          ],
+          "links": [
+            {
+              "label": "Ihre Bewertungen",
+              "href": "dashboard-reviews"
+            }
+          ]
+        },
+        {
+          "id": "agents-mfa",
+          "title": "Zwei-Faktor-Authentifizierung (TOTP)",
+          "body": [
+            "Aktivieren Sie TOTP auf der Profilseite. Scannen Sie den QR-Code mit Google Authenticator, 1Password, Authy oder einer beliebigen TOTP-kompatiblen App und geben Sie dann den 6-stelligen Code zur Bestätigung ein.",
+            "Nach Aktivierung fragt jede Anmeldung nach einem aktuellen Code. Speichern Sie die angezeigten Backup-Codes — sie sind der Wiederherstellungspfad, falls Sie Ihr Telefon verlieren. Wir können bei einer Rücksetzung nur mit Identitätsnachweis helfen; wir umgehen MFA nicht auf Zuruf."
+          ],
+          "links": [
+            {
+              "label": "MFA einrichten",
+              "href": "setup-mfa"
+            }
+          ]
+        }
+      ]
+    },
+    "admins": {
+      "heading": "Für Administratoren",
+      "intro": "Admin-Zugang wird manuell von AHO vergeben und ist durch verpflichtendes MFA geschützt. Der Admin-Bereich liegt unter /admin und zeigt das vollständige Bild über alle Organisationen der Plattform.",
+      "sections": [
+        {
+          "id": "admins-layout",
+          "title": "Layout-Übersicht",
+          "body": [
+            "Der Admin-Bereich ist ein einfaches Top-Nav-Layout. Von links nach rechts: KPIs, Moderation, Organisationen, Nutzer, Anfragen, Bewertungen, Audit-Log. Jeder Bereich ist eine einzelne, serverseitig geladene Seite; es gibt keine Admin-Client-Apps zu synchronisieren.",
+            "Jede Admin-Aktion schreibt ins Audit-Log. Es gibt keinen Off-the-Record-Pfad."
+          ],
+          "links": [
+            {
+              "label": "Admin-Startseite",
+              "href": "admin"
+            }
+          ]
+        },
+        {
+          "id": "admins-kpis",
+          "title": "KPI-Leiste",
+          "body": [
+            "Die Startleiste zeigt die Headline-Zahlen: aktive Abonnements pro Tarif, in den letzten 7 Tagen veröffentlichte Anzeigen, in den letzten 7 Tagen geroutete Anfragen, MRR, Churn-Signale (anstehende Kündigungen).",
+            "Die Zahlen werden zur Anfragezeit aus Produktionsdaten berechnet — kein Cache, keine Schätzung. Wenn etwas seltsam aussieht, klicken Sie zur darunterliegenden Ansicht statt nachzuladen."
+          ],
+          "links": []
+        },
+        {
+          "id": "admins-moderation",
+          "title": "Moderationswarteschlange",
+          "body": [
+            "Neue Anzeigen, bearbeitete Beschreibungen mit hohem „ungewöhnlicher Inhalt\"-Score und gemeldete Anzeigen landen in der Moderationswarteschlange. Jeder Eintrag zeigt die Anzeige in voller öffentlicher Ansicht plus eine Sidebar mit Aktionen: freigeben, mit Begründung ablehnen, Makler suspendieren.",
+            "Ablehnungsgründe sind als Templates hinterlegt (keine echten Fotos, doppelte Anzeige, verbotener Inhalt usw.) und gehen an den Makler im Dashboard plus per E-Mail. Suspendierungen wirken sofort; die Anzeigen des Maklers verschwinden aus der öffentlichen Sicht, bis die Suspendierung aufgehoben ist."
+          ],
+          "links": []
+        },
+        {
+          "id": "admins-orgs",
+          "title": "Organisationen, Nutzer, Anfragen, Bewertungen",
+          "body": [
+            "Jeweils eine Liste-mit-Detail-Ansicht. Filtern und sortieren Sie nach den benötigten Spalten; klicken Sie auf einen Eintrag, um den vollen Datensatz und die möglichen Aktionen zu sehen. Die Org-Ansicht zeigt Tarif, Abrechnungsstatus, Anzeigenanzahl und eine Schaltfläche, die den Stripe-Kunden in einem neuen Tab öffnet.",
+            "Die Nutzer-Ansicht erlaubt Admins, MFA für einen Nutzer zurückzusetzen, der sein Gerät verloren hat — nur nach Identitätsprüfung, und die Aktion wird im Audit-Log protokolliert.",
+            "Die Anfragen-Ansicht zeigt die Routing-Entscheidungen (welche Regel feuerte, wer empfing). Die Bewertungen-Ansicht zeigt zur Moderation anstehende Bewertungen und erlaubt Freigabe, Ablehnung oder Hinzufügen einer Moderator-Notiz."
+          ],
+          "links": []
+        },
+        {
+          "id": "admins-audit",
+          "title": "Audit-Log",
+          "body": [
+            "Jeder schreibende Admin-Vorgang — Freigabe, Ablehnung, Suspendierung, MFA-Reset, Abrechnungseingriff — erscheint im Audit-Log mit Zeitstempel, Akteur, Ziel und JSON-Payload des Geänderten. Filtern Sie nach Akteur oder Ziel, um eine einzelne Spur zu untersuchen.",
+            "Das Audit-Log ist auf Datenbankebene append-only. Selbst Admins können keine Einträge löschen; die einzige Korrekturmöglichkeit ist ein kompensierender Eintrag."
+          ],
+          "links": []
+        },
+        {
+          "id": "admins-escalation",
+          "title": "Eskalationswege",
+          "body": [
+            "Für alles, was Sie nicht in der App lösen können — Zahlungsstreitigkeiten, juristische Anfragen, Sicherheitsvorfälle, vermuteter Plattformmissbrauch — eskalieren Sie an info@advertisehomes.online. Geben Sie die Audit-Log-Eintrags-ID (oder Bildschirm-URL und Zeitstempel) an, damit der Bereitschaftsingenieur Ihren Kontext sofort aufnehmen kann.",
+            "Sicherheitsvorfälle folgen der DSGVO-72-Stunden-Frist: betroffene Nutzer innerhalb von 72 Stunden ab Kenntnisnahme benachrichtigen, Zeitleiste dokumentieren, Aufsichtsbehörde melden."
+          ],
+          "links": [
+            {
+              "label": "Datenschutzerklärung",
+              "href": "privacy"
+            }
+          ]
+        }
+      ]
+    }
   }
 }
