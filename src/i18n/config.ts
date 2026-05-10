@@ -133,6 +133,11 @@ export const PATHNAMES = {
     es: '/panel/contactos/[id]',
     ...en5('/dashboard/leads/[id]'),
   },
+  '/dashboard/leads/routing': {
+    en: '/dashboard/leads/routing',
+    es: '/panel/contactos/enrutamiento',
+    ...en5('/dashboard/leads/routing'),
+  },
   '/dashboard/analytics': {
     en: '/dashboard/analytics',
     es: '/panel/estadisticas',

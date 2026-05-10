@@ -10,6 +10,14 @@ import { ANON_COOKIE_NAME } from '@/lib/listings/recent-views';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { verifyTurnstileToken } from '@/lib/auth/turnstile-verify';
 import { checkRateLimit, LEAD_FORM_RATE_LIMIT } from '@/lib/rate-limit/kv';
+import {
+  applyRoutingRules,
+  type RoutingRule,
+} from '@/lib/leads/routing';
+import type {
+  LeadRoutingAction,
+  LeadRoutingConditions,
+} from '@/db/schema';
 
 export const runtime = 'edge';
 
@@ -95,7 +103,7 @@ export async function POST(req: NextRequest) {
   const { data: property, error: propErr } = await supabase
     .from('properties')
     .select(
-      'id, short_id, org_id, created_by, status, published_at, title_en, title_es, slug_en, slug_es, city, country_code, price_cents, currency',
+      'id, short_id, org_id, created_by, status, published_at, title_en, title_es, slug_en, slug_es, city, country_code, price_cents, currency, property_type',
     )
     .eq('id', data.property_id)
     .maybeSingle();
@@ -108,9 +116,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'not_found' }, { status: 404 });
   }
 
+  // Apply per-org routing rules. Solo agents with no rules see no
+  // change — `applyRoutingRules` returns the fallback (the property's
+  // primary agent, i.e. legacy attribution). Failures here are
+  // soft-handled; we never want a routing-config bug to drop a lead.
+  const routing = await routeLead({
+    supabase,
+    orgId: property.org_id,
+    fallbackUserId: property.created_by,
+    lead: {
+      city: property.city ?? null,
+      countryCode: property.country_code ?? null,
+      language: data.language ?? null,
+      propertyType: property.property_type ?? null,
+    },
+  });
+
   const { error: insertErr } = await supabase.from('leads').insert({
     property_id: property.id,
     org_id: property.org_id,
+    assigned_to: routing.assignTo,
     source: data.source,
     contact_name: data.contact_name ?? null,
     contact_email: data.contact_email ?? null,
@@ -155,16 +180,121 @@ export async function POST(req: NextRequest) {
 
   // Fire-and-await the notification email. Failures are logged but don't
   // affect the API contract — the lead exists in the DB regardless.
+  // Notify the routed assignee (falls back to property.created_by when
+  // no rule matched, preserving legacy behavior for solo agents).
   try {
     await notifyAgent({
       property,
       lead: data,
+      notifyUserId: routing.assignTo,
     });
   } catch (e) {
     console.error('[leads] notify agent failed', e);
   }
 
   return NextResponse.json({ ok: true }, { status: 201 });
+}
+
+/**
+ * Load active routing rules for the org, run them through the engine,
+ * and persist the round-robin cursor when one was advanced. All
+ * failures are soft — a routing-config bug must never drop a lead, so
+ * any error here logs + returns the legacy fallback.
+ */
+async function routeLead(args: {
+  supabase: ReturnType<typeof createAdminClient>;
+  orgId: string;
+  fallbackUserId: string;
+  lead: {
+    city: string | null;
+    countryCode: string | null;
+    language: string | null;
+    propertyType: string | null;
+  };
+}): Promise<{ assignTo: string; ruleId: string | null }> {
+  const { supabase, orgId, fallbackUserId, lead } = args;
+  try {
+    const { data: ruleRows, error: rulesErr } = await supabase
+      .from('lead_routing_rules')
+      .select('id, priority, created_at, is_active, conditions, action')
+      .eq('org_id', orgId)
+      .eq('is_active', true)
+      .order('priority', { ascending: false })
+      .order('created_at', { ascending: true });
+    if (rulesErr) {
+      console.warn('[leads] routing rules lookup failed', rulesErr);
+      return { assignTo: fallbackUserId, ruleId: null };
+    }
+    if (!ruleRows || ruleRows.length === 0) {
+      return { assignTo: fallbackUserId, ruleId: null };
+    }
+
+    const { data: stateRow } = await supabase
+      .from('lead_routing_state')
+      .select('last_round_robin_index')
+      .eq('org_id', orgId)
+      .maybeSingle();
+    const cursor = stateRow?.last_round_robin_index ?? 0;
+
+    const rules: RoutingRule[] = ruleRows
+      .map((r) => {
+        // Defensive: rows are JSONB; the action/conditions could in
+        // theory be wrong-shape if a manual SQL edit slipped past the
+        // CHECK constraint. Validate structurally and skip on miss.
+        const conditions = r.conditions as LeadRoutingConditions | null;
+        const action = r.action as LeadRoutingAction | null;
+        if (!action || (action.type !== 'assign' && action.type !== 'round_robin')) {
+          return null;
+        }
+        if (
+          action.type === 'assign' &&
+          typeof action.assign_to_user_id !== 'string'
+        ) {
+          return null;
+        }
+        if (
+          action.type === 'round_robin' &&
+          !Array.isArray(action.round_robin_user_ids)
+        ) {
+          return null;
+        }
+        return {
+          id: r.id as string,
+          priority: r.priority as number,
+          createdAt: r.created_at as string,
+          isActive: r.is_active as boolean,
+          conditions: (conditions ?? {}) as LeadRoutingConditions,
+          action,
+        } satisfies RoutingRule;
+      })
+      .filter((r): r is RoutingRule => r !== null);
+
+    const decision = applyRoutingRules(rules, lead, fallbackUserId, cursor);
+
+    if (decision.newRoundRobinIndex !== null) {
+      // Upsert the cursor. Conflict target is the PK (org_id).
+      const { error: upsertErr } = await supabase
+        .from('lead_routing_state')
+        .upsert(
+          {
+            org_id: orgId,
+            last_round_robin_index: decision.newRoundRobinIndex,
+          },
+          { onConflict: 'org_id' },
+        );
+      if (upsertErr) {
+        // Cursor write failed — the lead still gets the right
+        // assignment for THIS round, but the next call will see the
+        // stale cursor. Acceptable; log it.
+        console.warn('[leads] routing cursor upsert failed', upsertErr);
+      }
+    }
+
+    return { assignTo: decision.assignTo, ruleId: decision.ruleId };
+  } catch (e) {
+    console.warn('[leads] routing engine threw; falling back', e);
+    return { assignTo: fallbackUserId, ruleId: null };
+  }
 }
 
 interface NotifyArgs {
@@ -190,19 +320,27 @@ interface NotifyArgs {
     message?: string;
     language?: string;
   };
+  /** The routed assignee — used as the notification recipient. Falls
+   *  back to property.created_by upstream when no rule matched, so
+   *  this is always a valid profile id. */
+  notifyUserId: string;
 }
 
-async function notifyAgent({ property, lead }: NotifyArgs): Promise<void> {
+async function notifyAgent({
+  property,
+  lead,
+  notifyUserId,
+}: NotifyArgs): Promise<void> {
   const supabase = createAdminClient();
   const { data: agent, error } = await supabase
     .from('profiles')
     .select('email, full_name, preferred_language')
-    .eq('id', property.created_by)
+    .eq('id', notifyUserId)
     .single();
   if (error || !agent?.email) {
     console.warn('[leads] no agent email; skipping notification', {
       property_id: property.id,
-      created_by: property.created_by,
+      notify_user_id: notifyUserId,
     });
     return;
   }

@@ -882,3 +882,78 @@ export const listingPostMetrics = pgTable(
 export type ListingPostMetric = typeof listingPostMetrics.$inferSelect;
 export type NewListingPostMetric = typeof listingPostMetrics.$inferInsert;
 
+// ----------------------------------------------------------------
+// lead_routing_rules + lead_routing_state (migration 0040).
+// Per-org declarative rules for inbound-lead routing. Evaluated at
+// /api/leads creation time by `src/lib/leads/routing.ts` (pure fn).
+// The cursor in `lead_routing_state` powers round-robin without
+// requiring an aggregate scan over `leads` per insert. See migration
+// header for the "why cursor over count-based" rationale.
+// ----------------------------------------------------------------
+
+export const LEAD_ROUTING_ACTION_TYPES = ['assign', 'round_robin'] as const;
+export type LeadRoutingActionType = (typeof LEAD_ROUTING_ACTION_TYPES)[number];
+
+/**
+ * Routing-rule conditions. All fields optional and AND together; only
+ * present fields are evaluated. Empty `{}` matches every lead — useful
+ * as an org-wide default with low priority.
+ */
+export interface LeadRoutingConditions {
+  city?: string;
+  country_code?: string;
+  language?: string;
+  property_type?: string;
+}
+
+/**
+ * Routing-rule action. Discriminated by `type`. v1 ships two variants:
+ *   - `assign` → static assignment to one user
+ *   - `round_robin` → cycle across N users via the org's cursor
+ */
+export type LeadRoutingAction =
+  | { type: 'assign'; assign_to_user_id: string }
+  | { type: 'round_robin'; round_robin_user_ids: string[] };
+
+export const leadRoutingRules = pgTable(
+  'lead_routing_rules',
+  {
+    id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+    orgId: uuid('org_id')
+      .notNull()
+      .references(() => organizations.id, { onDelete: 'cascade' }),
+    priority: integer('priority').notNull().default(0),
+    name: text('name').notNull(),
+    conditions: jsonb('conditions').notNull().default(sql`'{}'::jsonb`),
+    action: jsonb('action').notNull(),
+    isActive: boolean('is_active').notNull().default(true),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    idxOrgPriorityActive: index(
+      'idx_lead_routing_rules_org_priority_active',
+    ).on(t.orgId, t.priority, t.createdAt),
+  }),
+);
+
+export type LeadRoutingRule = typeof leadRoutingRules.$inferSelect;
+export type NewLeadRoutingRule = typeof leadRoutingRules.$inferInsert;
+
+export const leadRoutingState = pgTable('lead_routing_state', {
+  orgId: uuid('org_id')
+    .primaryKey()
+    .references(() => organizations.id, { onDelete: 'cascade' }),
+  lastRoundRobinIndex: integer('last_round_robin_index').notNull().default(0),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export type LeadRoutingStateRow = typeof leadRoutingState.$inferSelect;
+export type NewLeadRoutingStateRow = typeof leadRoutingState.$inferInsert;
+
