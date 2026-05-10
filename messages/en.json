@@ -1967,5 +1967,29 @@
         }
       ]
     }
+  },
+  "leadRouting": {
+    "metaTitle": "Lead routing · Dashboard · AHO",
+    "heading": "Lead routing",
+    "sub": "Decide which agent receives an inbound lead based on the property's city, country, type, or the buyer's language. Rules run in priority order; the first match wins. No rule matches → the lead goes to the property's primary agent (the legacy behavior).",
+    "add": "Add rule",
+    "cancel": "Cancel",
+    "listHeading": "Active rules",
+    "empty": "No routing rules yet. Add one to start steering leads.",
+    "columns": {
+      "priority": "Priority",
+      "name": "Name",
+      "conditions": "When",
+      "action": "Then",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "matchesAny": "Any lead",
+    "statusActive": "Active",
+    "statusInactive": "Inactive",
+    "notManaged": "You can view routing rules, but only the agency owner or a manager can change them.",
+    "actionAssign": "Assign to {name}",
+    "actionRoundRobin": "Round-robin across {count} agents",
+    "actionRoundRobinUnknown": "Round-robin (no agents selected — rule will skip)"
   }
 }

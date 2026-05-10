@@ -1970,5 +1970,29 @@
         }
       ]
     }
+  },
+  "leadRouting": {
+    "metaTitle": "Instradamento contatti · Pannello · AHO",
+    "heading": "Instradamento contatti",
+    "sub": "Decida quale agente riceve un contatto in entrata in base a città, paese, tipologia di immobile o lingua dell'acquirente. Le regole girano per priorità; vince la prima corrispondenza. Nessuna corrispondenza → il contatto va all'agente principale dell'immobile (comportamento predefinito).",
+    "add": "Aggiungi regola",
+    "cancel": "Annulla",
+    "listHeading": "Regole attive",
+    "empty": "Nessuna regola di instradamento. Ne aggiunga una per iniziare a indirizzare i contatti.",
+    "columns": {
+      "priority": "Priorità",
+      "name": "Nome",
+      "conditions": "Quando",
+      "action": "Allora",
+      "status": "Stato",
+      "actions": "Azioni"
+    },
+    "matchesAny": "Qualsiasi contatto",
+    "statusActive": "Attiva",
+    "statusInactive": "Inattiva",
+    "notManaged": "Può vedere le regole, ma solo il titolare o un manager dell'agenzia può modificarle.",
+    "actionAssign": "Assegna a {name}",
+    "actionRoundRobin": "Round-robin tra {count} agenti",
+    "actionRoundRobinUnknown": "Round-robin (nessun agente selezionato — la regola sarà ignorata)"
   }
 }

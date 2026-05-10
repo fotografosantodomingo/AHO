@@ -1967,5 +1967,29 @@
         }
       ]
     }
+  },
+  "leadRouting": {
+    "metaTitle": "Enrutamiento de contactos · Panel · AHO",
+    "heading": "Enrutamiento de contactos",
+    "sub": "Decide qué agente recibe un contacto entrante según la ciudad, el país, el tipo de propiedad o el idioma del comprador. Las reglas se ejecutan por prioridad; gana la primera coincidencia. Sin coincidencias → el contacto va al agente principal de la propiedad (comportamiento heredado).",
+    "add": "Añadir regla",
+    "cancel": "Cancelar",
+    "listHeading": "Reglas activas",
+    "empty": "Aún no hay reglas. Añade una para empezar a dirigir los contactos.",
+    "columns": {
+      "priority": "Prioridad",
+      "name": "Nombre",
+      "conditions": "Cuándo",
+      "action": "Entonces",
+      "status": "Estado",
+      "actions": "Acciones"
+    },
+    "matchesAny": "Cualquier contacto",
+    "statusActive": "Activa",
+    "statusInactive": "Inactiva",
+    "notManaged": "Puedes ver las reglas, pero solo el dueño o un gerente de la agencia puede modificarlas.",
+    "actionAssign": "Asignar a {name}",
+    "actionRoundRobin": "Rotación entre {count} agentes",
+    "actionRoundRobinUnknown": "Rotación (sin agentes seleccionados — la regla no se aplicará)"
   }
 }

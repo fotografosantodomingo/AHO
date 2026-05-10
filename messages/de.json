@@ -1970,5 +1970,29 @@
         }
       ]
     }
+  },
+  "leadRouting": {
+    "metaTitle": "Anfragen-Routing · Dashboard · AHO",
+    "heading": "Anfragen-Routing",
+    "sub": "Legen Sie fest, welcher Makler eine eingehende Anfrage erhält — basierend auf Stadt, Land, Immobilientyp oder Sprache des Käufers. Regeln laufen nach Priorität; der erste Treffer gewinnt. Kein Treffer → die Anfrage geht an den Hauptmakler der Immobilie (Standardverhalten).",
+    "add": "Regel hinzufügen",
+    "cancel": "Abbrechen",
+    "listHeading": "Aktive Regeln",
+    "empty": "Noch keine Routing-Regeln. Fügen Sie eine hinzu, um Anfragen zu lenken.",
+    "columns": {
+      "priority": "Priorität",
+      "name": "Name",
+      "conditions": "Wenn",
+      "action": "Dann",
+      "status": "Status",
+      "actions": "Aktionen"
+    },
+    "matchesAny": "Jede Anfrage",
+    "statusActive": "Aktiv",
+    "statusInactive": "Inaktiv",
+    "notManaged": "Sie können Routing-Regeln einsehen, ändern dürfen sie nur der Inhaber oder Manager des Maklerbüros.",
+    "actionAssign": "Zuweisen an {name}",
+    "actionRoundRobin": "Round-Robin über {count} Makler",
+    "actionRoundRobinUnknown": "Round-Robin (keine Makler ausgewählt — Regel wird übersprungen)"
   }
 }

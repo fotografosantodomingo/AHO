@@ -1970,5 +1970,29 @@
         }
       ]
     }
+  },
+  "leadRouting": {
+    "metaTitle": "Roteamento de contatos · Painel · AHO",
+    "heading": "Roteamento de contatos",
+    "sub": "Decida qual corretor recebe um contato de entrada com base na cidade, país, tipo de imóvel ou idioma do comprador. As regras rodam por prioridade; a primeira correspondência vence. Sem correspondência → o contato vai para o corretor principal do imóvel (comportamento padrão).",
+    "add": "Adicionar regra",
+    "cancel": "Cancelar",
+    "listHeading": "Regras ativas",
+    "empty": "Ainda não há regras de roteamento. Adicione uma para começar a direcionar contatos.",
+    "columns": {
+      "priority": "Prioridade",
+      "name": "Nome",
+      "conditions": "Quando",
+      "action": "Então",
+      "status": "Status",
+      "actions": "Ações"
+    },
+    "matchesAny": "Qualquer contato",
+    "statusActive": "Ativa",
+    "statusInactive": "Inativa",
+    "notManaged": "Você pode ver as regras, mas apenas o dono da imobiliária ou um gerente pode alterá-las.",
+    "actionAssign": "Atribuir a {name}",
+    "actionRoundRobin": "Rodízio entre {count} corretores",
+    "actionRoundRobinUnknown": "Rodízio (nenhum corretor selecionado — a regra será ignorada)"
   }
 }

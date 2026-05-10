@@ -1990,5 +1990,29 @@
     "proAutomationHeading": "Myślisz o Pro Automation?",
     "proAutomationBody": "Gdy publikujesz pięć lub więcej ofert, Pro Automation zwraca się sam: dystrybucja jednym kliknięciem na Facebook + Instagram dla każdej nowej nieruchomości.",
     "proAutomationCta": "Porównaj plany"
+  },
+  "leadRouting": {
+    "metaTitle": "Routing kontaktów · Pulpit · AHO",
+    "heading": "Routing kontaktów",
+    "sub": "Zdecyduj, który agent odbierze przychodzący kontakt na podstawie miasta, kraju, typu nieruchomości lub języka kupującego. Reguły działają według priorytetu; wygrywa pierwsze dopasowanie. Brak dopasowań → kontakt trafia do głównego agenta nieruchomości (zachowanie domyślne).",
+    "add": "Dodaj regułę",
+    "cancel": "Anuluj",
+    "listHeading": "Aktywne reguły",
+    "empty": "Brak reguł routingu. Dodaj jedną, żeby zacząć kierować kontakty.",
+    "columns": {
+      "priority": "Priorytet",
+      "name": "Nazwa",
+      "conditions": "Kiedy",
+      "action": "Wtedy",
+      "status": "Status",
+      "actions": "Akcje"
+    },
+    "matchesAny": "Dowolny kontakt",
+    "statusActive": "Aktywna",
+    "statusInactive": "Nieaktywna",
+    "notManaged": "Możesz zobaczyć reguły, ale tylko właściciel agencji lub menedżer może je zmieniać.",
+    "actionAssign": "Przypisz do {name}",
+    "actionRoundRobin": "Rotacja między {count} agentami",
+    "actionRoundRobinUnknown": "Rotacja (nie wybrano agentów — reguła zostanie pominięta)"
   }
 }

@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { setRequestLocale } from 'next-intl/server';
+import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { getPathname } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
@@ -13,10 +13,18 @@ import type {
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
-export const metadata = {
-  title: 'Lead routing · Dashboard · AHO',
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'leadRouting' });
+  return {
+    title: t('metaTitle'),
+    robots: { index: false, follow: false },
+  };
+}
 
 /**
  * /[locale]/dashboard/leads/routing — agency owners + managers manage
@@ -58,62 +66,6 @@ interface RuleRow {
   updated_at: string;
 }
 
-const TXT = {
-  en: {
-    heading: 'Lead routing',
-    sub: 'Decide which agent receives an inbound lead based on the property’s city, country, type, or the buyer’s language. Rules run in priority order; the first match wins. No rule matches → the lead goes to the property’s primary agent (the legacy behavior).',
-    add: 'Add rule',
-    cancel: 'Cancel',
-    listHeading: 'Active rules',
-    empty: 'No routing rules yet. Add one to start steering leads.',
-    columns: {
-      priority: 'Priority',
-      name: 'Name',
-      conditions: 'When',
-      action: 'Then',
-      status: 'Status',
-      actions: 'Actions',
-    },
-    matchesAny: 'Any lead',
-    statusActive: 'Active',
-    statusInactive: 'Inactive',
-    notManaged:
-      'You can view routing rules, but only the agency owner or a manager can change them.',
-    actionAssign: 'Assign to {name}',
-    actionRoundRobin: 'Round-robin across {count} agents',
-    actionRoundRobinUnknown: 'Round-robin (no agents selected — rule will skip)',
-  },
-  es: {
-    heading: 'Enrutamiento de contactos',
-    sub: 'Decide qué agente recibe un contacto entrante según la ciudad, el país, el tipo de propiedad o el idioma del comprador. Las reglas se ejecutan por prioridad; gana la primera coincidencia. Sin coincidencias → el contacto va al agente principal de la propiedad (comportamiento heredado).',
-    add: 'Añadir regla',
-    cancel: 'Cancelar',
-    listHeading: 'Reglas activas',
-    empty: 'Aún no hay reglas. Añade una para empezar a dirigir los contactos.',
-    columns: {
-      priority: 'Prioridad',
-      name: 'Nombre',
-      conditions: 'Cuándo',
-      action: 'Entonces',
-      status: 'Estado',
-      actions: 'Acciones',
-    },
-    matchesAny: 'Cualquier contacto',
-    statusActive: 'Activa',
-    statusInactive: 'Inactiva',
-    notManaged:
-      'Puedes ver las reglas, pero solo el dueño o un gerente de la agencia puede modificarlas.',
-    actionAssign: 'Asignar a {name}',
-    actionRoundRobin: 'Rotación entre {count} agentes',
-    actionRoundRobinUnknown:
-      'Rotación (sin agentes seleccionados — la regla no se aplicará)',
-  },
-} as const;
-
-function copy(locale: string) {
-  return locale === 'es' ? TXT.es : TXT.en;
-}
-
 function describeConditions(
   c: LeadRoutingConditions,
   matchesAny: string,
@@ -129,18 +81,15 @@ function describeConditions(
 function describeAction(
   a: LeadRoutingAction,
   memberById: Map<string, { fullName: string | null; email: string }>,
-  t: ReturnType<typeof copy>,
+  t: (key: string, values?: Record<string, string | number>) => string,
 ): string {
   if (a.type === 'assign') {
     const m = memberById.get(a.assign_to_user_id);
     const name = m?.fullName ?? m?.email ?? a.assign_to_user_id;
-    return t.actionAssign.replace('{name}', name);
+    return t('actionAssign', { name });
   }
-  if (a.round_robin_user_ids.length === 0) return t.actionRoundRobinUnknown;
-  return t.actionRoundRobin.replace(
-    '{count}',
-    String(a.round_robin_user_ids.length),
-  );
+  if (a.round_robin_user_ids.length === 0) return t('actionRoundRobinUnknown');
+  return t('actionRoundRobin', { count: a.round_robin_user_ids.length });
 }
 
 export default async function LeadRoutingPage({
@@ -151,7 +100,7 @@ export default async function LeadRoutingPage({
   const { locale } = await params;
   if (!LOCALES.includes(locale as Locale)) return null;
   setRequestLocale(locale as Locale);
-  const t = copy(locale);
+  const t = await getTranslations({ locale, namespace: 'leadRouting' });
 
   const supabase = await createServerSupabaseClient();
   const { data: userResult } = await supabase.auth.getUser();
@@ -249,15 +198,15 @@ export default async function LeadRoutingPage({
     <main className="space-y-6">
       <header className="space-y-2">
         <h1 className="font-brand text-2xl font-semibold tracking-tight md:text-[26px] md:leading-[1.19]">
-          {t.heading}
+          {t('heading')}
         </h1>
-        <p className="max-w-2xl text-sm text-helper">{t.sub}</p>
+        <p className="max-w-2xl text-sm text-helper">{t('sub')}</p>
         {!canManage && (
           <p
             role="status"
             className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-200"
           >
-            {t.notManaged}
+            {t('notManaged')}
           </p>
         )}
       </header>
@@ -265,7 +214,7 @@ export default async function LeadRoutingPage({
       {canManage && (
         <details className="rounded-card border border-border bg-surface p-4 shadow-whisper dark:bg-surface-deep">
           <summary className="cursor-pointer text-sm font-medium">
-            {t.add}
+            {t('add')}
           </summary>
           <div className="mt-3">
             <RoutingRuleForm
@@ -279,11 +228,11 @@ export default async function LeadRoutingPage({
 
       <section aria-labelledby="rules-heading" className="space-y-3">
         <h2 id="rules-heading" className="sr-only">
-          {t.listHeading}
+          {t('listHeading')}
         </h2>
         {rules.length === 0 ? (
           <div className="rounded-card border border-dashed border-border-strong/60 p-10 text-center text-sm text-ink-muted dark:text-ink-inverse-muted">
-            {t.empty}
+            {t('empty')}
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -292,12 +241,12 @@ export default async function LeadRoutingPage({
                 <tr>
                   {(
                     [
-                      t.columns.priority,
-                      t.columns.name,
-                      t.columns.conditions,
-                      t.columns.action,
-                      t.columns.status,
-                      t.columns.actions,
+                      t('columns.priority'),
+                      t('columns.name'),
+                      t('columns.conditions'),
+                      t('columns.action'),
+                      t('columns.status'),
+                      t('columns.actions'),
                     ] as const
                   ).map((label) => (
                     <th
@@ -318,7 +267,7 @@ export default async function LeadRoutingPage({
                     <td className="px-3 py-2 tabular-nums">{r.priority}</td>
                     <td className="px-3 py-2 font-medium">{r.name}</td>
                     <td className="px-3 py-2 text-xs">
-                      {describeConditions(r.conditions, t.matchesAny)}
+                      {describeConditions(r.conditions, t('matchesAny'))}
                     </td>
                     <td className="px-3 py-2 text-xs">
                       {describeAction(r.action, memberById, t)}
@@ -326,11 +275,11 @@ export default async function LeadRoutingPage({
                     <td className="px-3 py-2 text-xs">
                       {r.is_active ? (
                         <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-200">
-                          {t.statusActive}
+                          {t('statusActive')}
                         </span>
                       ) : (
                         <span className="inline-flex items-center rounded-full bg-border-strong/15 px-2 py-0.5 text-helper">
-                          {t.statusInactive}
+                          {t('statusInactive')}
                         </span>
                       )}
                     </td>

@@ -1970,5 +1970,29 @@
         }
       ]
     }
+  },
+  "leadRouting": {
+    "metaTitle": "Routage des contacts · Tableau de bord · AHO",
+    "heading": "Routage des contacts",
+    "sub": "Décidez quel agent reçoit un contact entrant selon la ville, le pays, le type de bien ou la langue de l'acheteur. Les règles s'exécutent par priorité ; la première correspondance gagne. Aucune correspondance → le contact va à l'agent principal du bien (comportement par défaut).",
+    "add": "Ajouter une règle",
+    "cancel": "Annuler",
+    "listHeading": "Règles actives",
+    "empty": "Aucune règle de routage. Ajoutez-en une pour commencer à orienter les contacts.",
+    "columns": {
+      "priority": "Priorité",
+      "name": "Nom",
+      "conditions": "Quand",
+      "action": "Alors",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "matchesAny": "N'importe quel contact",
+    "statusActive": "Active",
+    "statusInactive": "Inactive",
+    "notManaged": "Vous pouvez consulter les règles, mais seul le propriétaire ou un manager de l'agence peut les modifier.",
+    "actionAssign": "Attribuer à {name}",
+    "actionRoundRobin": "Round-robin entre {count} agents",
+    "actionRoundRobinUnknown": "Round-robin (aucun agent sélectionné — la règle sera ignorée)"
   }
 }
