@@ -114,10 +114,18 @@ export default async function LeadsPage({
 
   return (
     <main className="space-y-6">
-      <header className="flex items-center justify-between">
-        <h1 className="font-brand text-2xl font-semibold tracking-tight md:text-[26px] md:leading-[1.19]">
-          {t('heading')}
-        </h1>
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <h1 className="font-brand text-2xl font-semibold tracking-tight md:text-[26px] md:leading-[1.19]">
+            {t('heading')}
+          </h1>
+          <a
+            href={`${filterPathBase}/routing`}
+            className="inline-flex h-7 items-center rounded-lg border border-border-strong px-2 text-xs text-helper hover:bg-black/5 dark:hover:bg-white/5"
+          >
+            {locale === 'es' ? 'Enrutamiento' : 'Routing'}
+          </a>
+        </div>
         <nav className="flex gap-1" aria-label="Filter">
           {filterTab('all', t('filterAll'))}
           {filterTab('new', t('filterNew'))}

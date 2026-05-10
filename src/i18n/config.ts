@@ -128,6 +128,11 @@ export const PATHNAMES = {
     es: '/panel/contactos',
     ...en5('/dashboard/leads'),
   },
+  '/dashboard/leads/routing': {
+    en: '/dashboard/leads/routing',
+    es: '/panel/contactos/routing',
+    ...en5('/dashboard/leads/routing'),
+  },
   '/dashboard/analytics': {
     en: '/dashboard/analytics',
     es: '/panel/estadisticas',
