@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { ProfileForm } from '@/components/dashboard/profile-form';
 import { DangerZone } from '@/components/dashboard/danger-zone';
@@ -34,9 +35,10 @@ export default async function ProfilePage({
   const supabase = await createServerSupabaseClient();
   const { data: userResult } = await supabase.auth.getUser();
   if (!userResult.user) {
+    const typedLocale = locale as Locale;
     redirect(
-      `/${locale}/${locale === 'es' ? 'iniciar-sesion' : 'signin'}?next=${encodeURIComponent(
-        `/${locale}/${locale === 'es' ? 'panel/perfil' : 'dashboard/profile'}`,
+      `${localePath(typedLocale, '/signin')}?next=${encodeURIComponent(
+        localePath(typedLocale, '/dashboard/profile'),
       )}`,
     );
   }
@@ -134,7 +136,7 @@ export default async function ProfilePage({
               <p className="text-xs text-helper">
                 {tFaqs('publishedTo')}{' '}
                 <a
-                  href={`/${locale}/${locale === 'es' ? 'agentes' : 'agents'}/${orgSlug}`}
+                  href={localePath(locale as Locale, '/agents/[slug]').replace('[slug]', orgSlug)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-action underline-offset-2 hover:underline dark:text-action-dark"

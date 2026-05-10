@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { sanitizeNext } from '@/lib/auth/redirect';
 import { MagicLinkForm } from '@/components/auth/magic-link-form';
@@ -43,7 +44,7 @@ export default async function MagicLinkPage({ params, searchParams }: PageProps)
 
   const t = await getTranslations({ locale, namespace: 'auth.magic' });
   const tAuth = await getTranslations({ locale, namespace: 'auth' });
-  const signInPath = `/${locale}/${locale === 'es' ? 'iniciar-sesion' : 'signin'}`;
+  const signInPath = localePath(locale as Locale, '/signin');
 
   return (
     <main className="relative overflow-hidden">

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
-import { getPathname } from '@/i18n/routing';
+import { getPathname, localePath } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { RoutingRuleForm } from '@/components/leads/routing-rule-form';
 import { RoutingRuleRowActions } from '@/components/leads/routing-rule-row-actions';
@@ -145,7 +145,7 @@ export default async function LeadRoutingPage({
     );
   }
   if (!membershipRow) {
-    redirect(`/${locale}/${locale === 'es' ? 'precios' : 'pricing'}`);
+    redirect(localePath(locale as Locale, '/pricing'));
   }
 
   const orgId = membershipRow.org_id as string;

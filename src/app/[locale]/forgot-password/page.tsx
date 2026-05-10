@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { ForgotPasswordForm } from '@/components/auth/forgot-password-form';
 import { DotGrid } from '@/components/ui/dot-grid';
@@ -41,7 +42,7 @@ export default async function ForgotPasswordPage({
   }
 
   const t = await getTranslations({ locale, namespace: 'auth.forgot' });
-  const signInPath = `/${locale}/${locale === 'es' ? 'iniciar-sesion' : 'signin'}`;
+  const signInPath = localePath(locale as Locale, '/signin');
 
   return (
     <main className="relative overflow-hidden">

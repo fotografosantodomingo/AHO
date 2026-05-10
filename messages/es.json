@@ -782,7 +782,8 @@
         "noContact": "Este contacto no incluye datos de contacto.",
         "notFound": "Contacto no encontrado.",
         "notFoundHint": "Puede que haya sido eliminado o que pertenezca a otra organización."
-      }
+      },
+      "routingLink": "Enrutamiento"
     }
   },
   "dashboardFaqs": {

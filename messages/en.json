@@ -782,7 +782,8 @@
         "noContact": "No contact details on this lead.",
         "notFound": "Lead not found.",
         "notFoundHint": "It may have been deleted, or it belongs to a different organisation."
-      }
+      },
+      "routingLink": "Routing"
     }
   },
   "dashboardFaqs": {

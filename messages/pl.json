@@ -748,7 +748,8 @@
         "noContact": "Brak danych kontaktowych przy tym zgłoszeniu.",
         "notFound": "Nie znaleziono kontaktu.",
         "notFoundHint": "Mógł zostać usunięty albo należy do innej organizacji."
-      }
+      },
+      "routingLink": "Routing"
     }
   },
   "dashboardFaqs": {

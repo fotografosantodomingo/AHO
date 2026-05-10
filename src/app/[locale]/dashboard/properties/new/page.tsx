@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { ImportPanel } from '@/components/listings/import-panel';
 
 export const runtime = 'edge';
@@ -16,9 +17,7 @@ export default async function NewListingPage({
   setRequestLocale(locale);
 
   const t = await getTranslations({ locale, namespace: 'dashboard' });
-  const successBase = `/${locale}/${
-    locale === 'es' ? 'panel/propiedades' : 'dashboard/properties'
-  }`;
+  const successBase = localePath(locale as Locale, '/dashboard/properties');
 
   return (
     <main className="space-y-6">

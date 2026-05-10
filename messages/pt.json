@@ -785,7 +785,8 @@
         "noContact": "Sem dados de contato neste registro.",
         "notFound": "Contato não encontrado.",
         "notFoundHint": "Pode ter sido excluído, ou pertence a outra organização."
-      }
+      },
+      "routingLink": "Roteamento"
     }
   },
   "dashboardFaqs": {

@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { formatPrice } from '@/lib/listings/seo';
 import { DeleteListingButton } from '@/components/listings/delete-listing-button';
@@ -116,11 +117,9 @@ export default async function DashboardListingsPage({
   }
 
   const listings = rawListings;
-  const newListingPath = `/${locale}/${
-    locale === 'es' ? 'panel/propiedades/nuevo' : 'dashboard/properties/new'
-  }`;
+  const newListingPath = localePath(typedLocale, '/dashboard/properties/new');
   const editPathFor = (id: string) =>
-    `/${locale}/${locale === 'es' ? 'panel/propiedades' : 'dashboard/properties'}/${id}`;
+    localePath(typedLocale, '/dashboard/properties/[id]').replace('[id]', id);
 
   const dateFormatter = new Intl.DateTimeFormat(locale === 'es' ? 'es-DO' : 'en-US', {
     year: 'numeric',

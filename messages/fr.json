@@ -1243,7 +1243,8 @@
         "noContact": "Aucune coordonnée pour ce contact.",
         "notFound": "Contact introuvable.",
         "notFoundHint": "Il a peut-être été supprimé, ou il appartient à une autre organisation."
-      }
+      },
+      "routingLink": "Routage"
     }
   },
   "dashboardFaqs": {

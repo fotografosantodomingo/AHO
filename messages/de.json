@@ -1243,7 +1243,8 @@
         "noContact": "Keine Kontaktdaten zu dieser Anfrage.",
         "notFound": "Anfrage nicht gefunden.",
         "notFoundHint": "Sie wurde möglicherweise gelöscht oder gehört zu einer anderen Organisation."
-      }
+      },
+      "routingLink": "Routing"
     }
   },
   "dashboardFaqs": {

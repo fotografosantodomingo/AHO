@@ -1,5 +1,6 @@
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import {
   daysAgo,
@@ -67,7 +68,7 @@ export default async function AnalyticsPage({
 
   const hasAnyData = analytics30d.total > 0;
 
-  const browseHref = `/${locale}/${locale === 'es' ? 'panel/propiedades' : 'dashboard/properties'}`;
+  const browseHref = localePath(locale as Locale, '/dashboard/properties');
 
   return (
     <main className="space-y-8">

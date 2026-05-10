@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { LeadStatusSelect } from '@/components/leads/lead-status-select';
 import { LeadNotesEditor } from '@/components/leads/lead-notes-editor';
@@ -113,7 +114,7 @@ export default async function LeadDetailPage({
     minute: '2-digit',
   });
 
-  const inboxPath = `/${locale}/${locale === 'es' ? 'panel/contactos' : 'dashboard/leads'}`;
+  const inboxPath = localePath(locale as Locale, '/dashboard/leads');
 
   // Property derivations — null-safe for the case where the listing was
   // deleted but the lead row was preserved (cascade-safe; leads.property_id

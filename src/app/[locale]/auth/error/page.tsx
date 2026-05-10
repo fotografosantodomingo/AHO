@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { DotGrid } from '@/components/ui/dot-grid';
 
 export const runtime = 'edge';
@@ -33,7 +34,7 @@ export default async function AuthErrorPage({
   setRequestLocale(locale);
 
   const t = await getTranslations({ locale, namespace: 'auth.error' });
-  const signInPath = `/${locale}/${locale === 'es' ? 'iniciar-sesion' : 'signin'}`;
+  const signInPath = localePath(locale as Locale, '/signin');
 
   return (
     <main className="relative overflow-hidden">

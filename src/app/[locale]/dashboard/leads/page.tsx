@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { LeadStatusSelect } from '@/components/leads/lead-status-select';
 import type { LeadStatus, LeadSource } from '@/db/schema';
@@ -92,9 +93,7 @@ export default async function LeadsPage({
     minute: '2-digit',
   });
 
-  const filterPathBase = `/${locale}/${
-    locale === 'es' ? 'panel/contactos' : 'dashboard/leads'
-  }`;
+  const filterPathBase = localePath(locale as Locale, '/dashboard/leads');
   const leadDetailPath = (leadId: string) => `${filterPathBase}/${leadId}`;
   const filterTab = (key: FilterKey, label: string) => {
     const isActive = filterKey === key;
@@ -125,7 +124,7 @@ export default async function LeadsPage({
             href={`${filterPathBase}/routing`}
             className="inline-flex h-7 items-center rounded-lg border border-border-strong px-2 text-xs text-helper hover:bg-black/5 dark:hover:bg-white/5"
           >
-            {locale === 'es' ? 'Enrutamiento' : 'Routing'}
+            {t('routingLink')}
           </a>
         </div>
         <nav className="flex gap-1" aria-label="Filter">

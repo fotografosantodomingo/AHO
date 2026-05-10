@@ -785,7 +785,8 @@
         "noContact": "Nessun dettaglio di contatto su questo lead.",
         "notFound": "Contatto non trovato.",
         "notFoundHint": "Potrebbe essere stato eliminato o appartenere a un'altra organizzazione."
-      }
+      },
+      "routingLink": "Instradamento"
     }
   },
   "dashboardFaqs": {

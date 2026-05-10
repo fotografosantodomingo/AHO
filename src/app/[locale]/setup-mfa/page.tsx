@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getAdminMfaState } from '@/lib/auth/admin-mfa';
 import { SetupMfaCard } from '@/components/auth/setup-mfa-card';
@@ -50,9 +51,10 @@ export default async function SetupMfaPage({ params }: PageProps) {
   const supabase = await createServerSupabaseClient();
   const { data: userResult } = await supabase.auth.getUser();
   if (!userResult.user) {
+    const typedLocale = locale as Locale;
     redirect(
-      `/${locale}/${locale === 'es' ? 'iniciar-sesion' : 'signin'}?next=${encodeURIComponent(
-        `/${locale}/setup-mfa`,
+      `${localePath(typedLocale, '/signin')}?next=${encodeURIComponent(
+        localePath(typedLocale, '/setup-mfa'),
       )}`,
     );
   }
