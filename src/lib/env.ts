@@ -112,12 +112,15 @@ const serverSchema = z.object({
   // a new month's API. Optional in env so unit tests don't need it;
   // the cron route fails closed at runtime when missing.
   LINKEDIN_API_VERSION: z.string().regex(/^\d{6}$/, 'YYYYMM').optional(),
-  // Shared bearer secret for cron-triggered API routes (LinkedIn /
-  // Meta insights writers, etc.). The external scheduler (GitHub
-  // Actions cron / cron-job.org) sends `Authorization: Bearer
-  // ${CRON_SECRET}`; a missing or mismatched value yields 401. Length
-  // requirement matches the random 32-byte minimum we generate via
-  // `openssl rand -hex 32`.
+  // Shared bearer secret for ALL cron-triggered API routes (LinkedIn /
+  // Meta insights writers, hourly photo-import retry, future cron jobs).
+  // The external scheduler — GitHub Actions cron, cron-job.org, or a
+  // tiny Cloudflare Worker — calls the route with
+  // `Authorization: Bearer ${CRON_SECRET}`; a missing or mismatched
+  // value yields 401. Length floor mirrors `openssl rand -hex 32` (64
+  // chars) — short enough to be optional without weakening the gate
+  // when set. Optional so build-time validation passes in envs that
+  // haven't wired the cron yet.
   CRON_SECRET: z.string().min(32).optional(),
 });
 
