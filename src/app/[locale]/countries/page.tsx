@@ -73,10 +73,13 @@ export default async function CountriesPage({
     getGlobalSearchIndex(typedLocale),
   ]);
 
-  const countryHref = (cc: string) =>
-    `/${locale}/${typedLocale === 'es' ? 'inmuebles-en' : 'properties-in'}/${cc.toLowerCase()}`;
-  const browseHref = `/${locale}/${typedLocale === 'es' ? 'buscar' : 'search'}`;
-  const pricingHref = `/${locale}/${typedLocale === 'es' ? 'precios' : 'pricing'}`;
+  const countryStem = localePath(typedLocale, '/properties-in/[country]').replace(
+    '/[country]',
+    '',
+  );
+  const countryHref = (cc: string) => `${countryStem}/${cc.toLowerCase()}`;
+  const browseHref = localePath(typedLocale, '/search');
+  const pricingHref = localePath(typedLocale, '/pricing');
 
   return (
     <main>

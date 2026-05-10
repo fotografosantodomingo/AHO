@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { LandingPage, type LandingCopy } from '@/components/marketing/landing-page';
 import { buildLandingAlternates } from '@/lib/seo/landing-alternates';
 import { publicEnv } from '@/lib/env';
@@ -66,12 +67,8 @@ export default async function ForAgentsPage({
   // Per the Content Hub Vision page brief: top-of-funnel conversion is the
   // free-trial signup, not the pricing-page deep-link. Pricing teaser still
   // hands off to /pricing for visitors who need the full plan comparison.
-  const pricingFocusHref = `/${typedLocale}/${
-    typedLocale === 'es'
-      ? 'precios?focus=pro_automation'
-      : 'pricing?focus=pro_automation'
-  }`;
-  const signupHref = `/${typedLocale}/${typedLocale === 'es' ? 'registrarse' : 'signup'}`;
+  const pricingFocusHref = `${localePath(typedLocale, '/pricing')}?focus=pro_automation`;
+  const signupHref = localePath(typedLocale, '/signup');
   const visionAnchor = '#vision';
 
   const copy: LandingCopy = {

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/routing';
 import { LandingPage, type LandingCopy } from '@/components/marketing/landing-page';
 import { buildLandingAlternates } from '@/lib/seo/landing-alternates';
 import { publicEnv } from '@/lib/env';
@@ -59,12 +60,8 @@ export default async function AutomationPage({
     siteUrl: site,
   });
 
-  const pricingFocusHref = `/${typedLocale}/${
-    typedLocale === 'es'
-      ? 'precios?focus=pro_automation'
-      : 'pricing?focus=pro_automation'
-  }`;
-  const pricingHref = `/${typedLocale}/${typedLocale === 'es' ? 'precios' : 'pricing'}`;
+  const pricingHref = localePath(typedLocale, '/pricing');
+  const pricingFocusHref = `${pricingHref}?focus=pro_automation`;
 
   const copy: LandingCopy = {
     hero: {

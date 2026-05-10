@@ -1,6 +1,7 @@
 import 'server-only';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import type { Locale } from '@/i18n/config';
+import { localePath } from '@/i18n/locale-path';
 import { getCountryName } from '@/lib/i18n/countries';
 
 export interface CountryRow {
@@ -213,7 +214,15 @@ export async function getGlobalSearchIndex(
     countries.set(cc, slot);
   }
 
-  const countryPath = locale === 'es' ? 'inmuebles-en' : 'properties-in';
+  // Resolve segments via PATHNAMES (#7).
+  const countryStem = localePath(locale, '/properties-in/[country]').replace(
+    '/[country]',
+    '',
+  );
+  const cityStem = localePath(locale, '/properties-in/[country]/[city]').replace(
+    '/[country]/[city]',
+    '',
+  );
   const entries: SearchIndexEntry[] = [];
   for (const [cc, slot] of countries.entries()) {
     const countryDisplay = getCountryName(cc, locale);
@@ -223,7 +232,7 @@ export async function getGlobalSearchIndex(
       displayName: countryDisplay,
       listingCount: slot.count,
       cityCount: slot.cities.size,
-      href: `/${locale}/${countryPath}/${cc.toLowerCase()}`,
+      href: `${countryStem}/${cc.toLowerCase()}`,
     });
     for (const [city, count] of slot.cities.entries()) {
       const citySlug = citySlugify(city);
@@ -234,7 +243,7 @@ export async function getGlobalSearchIndex(
         citySlug,
         displayName: `${city}, ${countryDisplay}`,
         listingCount: count,
-        href: `/${locale}/${countryPath}/${cc.toLowerCase()}/${citySlug}`,
+        href: `${cityStem}/${cc.toLowerCase()}/${citySlug}`,
       });
     }
   }
