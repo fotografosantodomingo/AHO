@@ -248,4 +248,17 @@ export const PATHNAMES = {
     fr: '/gagner-du-temps',
     it: '/risparmia-tempo',
   },
+
+  // Documentation hub — written guide for buyers + agents + admins.
+  // Per locale because the slug IS what users type and what Google
+  // indexes; "documentation" in your own language is the natural URL.
+  '/docs': {
+    en: '/docs',
+    es: '/documentacion',
+    pl: '/dokumentacja',
+    pt: '/documentacao',
+    de: '/dokumentation',
+    fr: '/documentation',
+    it: '/documentazione',
+  },
 } as const;

@@ -1597,5 +1597,292 @@
       "sub": "Pro Automation, $99/mo. Cancel any time.",
       "cta": "Subscribe — $99/mo"
     }
+  },
+  "docs": {
+    "footerLink": "Documentation",
+    "meta": {
+      "title": "Documentation — AHO",
+      "description": "Written guide for buyers, agents, and admins using AHO. Search, save, contact, list, distribute, moderate."
+    },
+    "heading": "Documentation",
+    "intro": "Three audiences, three guides. Pick the one that fits how you use AHO. Every section links to the actual surface inside the product so you can follow along while signed in.",
+    "lastUpdated": "Last updated: 2026-05-10",
+    "toc": {
+      "heading": "On this page",
+      "buyers": "For buyers",
+      "agents": "For agents",
+      "admins": "For admins"
+    },
+    "buyers": {
+      "heading": "For buyers",
+      "intro": "You don't need an account to browse. You do need one to save searches, favorite listings, and contact agents. The whole buyer experience is free — agents pay to publish, buyers never pay AHO.",
+      "sections": [
+        {
+          "id": "buyers-search",
+          "title": "Searching for a property",
+          "body": [
+            "The search page is where most buyers spend their time. Type a city, neighborhood, or postcode in the search box, or pan and zoom the map — the list of results refreshes to whatever is currently visible on the map.",
+            "Filter by price, bedrooms, property type, and listing type (sale or rent). Prices show in the currency you've picked at the top of the page; the underlying value is the price the agent set.",
+            "Empty results are honest: when nothing matches your filters, the page tells you so. We never invent demo listings to fill space."
+          ],
+          "links": [
+            { "label": "Open search", "href": "search" },
+            { "label": "Browse by country", "href": "countries" }
+          ]
+        },
+        {
+          "id": "buyers-save",
+          "title": "Saving properties and searches",
+          "body": [
+            "Tap the heart icon on any listing card or detail page to favorite it. Favorites stay attached to your browser even before you sign in; once you create an account, your anonymous favorites merge into your account so you don't lose them.",
+            "Saved searches are different: they're a stored set of filters that we re-run for you. Open a search you like, hit \"Save this search,\" name it, and choose whether you want email digests when new matches appear. You can manage them — rename, edit filters, change digest frequency, delete — from the Saved searches page."
+          ],
+          "links": [
+            { "label": "Saved properties", "href": "saved-properties" },
+            { "label": "Saved searches", "href": "saved-searches" }
+          ]
+        },
+        {
+          "id": "buyers-contact",
+          "title": "Contacting an agent",
+          "body": [
+            "Every listing has a contact form on the right side of the page (or below the photos on mobile). Fill in your name, email, optional phone, and a message; the agent receives it in their inbox and you receive a copy by email.",
+            "We forward your message to the agent and only the agent. We never sell or share contact details with third parties. The form is protected by Cloudflare Turnstile and a honeypot to keep bots out — you'll usually never see a challenge.",
+            "If you'd rather call or message on WhatsApp, the agent's profile page lists whatever direct channels they've added."
+          ],
+          "links": [
+            { "label": "Browse listings to find an agent", "href": "search" }
+          ]
+        },
+        {
+          "id": "buyers-language-currency",
+          "title": "Language and currency",
+          "body": [
+            "Switch the interface language from the toggle at the top right and bottom of every page. AHO ships in seven languages: English, Spanish, Polish, Portuguese, German, French, Italian. Listing content itself is written by the agent — it appears in whichever languages they wrote it in (typically English and/or Spanish at launch). We never auto-translate listing copy.",
+            "Currency is independent of language. Pick your preferred currency from the same area; prices reformat with live FX rates while the underlying listing price stays unchanged. Formatting follows your locale — €1.250.000 in Spanish, $1,250,000 in English."
+          ],
+          "links": []
+        },
+        {
+          "id": "buyers-account",
+          "title": "Account, security, and privacy",
+          "body": [
+            "Create an account with email + password, Google, or a magic link. Password reset is self-service from the sign-in page. You can enable two-factor authentication (TOTP) from your dashboard — recommended if you save sensitive searches.",
+            "All your data is yours. You can delete your account at any time from the Profile page in the dashboard; this cascades to your favorites, saved searches, contact-form submissions, and reviews. Billing records (if you also use AHO as an agent) are anonymized but retained where tax law requires.",
+            "Read the full privacy policy for a line-by-line breakdown of what we store, why, and for how long."
+          ],
+          "links": [
+            { "label": "Privacy policy", "href": "privacy" },
+            { "label": "Terms of service", "href": "terms" },
+            { "label": "Sign in", "href": "signin" },
+            { "label": "Create an account", "href": "signup" }
+          ]
+        }
+      ]
+    },
+    "agents": {
+      "heading": "For agents",
+      "intro": "Agents subscribe to publish listings. The lowest tier puts you on the platform; the higher tiers unlock the social-distribution automation that turns one listing into 21 platform-tuned posts. Everything below assumes you've signed up — see the pricing page if you haven't yet.",
+      "sections": [
+        {
+          "id": "agents-setup",
+          "title": "First-time setup: subscribe, onboard, profile, first listing",
+          "body": [
+            "Subscribe from the pricing page. You'll go through Stripe Checkout (test card or real card, depending on plan), then return to the welcome page where the onboarding wizard walks you through three short steps: organization details, your agent profile, and your first listing.",
+            "Skip any step you can't complete yet — you can finish later from the dashboard. The onboarding wizard exists to lower the cliff between \"I just paid\" and \"I have a live listing,\" not to gate access to the dashboard.",
+            "After onboarding, your dashboard becomes the home base for everything else: properties, leads, social posts, analytics, billing."
+          ],
+          "links": [
+            { "label": "Pricing and plans", "href": "pricing" },
+            { "label": "Sign up", "href": "signup" },
+            { "label": "Welcome / onboarding", "href": "onboarding" },
+            { "label": "Dashboard", "href": "dashboard" }
+          ]
+        },
+        {
+          "id": "agents-import-lanes",
+          "title": "Three ways to add a listing: URL, voice, manual",
+          "body": [
+            "URL import: paste a link from a competitor portal (otodom, idealista, others) and AHO scrapes the public fields, downloads the photos, and pre-fills the listing form. You review, edit, and publish.",
+            "Voice import: tap the mic on the new-listing screen and dictate the property in your own language. Whisper transcribes; Claude extracts price, area, beds, location, amenities; the form pre-fills. Designed for agents leaving a viewing — by the time you reach the car, the draft is ready.",
+            "Manual: the classic form. Type each field, drag photos in, write your description. Always available as the fallback when an import lane misbehaves on an unusual source."
+          ],
+          "links": [
+            { "label": "New listing", "href": "dashboard-new-property" }
+          ]
+        },
+        {
+          "id": "agents-photos",
+          "title": "Photo guidelines",
+          "body": [
+            "Originals upload to Cloudflare R2; AHO derives display variants on Cloudflare Images. Recommended originals are 2400px on the long edge or larger, JPEG or WebP, under 10 MB each. We accept up to 30 photos per listing.",
+            "Order matters: the first photo is the cover that appears in search-result cards and social posts. Drag to reorder from the listing edit page.",
+            "Per the platform's real-only data rule, only photos of the actual property are allowed. No stock photography, no AI-generated rooms, no \"representative\" images from a different unit. Listings violating this are removed by moderators without notice."
+          ],
+          "links": [
+            { "label": "Your properties", "href": "dashboard-properties" }
+          ]
+        },
+        {
+          "id": "agents-edit-flow",
+          "title": "Editing a listing",
+          "body": [
+            "Open a listing from the Properties page in your dashboard. The edit screen mirrors the new-listing form: language tabs (EN / ES) on top, photo grid below, and structured fields for price, address, attributes, and bilingual descriptions.",
+            "Saves are immediate. Every save bumps the public listing's updated_at, which signals search and the social-distribution scheduler that the content is fresh.",
+            "Archive a listing when it's no longer for sale but you want to keep the history. Archived listings stay in your dashboard for 90 days, then are deleted unless restored."
+          ],
+          "links": [
+            { "label": "Your properties", "href": "dashboard-properties" }
+          ]
+        },
+        {
+          "id": "agents-leads",
+          "title": "Lead inbox and routing",
+          "body": [
+            "Every contact-form submission on one of your listings lands in the Leads inbox. Each entry shows the buyer's name, email, optional phone, the message, the listing they were looking at, and a one-click reply that opens your email client with the right subject pre-filled.",
+            "Lead routing rules let you forward incoming leads to colleagues based on listing tags or geographic area — useful once your team is more than one agent. Rules run on the server before the lead notification email is sent.",
+            "Empty inbox? It really is empty. We don't seed demo leads, ever."
+          ],
+          "links": [
+            { "label": "Leads inbox", "href": "dashboard-leads" },
+            { "label": "Lead routing rules", "href": "dashboard-leads-routing" }
+          ]
+        },
+        {
+          "id": "agents-social",
+          "title": "Social grid and tones",
+          "body": [
+            "On Pro Automation, the Social page shows a 3 × 7 grid: three platforms (Facebook, Instagram, LinkedIn) by seven languages. For each new listing, AHO generates a platform-tuned, locale-native variant in every cell — 21 posts in total.",
+            "Each variant is editable. You can pick a different tone (warm, factual, hype, professional) per platform; we keep your last choice as the default for the next listing on that platform.",
+            "Posts include your AHO listing URL so leads route back to your inbox. Until Meta App Review approval lands, publishing is copy-paste; one-click publish lights up automatically once approval is granted on a connected channel."
+          ],
+          "links": [
+            { "label": "Social distribution", "href": "dashboard-social" }
+          ]
+        },
+        {
+          "id": "agents-performance",
+          "title": "Performance dashboard",
+          "body": [
+            "The Analytics page shows real reach and lead counts per listing, per platform, per locale. We aggregate from the Meta and LinkedIn insights APIs (where you've connected your accounts) plus AHO's own server-side click and contact-form tracking.",
+            "Numbers are honest: empty until there's data, and we never extrapolate. Per-listing analytics open from the Properties page or directly from the analytics overview."
+          ],
+          "links": [
+            { "label": "Analytics overview", "href": "dashboard-analytics" }
+          ]
+        },
+        {
+          "id": "agents-channels",
+          "title": "Connecting social accounts",
+          "body": [
+            "Open the Social page and follow the \"Connect Facebook,\" \"Connect Instagram,\" \"Connect LinkedIn\" prompts. Each opens the platform's OAuth flow in a popup; on success, AHO stores an encrypted access token and the page/profile id you've authorized.",
+            "You can revoke a connection any time from the same page; the token is deleted immediately. We only request the scopes needed to publish your own listing posts and read their insights — no friend-list, no advertising-account access.",
+            "While Meta App Review is pending, the connect button still works for the copy-paste flow but the auto-publish toggle is disabled."
+          ],
+          "links": [
+            { "label": "Social distribution", "href": "dashboard-social" }
+          ]
+        },
+        {
+          "id": "agents-billing",
+          "title": "Billing and plan changes",
+          "body": [
+            "Manage your subscription from the Profile page in the dashboard. The \"Open billing portal\" button hands you off to Stripe's hosted Customer Portal where you can update card details, download invoices, switch plans, or cancel.",
+            "Cancellation takes effect at the end of the current billing period — your listings stay live until then. Re-subscribing reopens everything where you left it.",
+            "Tax (VAT, sales tax) is handled automatically by Stripe Tax based on your billing country."
+          ],
+          "links": [
+            { "label": "Profile and billing", "href": "dashboard-profile" }
+          ]
+        },
+        {
+          "id": "agents-sold",
+          "title": "Marking a listing sold and asking for a review",
+          "body": [
+            "When a deal closes, open the listing and use \"Mark as sold/rented.\" Enter the closing date, optional closing price, and which side you represented (buyer, seller, both). The listing moves to your sold archive and shows a \"Sold\" badge for 30 days.",
+            "If the buyer's email is on the deal, AHO can send them a one-click review request 7 days after closing. Reviews are double-verified: the email must match the deal record, and a tokenized link confirms it's the right person."
+          ],
+          "links": [
+            { "label": "Your reviews", "href": "dashboard-reviews" }
+          ]
+        },
+        {
+          "id": "agents-mfa",
+          "title": "Two-factor authentication (TOTP)",
+          "body": [
+            "Enable TOTP from the Profile page. Scan the QR code with Google Authenticator, 1Password, Authy, or any TOTP-compatible app, then enter the 6-digit code to confirm.",
+            "Once enabled, every sign-in asks for a fresh code. Save the backup codes shown on screen — they're the recovery path if you lose your phone. We can help you reset only with proof of identity; we cannot bypass MFA on a whim."
+          ],
+          "links": [
+            { "label": "Set up MFA", "href": "setup-mfa" }
+          ]
+        }
+      ]
+    },
+    "admins": {
+      "heading": "For admins",
+      "intro": "Admin access is granted manually by AHO and protected by mandatory MFA. The admin area lives at /admin and shows you the full picture across all organizations on the platform.",
+      "sections": [
+        {
+          "id": "admins-layout",
+          "title": "Layout overview",
+          "body": [
+            "The admin area is a simple top-nav layout. Left to right: KPIs, Moderation, Organizations, Users, Leads, Reviews, Audit log. Each section is a single page that loads server-side; there are no admin client apps to keep in sync.",
+            "Every admin action writes to the audit log. There is no off-the-record path."
+          ],
+          "links": [
+            { "label": "Admin home", "href": "admin" }
+          ]
+        },
+        {
+          "id": "admins-kpis",
+          "title": "KPI strip",
+          "body": [
+            "The home strip shows the headline numbers: active subscriptions per tier, listings published in the last 7 days, leads routed in the last 7 days, MRR, churn signals (pending cancellations).",
+            "Numbers are computed at request time from production data — no caching, no estimation. When something looks off, click through to the underlying screen rather than reloading."
+          ],
+          "links": []
+        },
+        {
+          "id": "admins-moderation",
+          "title": "Moderation queue",
+          "body": [
+            "New listings, edited descriptions with a high \"unusual content\" score, and reported listings land in the moderation queue. Each item shows the full listing as it would appear publicly, plus a sidebar of moderation actions: approve, reject with reason, suspend the agent.",
+            "Rejection reasons are templated (no real photos, duplicate listing, prohibited content, etc.) and surface back to the agent in their dashboard plus an email. Suspensions are immediate; the agent's listings hide from public view until lifted."
+          ],
+          "links": []
+        },
+        {
+          "id": "admins-orgs",
+          "title": "Organizations, users, leads, reviews",
+          "body": [
+            "Each is a list-with-detail screen. Filter and sort by the columns you need; click an entry to see the full record and the actions you can take. Org screen surfaces the agent's plan, billing status, listing count, and a button to open the Stripe customer in a new tab.",
+            "User screen lets admins reset MFA for a user who lost their device — only after identity verification, and the action is audit-logged.",
+            "Lead screen shows the routing decisions taken (which rule fired, who received it). Reviews screen shows reviews awaiting moderation and lets you approve, reject, or attach a moderator note."
+          ],
+          "links": []
+        },
+        {
+          "id": "admins-audit",
+          "title": "Audit log",
+          "body": [
+            "Every admin write — approval, rejection, suspension, MFA reset, billing intervention — appears in the audit log with timestamp, actor, target, and a JSON payload of what changed. Filter by actor or target to investigate a single trail.",
+            "The audit log is append-only at the database level. Even admins cannot delete entries; the only way to correct a record is to add a compensating entry."
+          ],
+          "links": []
+        },
+        {
+          "id": "admins-escalation",
+          "title": "Escalation paths",
+          "body": [
+            "For anything you can't resolve in-app — payment disputes, legal requests, security incidents, suspected platform abuse — escalate to info@advertisehomes.online. Include the audit-log entry id (or the screen url and timestamp) so the on-call engineer can pick up your context immediately.",
+            "Security incidents follow the GDPR 72-hour clock: notify affected users within 72 hours of becoming aware, document the timeline, file the regulator notification."
+          ],
+          "links": [
+            { "label": "Privacy policy", "href": "privacy" }
+          ]
+        }
+      ]
+    }
   }
 }

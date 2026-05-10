@@ -1595,5 +1595,292 @@
       "sub": "Pro Automation, $99/mes. Cancela cuando quieras.",
       "cta": "Suscribirme — $99/mes"
     }
+  },
+  "docs": {
+    "footerLink": "Documentación",
+    "meta": {
+      "title": "Documentación — AHO",
+      "description": "Guía escrita para compradores, agentes y administradores que usan AHO. Buscar, guardar, contactar, publicar, distribuir, moderar."
+    },
+    "heading": "Documentación",
+    "intro": "Tres audiencias, tres guías. Elige la que se ajusta a cómo usas AHO. Cada sección enlaza a la pantalla real dentro del producto para que la sigas mientras estás conectado.",
+    "lastUpdated": "Última actualización: 2026-05-10",
+    "toc": {
+      "heading": "En esta página",
+      "buyers": "Para compradores",
+      "agents": "Para agentes",
+      "admins": "Para administradores"
+    },
+    "buyers": {
+      "heading": "Para compradores",
+      "intro": "No necesitas una cuenta para navegar. Sí la necesitas para guardar búsquedas, marcar inmuebles como favoritos y contactar agentes. Toda la experiencia de comprador es gratuita — los agentes pagan por publicar, los compradores nunca pagan a AHO.",
+      "sections": [
+        {
+          "id": "buyers-search",
+          "title": "Buscar un inmueble",
+          "body": [
+            "La página de búsqueda es donde la mayoría de compradores pasa su tiempo. Escribe una ciudad, vecindario o código postal en la caja de búsqueda, o desplaza y haz zoom en el mapa — la lista de resultados se refresca con lo que esté visible en el mapa.",
+            "Filtra por precio, dormitorios, tipo de inmueble y tipo de oferta (venta o alquiler). Los precios se muestran en la moneda que has elegido en la parte superior; el valor subyacente es el precio que fijó el agente.",
+            "Los resultados vacíos son honestos: cuando nada coincide con tus filtros, la página te lo dice. Nunca inventamos anuncios de demostración para llenar el espacio."
+          ],
+          "links": [
+            { "label": "Abrir búsqueda", "href": "search" },
+            { "label": "Explorar por país", "href": "countries" }
+          ]
+        },
+        {
+          "id": "buyers-save",
+          "title": "Guardar inmuebles y búsquedas",
+          "body": [
+            "Toca el icono de corazón en cualquier tarjeta o ficha de inmueble para marcarlo como favorito. Los favoritos quedan asociados a tu navegador incluso antes de iniciar sesión; al crear una cuenta, los favoritos anónimos se fusionan con tu cuenta para que no los pierdas.",
+            "Las búsquedas guardadas son distintas: son un conjunto guardado de filtros que volvemos a ejecutar por ti. Abre una búsqueda que te interese, pulsa \"Guardar esta búsqueda\", ponle nombre y elige si quieres resúmenes por correo cuando aparezcan nuevos resultados. Puedes gestionarlas — renombrar, editar filtros, cambiar la frecuencia, eliminar — desde la página de Búsquedas guardadas."
+          ],
+          "links": [
+            { "label": "Inmuebles guardados", "href": "saved-properties" },
+            { "label": "Búsquedas guardadas", "href": "saved-searches" }
+          ]
+        },
+        {
+          "id": "buyers-contact",
+          "title": "Contactar a un agente",
+          "body": [
+            "Cada anuncio tiene un formulario de contacto a la derecha (o debajo de las fotos en móvil). Rellena tu nombre, correo, teléfono opcional y un mensaje; el agente lo recibe en su bandeja y tú recibes una copia por correo.",
+            "Reenviamos tu mensaje únicamente al agente. Nunca vendemos ni compartimos los datos de contacto con terceros. El formulario está protegido por Cloudflare Turnstile y un honeypot para mantener fuera a los bots — normalmente no verás ningún reto.",
+            "Si prefieres llamar o escribir por WhatsApp, la página del agente lista los canales directos que haya añadido."
+          ],
+          "links": [
+            { "label": "Explorar anuncios para encontrar un agente", "href": "search" }
+          ]
+        },
+        {
+          "id": "buyers-language-currency",
+          "title": "Idioma y moneda",
+          "body": [
+            "Cambia el idioma de la interfaz desde el selector arriba a la derecha y al pie de cada página. AHO está disponible en siete idiomas: inglés, español, polaco, portugués, alemán, francés, italiano. El contenido de los anuncios lo escribe el agente — aparece en los idiomas en los que se redactó (típicamente inglés y/o español al lanzamiento). Nunca traducimos automáticamente el texto de los anuncios.",
+            "La moneda es independiente del idioma. Elige tu moneda preferida desde la misma zona; los precios se vuelven a formatear con tipos de cambio en vivo mientras el precio subyacente del anuncio no cambia. El formato sigue tu localización — €1.250.000 en español, $1,250,000 en inglés."
+          ],
+          "links": []
+        },
+        {
+          "id": "buyers-account",
+          "title": "Cuenta, seguridad y privacidad",
+          "body": [
+            "Crea una cuenta con correo + contraseña, Google o un enlace mágico. El restablecimiento de contraseña es autoservicio desde la página de inicio de sesión. Puedes activar la autenticación en dos pasos (TOTP) desde tu panel — recomendado si guardas búsquedas sensibles.",
+            "Todos tus datos son tuyos. Puedes eliminar tu cuenta cuando quieras desde la página de Perfil del panel; esto cascada a tus favoritos, búsquedas guardadas, mensajes de contacto y reseñas. Los registros de facturación (si también usas AHO como agente) se anonimizan pero se conservan donde la ley fiscal lo exige.",
+            "Lee la política de privacidad completa para un desglose línea a línea de qué guardamos, por qué y durante cuánto tiempo."
+          ],
+          "links": [
+            { "label": "Política de privacidad", "href": "privacy" },
+            { "label": "Términos de servicio", "href": "terms" },
+            { "label": "Iniciar sesión", "href": "signin" },
+            { "label": "Crear una cuenta", "href": "signup" }
+          ]
+        }
+      ]
+    },
+    "agents": {
+      "heading": "Para agentes",
+      "intro": "Los agentes se suscriben para publicar anuncios. El nivel más bajo te pone en la plataforma; los niveles superiores desbloquean la automatización de distribución social que convierte un anuncio en 21 publicaciones adaptadas por plataforma. Lo que sigue asume que ya te has registrado — consulta la página de precios si aún no.",
+      "sections": [
+        {
+          "id": "agents-setup",
+          "title": "Primera configuración: suscripción, onboarding, perfil, primer anuncio",
+          "body": [
+            "Suscríbete desde la página de precios. Pasarás por Stripe Checkout (tarjeta de prueba o real, según el plan) y volverás a la página de bienvenida donde el asistente de onboarding te guía por tres pasos cortos: datos de la organización, tu perfil de agente y tu primer anuncio.",
+            "Salta cualquier paso que no puedas completar todavía — puedes terminarlo después desde el panel. El asistente existe para reducir el escalón entre \"acabo de pagar\" y \"tengo un anuncio publicado\", no para bloquear el acceso al panel.",
+            "Tras el onboarding, tu panel se convierte en la base para todo lo demás: propiedades, contactos, publicaciones sociales, estadísticas, facturación."
+          ],
+          "links": [
+            { "label": "Precios y planes", "href": "pricing" },
+            { "label": "Registrarse", "href": "signup" },
+            { "label": "Bienvenida / onboarding", "href": "onboarding" },
+            { "label": "Panel", "href": "dashboard" }
+          ]
+        },
+        {
+          "id": "agents-import-lanes",
+          "title": "Tres formas de añadir un anuncio: URL, voz, manual",
+          "body": [
+            "Importación por URL: pega un enlace de un portal competidor (otodom, idealista, otros) y AHO extrae los campos públicos, descarga las fotos y prerrellena el formulario. Tú revisas, editas y publicas.",
+            "Importación por voz: toca el micrófono en la pantalla de nuevo anuncio y dicta el inmueble en tu idioma. Whisper transcribe; Claude extrae precio, superficie, dormitorios, ubicación y servicios; el formulario se prerrellena. Pensado para el agente que sale de una visita — antes de llegar al coche, el borrador está listo.",
+            "Manual: el formulario clásico. Escribe cada campo, arrastra las fotos, redacta tu descripción. Siempre disponible como respaldo cuando una vía de importación falla con una fuente inusual."
+          ],
+          "links": [
+            { "label": "Nuevo anuncio", "href": "dashboard-new-property" }
+          ]
+        },
+        {
+          "id": "agents-photos",
+          "title": "Pautas para fotos",
+          "body": [
+            "Los originales se suben a Cloudflare R2; AHO genera variantes de visualización en Cloudflare Images. Recomendamos originales de 2400 px en el lado largo o más, JPEG o WebP, menos de 10 MB cada uno. Aceptamos hasta 30 fotos por anuncio.",
+            "El orden importa: la primera foto es la portada que aparece en las tarjetas de resultado y en las publicaciones sociales. Arrastra para reordenar desde la página de edición del anuncio.",
+            "Por la regla de datos reales de la plataforma, solo se permiten fotos del inmueble real. Sin fotografía de stock, sin habitaciones generadas por IA, sin imágenes \"representativas\" de otra unidad. Los anuncios que infrinjan esto se retiran sin previo aviso por los moderadores."
+          ],
+          "links": [
+            { "label": "Tus propiedades", "href": "dashboard-properties" }
+          ]
+        },
+        {
+          "id": "agents-edit-flow",
+          "title": "Editar un anuncio",
+          "body": [
+            "Abre un anuncio desde la página de Propiedades en tu panel. La pantalla de edición refleja el formulario de nuevo anuncio: pestañas de idioma (EN / ES) arriba, cuadrícula de fotos abajo y campos estructurados para precio, dirección, atributos y descripciones bilingües.",
+            "Los cambios son inmediatos. Cada guardado actualiza el updated_at del anuncio público, lo que indica al buscador y al planificador de distribución social que el contenido está fresco.",
+            "Archiva un anuncio cuando ya no esté a la venta pero quieras conservar el historial. Los archivados permanecen en tu panel 90 días y luego se eliminan a menos que los restaures."
+          ],
+          "links": [
+            { "label": "Tus propiedades", "href": "dashboard-properties" }
+          ]
+        },
+        {
+          "id": "agents-leads",
+          "title": "Bandeja de contactos y enrutamiento",
+          "body": [
+            "Cada formulario de contacto recibido en uno de tus anuncios llega a la bandeja de Contactos. Cada entrada muestra el nombre del comprador, correo, teléfono opcional, el mensaje, el anuncio que estaba viendo y un botón de respuesta de un clic que abre tu cliente de correo con el asunto prerrellenado.",
+            "Las reglas de enrutamiento te permiten reenviar contactos entrantes a colegas según etiquetas del anuncio o área geográfica — útil cuando tu equipo es de más de un agente. Las reglas se ejecutan en el servidor antes de enviar la notificación por correo.",
+            "¿Bandeja vacía? De verdad está vacía. No sembramos contactos de demostración, nunca."
+          ],
+          "links": [
+            { "label": "Bandeja de contactos", "href": "dashboard-leads" },
+            { "label": "Reglas de enrutamiento", "href": "dashboard-leads-routing" }
+          ]
+        },
+        {
+          "id": "agents-social",
+          "title": "Cuadrícula social y tonos",
+          "body": [
+            "En Pro Automation, la página Social muestra una cuadrícula de 3 × 7: tres plataformas (Facebook, Instagram, LinkedIn) por siete idiomas. Para cada anuncio nuevo, AHO genera una variante adaptada a cada plataforma y nativa por idioma en cada celda — 21 publicaciones en total.",
+            "Cada variante es editable. Puedes elegir un tono distinto (cercano, factual, hype, profesional) por plataforma; recordamos tu última elección como predeterminada para el siguiente anuncio en esa plataforma.",
+            "Las publicaciones incluyen el URL de tu anuncio en AHO para que los contactos vuelvan a tu bandeja. Hasta que llegue la aprobación de Meta App Review, la publicación es copia-pega; la publicación de un clic se activa automáticamente al aprobarse en un canal conectado."
+          ],
+          "links": [
+            { "label": "Distribución social", "href": "dashboard-social" }
+          ]
+        },
+        {
+          "id": "agents-performance",
+          "title": "Panel de rendimiento",
+          "body": [
+            "La página de Estadísticas muestra alcance real y conteos de contactos por anuncio, por plataforma, por idioma. Agregamos desde las APIs de insights de Meta y LinkedIn (donde hayas conectado tus cuentas) más el seguimiento propio de clics y formularios de AHO en servidor.",
+            "Los números son honestos: vacíos hasta que haya datos, y nunca extrapolamos. Las estadísticas por anuncio se abren desde la página de Propiedades o directamente desde la vista general de estadísticas."
+          ],
+          "links": [
+            { "label": "Vista general de estadísticas", "href": "dashboard-analytics" }
+          ]
+        },
+        {
+          "id": "agents-channels",
+          "title": "Conectar cuentas sociales",
+          "body": [
+            "Abre la página Social y sigue los avisos \"Conectar Facebook\", \"Conectar Instagram\", \"Conectar LinkedIn\". Cada uno abre el flujo OAuth de la plataforma en una ventana emergente; al éxito, AHO guarda un token de acceso cifrado y el id de la página/perfil que has autorizado.",
+            "Puedes revocar una conexión en cualquier momento desde la misma página; el token se elimina al instante. Solo solicitamos los permisos necesarios para publicar tus propias publicaciones de anuncios y leer sus insights — sin lista de amigos, sin acceso a la cuenta publicitaria.",
+            "Mientras Meta App Review está pendiente, el botón de conectar sigue funcionando para el flujo copia-pega pero el interruptor de auto-publicación está desactivado."
+          ],
+          "links": [
+            { "label": "Distribución social", "href": "dashboard-social" }
+          ]
+        },
+        {
+          "id": "agents-billing",
+          "title": "Facturación y cambios de plan",
+          "body": [
+            "Gestiona tu suscripción desde la página de Perfil en el panel. El botón \"Abrir portal de facturación\" te lleva al Portal de Cliente alojado por Stripe donde puedes actualizar la tarjeta, descargar facturas, cambiar de plan o cancelar.",
+            "La cancelación tiene efecto al final del periodo de facturación actual — tus anuncios siguen activos hasta entonces. Volver a suscribirte reabre todo donde lo dejaste.",
+            "Los impuestos (IVA, sales tax) los gestiona automáticamente Stripe Tax según tu país de facturación."
+          ],
+          "links": [
+            { "label": "Perfil y facturación", "href": "dashboard-profile" }
+          ]
+        },
+        {
+          "id": "agents-sold",
+          "title": "Marcar un anuncio como vendido y pedir una reseña",
+          "body": [
+            "Cuando se cierra un trato, abre el anuncio y usa \"Marcar como vendido/alquilado\". Introduce la fecha de cierre, el precio de cierre opcional y a qué lado representaste (comprador, vendedor, ambos). El anuncio pasa a tu archivo de vendidos y muestra una insignia \"Vendido\" durante 30 días.",
+            "Si el correo del comprador está en el trato, AHO puede enviarle una solicitud de reseña de un clic 7 días después del cierre. Las reseñas se verifican doblemente: el correo debe coincidir con el registro del trato y un enlace tokenizado confirma que es la persona correcta."
+          ],
+          "links": [
+            { "label": "Tus reseñas", "href": "dashboard-reviews" }
+          ]
+        },
+        {
+          "id": "agents-mfa",
+          "title": "Autenticación en dos pasos (TOTP)",
+          "body": [
+            "Activa TOTP desde la página de Perfil. Escanea el QR con Google Authenticator, 1Password, Authy o cualquier app compatible TOTP, e introduce el código de 6 dígitos para confirmar.",
+            "Una vez activada, cada inicio de sesión pide un código nuevo. Guarda los códigos de respaldo que aparecen en pantalla — son la vía de recuperación si pierdes el teléfono. Solo podemos ayudarte a restablecer con prueba de identidad; no podemos saltar el MFA por capricho."
+          ],
+          "links": [
+            { "label": "Configurar MFA", "href": "setup-mfa" }
+          ]
+        }
+      ]
+    },
+    "admins": {
+      "heading": "Para administradores",
+      "intro": "El acceso de administrador lo concede AHO manualmente y está protegido por MFA obligatorio. El área de administración vive en /admin y te muestra el panorama completo de todas las organizaciones de la plataforma.",
+      "sections": [
+        {
+          "id": "admins-layout",
+          "title": "Vista general del layout",
+          "body": [
+            "El área de administración es un layout simple con barra superior. De izquierda a derecha: KPIs, Moderación, Organizaciones, Usuarios, Contactos, Reseñas, Registro de auditoría. Cada sección es una sola página que carga en servidor; no hay apps cliente de administración que mantener sincronizadas.",
+            "Cada acción de admin se escribe en el registro de auditoría. No existe vía paralela."
+          ],
+          "links": [
+            { "label": "Inicio admin", "href": "admin" }
+          ]
+        },
+        {
+          "id": "admins-kpis",
+          "title": "Tira de KPIs",
+          "body": [
+            "La tira de inicio muestra los números titulares: suscripciones activas por nivel, anuncios publicados en los últimos 7 días, contactos enrutados en los últimos 7 días, MRR, señales de churn (cancelaciones pendientes).",
+            "Los números se calculan en el momento de la solicitud sobre datos de producción — sin caché, sin estimación. Cuando algo parezca raro, entra a la pantalla subyacente en lugar de recargar."
+          ],
+          "links": []
+        },
+        {
+          "id": "admins-moderation",
+          "title": "Cola de moderación",
+          "body": [
+            "Los anuncios nuevos, las descripciones editadas con una puntuación alta de \"contenido inusual\" y los anuncios reportados llegan a la cola de moderación. Cada elemento muestra el anuncio completo tal y como aparecería públicamente, más una barra lateral de acciones: aprobar, rechazar con motivo, suspender al agente.",
+            "Los motivos de rechazo están plantillados (sin fotos reales, anuncio duplicado, contenido prohibido, etc.) y vuelven al agente en su panel más un correo. Las suspensiones son inmediatas; los anuncios del agente desaparecen de la vista pública hasta levantarse."
+          ],
+          "links": []
+        },
+        {
+          "id": "admins-orgs",
+          "title": "Organizaciones, usuarios, contactos, reseñas",
+          "body": [
+            "Cada uno es una pantalla de lista-con-detalle. Filtra y ordena por las columnas que necesites; haz clic en una entrada para ver el registro completo y las acciones disponibles. La pantalla de organización muestra el plan del agente, estado de facturación, número de anuncios y un botón para abrir el cliente Stripe en una pestaña nueva.",
+            "La pantalla de usuario permite a los admins restablecer MFA para un usuario que ha perdido su dispositivo — solo tras verificar identidad, y la acción queda en auditoría.",
+            "La pantalla de contactos muestra las decisiones de enrutamiento (qué regla disparó, quién recibió). La de reseñas muestra reseñas pendientes de moderación y permite aprobar, rechazar o adjuntar una nota del moderador."
+          ],
+          "links": []
+        },
+        {
+          "id": "admins-audit",
+          "title": "Registro de auditoría",
+          "body": [
+            "Cada escritura de admin — aprobación, rechazo, suspensión, restablecimiento de MFA, intervención de facturación — aparece en el registro de auditoría con marca temporal, actor, objetivo y un payload JSON de qué cambió. Filtra por actor u objetivo para investigar un único rastro.",
+            "El registro es append-only a nivel de base de datos. Ni siquiera los admins pueden eliminar entradas; la única forma de corregir un registro es añadir una entrada compensatoria."
+          ],
+          "links": []
+        },
+        {
+          "id": "admins-escalation",
+          "title": "Vías de escalamiento",
+          "body": [
+            "Para cualquier cosa que no puedas resolver dentro de la app — disputas de pago, solicitudes legales, incidentes de seguridad, abuso sospechoso de plataforma — escala a info@advertisehomes.online. Incluye el id de la entrada de auditoría (o la URL de la pantalla y la marca temporal) para que el ingeniero de guardia pueda recoger el contexto al instante.",
+            "Los incidentes de seguridad siguen el reloj de 72 horas del RGPD: notifica a los usuarios afectados en 72 horas desde que tienes conocimiento, documenta la línea temporal, presenta la notificación al regulador."
+          ],
+          "links": [
+            { "label": "Política de privacidad", "href": "privacy" }
+          ]
+        }
+      ]
+    }
   }
 }
