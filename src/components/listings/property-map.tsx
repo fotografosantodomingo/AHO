@@ -215,6 +215,7 @@ export function PropertyMap({
   useEffect(() => {
     let cancelled = false;
     let map: LeafletMap | null = null;
+    let sizeObserver: ResizeObserver | null = null;
     const containerEl = mapEl.current;
     // Native event listeners gate "real user interaction". Leaflet's
     // own `dragstart` / `zoomstart` events fire on PROGRAMMATIC camera
@@ -224,6 +225,21 @@ export function PropertyMap({
     // when the user actually touches the map.
     const markInteracted = () => {
       userInteractedRef.current = true;
+    };
+    // Invalidate size after the browser has had a chance to apply any
+    // pending layout (orientation change, BFCache restore). Two rAFs
+    // give the same effect on every engine: first frame applies styles,
+    // second frame measures.
+    const invalidateOnSettle = () => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          try {
+            mapRef.current?.invalidateSize();
+          } catch {
+            /* removed mid-frame */
+          }
+        });
+      });
     };
 
     void (async () => {
@@ -260,6 +276,19 @@ export function PropertyMap({
       }).addTo(map);
       mapRef.current = map;
       setReady(true);
+      // Force a size recompute post-init. Mobile Safari / Chrome and any
+      // layout where the parent is a flex/grid child can produce a 0×0
+      // measurement on first Leaflet init — the tile layer then never
+      // requests tiles because it has no visible bounds. invalidateSize
+      // recomputes from the (now-laid-out) container.
+      // Wrap in rAF so the browser has applied any pending styles.
+      requestAnimationFrame(() => {
+        try {
+          map?.invalidateSize();
+        } catch {
+          /* map removed mid-rAF — fine */
+        }
+      });
 
       // Bbox callback on pan/zoom — debounced 400ms. Gated on actual
       // user interaction via NATIVE input events on the container so
@@ -292,6 +321,34 @@ export function PropertyMap({
         }, 400);
       };
       map.on('moveend', onMoveEnd);
+
+      // Re-invalidate size on container resize (mobile rotation, mobile
+      // virtual keyboard show/hide, parent flex reshuffle on filter
+      // changes). Without this, the tile layer renders against a stale
+      // size and the user sees grey or partially-painted tiles after
+      // the layout settles. ResizeObserver is supported on every
+      // browser AHO targets (Safari 13.1+, Chrome 64+, Firefox 69+).
+      if (typeof ResizeObserver !== 'undefined' && containerEl) {
+        sizeObserver = new ResizeObserver(() => {
+          // Debounce via rAF so we don't thrash invalidateSize during
+          // continuous resizes (orientation change animation).
+          requestAnimationFrame(() => {
+            try {
+              mapRef.current?.invalidateSize();
+            } catch {
+              /* removed mid-frame */
+            }
+          });
+        });
+        sizeObserver.observe(containerEl);
+      }
+      // Defensive: orientationchange and pageshow (BFCache restore)
+      // sometimes fire before the layout settles. ResizeObserver
+      // catches the resulting size change, but on iOS Safari the
+      // orientation change event fires while the new size is still
+      // being computed, so we double-up with an explicit listener.
+      window.addEventListener('orientationchange', invalidateOnSettle);
+      window.addEventListener('pageshow', invalidateOnSettle);
     })();
 
     return () => {
@@ -302,6 +359,9 @@ export function PropertyMap({
         containerEl.removeEventListener('wheel', markInteracted);
         containerEl.removeEventListener('keydown', markInteracted);
       }
+      if (sizeObserver) sizeObserver.disconnect();
+      window.removeEventListener('orientationchange', invalidateOnSettle);
+      window.removeEventListener('pageshow', invalidateOnSettle);
       if (map) map.remove();
       mapRef.current = null;
     };
@@ -419,8 +479,29 @@ export function PropertyMap({
         ref={mapEl}
         role="application"
         aria-label="Map of property listings"
-        className="aspect-[4/3] w-full overflow-hidden rounded-card border border-border bg-surface shadow-whisper sm:aspect-[16/9] dark:bg-surface-deep"
+        // `min-h-[420px]` is the load-bearing rule on mobile: iOS Safari
+        // had cases where the parent flex layout collapsed `aspect-[4/3]`
+        // to a 0-height container, leaving the user with a blank frame
+        // and no tiles. Pixel-based min-height makes "the map has space"
+        // a hard guarantee independent of the parent layout. Aspect
+        // ratio still drives the desktop sizing.
+        className="aspect-[4/3] min-h-[420px] w-full overflow-hidden rounded-card border border-border bg-surface shadow-whisper sm:aspect-[16/9] sm:min-h-0 dark:bg-surface-deep"
       />
+      {/* Visible while Leaflet's bundle + CSS are still downloading.
+          Without this, slow mobile connections see a blank tile area
+          for several seconds with no indication anything's loading,
+          which reads as "the map is broken." */}
+      {!ready && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 flex items-center justify-center"
+        >
+          <p className="inline-flex items-center gap-2 rounded-lg bg-surface/90 px-3 py-1.5 text-xs text-helper shadow-whisper backdrop-blur-sm dark:bg-surface-deep/90">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-action" />
+            Loading map…
+          </p>
+        </div>
+      )}
       {ready && pinned.length === 0 && listings.length > 0 && !fetching && (
         <p className="absolute left-3 top-3 rounded-lg bg-surface/90 px-3 py-1.5 text-xs text-helper backdrop-blur-sm dark:bg-surface-deep/90">
           No listings on this page have a saved location yet.
