@@ -12,6 +12,55 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-10 (continuation 6) — P1 #7 sweep complete (60 files, 7 batches, ~90 ternaries)
+- **Frame:** Continued the localePath() migration after the first 5
+  batches. Goal: get to "no genuine path-ternaries left."
+- **What shipped (3 commits this segment):**
+  - **`976a3d6` batch 5** — onboarding-wizard, billing/checkout (Stripe
+    success/cancel URLs), api/billing/portal/route.ts, api/cron/review-
+    requests/route.ts (agent-profile email URL), sitemap-images.xml
+    (per-locale property URLs), terms canonical, listing-card,
+    property-map, search-filters, saved-search-row, social/locked-
+    social-module, analytics/social-performance-section. 12 files.
+  - **`5bb0176` batch 6** — properties-in/[country] + [city] (now
+    emit hreflang for ALL 7 locales, not just en/es), agents/[slug]
+    (canonical + JSON-LD URLs + legacy-slug redirect for all 7
+    locales), search (list-view + map-view + WebSite SearchAction
+    URL), countries (canonical + hreflang for all 7), dashboard
+    analytics/[id], properties/[id], reviews, leads + leads/[id]
+    (per-property links). 10 files.
+  - **`e773c1e` batch 7** — lib/listings/countries.ts
+    (getGlobalSearchIndex — feeds the homepage hero + countries
+    combobox; one fix here means correct localized URLs everywhere
+    that consumes the index), countries-page hrefs, for-agents +
+    automation + save-time landing-page hrefs (agent acquisition
+    routes — drift here is a real conversion bug). 5 files.
+- **Cumulative across all 7 P1 #7 commits:** **60 files migrated**,
+  ~90 path-ternaries removed. Critical SEO surfaces (canonical URLs,
+  hreflang, breadcrumb JSON-LD, sitemap, Stripe checkout URLs, the
+  global search index that feeds the hero) are PATHNAMES-driven.
+- **Remaining ternaries:** the 5 surviving `locale === 'es' ?` calls
+  are NOT path-builders:
+  - `i18n/locale-path.ts:12` — code-comment example
+  - `billing-portal-button.tsx:19` — Locale narrowing for API body
+  - `i18n/config.ts:32` — `narrowContentLocale()` correctly returns
+    `'es' : 'en'`
+  - `[locale]/page.tsx:108` — JSON-LD `inLanguage` tag (correctly
+    a Locale narrowing, not a path)
+  - `analytics/stat-tile.tsx:48` — relative-time copy fallback
+    (`'ahora' : 'just now'`); a separate TODO is i18n keys for these
+- **Test count:** 437/437 unit tests pass throughout.
+- **P1 backlog status:** **#7 complete**. 21 of 25 P1 findings
+  fully landed. Remaining: #21 (admin-leads PII masking, UX
+  redesign) — needs design input + threat-model decision.
+- **Next session should start with:** P1 #21 admin-leads PII
+  masking — proposes click-to-reveal with audit-log, but the UX
+  needs PO input before implementation. OR P2 polish items
+  (loading boundaries on 8+ surfaces, admin i18n migration,
+  accessibility aria-live regions).
+
+---
+
 ## 2026-05-10 (continuation 5) — P1 #7 localePath() centralization (5 commits, 33 files)
 - **Frame:** Last big-ticket QA P1 finding: 23+ files (actually 85 with
   same-shape ternaries) hardcoding `locale === 'es' ? 'X' : 'Y'`
