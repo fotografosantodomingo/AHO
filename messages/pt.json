@@ -57,7 +57,7 @@
     "howHeading": "Como o AHO funciona",
     "howSubheading": "Do anúncio ao contato em três passos. Feito para corretores que não querem postar manualmente em cinco redes sociais toda semana.",
     "howStep1Title": "Assine e crie seu anúncio",
-    "howStep1Body": "$29 por mês, 7 dias grátis, cancele quando quiser pelo Portal do Cliente Stripe.",
+    "howStep1Body": "$29 por mês, cancele quando quiser pelo Portal do Cliente Stripe.",
     "howStep2Title": "Publique seus anúncios",
     "howStep2Body": "Título, fotos, preço, localização — bilíngue EN/ES. Até 5 anúncios ativos no plano Corretor.",
     "howStep3Title": "Alcance compradores em todo lugar",
@@ -286,13 +286,13 @@
   "forAgents": {
     "meta": {
       "title": "AHO para corretores de imóveis — da nota de voz a 21 posts sociais com um clique",
-      "description": "Pare de publicar imóveis plataforma por plataforma. Dite uma nota de voz: AHO transforma em anúncio bilíngue e 21 posts sociais ajustados a cada plataforma, todos com seu link AHO. Pro Automation $99/mês, 7 dias grátis."
+      "description": "Pare de publicar imóveis plataforma por plataforma. Dite uma nota de voz: AHO transforma em anúncio bilíngue e 21 posts sociais ajustados a cada plataforma, todos com seu link AHO. Pro Automation $99/mês. Cancele quando quiser."
     },
     "hero": {
       "eyebrow": "Para corretores de imóveis",
       "headline": "Pare de publicar imóveis um por um. Comece a anunciar globalmente com um único clique.",
       "sub": "Dite uma nota de voz ao sair do imóvel. Antes de chegar ao carro, a AHO já tem seu anúncio bilíngue no ar e 21 posts sociais prontos — todos com o link do seu anúncio AHO.",
-      "primaryCta": "Iniciar teste grátis",
+      "primaryCta": "Assinar — $99/mês",
       "secondaryCta": "Veja como funciona"
     },
     "problem": {
@@ -349,7 +349,7 @@
         "Anúncios ilimitados, importação por voz + URL + manual",
         "21 variantes de post social por anúncio (3 plataformas × 7 idiomas)",
         "Caixa centralizada de leads + painel de desempenho por anúncio",
-        "Teste grátis 7 dias — sem cartão para começar"
+        "Cancele quando quiser pelo Portal do Cliente Stripe"
       ],
       "cta": "Ver planos completos"
     },
@@ -405,20 +405,20 @@
     },
     "finalCta": {
       "heading": "Seu próximo anúncio pode estar no ar em 60 segundos.",
-      "sub": "Pro Automation, $99/mês. Teste grátis de 7 dias — sem cartão para começar. Cancele quando quiser.",
-      "cta": "Iniciar teste grátis"
+      "sub": "Pro Automation, $99/mês. Cancele quando quiser.",
+      "cta": "Assinar — $99/mês"
     }
   },
   "automation": {
     "meta": {
       "title": "Automação de redes sociais imobiliária — publique uma vez, em FB, IG, WhatsApp | AHO",
-      "description": "AHO Pro Automation publica seu anúncio na Página Facebook, Instagram Business e WhatsApp Business — automaticamente. Integração nativa Graph API, variantes de imagem por canal, agendamento + retry. $99/mês com teste grátis de 7 dias."
+      "description": "AHO Pro Automation publica seu anúncio na Página Facebook, Instagram Business e WhatsApp Business — automaticamente. Integração nativa Graph API, variantes de imagem por canal, agendamento + retry. $99/mês. Cancele quando quiser."
     },
     "hero": {
       "eyebrow": "Pro Automation",
       "headline": "Publique uma vez. Distribua para Facebook, Instagram e WhatsApp Business — automaticamente.",
       "sub": "A função principal do AHO Pro. Um clique OAuth conecta cada canal; cada anúncio publicado se distribui sozinho.",
-      "primaryCta": "Iniciar teste grátis · $99/mês",
+      "primaryCta": "Assinar — $99/mês",
       "secondaryCta": "Comparar todos os planos"
     },
     "problem": {
@@ -476,9 +476,9 @@
         "Variantes de imagem por canal (quadrado / paisagem / vertical)",
         "Agendamento + retry + status no painel",
         "Anúncios ilimitados + caixa de entrada + perfil de corretor",
-        "Teste grátis 7 dias — sem cartão"
+        "Cancele quando quiser pelo Portal do Cliente Stripe"
       ],
-      "cta": "Iniciar teste grátis"
+      "cta": "Assinar — $99/mês"
     },
     "faq": {
       "heading": "Perguntas frequentes",
@@ -507,20 +507,20 @@
     },
     "finalCta": {
       "heading": "Conecte uma vez. Distribua para sempre.",
-      "sub": "Pro Automation, $99/mês. Teste grátis 7 dias. Cancele quando quiser.",
-      "cta": "Iniciar teste grátis"
+      "sub": "Pro Automation, $99/mês. Cancele quando quiser.",
+      "cta": "Assinar — $99/mês"
     }
   },
   "saveTime": {
     "meta": {
       "title": "Economize 10+ horas por semana em anúncios | AHO para corretores",
-      "description": "10 anúncios × 5 plataformas × 8 minutos = 400 minutos por semana. AHO faz em 30 segundos. Pro Automation $99/mês com teste grátis de 7 dias."
+      "description": "10 anúncios × 5 plataformas × 8 minutos = 400 minutos por semana. AHO faz em 30 segundos. Pro Automation $99/mês. Cancele quando quiser."
     },
     "hero": {
       "eyebrow": "10 horas por semana, recuperadas",
       "headline": "Pare de postar o mesmo anúncio cinco vezes. Recupere essas horas.",
       "sub": "10 anúncios × 5 plataformas × 8 minutos = 400 minutos por semana perdidos em re-postagem. AHO faz em 30 segundos.",
-      "primaryCta": "Iniciar teste grátis · $99/mês",
+      "primaryCta": "Assinar — $99/mês",
       "secondaryCta": "Como funciona"
     },
     "problem": {
@@ -556,8 +556,8 @@
       "heading": "Três passos para recuperar seu fim de semana",
       "steps": [
         {
-          "title": "Cadastre-se — teste grátis 7 dias",
-          "body": "Sem cartão. Configure seu perfil de corretor em menos de 5 minutos."
+          "title": "Cadastre-se",
+          "body": "Assine o Pro Automation — $99/mês, cancele quando quiser. Configure seu perfil de corretor em menos de 5 minutos."
         },
         {
           "title": "Conecte seus canais",
@@ -578,9 +578,9 @@
         "Auto-publicação para FB + IG + WhatsApp Business",
         "Uma caixa, todos os canais",
         "Anúncios ilimitados + perfil de corretor + SEO bilíngue",
-        "Teste grátis 7 dias — sem cartão"
+        "Cancele quando quiser pelo Portal do Cliente Stripe"
       ],
-      "cta": "Iniciar teste grátis"
+      "cta": "Assinar — $99/mês"
     },
     "faq": {
       "heading": "Perguntas frequentes",
@@ -608,9 +608,9 @@
       ]
     },
     "finalCta": {
-      "heading": "Recupere seus fins de semana. Comece seu teste hoje.",
-      "sub": "Pro Automation, $99/mês. Teste grátis 7 dias. Cancele quando quiser.",
-      "cta": "Iniciar teste grátis"
+      "heading": "Recupere seus fins de semana. Assine hoje.",
+      "sub": "Pro Automation, $99/mês. Cancele quando quiser.",
+      "cta": "Assinar — $99/mês"
     }
   },
   "onboardingWizard": {

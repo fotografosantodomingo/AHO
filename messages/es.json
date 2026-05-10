@@ -1528,9 +1528,9 @@
         "Publicación automática a FB + IG + WhatsApp Business",
         "Una bandeja, todos los canales",
         "Anuncios ilimitados + perfil de agente + SEO bilingüe",
-        "Prueba gratis 7 días — sin tarjeta"
+        "Cancela cuando quieras desde el Portal de Cliente de Stripe"
       ],
-      "cta": "Empezar prueba gratis"
+      "cta": "Suscribirme — $99/mes"
     },
     "faq": {
       "heading": "Preguntas frecuentes",
@@ -1558,9 +1558,9 @@
       ]
     },
     "finalCta": {
-      "heading": "Recupera tus fines de semana. Empieza tu prueba hoy.",
-      "sub": "Pro Automation, $99/mes. Prueba gratis de 7 días. Cancela cuando quieras.",
-      "cta": "Empezar prueba gratis"
+      "heading": "Recupera tus fines de semana. Suscríbete hoy.",
+      "sub": "Pro Automation, $99/mes. Cancela cuando quieras.",
+      "cta": "Suscribirme — $99/mes"
     }
   }
 }

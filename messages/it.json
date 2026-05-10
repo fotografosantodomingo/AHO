@@ -57,7 +57,7 @@
     "howHeading": "Come funziona AHO",
     "howSubheading": "Dall'annuncio al contatto in tre passi. Costruito per agenti che non vogliono postare manualmente su cinque social ogni settimana.",
     "howStep1Title": "Iscriviti + crea il tuo annuncio",
-    "howStep1Body": "$29 al mese, prova gratis 7 giorni, cancella quando vuoi dal Portale Cliente Stripe.",
+    "howStep1Body": "$29 al mese, cancella quando vuoi dal Portale Cliente Stripe.",
     "howStep2Title": "Pubblica i tuoi annunci",
     "howStep2Body": "Titolo, foto, prezzo, posizione — bilingue EN/ES. Fino a 5 annunci attivi sul piano Agent.",
     "howStep3Title": "Raggiungi acquirenti ovunque",
@@ -252,13 +252,13 @@
   "forAgents": {
     "meta": {
       "title": "AHO per agenti immobiliari — dalla nota vocale a 21 post social con un clic",
-      "description": "Smetti di pubblicare gli immobili una piattaforma alla volta. Detta una nota vocale: AHO la trasforma in un annuncio bilingue e in 21 post social adattati a ciascuna piattaforma, tutti con il tuo link AHO. Pro Automation 99$/mese, prova gratis di 7 giorni."
+      "description": "Smetti di pubblicare gli immobili una piattaforma alla volta. Detta una nota vocale: AHO la trasforma in un annuncio bilingue e in 21 post social adattati a ciascuna piattaforma, tutti con il tuo link AHO. Pro Automation 99$/mese. Cancella in qualsiasi momento."
     },
     "hero": {
       "eyebrow": "Per agenti immobiliari",
       "headline": "Smetti di pubblicare gli immobili uno alla volta. Promuovi a livello globale con un solo clic.",
       "sub": "Detta una nota vocale uscendo dall'immobile. Prima che tu raggiunga l'auto, AHO ha già un annuncio bilingue online e 21 post social pronti — ciascuno con il link al tuo annuncio AHO.",
-      "primaryCta": "Inizia la prova gratis",
+      "primaryCta": "Abbonati — 99$/mese",
       "secondaryCta": "Scopri come funziona"
     },
     "problem": {
@@ -315,7 +315,7 @@
         "Annunci illimitati, importazione vocale + URL + manuale",
         "21 varianti di post social per annuncio (3 piattaforme × 7 lingue)",
         "Casella lead centralizzata + dashboard di performance per annuncio",
-        "Prova gratis di 7 giorni — senza carta per iniziare"
+        "Cancella in qualsiasi momento dal Portale Cliente Stripe"
       ],
       "cta": "Vedi tutti i piani"
     },
@@ -371,20 +371,20 @@
     },
     "finalCta": {
       "heading": "Il tuo prossimo annuncio può essere online in 60 secondi.",
-      "sub": "Pro Automation, 99$/mese. Prova gratis 7 giorni — senza carta per iniziare. Disdici quando vuoi.",
-      "cta": "Inizia la prova gratis"
+      "sub": "Pro Automation, 99$/mese. Cancella in qualsiasi momento.",
+      "cta": "Abbonati — 99$/mese"
     }
   },
   "automation": {
     "meta": {
       "title": "Automazione social immobiliare — pubblica una volta su FB, IG, WhatsApp | AHO",
-      "description": "AHO Pro Automation pubblica il tuo annuncio su Pagina Facebook, Instagram Business e WhatsApp Business — automaticamente. Integrazione Graph API nativa, varianti immagine per canale, pianificazione + retry. 99$/mese con prova gratis 7 giorni."
+      "description": "AHO Pro Automation pubblica il tuo annuncio su Pagina Facebook, Instagram Business e WhatsApp Business — automaticamente. Integrazione Graph API nativa, varianti immagine per canale, pianificazione + retry. 99$/mese. Cancella in qualsiasi momento."
     },
     "hero": {
       "eyebrow": "Pro Automation",
       "headline": "Pubblica una volta. Distribuisci a Facebook, Instagram e WhatsApp Business — automaticamente.",
       "sub": "La funzione di punta di AHO Pro. Un click OAuth collega ogni canale; ogni annuncio pubblicato si distribuisce da solo.",
-      "primaryCta": "Inizia prova gratis · 99$/mese",
+      "primaryCta": "Abbonati — 99$/mese",
       "secondaryCta": "Confronta tutti i piani"
     },
     "problem": {
@@ -442,9 +442,9 @@
         "Varianti immagine per canale (quadrato / orizzontale / verticale)",
         "Pianificazione + retry + stato dashboard",
         "Annunci illimitati + casella contatti + profilo agente",
-        "Prova 7 giorni — senza carta"
+        "Cancella in qualsiasi momento dal Portale Cliente Stripe"
       ],
-      "cta": "Inizia la prova gratis"
+      "cta": "Abbonati — 99$/mese"
     },
     "faq": {
       "heading": "Domande frequenti",
@@ -473,20 +473,20 @@
     },
     "finalCta": {
       "heading": "Collega una volta. Distribuisci per sempre.",
-      "sub": "Pro Automation, 99$/mese. Prova 7 giorni. Cancella in qualsiasi momento.",
-      "cta": "Inizia la prova gratis"
+      "sub": "Pro Automation, 99$/mese. Cancella in qualsiasi momento.",
+      "cta": "Abbonati — 99$/mese"
     }
   },
   "saveTime": {
     "meta": {
       "title": "Risparmia 10+ ore a settimana sugli annunci | AHO per agenti immobiliari",
-      "description": "10 annunci × 5 piattaforme × 8 minuti = 400 minuti a settimana. AHO lo fa in 30 secondi. Pro Automation 99$/mese con prova gratis 7 giorni."
+      "description": "10 annunci × 5 piattaforme × 8 minuti = 400 minuti a settimana. AHO lo fa in 30 secondi. Pro Automation 99$/mese. Cancella in qualsiasi momento."
     },
     "hero": {
       "eyebrow": "10 ore a settimana, recuperate",
       "headline": "Smetti di pubblicare lo stesso annuncio cinque volte. Riprenditi quelle ore.",
       "sub": "10 annunci × 5 piattaforme × 8 minuti = 400 minuti a settimana persi nel re-posting. AHO lo fa in 30 secondi.",
-      "primaryCta": "Inizia prova gratis · 99$/mese",
+      "primaryCta": "Abbonati — 99$/mese",
       "secondaryCta": "Come funziona"
     },
     "problem": {
@@ -522,8 +522,8 @@
       "heading": "Tre passi per riprendersi il weekend",
       "steps": [
         {
-          "title": "Iscriviti — prova gratis 7 giorni",
-          "body": "Senza carta. Configura il profilo agente in meno di 5 minuti."
+          "title": "Iscriviti",
+          "body": "Abbonati a Pro Automation — 99$/mese, cancella in qualsiasi momento. Configura il profilo agente in meno di 5 minuti."
         },
         {
           "title": "Collega i tuoi canali",
@@ -544,9 +544,9 @@
         "Auto-pubblicazione su FB + IG + WhatsApp Business",
         "Una casella, tutti i canali",
         "Annunci illimitati + profilo agente + SEO bilingue",
-        "Prova 7 giorni — senza carta"
+        "Cancella in qualsiasi momento dal Portale Cliente Stripe"
       ],
-      "cta": "Inizia la prova gratis"
+      "cta": "Abbonati — 99$/mese"
     },
     "faq": {
       "heading": "Domande frequenti",
@@ -574,9 +574,9 @@
       ]
     },
     "finalCta": {
-      "heading": "Riprenditi i weekend. Inizia la tua prova oggi.",
-      "sub": "Pro Automation, 99$/mese. Prova 7 giorni. Cancella in qualsiasi momento.",
-      "cta": "Inizia la prova gratis"
+      "heading": "Riprenditi i weekend. Abbonati oggi.",
+      "sub": "Pro Automation, 99$/mese. Cancella in qualsiasi momento.",
+      "cta": "Abbonati — 99$/mese"
     }
   },
   "onboardingWizard": {

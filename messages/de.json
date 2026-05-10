@@ -57,7 +57,7 @@
     "howHeading": "So funktioniert AHO",
     "howSubheading": "Vom Inserat zum Kontakt in drei Schritten. Gebaut für Makler, die nicht jede Woche manuell auf fünf sozialen Netzwerken posten wollen.",
     "howStep1Title": "Abonnieren + Inserat erstellen",
-    "howStep1Body": "$29 pro Monat, 7 Tage kostenlos, jederzeit kündbar im Stripe Customer Portal.",
+    "howStep1Body": "$29 pro Monat, jederzeit kündbar im Stripe Customer Portal.",
     "howStep2Title": "Inserate veröffentlichen",
     "howStep2Body": "Titel, Fotos, Preis, Standort — zweisprachig EN/ES. Bis zu 5 aktive Inserate im Makler-Tarif.",
     "howStep3Title": "Käufer überall erreichen",
@@ -252,13 +252,13 @@
   "forAgents": {
     "meta": {
       "title": "AHO für Immobilienmakler — von der Sprachnotiz zu 21 Social-Posts mit einem Klick",
-      "description": "Schluss damit, Inserate Plattform für Plattform zu posten. Diktieren Sie eine Sprachnotiz — AHO macht daraus ein zweisprachiges Inserat und 21 plattformgerechte Social-Posts, alle mit Ihrem AHO-Link. Pro Automation $99/Monat, 7 Tage kostenlos."
+      "description": "Schluss damit, Inserate Plattform für Plattform zu posten. Diktieren Sie eine Sprachnotiz — AHO macht daraus ein zweisprachiges Inserat und 21 plattformgerechte Social-Posts, alle mit Ihrem AHO-Link. Pro Automation $99/Monat. Jederzeit kündbar."
     },
     "hero": {
       "eyebrow": "Für Immobilienmakler",
       "headline": "Schluss damit, Inserate eines nach dem anderen zu posten. Werben Sie global mit einem Klick.",
       "sub": "Diktieren Sie eine Sprachnotiz, sobald Sie das Objekt verlassen. Bevor Sie am Auto sind, hat AHO ein zweisprachiges Inserat live und 21 Social-Posts bereit — jeder einzelne mit dem Link zu Ihrem Inserat.",
-      "primaryCta": "Testphase starten",
+      "primaryCta": "Abonnieren — $99/Monat",
       "secondaryCta": "So funktioniert es"
     },
     "problem": {
@@ -315,7 +315,7 @@
         "Unbegrenzte Inserate, Sprach- + URL- + manueller Import",
         "21 Social-Post-Varianten pro Inserat (3 Plattformen × 7 Sprachen)",
         "Zentraler Lead-Posteingang + Performance-Dashboard pro Inserat",
-        "7 Tage kostenlos — keine Karte zum Start nötig"
+        "Jederzeit kündbar im Stripe Customer Portal"
       ],
       "cta": "Alle Tarife ansehen"
     },
@@ -371,20 +371,20 @@
     },
     "finalCta": {
       "heading": "Ihr nächstes Inserat kann in 60 Sekunden live sein.",
-      "sub": "Pro Automation, $99/Monat. 7 Tage kostenlos — keine Karte zum Start. Jederzeit kündbar.",
-      "cta": "Testphase starten"
+      "sub": "Pro Automation, $99/Monat. Jederzeit kündbar.",
+      "cta": "Abonnieren — $99/Monat"
     }
   },
   "automation": {
     "meta": {
       "title": "Immobilien-Social-Automatisierung — einmal posten, an FB, IG, WhatsApp | AHO",
-      "description": "AHO Pro Automation veröffentlicht Ihr Inserat automatisch auf Facebook-Seite, Instagram Business und WhatsApp Business. Native Graph-API-Integration, kanalspezifische Bildvarianten, Zeitplanung + Retry. $99/Monat mit 7-Tage-Testphase."
+      "description": "AHO Pro Automation veröffentlicht Ihr Inserat automatisch auf Facebook-Seite, Instagram Business und WhatsApp Business. Native Graph-API-Integration, kanalspezifische Bildvarianten, Zeitplanung + Retry. $99/Monat. Jederzeit kündbar."
     },
     "hero": {
       "eyebrow": "Pro Automation",
       "headline": "Einmal posten. Auf Facebook, Instagram und WhatsApp Business — automatisch.",
       "sub": "Das Hauptmerkmal von AHO Pro. Ein OAuth-Klick verbindet jeden Kanal; jedes veröffentlichte Inserat verteilt sich selbst.",
-      "primaryCta": "Testphase starten · $99/Monat",
+      "primaryCta": "Abonnieren — $99/Monat",
       "secondaryCta": "Alle Tarife vergleichen"
     },
     "problem": {
@@ -442,9 +442,9 @@
         "Kanalspezifische Bildvarianten (Quadrat / Querformat / Hochformat)",
         "Zeitplanung + Retry + Dashboard-Status",
         "Unbegrenzte Inserate + Anfragen-Posteingang + Maklerprofil",
-        "7 Tage kostenlos — keine Karte nötig"
+        "Jederzeit kündbar im Stripe Customer Portal"
       ],
-      "cta": "Testphase starten"
+      "cta": "Abonnieren — $99/Monat"
     },
     "faq": {
       "heading": "Häufig gestellte Fragen",
@@ -473,20 +473,20 @@
     },
     "finalCta": {
       "heading": "Einmal verbinden. Für immer verteilen.",
-      "sub": "Pro Automation, $99/Monat. 7 Tage kostenlos. Jederzeit kündbar.",
-      "cta": "Testphase starten"
+      "sub": "Pro Automation, $99/Monat. Jederzeit kündbar.",
+      "cta": "Abonnieren — $99/Monat"
     }
   },
   "saveTime": {
     "meta": {
       "title": "Sparen Sie 10+ Stunden pro Woche bei Inseraten | AHO für Immobilienmakler",
-      "description": "10 Inserate × 5 Plattformen × 8 Minuten = 400 Minuten pro Woche. AHO erledigt es in 30 Sekunden. Pro Automation $99/Monat mit 7-Tage-Testphase."
+      "description": "10 Inserate × 5 Plattformen × 8 Minuten = 400 Minuten pro Woche. AHO erledigt es in 30 Sekunden. Pro Automation $99/Monat. Jederzeit kündbar."
     },
     "hero": {
       "eyebrow": "10 Stunden pro Woche, zurückgewonnen",
       "headline": "Schluss mit fünfmal demselben Inserat. Holen Sie sich diese Stunden zurück.",
       "sub": "10 Inserate × 5 Plattformen × 8 Minuten = 400 Minuten pro Woche, verloren durch Wiederholungs-Posting. AHO erledigt es in 30 Sekunden.",
-      "primaryCta": "Testphase starten · $99/Monat",
+      "primaryCta": "Abonnieren — $99/Monat",
       "secondaryCta": "So funktioniert es"
     },
     "problem": {
@@ -522,8 +522,8 @@
       "heading": "Drei Schritte, Ihr Wochenende zurückzubekommen",
       "steps": [
         {
-          "title": "Anmelden — 7 Tage kostenlos testen",
-          "body": "Keine Karte. Maklerprofil in unter 5 Minuten einrichten."
+          "title": "Anmelden",
+          "body": "Pro Automation abonnieren — $99/Monat, jederzeit kündbar. Maklerprofil in unter 5 Minuten einrichten."
         },
         {
           "title": "Kanäle verbinden",
@@ -544,9 +544,9 @@
         "Auto-Veröffentlichung an FB + IG + WhatsApp Business",
         "Ein Posteingang, alle Kanäle",
         "Unbegrenzte Inserate + Maklerprofil + mehrsprachiges SEO",
-        "7 Tage kostenlos — keine Karte nötig"
+        "Jederzeit kündbar im Stripe Customer Portal"
       ],
-      "cta": "Testphase starten"
+      "cta": "Abonnieren — $99/Monat"
     },
     "faq": {
       "heading": "Häufig gestellte Fragen",
@@ -574,9 +574,9 @@
       ]
     },
     "finalCta": {
-      "heading": "Bekommen Sie Ihre Wochenenden zurück. Starten Sie heute Ihre Testphase.",
-      "sub": "Pro Automation, $99/Monat. 7 Tage kostenlos. Jederzeit kündbar.",
-      "cta": "Testphase starten"
+      "heading": "Bekommen Sie Ihre Wochenenden zurück. Abonnieren Sie noch heute.",
+      "sub": "Pro Automation, $99/Monat. Jederzeit kündbar.",
+      "cta": "Abonnieren — $99/Monat"
     }
   },
   "onboardingWizard": {
