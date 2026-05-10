@@ -8,9 +8,24 @@ import {
   getCurrentUserOrgPlan,
   planTierLabel,
 } from '@/lib/billing/plan-gating';
+import { publicEnv } from '@/lib/env';
+import { buildProduct, serializeJsonLd } from '@/lib/seo/jsonld';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
+
+/**
+ * Stable price catalog for the JSON-LD `Product` nodes. Mirrors the
+ * `PRICING` map in `components/billing/pricing-tiers.tsx`. Both must
+ * stay in sync — when prices change, update both. Co-locating here
+ * (instead of importing the client-component constant) avoids a
+ * server-importing-client lint warning.
+ */
+const PRICING_USD: Record<'agent' | 'plus' | 'pro_automation', { monthly: number; annual: number }> = {
+  agent: { monthly: 29, annual: 290 },
+  plus: { monthly: 49, annual: 490 },
+  pro_automation: { monthly: 99, annual: 990 },
+};
 
 export async function generateMetadata({
   params,
@@ -81,8 +96,49 @@ export default async function PricingPage({
 
   const faqItems = [1, 2, 3, 4] as const;
 
+  // JSON-LD: one Product node per tier, each with two Offers (monthly +
+  // annual) priced in USD. SaaS plans ARE products in schema.org's
+  // vocabulary — Stripe, HubSpot, Atlassian all use the same shape.
+  // We deliberately do NOT emit `aggregateRating` because we don't
+  // have plan-level user ratings; faking a default would violate
+  // CLAUDE.md hard rule #8. When `?focus=<tier>` is active we still
+  // emit all three Products — focus is a UX layer, not a SEO one;
+  // crawlers should always see the full catalog.
+  const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
+  const pricingUrl = `${site}/${locale}/${locale === 'es' ? 'precios' : 'pricing'}`;
+  const tierKeys: Array<'agent' | 'plus' | 'pro_automation'> = ['agent', 'plus', 'pro_automation'];
+  const productLds = tierKeys.map((tier) =>
+    buildProduct({
+      name: `AHO ${t(`tier.${tier}.name` as 'tier.agent.name')}`,
+      description: t(`tier.${tier}.tagline` as 'tier.agent.tagline'),
+      url: `${pricingUrl}#${tier}`,
+      brand: 'AHO',
+      offers: [
+        {
+          price: PRICING_USD[tier].monthly,
+          priceCurrency: 'USD',
+          url: pricingUrl,
+          description: t('period.monthly'),
+        },
+        {
+          price: PRICING_USD[tier].annual,
+          priceCurrency: 'USD',
+          url: pricingUrl,
+          description: t('period.annual'),
+        },
+      ],
+    }),
+  );
+
   return (
     <main>
+      {productLds.map((ld, idx) => (
+        <script
+          key={`pld-${tierKeys[idx]}`}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(ld) }}
+        />
+      ))}
       {/* Hero band. */}
       <section className="relative overflow-hidden border-b border-border">
         <DotGrid />
