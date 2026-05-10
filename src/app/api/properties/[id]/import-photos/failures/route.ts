@@ -25,6 +25,8 @@ export const runtime = 'edge';
  * nothing. No service-role escalation.
  */
 
+const ParamSchema = z.object({ id: z.string().uuid() });
+
 const PostBodySchema = z.object({
   action: z.literal('dismiss'),
   source_url: z.string().url(),
@@ -34,7 +36,17 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id: propertyId } = await params;
+  // Validate the path param up front: passing a non-uuid straight into
+  // PostgREST's `.eq('property_id', …)` makes Postgres raise 22P02 and
+  // we'd return 500 instead of a clean 400. Sibling /favorite/route.ts
+  // already does this — bring this endpoint in line.
+  // (QA-2026-05-10 P0 #3.)
+  const raw = await params;
+  const parsed = ParamSchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'invalid_id' }, { status: 400 });
+  }
+  const propertyId = parsed.data.id;
 
   const supabase = await createServerSupabaseClient();
   const { data: user, error: userErr } = await supabase.auth.getUser();
@@ -67,7 +79,14 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id: propertyId } = await params;
+  // Same uuid validation as GET — without it the RPC would propagate
+  // a Postgres 22P02 as a 500.
+  const rawParams = await params;
+  const parsedParams = ParamSchema.safeParse(rawParams);
+  if (!parsedParams.success) {
+    return NextResponse.json({ error: 'invalid_id' }, { status: 400 });
+  }
+  const propertyId = parsedParams.data.id;
 
   const body = await req.json().catch(() => null);
   const parsed = PostBodySchema.safeParse(body);
