@@ -966,7 +966,9 @@
       "messageRequired": "Krótka wiadomość pomoże agentowi odpowiedzieć.",
       "send_failed": "Nie udało się wysłać wiadomości. Spróbuj ponownie lub użyj WhatsApp.",
       "rate_limited": "Wysłałeś już kilka wiadomości. Poczekaj chwilę przed wysłaniem kolejnej lub skontaktuj się przez WhatsApp."
-    }
+    },
+    "captchaVerifying": "Sprawdzamy, czy jesteś człowiekiem…",
+    "captchaError": "Nie udało się zweryfikować captcha. Odśwież stronę i spróbuj ponownie."
   },
   "auth": {
     "email": "Email",

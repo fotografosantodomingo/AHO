@@ -1003,7 +1003,9 @@
       "messageRequired": "Uma mensagem curta ajuda o corretor a responder.",
       "send_failed": "Não foi possível enviar sua mensagem. Tente de novo ou use o WhatsApp.",
       "rate_limited": "Você já enviou várias mensagens. Aguarde antes de enviar outra ou contate via WhatsApp."
-    }
+    },
+    "captchaVerifying": "Verificando se você é humano…",
+    "captchaError": "Não conseguimos verificar o captcha. Recarregue a página e tente de novo."
   },
   "auth": {
     "email": "E-mail",

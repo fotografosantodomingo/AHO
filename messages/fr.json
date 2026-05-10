@@ -554,7 +554,9 @@
       "messageRequired": "Un court message aide l'agent à répondre.",
       "send_failed": "Impossible d'envoyer votre message. Réessayez ou utilisez WhatsApp.",
       "rate_limited": "Vous avez déjà envoyé plusieurs messages. Patientez avant d'en envoyer un autre, ou contactez l'agent sur WhatsApp."
-    }
+    },
+    "captchaVerifying": "Vérification que vous êtes humain…",
+    "captchaError": "Impossible de vérifier le captcha. Rechargez la page et réessayez."
   },
   "forAgents": {
     "meta": {

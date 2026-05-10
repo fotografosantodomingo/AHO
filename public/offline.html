@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-i18n-root>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -88,18 +88,43 @@
 <body>
   <main class="card" role="main">
     <span class="mark" aria-hidden="true">A</span>
-    <span class="pill">Offline</span>
-    <h1 style="margin-top:10px">You&rsquo;re offline.</h1>
-    <p>AHO needs an internet connection to load listings, save edits, and run voice import.</p>
-    <p class="helper">Reconnect to Wi-Fi or cellular, then tap <strong>Try again</strong>.</p>
+    <span class="pill" data-i18n="pill">Offline</span>
+    <h1 style="margin-top:10px" data-i18n="heading">You&rsquo;re offline.</h1>
+    <p data-i18n="body">AHO needs an internet connection to load listings, save edits, and run voice import.</p>
+    <p class="helper" data-i18n="helper">Reconnect to Wi-Fi or cellular, then tap <strong>Try again</strong>.</p>
     <div class="actions">
-      <button class="btn btn-primary" onclick="location.reload()">Try again</button>
-      <a class="btn" href="/">Home</a>
+      <button class="btn btn-primary" data-i18n="retry" onclick="location.reload()">Try again</button>
+      <a class="btn" data-i18n="home" href="/">Home</a>
     </div>
   </main>
   <script>
+    // Best-effort locale-aware copy. Loaded from precached static asset
+    // so we have no access to next-intl; fall back to navigator.language
+    // and swap matching `data-i18n` nodes. EN ships in HTML so a parsing
+    // failure leaves a readable page. (#28)
+    (function () {
+      var STR = {
+        es: { pill: 'Sin conexión', heading: 'Estás sin conexión.', body: 'AHO necesita conexión a internet para cargar anuncios, guardar cambios y usar la importación por voz.', helper: 'Reconéctate a Wi-Fi o datos móviles y pulsa <strong>Reintentar</strong>.', retry: 'Reintentar', home: 'Inicio' },
+        pl: { pill: 'Brak połączenia', heading: 'Jesteś offline.', body: 'AHO potrzebuje połączenia z internetem, żeby ładować oferty, zapisywać zmiany i obsługiwać import głosowy.', helper: 'Połącz się z Wi-Fi lub siecią komórkową i kliknij <strong>Spróbuj ponownie</strong>.', retry: 'Spróbuj ponownie', home: 'Strona główna' },
+        pt: { pill: 'Sem conexão', heading: 'Você está sem conexão.', body: 'O AHO precisa de internet para carregar anúncios, salvar alterações e rodar a importação por voz.', helper: 'Reconecte ao Wi-Fi ou dados móveis e toque em <strong>Tentar de novo</strong>.', retry: 'Tentar de novo', home: 'Início' },
+        de: { pill: 'Offline', heading: 'Sie sind offline.', body: 'AHO benötigt eine Internetverbindung, um Anzeigen zu laden, Änderungen zu speichern und den Sprach-Import auszuführen.', helper: 'Verbinden Sie sich erneut mit WLAN oder Mobilfunk und tippen Sie auf <strong>Erneut versuchen</strong>.', retry: 'Erneut versuchen', home: 'Startseite' },
+        fr: { pill: 'Hors ligne', heading: 'Vous êtes hors ligne.', body: 'AHO a besoin d’une connexion internet pour charger les annonces, enregistrer les modifications et utiliser l’import vocal.', helper: 'Reconnectez-vous au Wi-Fi ou au réseau mobile, puis touchez <strong>Réessayer</strong>.', retry: 'Réessayer', home: 'Accueil' },
+        it: { pill: 'Offline', heading: 'È offline.', body: 'AHO ha bisogno di una connessione a internet per caricare gli annunci, salvare le modifiche ed eseguire l’import vocale.', helper: 'Si ricolleghi al Wi-Fi o ai dati mobili e tocchi <strong>Riprova</strong>.', retry: 'Riprova', home: 'Home' }
+      };
+      try {
+        var lang = (navigator.language || 'en').slice(0, 2).toLowerCase();
+        var dict = STR[lang];
+        if (!dict) return;
+        document.documentElement.setAttribute('lang', lang);
+        document.title = dict.heading + ' · AHO';
+        document.querySelectorAll('[data-i18n]').forEach(function (el) {
+          var k = el.getAttribute('data-i18n');
+          if (k && dict[k]) el.innerHTML = dict[k];
+        });
+      } catch (_) { /* leave the EN fallback */ }
+    })();
     // Auto-retry once the browser reports we're back online.
-    window.addEventListener('online', () => location.reload());
+    window.addEventListener('online', function () { location.reload(); });
   </script>
 </body>
 </html>

@@ -2,7 +2,7 @@
   "name": "AHO — Advertise Homes Online",
   "short_name": "AHO",
   "description": "Real estate listings and one-tap social distribution for agents.",
-  "start_url": "/",
+  "start_url": "/en",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
@@ -30,12 +30,12 @@
       "name": "New listing",
       "short_name": "New listing",
       "description": "Voice-record or paste a URL to create a listing in seconds.",
-      "url": "/dashboard/properties/new"
+      "url": "/en/dashboard/properties/new"
     },
     {
       "name": "Dashboard",
       "short_name": "Dashboard",
-      "url": "/dashboard"
+      "url": "/en/dashboard"
     }
   ]
 }

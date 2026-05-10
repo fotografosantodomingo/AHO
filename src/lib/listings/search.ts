@@ -231,16 +231,27 @@ export function citySlugToQuery(slug: string): string {
  * Convert a city name to a URL slug. Inverse of citySlugToQuery, used
  * when building city-landing-page URLs from listing data.
  *
- * Lowercase, ASCII-only, hyphenated. Not unaccent-aware (Postgres unaccent
- * extension isn't enabled yet); São Paulo would slug to "so-paulo" which
- * is wrong. When we onboard a non-ASCII market, install unaccent and
- * revisit.
+ * Lowercase, ASCII-only, hyphenated. Strips Latin diacritics via NFD
+ * decomposition + the explicit combining-diacritic Unicode block
+ * U+0300–U+036F. Per-character escape (̀-ͯ) is portable
+ * regardless of source-file encoding (the previous literal range was
+ * encoding-dependent and silently failed to strip in some toolchains
+ * — QA #30). "São Paulo" → "sao-paulo" correctly.
+ *
+ * For non-Latin scripts (Cyrillic, Greek, CJK, Arabic) we still need
+ * Postgres `unaccent` or a transliteration library; revisit when those
+ * markets onboard.
  */
 export function citySlug(city: string): string {
   return city
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '') // strip diacritics
+    .replace(/[̀-ͯ]/g, '') // strip Latin combining diacritics
+    // Polish + nordic letters that don't decompose in NFD: explicit map.
+    .replace(/ł/g, 'l')
+    .replace(/ø/g, 'o')
+    .replace(/æ/g, 'ae')
+    .replace(/ß/g, 'ss')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
 }

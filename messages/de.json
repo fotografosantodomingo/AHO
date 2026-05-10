@@ -554,7 +554,9 @@
       "messageRequired": "Eine kurze Nachricht hilft dem Makler zu antworten.",
       "send_failed": "Nachricht konnte nicht gesendet werden. Bitte erneut versuchen oder WhatsApp nutzen.",
       "rate_limited": "Sie haben bereits mehrere Nachrichten gesendet. Bitte warten Sie etwas, bevor Sie eine weitere senden, oder kontaktieren Sie den Makler per WhatsApp."
-    }
+    },
+    "captchaVerifying": "Wir prüfen, ob Sie ein Mensch sind…",
+    "captchaError": "Captcha konnte nicht überprüft werden. Laden Sie die Seite neu und versuchen Sie es erneut."
   },
   "forAgents": {
     "meta": {

@@ -45,13 +45,21 @@ export function ContactForm({ propertyId }: ContactFormProps) {
   const [serverError, setServerError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaErrored, setCaptchaErrored] = useState(false);
   const turnstileRequired = isTurnstileConfigured();
   const turnstileRef = useRef<TurnstileWidgetHandle | null>(null);
   const onCaptchaToken = useCallback(
-    (token: string) => setCaptchaToken(token),
+    (token: string) => {
+      setCaptchaToken(token);
+      setCaptchaErrored(false);
+    },
     [],
   );
   const onCaptchaExpire = useCallback(() => setCaptchaToken(null), []);
+  const onCaptchaError = useCallback(() => {
+    setCaptchaToken(null);
+    setCaptchaErrored(true);
+  }, []);
 
   const {
     register,
@@ -173,7 +181,21 @@ export function ContactForm({ propertyId }: ContactFormProps) {
         ref={turnstileRef}
         onToken={onCaptchaToken}
         onExpire={onCaptchaExpire}
+        onError={onCaptchaError}
       />
+      {turnstileRequired && !captchaToken && !captchaErrored && (
+        <p className="text-xs text-helper" aria-live="polite">
+          {t('captchaVerifying')}
+        </p>
+      )}
+      {captchaErrored && (
+        <p
+          role="alert"
+          className="rounded-md border border-amber-300 bg-amber-50 p-2 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100"
+        >
+          {t('captchaError')}
+        </p>
+      )}
       {serverError && (
         <div role="alert" className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-950/30 dark:text-red-200">
           {t(

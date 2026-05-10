@@ -34,6 +34,10 @@ export default async function HomePage({
   const tSite = await getTranslations({ locale, namespace: 'site' });
   const searchPath = `/${locale}/${locale === 'es' ? 'buscar' : 'search'}`;
   const pricingPath = `/${locale}/${locale === 'es' ? 'precios' : 'pricing'}`;
+  // City-landing route stem per locale. ES has its own segment; the
+  // marketing locales share the EN one per PATHNAMES. The hero form
+  // appends `/{country}/{city}` when both are selected (#31).
+  const cityLandingStem = `/${locale}/${typedLocale === 'es' ? 'inmuebles-en' : 'properties-in'}`;
 
   const [featured, stats] = await Promise.all([
     searchListings(
@@ -137,6 +141,7 @@ export default async function HomePage({
           <HeroSearchForm
             locale={typedLocale}
             searchPath={searchPath}
+            cityLandingStem={cityLandingStem}
             agentPath={pricingPath}
             submitLabel={t('searchSubmit')}
             tabBuyLabel={t('tabBuy')}

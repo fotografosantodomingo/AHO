@@ -15,6 +15,13 @@ interface CityOption {
 interface Props {
   locale: Locale;
   searchPath: string;
+  /**
+   * Stem for the localized city-landing route, without country/city. ES
+   * uses `/inmuebles-en`; the marketing locales share the EN stem
+   * `/properties-in`. Caller resolves via `getPathname()` and passes
+   * the locale-prefixed prefix here (e.g. `/en/properties-in`).
+   */
+  cityLandingStem: string;
   agentPath: string;
   submitLabel: string;
   tabBuyLabel: string;
@@ -41,6 +48,7 @@ interface Props {
 export function HeroSearchForm({
   locale,
   searchPath,
+  cityLandingStem,
   agentPath,
   submitLabel,
   tabBuyLabel,
@@ -97,11 +105,23 @@ export function HeroSearchForm({
     ? cityLoadingPlaceholder
     : cityPlaceholder;
 
+  // When both country + city are picked, the right destination is the
+  // city-landing surface (indexed, faster than /search) rather than a
+  // /search?city=… query. Falling back to plain GET on /search keeps
+  // the form working when JS hasn't hydrated yet (#31).
+  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    if (!country || !city) return; // let the GET fall through
+    e.preventDefault();
+    const dest = `${cityLandingStem}/${country.toLowerCase()}/${city}?transaction=${transaction}`;
+    window.location.assign(dest);
+  }
+
   return (
     <form
       method="get"
       action={searchPath}
       role="search"
+      onSubmit={onSubmit}
       className="mt-8 max-w-3xl"
     >
       <div
@@ -160,7 +180,7 @@ export function HeroSearchForm({
         >
           <option value="">{cityPlaceholderLabel}</option>
           {cities.map((opt) => (
-            <option key={opt.citySlug} value={opt.city}>
+            <option key={opt.citySlug} value={opt.citySlug}>
               {opt.city}
               {opt.listingCount > 0 ? ` (${opt.listingCount})` : ''}
             </option>
