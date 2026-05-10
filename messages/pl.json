@@ -1175,59 +1175,59 @@
   },
   "forAgents": {
     "meta": {
-      "title": "AHO dla agentów nieruchomości — opublikuj raz, dystrybuuj wszędzie",
-      "description": "AHO to platforma nieruchomości stworzona dla pracujących agentów. Jedno źródło prawdy na ogłoszenie. Automatyczna publikacja na Facebook, Instagram i WhatsApp Business. Pro Automation $99/mies, 7-dniowy okres próbny."
+      "title": "AHO dla agentów nieruchomości — z notatki głosowej do 21 postów społecznościowych",
+      "description": "Przestań publikować ogłoszenia na każdej platformie z osobna. Podyktuj notatkę głosową — AHO zamieni ją w dwujęzyczne ogłoszenie i 21 dopasowanych postów społecznościowych z linkiem do Twojej oferty. Pro Automation $99/mies., 7 dni za darmo."
     },
     "hero": {
       "eyebrow": "Dla agentów nieruchomości",
-      "headline": "Twoje ogłoszenia na każdym kanale — przed 9 rano.",
-      "sub": "AHO publikuje raz i automatycznie dystrybuuje na Facebooka, Instagrama i WhatsApp Business. Koniec żonglowania zakładkami.",
-      "primaryCta": "Rozpocznij 7-dniowy okres próbny · $99/mies",
-      "secondaryCta": "Zobacz pełny cennik"
+      "headline": "Przestań wrzucać oferty platforma po platformie. Zacznij reklamować się globalnie jednym kliknięciem.",
+      "sub": "Podyktuj notatkę głosową, kiedy wychodzisz z mieszkania. Zanim dojdziesz do auta, AHO ma już dwujęzyczne ogłoszenie online i 21 gotowych postów społecznościowych — każdy z linkiem do Twojej oferty.",
+      "primaryCta": "Rozpocznij okres próbny",
+      "secondaryCta": "Zobacz, jak to działa"
     },
     "problem": {
-      "heading": "Właśnie teraz…",
+      "heading": "Co zjada Twój tydzień",
       "bullets": [
-        "Ręcznie kopiujesz to samo ogłoszenie na Facebooka, Instagrama, swoją stronę i listę rozsyłkową WhatsApp — każdą nieruchomość, za każdym razem.",
-        "Kontakty przychodzą z pięciu kanałów. Tracisz dwa.",
-        "Eksportujesz zdjęcia ponownie do każdej platformy — kwadrat dla IG, panorama dla FB, pion dla WhatsApp."
+        "To samo ogłoszenie, cztery platformy, każda wymaga innej długości, tonu i stylu hashtagów. Albo piszesz raz i publikujesz słabo — albo piszesz cztery razy i tracisz cały dzień.",
+        "Kupujący zagraniczni (Polacy w Hiszpanii, Niemcy we Włoszech, Amerykanie w DR) nigdy nie zobaczą Twoich ofert, bo wszystko publikujesz tylko w lokalnym języku.",
+        "Dane z branży: agenci spędzają 5–10 godzin tygodniowo na pisaniu postów. Większość zostaje przy jednej platformie, bo cztery to mnożenie pracy — i tracą 3–5× więcej leadów."
       ]
     },
     "solution": {
-      "heading": "AHO upraszcza ten proces.",
-      "body": "Jedno źródło prawdy na każde ogłoszenie. Jedna skrzynka na wszystkie kontakty. Jedna subskrypcja, która zarządza dystrybucją społecznościową od początku do końca. Ty piszesz ogłoszenie raz; AHO robi resztę."
+      "heading": "Głos na wejściu. Dwujęzyczne ogłoszenie. 21 postów. 60 sekund.",
+      "body": "AHO to inteligentny hub dystrybucji treści dla profesjonalistów rynku nieruchomości. Naciśnij mikrofon, opowiedz o nieruchomości w swoim języku. Whisper transkrybuje, Claude wyciąga uporządkowane fakty, a szkic Twojego ogłoszenia jest na advertisehomes.online, zanim dojdziesz do auta. Potem jednym dotknięciem generujesz 21 dopasowanych do platformy i języka postów społecznościowych — Facebook, Instagram, LinkedIn × siedem języków — każdy z linkiem do Twojej oferty AHO."
     },
     "features": {
-      "heading": "Co dostajesz",
+      "heading": "Trzy rzeczy, które wyróżniają AHO",
       "items": [
         {
-          "title": "Opublikuj raz, wszędzie",
-          "body": "Połącz Facebooka, Instagrama i WhatsApp Business raz. Każde publikowane ogłoszenie automatycznie się rozprzestrzenia — z wariantami obrazów dopasowanymi do każdego kanału."
+          "title": "Powiedz to (Speak it)",
+          "body": "Import głosowy dla agenta w terenie. Podyktuj nieruchomość po polsku, hiszpańsku, angielsku — Whisper transkrybuje, Claude wyciąga cenę, metraż, liczbę pokoi, lokalizację, udogodnienia i wstępnie wypełnia formularz. Wklejenie URL z otodom czy idealisty działa tak samo."
         },
         {
-          "title": "Jedna skrzynka na wszystkie kontakty",
-          "body": "Formularze kontaktowe, kliknięcia WhatsApp, odpowiedzi mailowe — wszystko trafia do panelu AHO. Odpowiadasz raz."
+          "title": "Sprzedaj to (Sell it)",
+          "body": "Jeden URL ogłoszenia AHO osadzony w każdym poście społecznościowym. Kupujący klikają z Facebooka, Instagrama lub LinkedIn i lądują na Twojej stronie — i Twoim formularzu kontaktowym. Leady trafiają do jednej skrzynki AHO, na którą faktycznie odpowiadasz, zamiast pięciu DMów, których nie zauważasz."
         },
         {
-          "title": "Dwujęzyczne SEO od ręki",
-          "body": "Każde ogłoszenie indeksowane po angielsku i hiszpańsku (z polskim, portugalskim, niemieckim, francuskim i włoskim na stronach marketingowych). Kupujący znajdują Cię w swoim języku."
+          "title": "Mierz to (Track it)",
+          "body": "Panel wyników na ogłoszenie z realnym zasięgiem i liczbą leadów na platformę i język. AI pokazuje, co działa: \"Twój wariant IG-Reel po polsku generuje 3× więcej leadów niż wersja na FB. Trzymaj się tego.\""
         }
       ]
     },
     "howItWorks": {
-      "heading": "Jak to działa",
+      "heading": "Od notatki głosowej do 21 postów w 60 sekund",
       "steps": [
         {
-          "title": "Zarejestruj się — 7 dni za darmo",
-          "body": "Bez karty kredytowej na start. Anuluj w dowolnym momencie podczas okresu próbnego — bez opłat."
+          "title": "Opowiedz nieruchomość",
+          "body": "Naciśnij \"Nowe ogłoszenie\" w telefonie i podyktuj: \"Mieszkanie 50 metrów, dwa pokoje, blisko metra Wilanowska, 850 tysięcy.\" Albo wklej URL konkurencji. Albo wypełnij formularz ręcznie — Twój wybór. AHO obsługuje wszystkie trzy tryby wejścia."
         },
         {
-          "title": "Dodaj pierwsze ogłoszenie",
-          "body": "Zdjęcia, cena, cechy, opis. AHO automatycznie optymalizuje obrazy dla każdego kanału — kwadrat, panorama, pion."
+          "title": "Sprawdź i opublikuj",
+          "body": "AHO zwraca wstępnie wypełniony szkic ogłoszenia w mniej niż 30 sekund. Edytuj, co chcesz, dodaj zdjęcia, naciśnij Publikuj. Twoje ogłoszenie pojawia się na advertisehomes.online z trwałym URL — dwujęzycznie, gdy obie wersje są napisane, lub w jednym języku z wyraźną flagą \"tłumaczenie w toku\", gdy nie."
         },
         {
-          "title": "Połącz swoje socjale",
-          "body": "Jedno OAuth-kliknięcie dla Strony Facebook, Instagram Business, WhatsApp Business. Każde opublikowane ogłoszenie automatycznie idzie dalej."
+          "title": "Wygeneruj 21 postów społecznościowych",
+          "body": "Naciśnij \"Generuj posty społecznościowe.\" AHO produkuje 21 dopasowanych wariantów — trzy platformy (Facebook, Instagram, LinkedIn) × siedem języków (EN/ES/PL/PT/DE/FR/IT). Każdy wariant respektuje limity znaków platformy, używa głosu lokalnego marketera dla danego języka i osadza URL Twojego ogłoszenia AHO. Dziś: kopiuj-wklej; wkrótce: publikacja jednym kliknięciem, gdy Meta App Review zatwierdzi integrację."
         }
       ]
     },
@@ -1236,42 +1236,66 @@
       "price": "$99",
       "period": "/ miesiąc",
       "features": [
-        "Nielimitowane ogłoszenia",
-        "Auto-publikacja na FB + IG + WhatsApp Business",
-        "Centralna skrzynka kontaktów",
-        "Dwujęzyczne SEO + strona profilu agenta",
-        "7 dni za darmo — bez karty"
+        "Nielimitowane ogłoszenia, import głosowy + URL + ręczny",
+        "21 wariantów postów społecznościowych na ogłoszenie (3 platformy × 7 języków)",
+        "Centralna skrzynka leadów + panel wyników na ogłoszenie",
+        "7 dni za darmo — bez karty na start"
       ],
-      "cta": "Rozpocznij okres próbny"
+      "cta": "Zobacz pełny cennik"
     },
     "faq": {
-      "heading": "Najczęstsze pytania",
+      "heading": "Pytania, które agenci faktycznie zadają",
       "items": [
         {
-          "q": "Czy potrzebuję karty kredytowej, by zacząć?",
-          "a": "Nie. 7-dniowy okres próbny nie wymaga karty. Dodaj ją w dowolnym momencie przed siódmym dniem, by zachować subskrypcję."
+          "q": "Ile zajmuje konfiguracja?",
+          "a": "Mniej niż 15 minut od rejestracji do pierwszego opublikowanego ogłoszenia: 5 minut na profil agenta, 5 minut na pierwsze ogłoszenie (lub 30 sekund głosem), 5 minut na skopiowanie pierwszej paczki postów społecznościowych. Podłączenie Facebooka / Instagrama do publikacji jednym kliknięciem to dodatkowo jedno OAuth-kliknięcie — ta część rusza, gdy Meta App Review zatwierdzi integrację."
         },
         {
-          "q": "Które platformy społecznościowe są obsługiwane?",
-          "a": "Strona Facebook + Instagram Business + WhatsApp Business w v1. LinkedIn jest na mapie drogowej."
-        },
-        {
-          "q": "Czy mogę publikować w wielu językach?",
-          "a": "Tak. Każde ogłoszenie ma osobne pola dla treści po angielsku i hiszpańsku. Wpisujesz oba, AHO publikuje oba. Strony marketingowe lokalizują się też do PL/PT/DE/FR/IT."
-        },
-        {
-          "q": "Co się stanie, jeśli publikacja społecznościowa zawiedzie?",
-          "a": "AHO automatycznie ponawia próby z opóźnieniem. Jeśli błąd jest trwały (zawieszone konto, naruszenie reguł), dostaniesz mail i alert w panelu z dokładnym komunikatem."
+          "q": "A jeśli nie jestem techniczny?",
+          "a": "Jeśli umiesz nagrać wiadomość głosową, umiesz korzystać z AHO. Tryb głosowy to jeden przycisk. Formularz ogłoszenia to te same pola, co na papierze. Posty są wstępnie napisane — tylko sprawdzasz i publikujesz. Wsparcie pod info@advertisehomes.online — odpowiadamy w jeden dzień roboczy."
         },
         {
           "q": "Czy mogę anulować w dowolnym momencie?",
-          "a": "Tak. Anuluj z Portalu Klienta Stripe — dostęp trwa do końca okresu rozliczeniowego."
+          "a": "Tak. Anuluj z Portalu Klienta Stripe w dwóch kliknięciach — dostęp trwa do końca bieżącego okresu rozliczeniowego, a Twoje ogłoszenia, leady i historia analityki zostają. Bez rozmowy retencyjnej, bez ankiet \"powodów, by zostać\"."
+        },
+        {
+          "q": "Jakie platformy obsługujecie?",
+          "a": "v1 generuje posty na Facebooka, Instagrama (feed + Reels) i LinkedIn — trzy platformy w siedmiu językach, 21 wariantów na ogłoszenie. Dziś: kopiuj-wklej do swoich kont. Wkrótce (po Meta App Review): publikacja jednym kliknięciem na Stronę Facebook, Instagram Business i WhatsApp Business. TikTok i YouTube Shorts są na roadmapie."
+        },
+        {
+          "q": "Gdzie działa AHO?",
+          "a": "Globalnie. Platforma działa z soft-betą w Republice Dominikańskiej i Polsce — to dwa pierwsze rynki, z których rekrutujemy agentów. Ogłoszenia, profile agentów i strony miast renderują się po angielsku i hiszpańsku; warstwa marketingowa (ta strona też) lokalizuje się dodatkowo do polskiego, portugalskiego, niemieckiego, francuskiego i włoskiego, by zagraniczni kupujący znajdowali Cię w swoim języku."
+        },
+        {
+          "q": "Jak działa import głosowy?",
+          "a": "Mówisz w swoim języku — po polsku, hiszpańsku, angielsku, w którymkolwiek z siedmiu języków AHO. OpenAI Whisper transkrybuje audio (dobrze radzi sobie z nazwami ulic, wartościami w metrach kwadratowych i żargonem nieruchomości). Claude czyta transkrypcję i wyciąga uporządkowane fakty: cena, pokoje, łazienki, metraż, lokalizacja, udogodnienia, opis. AHO wstępnie wypełnia formularz. Sprawdzasz, edytujesz, co nie pasuje, naciskasz Publikuj. Łączny czas: zwykle 30–60 sekund na część AI plus tyle, ile zajmie Ci dodanie zdjęć."
+        }
+      ]
+    },
+    "trustStrip": {
+      "heading": "Uczciwe sygnały",
+      "items": [
+        {
+          "label": "HTTPS wszędzie",
+          "detail": "TLS od Cloudflare, HSTS preload, wyłącznie nowoczesne szyfry."
+        },
+        {
+          "label": "Zgodność z RODO",
+          "detail": "Podstawy prawne udokumentowane (Art. 6), 72 h na zgłoszenie incydentu, eksport i usunięcie danych na żądanie."
+        },
+        {
+          "label": "Działa w DR + PL",
+          "detail": "Soft-beta w Republice Dominikańskiej i Polsce. Globalna ekspansja zgodnie z popytem agentów."
+        },
+        {
+          "label": "Tylko realne ogłoszenia",
+          "detail": "Bez ogłoszeń demo, bez zdjęć stockowych, bez fikcyjnych agentów. Gdy platforma jest pusta, pokazuje pustkę."
         }
       ]
     },
     "finalCta": {
-      "heading": "Skończ z pracą ręczną. Rozpocznij okres próbny już dziś.",
-      "sub": "Pro Automation, $99/mies. 7 dni za darmo. Anuluj kiedy chcesz.",
+      "heading": "Twoje następne ogłoszenie może być online za 60 sekund.",
+      "sub": "Pro Automation, $99/mies. 7 dni za darmo — bez karty na start. Anuluj kiedy chcesz.",
       "cta": "Rozpocznij okres próbny"
     }
   },
