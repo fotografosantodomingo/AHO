@@ -77,6 +77,8 @@
   "pricing": {
     "subscribe": "S'abonner",
     "signInToSubscribe": "Connectez-vous pour vous abonner",
+    "upgradeTo": "Passer à {tier}",
+    "downgradeTo": "Passer à {tier}",
     "redirecting": "Redirection vers le paiement…",
     "subscribeError": "Impossible de démarrer le paiement. Réessayez.",
     "orgNamePrompt": "Quel est le nom de votre société ou votre nom en tant qu'agent ?"

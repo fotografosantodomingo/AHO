@@ -77,6 +77,8 @@
   "pricing": {
     "subscribe": "Abonnieren",
     "signInToSubscribe": "Anmelden, um zu abonnieren",
+    "upgradeTo": "Auf {tier} upgraden",
+    "downgradeTo": "Auf {tier} wechseln",
     "redirecting": "Weiterleitung zur Bezahlung…",
     "subscribeError": "Bezahlung konnte nicht gestartet werden. Bitte erneut versuchen.",
     "orgNamePrompt": "Wie heißt Ihr Unternehmen oder Ihr Maklername?"

@@ -26,6 +26,16 @@ const PRICING: Record<Tier, PriceCfg> = {
   pro_automation: { monthly: 99, annual: 990 },
 };
 
+// Numeric rank used to decide whether a non-current tier is an upgrade
+// (rank greater than current) or a downgrade (less). Drives the CTA
+// label so existing subscribers see "Upgrade to Pro Automation" rather
+// than the generic "Switch" verb.
+const TIER_RANK: Record<Tier, number> = {
+  agent: 0,
+  plus: 1,
+  pro_automation: 2,
+};
+
 interface Props {
   /** True if the visitor is signed in. Affects CTAs (subscribe vs sign-in). */
   isAuthed: boolean;
@@ -84,8 +94,29 @@ export function PricingTiers({
     setError(null);
     startTransition(async () => {
       try {
-        // Org name needed for new subscriptions. For existing-org
-        // upgrades, the portal handles it; this branch is for fresh.
+        // Existing-subscriber switching tier → Stripe Customer Portal's
+        // built-in change-plan flow handles proration (upgrade) and
+        // period-end scheduling (downgrade). No org-name prompt; no new
+        // checkout. The portal returns the user to /dashboard.
+        if (currentTier && currentTier !== tier) {
+          const res = await fetch('/api/billing/portal', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ locale, flow: 'subscription_update' }),
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = (await res.json()) as { url?: string };
+          if (data.url) {
+            window.location.assign(data.url);
+            return;
+          }
+          throw new Error('no url in response');
+        }
+
+        // Fresh subscriber path — needs an org name and a Stripe
+        // Checkout session. The orgName prompt is intentionally cheap
+        // UX (window.prompt) so the marketing page doesn't have to
+        // host a full form before getting the user to checkout.
         const orgName = window.prompt(t('orgNamePrompt'), '');
         if (!orgName || orgName.trim().length < 2) {
           setPendingTier(null);
@@ -242,9 +273,17 @@ export function PricingTiers({
                   >
                     {pendingTier === tier
                       ? t('redirecting')
-                      : isAuthed
-                      ? t('subscribe')
-                      : t('signInToSubscribe')}
+                      : !isAuthed
+                      ? t('signInToSubscribe')
+                      : currentTier
+                      ? TIER_RANK[tier] > TIER_RANK[currentTier]
+                        ? t('upgradeTo', {
+                            tier: t(`tier.${tier}.name` as 'tier.agent.name'),
+                          })
+                        : t('downgradeTo', {
+                            tier: t(`tier.${tier}.name` as 'tier.agent.name'),
+                          })
+                      : t('subscribe')}
                   </button>
                 )}
               </div>

@@ -66,6 +66,8 @@
     "currentPlan": "Twój obecny plan",
     "subscribe": "Subskrybuj",
     "signInToSubscribe": "Zaloguj się, aby subskrybować",
+    "upgradeTo": "Przejdź na {tier}",
+    "downgradeTo": "Zmień na {tier}",
     "redirecting": "Przekierowanie do płatności…",
     "subscribeError": "Nie udało się rozpocząć płatności. Spróbuj ponownie.",
     "orgNamePrompt": "Jaka jest nazwa Twojej firmy lub Twoje imię i nazwisko jako agenta?",

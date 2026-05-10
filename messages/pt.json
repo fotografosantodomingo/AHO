@@ -77,6 +77,8 @@
   "pricing": {
     "subscribe": "Assinar",
     "signInToSubscribe": "Entre para assinar",
+    "upgradeTo": "Mudar para {tier}",
+    "downgradeTo": "Mudar para {tier}",
     "redirecting": "Redirecionando para o pagamento…",
     "subscribeError": "Não foi possível iniciar o pagamento. Tente novamente.",
     "orgNamePrompt": "Qual é o nome da sua empresa ou seu nome como corretor?"

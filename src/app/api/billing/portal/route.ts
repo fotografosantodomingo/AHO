@@ -15,6 +15,13 @@ const PortalRequestSchema = z
      *  haven't been updated yet. Accepts every locale AHO renders so users
      *  on PL/PT/DE/FR/IT pages don't 400. */
     locale: z.enum(LOCALES).optional(),
+    /** Optional deep-link into a specific portal flow. Today only
+     *  `subscription_update` is supported — sends the user straight to
+     *  the "change my plan" screen instead of the portal home. Used by
+     *  the pricing-tier "Switch to X" buttons so existing subscribers
+     *  don't have to navigate the portal manually to upgrade/downgrade.
+     *  When unset, the portal opens to its home as before. */
+    flow: z.enum(['subscription_update']).optional(),
   })
   .strict();
 
@@ -44,19 +51,24 @@ export const runtime = 'edge';
  * webhooks reflect any changes back into our DB.
  */
 export async function POST(req: NextRequest) {
-  // Optional JSON body { locale? }. We tolerate empty body for backwards
-  // compatibility with the original callers that POSTed nothing. Locale
-  // accepts every URL-routable locale; only ES has a localized dashboard
-  // path (`/panel`), so the URL ternary below already handles the wide set.
+  // Optional JSON body { locale?, flow? }. We tolerate empty body for
+  // backwards compatibility with the original callers that POSTed
+  // nothing. Locale accepts every URL-routable locale; only ES has a
+  // localized dashboard path (`/panel`), so the URL ternary below
+  // already handles the wide set.
   let locale: Locale = 'en';
+  let flow: 'subscription_update' | null = null;
   try {
     const text = await req.text();
     if (text.trim().length > 0) {
       const parsed = PortalRequestSchema.safeParse(JSON.parse(text));
-      if (parsed.success && parsed.data.locale) locale = parsed.data.locale;
+      if (parsed.success) {
+        if (parsed.data.locale) locale = parsed.data.locale;
+        if (parsed.data.flow) flow = parsed.data.flow;
+      }
     }
   } catch {
-    // Body was unparseable JSON — fall through with default locale.
+    // Body was unparseable JSON — fall through with defaults.
   }
 
   const supabase = await createServerSupabaseClient();
@@ -85,14 +97,17 @@ export async function POST(req: NextRequest) {
   // dashboard UI will surface the org selector before this endpoint fires.
   const orgId = ownerships[0]!.org_id;
 
-  // Look up the Stripe customer ID for that org. Subscriptions table is
-  // RLS-gated, but org members CAN see their own org's row — could use the
-  // user-context client here. Using admin for explicitness about which path
-  // does the lookup.
+  // Look up the Stripe customer + subscription IDs for that org.
+  // Subscriptions table is RLS-gated, but org members CAN see their own
+  // org's row — could use the user-context client here. Using admin for
+  // explicitness about which path does the lookup. The
+  // `stripe_subscription_id` is required for the `subscription_update`
+  // flow; fine to be NULL for the default portal-home flow (the customer
+  // could have a Stripe customer record without an active sub).
   const admin = createAdminClient();
   const { data: sub, error: subErr } = await admin
     .from('subscriptions')
-    .select('stripe_customer_id')
+    .select('stripe_customer_id, stripe_subscription_id')
     .eq('org_id', orgId)
     .maybeSingle();
 
@@ -107,10 +122,25 @@ export async function POST(req: NextRequest) {
   const pub = publicEnv();
   try {
     const dashboardSegment = locale === 'es' ? 'panel' : 'dashboard';
-    const portal = await stripe.billingPortal.sessions.create({
+    const params: Parameters<typeof stripe.billingPortal.sessions.create>[0] = {
       customer: sub.stripe_customer_id,
       return_url: `${pub.NEXT_PUBLIC_SITE_URL}/${locale}/${dashboardSegment}`,
-    });
+    };
+    if (flow === 'subscription_update') {
+      // Stripe requires the subscription id for the change-plan flow.
+      // Fall through to the default portal home if we don't have one
+      // (customer record exists but no active sub) — the user can pick
+      // a plan from the portal manually rather than 4xx-ing here.
+      if (sub.stripe_subscription_id) {
+        params.flow_data = {
+          type: 'subscription_update',
+          subscription_update: {
+            subscription: sub.stripe_subscription_id,
+          },
+        };
+      }
+    }
+    const portal = await stripe.billingPortal.sessions.create(params);
     return NextResponse.json({ url: portal.url });
   } catch (e) {
     console.error('[billing/portal]', e);
