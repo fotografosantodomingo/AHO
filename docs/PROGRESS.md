@@ -12,6 +12,36 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-10 (continuation 3) — Migrations 0038–0044 applied to production
+- **Frame:** PO authorized "aply migratin yuo have access" — applied via the
+  migration runner using `SUPABASE_POOLER_URL` from `.env.local`.
+- **What shipped (1 commit):**
+  - **`d09d638` fix(migrate): 0038 IMMUTABLE expression**. The unique
+    index in `0038_listing_performance.sql` used
+    `date_trunc('day', captured_at)` on a `timestamptz` column —
+    rejected by Postgres because the result depends on session
+    timezone. Fixed by casting through `AT TIME ZONE 'UTC'` first
+    (returns plain `timestamp`; `::date` is then deterministic).
+- **What applied to production:** all 7 pending migrations cleared
+  the queue: 0038 (listing_post_metrics + RLS), 0039 (auth_failure_log),
+  0040 (lead_routing_rules + lead_routing_state), 0041 (review_request_log),
+  0042 (lead_notes column — no-op since column already existed via earlier
+  manual apply), 0043 (favorite_remove enum value), 0044 (admin_org_counts
+  + admin_user_membership_counts RPCs).
+- **Verified live (post-apply):** `property_events_event_type_check`
+  includes `favorite_remove`; both admin RPCs are present in
+  `pg_proc`. Favorite-toggle un-favorite events will now record
+  cleanly; admin/users + admin/orgs N+1 fixes will return real
+  counts on next render.
+- **What didn't ship:** P1 #11 import-panel i18n still deferred
+  (~70 strings, needs focused session).
+- **Test count:** unchanged 437/437; no schema-touching tests.
+- **Commits this segment:** 1 (the 0038 immutable fix).
+- **Next session should start with:** P1 #11 import-panel i18n
+  namespace migration as the largest remaining QA backlog item.
+
+---
+
 ## 2026-05-10 (continuation 2) — P1 third sweep: small wins + admin N+1 + lead-routing i18n
 - **Frame:** Continuing on the user "cntinue" directive after PO_ACTIONS
   + initial P1 batches were pushed.

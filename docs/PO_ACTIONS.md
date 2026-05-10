@@ -6,22 +6,9 @@ Last updated: 2026-05-10
 
 ---
 
-## 1. Apply migrations 0043 + 0044 to Supabase (2 minutes) — **NEW THIS SESSION**
+## 1. ~~Apply migrations 0043 + 0044 to Supabase~~ — **DONE 2026-05-10**
 
-**Why it matters now:**
-
-- **0043** — favorite-toggle code records `favorite_remove` events. Until the enum is widened, every un-favorite logs a `[favorite] event record failed` warning. The toggle itself still works; only the analytics insert fails silently.
-- **0044** — `/admin/users` and `/admin/orgs` now call grouped-count RPCs instead of firing one (or two) HEAD queries per row. Until the RPCs exist, both pages render with `0` in the Members / Active listings columns — visible but recoverable; one refresh after the migration runs fixes it.
-
-**How to apply:**
-
-```bash
-set -a && source .env.local && set +a && \
-  pnpm tsx scripts/migrate.ts 0043 && \
-  pnpm tsx scripts/migrate.ts 0044
-```
-
-Or via Supabase Studio → SQL editor → paste each file in `src/db/migrations/` → Run. Both are idempotent (`create or replace` for the RPCs; `drop … if exists` + `add` for the enum).
+Applied via `pnpm tsx scripts/migrate.ts` after fixing a pre-existing IMMUTABLE-expression bug in 0038 that had been blocking the queue. Verified live: `property_events_event_type_check` now includes `favorite_remove`; both `admin_user_membership_counts()` and `admin_org_counts()` RPCs are deployed. The previously-stuck migrations 0038, 0039, 0040, 0041, 0042 also applied in the same run.
 
 ---
 
