@@ -12,6 +12,82 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-10 (continuation) — PT/DE/IT depth + docs.* native × 5 + P1 batch (i18n + admin) + PO_ACTIONS.md
+- **Frame:** Disk freed (PO ran `tmutil deletelocalsnapshots`); resumed
+  the deferred queue from the previous entry. Continuing on user
+  "cntinue all" directive.
+- **What shipped (5 commits):**
+  - **PT/DE/IT depth** (`1ded9a3`): translates the 22 dashboard
+    namespaces across all three locales, each with native real-estate
+    vocabulary (BR-PT: corretor / anúncio / contato / CEP / IPTU; DE:
+    formal Sie + Anzeige / Makler / Mieter; IT: formal Lei + annuncio
+    / agente). PT agent committed cleanly via worktree (`e8b5427`),
+    DE+IT agents hit a usage cap mid-run; their work was salvaged
+    from the worktree (DE) and main working tree (IT) and verified as
+    legitimate translations. Parity profile after merge matches FR
+    exactly: 0 missing non-docs keys, 19 docs.* keys deferred per
+    locale.
+  - **docs.* native translation × 5 + PL depth catchup** (`6e7edef`):
+    eliminates the EN-fallback for the documentation hub across PL /
+    PT / DE / FR / IT. Full buyer + agent + admin guide (~17
+    sections, multi-paragraph prose), localized to native real-estate
+    vocab and formal address forms (PL "Polityka prywatności" + RODO;
+    PT-BR "anúncio" + LGPD; DE Sie + DSGVO; FR vous + RGPD; IT Lei +
+    GDPR). PL also catches up the post-FR depth gap (53
+    onboardingWizard / 31 dashboard.leads.detail / 20 auth.lockout-mfa
+    keys). All 7 locales now show 0 missing non-docs and 0 missing
+    docs keys against EN.
+  - **P1 batch — i18n correctness** (`9cf58f8`): 8 QA findings.
+    `translatePathForLocale` regex broadened from `(en|es)` to all 7
+    LOCALES + auth-callback guard widened (#8). City-landing
+    canonical: lowercase country slug, hreflang for all 7 locales
+    (#9 + #29). Eyebrow keys: `auth.error.eyebrow`, `error.eyebrow`,
+    `property.speaksLabel` + `callLabel`, `savedSearches.yourAccountEyebrow` —
+    all 7 locales (#13/14/15/17). SaveSearchButton stores the active
+    locale instead of forcing es/en (#16). Saved-searches title via
+    `generateMetadata` (#17). Test for `/de/dashboard` updated to
+    `/zz/...` since `de` is no longer "unrecognized."
+  - **P1 batch — admin slug + favorite analytics + review agentSlug**
+    (`4c4c112`): 5 QA findings. Admin overview + admin/orgs use
+    `public_slug ?? slug` (#22/23). Admin/orgs skips the link
+    entirely for zero-listing orgs (link gated on
+    `active_listing_count > 0`, public profile is gated by migration
+    0031 on the same condition — eliminates the click-to-404).
+    Favorite-toggle records `favorite_remove` symmetrically with
+    `favorite_add` (#19); requires migration 0043 on Supabase to add
+    the enum value. fetchModerationQueue resolves agent's org slug
+    via `organization_members → organizations` join (#20). Verified
+    `checkout.session.completed` IS already wired in HANDLERS (#26
+    was a false alarm).
+  - **PO_ACTIONS.md** (`6f3ba4c`): consolidated the six remaining
+    external blockers into one impact-per-minute action list:
+    migration 0043 deploy (1 min), custom-domain DNS (15 min),
+    Supabase Auth → Brevo SMTP relay (10 min), soft-beta agent
+    recruitment (open), ToS lawyer review (v1.1+), 21st.dev key
+    rotation (5 min). Companion to `docs/DNS.md` which has record-
+    level detail.
+- **What didn't ship:**
+  - **P1 remainder** (16 of 25 findings still pending — biggest:
+    centralize `getPathname()` everywhere, import-panel i18n
+    namespace, lead-routing TXT migration, admin-leads PII masking,
+    PWA shortcuts per-locale, offline.html locale handling).
+  - **P2/P3 backlog** (14 + 11 findings) — pure polish.
+  - **v1.1+ scope** — still gated on PO direction on which feature
+    first.
+  - **Migration 0043 deploy** to Supabase — added to PO_ACTIONS.md as
+    item #1; until applied, un-favorite events log a soft warning but
+    the user-facing toggle still works.
+- **Test count:** 437/437 unit tests pass throughout.
+- **Commits this session:** 5 (PT/DE/IT depth, docs+PL, P1 i18n,
+  P1 admin, PO_ACTIONS doc).
+- **Next session should start with:** apply migration 0043 to
+  Supabase first thing (one query), then continue P1 batch — the
+  refactor cluster (#7 centralize `getPathname()`, #11 import-panel
+  i18n namespace, #12 lead-routing TXT migration). After P1 done,
+  v1.1+ scope conversation with PO to pick the first feature.
+
+---
+
 ## 2026-05-10 — Phase 4 follow-up: docs page + FR depth + P0 fixes from QA report (disk-pressure cap)
 - **Frame:** PO asked for: bugs (catalogue), documentation (footer
   link, all locales), agent-dashboard languages (is FR dashboard
