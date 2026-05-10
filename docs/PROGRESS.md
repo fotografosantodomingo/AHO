@@ -12,6 +12,56 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-10 (continuation 5) — P1 #7 localePath() centralization (5 commits, 33 files)
+- **Frame:** Last big-ticket QA P1 finding: 23+ files (actually 85 with
+  same-shape ternaries) hardcoding `locale === 'es' ? 'X' : 'Y'`
+  instead of deriving from PATHNAMES. Migrated incrementally.
+- **What shipped (5 commits):**
+  - **`74c8c70` localePath() helper + first batch** — added pure
+    path-resolver in `src/i18n/locale-path.ts`, re-exported from
+    `@/i18n/routing`. Pure module so server-only library code (e.g.
+    `lib/listings/search.ts`, which is unit-tested under Vitest) can
+    import without pulling `next-intl/navigation` →
+    `next/navigation` (which fails to resolve in the test runtime).
+    Migrated: homepage, signin, signup, saved-searches, saved-
+    properties, dashboard layout, pricing, properties/[slug],
+    favorite-button, save-search-button, buildSearchUrl.
+  - **`59f50b5` second batch** — auth flow + dashboard sub-routes:
+    forgot-password, magic-link, setup-mfa, auth/error, dashboard
+    index, dashboard/properties (list + new + edit), dashboard/
+    profile, dashboard/leads (list + detail + routing redirect),
+    dashboard/analytics. Plus `dashboard.leads.routingLink` i18n
+    key (replaces inline EN/ES hardcode for the routing button).
+  - **`71b09b6` third batch** — admin/layout, not-found, onboarding/
+    welcome (4 paths in the post-checkout funnel).
+  - **`b6b5f3d` fourth batch** — every-page chrome + auth forms:
+    site-footer (8 hrefs incl. deletes the manual per-locale
+    forAgentsSlug + docsSlug maps), site-header, auth-menu,
+    mega-menu-client, sign-up-form, reset-password-form, forgot-
+    password-form, location-sub-bar. The site chrome is now fully
+    PATHNAMES-driven — adding a new translated ES segment propagates
+    everywhere without code-grep.
+  - This commit (PROGRESS log).
+- **Cumulative:** 33 files migrated, ~52 path-ternaries removed.
+  Started at 85 files / ~87 ternaries; remaining ~52 files have a
+  mix of (a) path-ternaries on lower-leverage surfaces, (b) Locale
+  narrowing `locale === 'es' ? 'es' : 'en'` (correct as-is), and
+  (c) `Intl.NumberFormat` locale tags `'es-DO' : 'en-US'` (correct
+  as-is). The remaining path-ternaries are queued for incremental
+  cleanup — the helper is in place; cleanup is mechanical.
+- **Test count:** 437/437 unit tests pass throughout.
+- **Commits this segment:** 5 (4 migration commits + this log).
+- **P1 backlog status:** 20 of 25 findings now landed (#7 partially
+  — landed the helper + 33 high-leverage files, ~52 files still have
+  path-ternaries to clean up). Remaining: #21 (admin-leads PII
+  masking, UX redesign).
+- **Next session should start with:** continuing the localePath()
+  cleanup on the remaining ~52 files, OR moving to P2 polish items
+  (loading boundaries, admin i18n, accessibility aria-live regions),
+  OR P1 #21 admin-leads PII masking which needs design input.
+
+---
+
 ## 2026-05-10 (continuation 4) — P1 #11 import-panel i18n (largest remaining)
 - **Frame:** Last big-ticket item from the QA P1 backlog. The new-
   listing import panel — both the URL and voice lanes plus the post-
