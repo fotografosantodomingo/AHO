@@ -123,9 +123,7 @@
     "orgNameHelp": "How agents and buyers see your brand. You can change this later.",
     "subscribeMonthly": "Subscribe monthly",
     "subscribeAnnual": "Subscribe annually",
-    "redirecting": "Redirecting to checkout…",
     "alreadySubscribed": "You already have an Agent subscription. Manage it in your dashboard.",
-    "manageBilling": "Manage billing",
     "openDashboard": "Open dashboard",
     "needsSignIn": "Sign in to subscribe",
     "priceHeading": "$29",
@@ -425,7 +423,9 @@
         "trade": "Trade"
       }
     },
-    "similarHomesHeading": "Similar homes nearby"
+    "similarHomesHeading": "Similar homes nearby",
+    "speaksLabel": "Speaks",
+    "callLabel": "Call"
   },
   "reviews": {
     "sectionHeading": "Reviews",
@@ -602,7 +602,8 @@
     "body": "An unexpected error happened on our side. Try again, or head back home.",
     "retryCta": "Try again",
     "homeCta": "Back to home",
-    "details": "Reference ID: {digest}"
+    "details": "Reference ID: {digest}",
+    "eyebrow": "Error"
   },
   "onboarding": {
     "activeHeading": "You're subscribed — welcome to AHO",
@@ -1053,7 +1054,8 @@
       "body": "We couldn't complete the sign-in. The link may have expired or been used.",
       "bodyPkceMismatch": "It looks like you opened this link in a different browser or device than the one you started signing in on. Open the link in the same browser where you typed your email — that browser holds the verification cookie.",
       "tryAgainCta": "Back to sign in",
-      "details": "Details: {reason}"
+      "details": "Details: {reason}",
+      "eyebrow": "Auth error"
     },
     "errors": {
       "emailInvalid": "Enter a valid email address.",
@@ -1114,7 +1116,8 @@
     "saveButtonSaved": "Saved ✓",
     "saveButtonAuth": "Sign in to save",
     "saveButtonError": "Save failed",
-    "alertsBlocked": "Email alerts will start when AHO finishes wiring its email transport."
+    "alertsBlocked": "Email alerts will start when AHO finishes wiring its email transport.",
+    "yourAccountEyebrow": "Your account"
   },
   "metaConnect": {
     "eyebrow": "Facebook + Instagram",
@@ -1626,8 +1629,14 @@
             "Empty results are honest: when nothing matches your filters, the page tells you so. We never invent demo listings to fill space."
           ],
           "links": [
-            { "label": "Open search", "href": "search" },
-            { "label": "Browse by country", "href": "countries" }
+            {
+              "label": "Open search",
+              "href": "search"
+            },
+            {
+              "label": "Browse by country",
+              "href": "countries"
+            }
           ]
         },
         {
@@ -1638,8 +1647,14 @@
             "Saved searches are different: they're a stored set of filters that we re-run for you. Open a search you like, hit \"Save this search,\" name it, and choose whether you want email digests when new matches appear. You can manage them — rename, edit filters, change digest frequency, delete — from the Saved searches page."
           ],
           "links": [
-            { "label": "Saved properties", "href": "saved-properties" },
-            { "label": "Saved searches", "href": "saved-searches" }
+            {
+              "label": "Saved properties",
+              "href": "saved-properties"
+            },
+            {
+              "label": "Saved searches",
+              "href": "saved-searches"
+            }
           ]
         },
         {
@@ -1651,7 +1666,10 @@
             "If you'd rather call or message on WhatsApp, the agent's profile page lists whatever direct channels they've added."
           ],
           "links": [
-            { "label": "Browse listings to find an agent", "href": "search" }
+            {
+              "label": "Browse listings to find an agent",
+              "href": "search"
+            }
           ]
         },
         {
@@ -1672,10 +1690,22 @@
             "Read the full privacy policy for a line-by-line breakdown of what we store, why, and for how long."
           ],
           "links": [
-            { "label": "Privacy policy", "href": "privacy" },
-            { "label": "Terms of service", "href": "terms" },
-            { "label": "Sign in", "href": "signin" },
-            { "label": "Create an account", "href": "signup" }
+            {
+              "label": "Privacy policy",
+              "href": "privacy"
+            },
+            {
+              "label": "Terms of service",
+              "href": "terms"
+            },
+            {
+              "label": "Sign in",
+              "href": "signin"
+            },
+            {
+              "label": "Create an account",
+              "href": "signup"
+            }
           ]
         }
       ]
@@ -1693,10 +1723,22 @@
             "After onboarding, your dashboard becomes the home base for everything else: properties, leads, social posts, analytics, billing."
           ],
           "links": [
-            { "label": "Pricing and plans", "href": "pricing" },
-            { "label": "Sign up", "href": "signup" },
-            { "label": "Welcome / onboarding", "href": "onboarding" },
-            { "label": "Dashboard", "href": "dashboard" }
+            {
+              "label": "Pricing and plans",
+              "href": "pricing"
+            },
+            {
+              "label": "Sign up",
+              "href": "signup"
+            },
+            {
+              "label": "Welcome / onboarding",
+              "href": "onboarding"
+            },
+            {
+              "label": "Dashboard",
+              "href": "dashboard"
+            }
           ]
         },
         {
@@ -1708,7 +1750,10 @@
             "Manual: the classic form. Type each field, drag photos in, write your description. Always available as the fallback when an import lane misbehaves on an unusual source."
           ],
           "links": [
-            { "label": "New listing", "href": "dashboard-new-property" }
+            {
+              "label": "New listing",
+              "href": "dashboard-new-property"
+            }
           ]
         },
         {
@@ -1720,7 +1765,10 @@
             "Per the platform's real-only data rule, only photos of the actual property are allowed. No stock photography, no AI-generated rooms, no \"representative\" images from a different unit. Listings violating this are removed by moderators without notice."
           ],
           "links": [
-            { "label": "Your properties", "href": "dashboard-properties" }
+            {
+              "label": "Your properties",
+              "href": "dashboard-properties"
+            }
           ]
         },
         {
@@ -1732,7 +1780,10 @@
             "Archive a listing when it's no longer for sale but you want to keep the history. Archived listings stay in your dashboard for 90 days, then are deleted unless restored."
           ],
           "links": [
-            { "label": "Your properties", "href": "dashboard-properties" }
+            {
+              "label": "Your properties",
+              "href": "dashboard-properties"
+            }
           ]
         },
         {
@@ -1744,8 +1795,14 @@
             "Empty inbox? It really is empty. We don't seed demo leads, ever."
           ],
           "links": [
-            { "label": "Leads inbox", "href": "dashboard-leads" },
-            { "label": "Lead routing rules", "href": "dashboard-leads-routing" }
+            {
+              "label": "Leads inbox",
+              "href": "dashboard-leads"
+            },
+            {
+              "label": "Lead routing rules",
+              "href": "dashboard-leads-routing"
+            }
           ]
         },
         {
@@ -1757,7 +1814,10 @@
             "Posts include your AHO listing URL so leads route back to your inbox. Until Meta App Review approval lands, publishing is copy-paste; one-click publish lights up automatically once approval is granted on a connected channel."
           ],
           "links": [
-            { "label": "Social distribution", "href": "dashboard-social" }
+            {
+              "label": "Social distribution",
+              "href": "dashboard-social"
+            }
           ]
         },
         {
@@ -1768,7 +1828,10 @@
             "Numbers are honest: empty until there's data, and we never extrapolate. Per-listing analytics open from the Properties page or directly from the analytics overview."
           ],
           "links": [
-            { "label": "Analytics overview", "href": "dashboard-analytics" }
+            {
+              "label": "Analytics overview",
+              "href": "dashboard-analytics"
+            }
           ]
         },
         {
@@ -1780,7 +1843,10 @@
             "While Meta App Review is pending, the connect button still works for the copy-paste flow but the auto-publish toggle is disabled."
           ],
           "links": [
-            { "label": "Social distribution", "href": "dashboard-social" }
+            {
+              "label": "Social distribution",
+              "href": "dashboard-social"
+            }
           ]
         },
         {
@@ -1792,7 +1858,10 @@
             "Tax (VAT, sales tax) is handled automatically by Stripe Tax based on your billing country."
           ],
           "links": [
-            { "label": "Profile and billing", "href": "dashboard-profile" }
+            {
+              "label": "Profile and billing",
+              "href": "dashboard-profile"
+            }
           ]
         },
         {
@@ -1803,7 +1872,10 @@
             "If the buyer's email is on the deal, AHO can send them a one-click review request 7 days after closing. Reviews are double-verified: the email must match the deal record, and a tokenized link confirms it's the right person."
           ],
           "links": [
-            { "label": "Your reviews", "href": "dashboard-reviews" }
+            {
+              "label": "Your reviews",
+              "href": "dashboard-reviews"
+            }
           ]
         },
         {
@@ -1814,7 +1886,10 @@
             "Once enabled, every sign-in asks for a fresh code. Save the backup codes shown on screen — they're the recovery path if you lose your phone. We can help you reset only with proof of identity; we cannot bypass MFA on a whim."
           ],
           "links": [
-            { "label": "Set up MFA", "href": "setup-mfa" }
+            {
+              "label": "Set up MFA",
+              "href": "setup-mfa"
+            }
           ]
         }
       ]
@@ -1831,7 +1906,10 @@
             "Every admin action writes to the audit log. There is no off-the-record path."
           ],
           "links": [
-            { "label": "Admin home", "href": "admin" }
+            {
+              "label": "Admin home",
+              "href": "admin"
+            }
           ]
         },
         {
@@ -1879,7 +1957,10 @@
             "Security incidents follow the GDPR 72-hour clock: notify affected users within 72 hours of becoming aware, document the timeline, file the regulator notification."
           ],
           "links": [
-            { "label": "Privacy policy", "href": "privacy" }
+            {
+              "label": "Privacy policy",
+              "href": "privacy"
+            }
           ]
         }
       ]

@@ -199,7 +199,7 @@ async function translateForUserLocale(
     const userLocale = data.user?.user_metadata?.locale as
       | Locale
       | undefined;
-    if (userLocale !== 'en' && userLocale !== 'es') return safeNext;
+    if (!userLocale || !LOCALES.includes(userLocale)) return safeNext;
     return translatePathForLocale(safeNext, userLocale);
   } catch {
     return safeNext;

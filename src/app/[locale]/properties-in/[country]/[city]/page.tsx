@@ -74,20 +74,29 @@ export async function generateMetadata({
   const title = t('headingTemplate', { city: cityDisplay, country: countryDisplay });
   const description = t('subheading', { city: cityDisplay });
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
-  const enPath = `/en/properties-in/${country}/${city}`;
-  const esPath = `/es/inmuebles-en/${country}/${city}`;
-  const canonical = typedLocale === 'es' ? `${site}${esPath}` : `${site}${enPath}`;
+  // Normalise the country slug to lowercase so the canonical doesn't
+  // split SERP authority with the lowercase form emitted by the sitemap
+  // when a visitor hits e.g. /en/properties-in/DO/santo-domingo (#29).
+  const safeCountry = country.toLowerCase();
+  const buildPath = (lc: Locale) => {
+    // ES has its own hand-translated segment; the v1 marketing locales
+    // share EN segments per PATHNAMES.
+    const stem = lc === 'es' ? 'inmuebles-en' : 'properties-in';
+    return `/${lc}/${stem}/${safeCountry}/${city}`;
+  };
+  const languages: Record<string, string> = {};
+  for (const lc of LOCALES) {
+    languages[lc] = `${site}${buildPath(lc)}`;
+  }
+  languages['x-default'] = `${site}${buildPath('en')}`;
+  const canonical = `${site}${buildPath(typedLocale)}`;
 
   return {
     title,
     description,
     alternates: {
       canonical,
-      languages: {
-        en: `${site}${enPath}`,
-        es: `${site}${esPath}`,
-        'x-default': `${site}${enPath}`,
-      },
+      languages,
     },
     openGraph: {
       type: 'website',

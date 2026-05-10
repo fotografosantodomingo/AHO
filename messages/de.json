@@ -331,7 +331,8 @@
       "body": "Wir konnten die Anmeldung nicht abschließen. Der Link ist möglicherweise abgelaufen oder bereits verwendet worden.",
       "bodyPkceMismatch": "Es sieht so aus, als hätten Sie diesen Link in einem anderen Browser oder auf einem anderen Gerät geöffnet als dem, mit dem Sie die Anmeldung gestartet haben. Öffnen Sie den Link im selben Browser, in dem Sie Ihre E-Mail-Adresse eingegeben haben — dieser Browser hält das Verifizierungs-Cookie.",
       "tryAgainCta": "Zurück zur Anmeldung",
-      "details": "Details: {reason}"
+      "details": "Details: {reason}",
+      "eyebrow": "Authentifizierungsfehler"
     },
     "errors": {
       "emailInvalid": "Geben Sie eine gültige E-Mail-Adresse ein.",
@@ -532,7 +533,9 @@
         "trade": "Tausch"
       }
     },
-    "similarHomesHeading": "Ähnliche Objekte in der Nähe"
+    "similarHomesHeading": "Ähnliche Objekte in der Nähe",
+    "speaksLabel": "Sprachen",
+    "callLabel": "Anrufen"
   },
   "contact": {
     "heading": "Makler kontaktieren",
@@ -1115,7 +1118,8 @@
     "body": "Auf unserer Seite ist ein unerwarteter Fehler aufgetreten. Bitte erneut versuchen oder zur Startseite zurückkehren.",
     "retryCta": "Erneut versuchen",
     "homeCta": "Zurück zur Startseite",
-    "details": "Referenz-ID: {digest}"
+    "details": "Referenz-ID: {digest}",
+    "eyebrow": "Fehler"
   },
   "onboarding": {
     "activeHeading": "Sie sind abonniert — willkommen bei AHO",
@@ -1597,7 +1601,8 @@
     "saveButtonSaved": "Gespeichert ✓",
     "saveButtonAuth": "Zum Speichern anmelden",
     "saveButtonError": "Speichern fehlgeschlagen",
-    "alertsBlocked": "E-Mail-Benachrichtigungen starten, sobald AHO seinen E-Mail-Versand fertig konfiguriert hat."
+    "alertsBlocked": "E-Mail-Benachrichtigungen starten, sobald AHO seinen E-Mail-Versand fertig konfiguriert hat.",
+    "yourAccountEyebrow": "Ihr Konto"
   },
   "docs": {
     "footerLink": "Dokumentation",

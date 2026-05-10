@@ -426,7 +426,9 @@
         "trade": "Permuta"
       }
     },
-    "similarHomesHeading": "Immobili simili nelle vicinanze"
+    "similarHomesHeading": "Immobili simili nelle vicinanze",
+    "speaksLabel": "Parla",
+    "callLabel": "Chiama"
   },
   "reviews": {
     "sectionHeading": "Recensioni",
@@ -603,7 +605,8 @@
     "body": "Si è verificato un errore inatteso da parte nostra. Riprova o torna alla home.",
     "retryCta": "Riprova",
     "homeCta": "Torna alla home",
-    "details": "ID di riferimento: {digest}"
+    "details": "ID di riferimento: {digest}",
+    "eyebrow": "Errore"
   },
   "onboarding": {
     "activeHeading": "Sei abbonato — benvenuto in AHO",
@@ -1054,7 +1057,8 @@
       "body": "Non è stato possibile completare l'accesso. Il link potrebbe essere scaduto o già usato.",
       "bodyPkceMismatch": "Sembra che tu abbia aperto questo link in un browser o dispositivo diverso da quello in cui hai iniziato l'accesso. Apri il link nello stesso browser in cui hai digitato l'email — quel browser conserva il cookie di verifica.",
       "tryAgainCta": "Torna all'accesso",
-      "details": "Dettagli: {reason}"
+      "details": "Dettagli: {reason}",
+      "eyebrow": "Errore di autenticazione"
     },
     "errors": {
       "emailInvalid": "Inserisci un'email valida.",
@@ -1115,7 +1119,8 @@
     "saveButtonSaved": "Salvata ✓",
     "saveButtonAuth": "Accedi per salvare",
     "saveButtonError": "Salvataggio non riuscito",
-    "alertsBlocked": "Gli avvisi via email partiranno quando AHO completerà la configurazione del proprio sistema di invio email."
+    "alertsBlocked": "Gli avvisi via email partiranno quando AHO completerà la configurazione del proprio sistema di invio email.",
+    "yourAccountEyebrow": "Il Suo account"
   },
   "metaConnect": {
     "eyebrow": "Facebook + Instagram",

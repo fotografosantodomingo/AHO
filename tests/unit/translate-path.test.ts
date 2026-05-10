@@ -78,7 +78,10 @@ describe('translatePathForLocale', () => {
     });
 
     it('returns input unchanged for paths with an unrecognized prefix', () => {
-      expect(translatePathForLocale('/de/dashboard', 'es')).toBe('/de/dashboard');
+      // 2026-05-10: regex broadened to all 7 LOCALES (was just en|es). Use a
+      // genuinely unrecognized prefix; `/de/...` is now a real locale and
+      // would correctly translate.
+      expect(translatePathForLocale('/zz/dashboard', 'es')).toBe('/zz/dashboard');
     });
 
     it('returns input unchanged when the rest path does not match either locale', () => {

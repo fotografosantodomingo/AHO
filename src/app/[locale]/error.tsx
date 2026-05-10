@@ -23,6 +23,7 @@ export default function LocalizedError({
 }) {
   const t = useTranslations('error');
   const locale = useLocale();
+  const eyebrow = t('eyebrow');
 
   useEffect(() => {
     // Surfaces in the Cloudflare Workers log — we'll wire Sentry here
@@ -35,7 +36,7 @@ export default function LocalizedError({
   return (
     <main className="mx-auto flex min-h-[60vh] max-w-xl flex-col items-center justify-center px-6 py-16 text-center">
       <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-warn">
-        Error
+        {eyebrow}
       </p>
       <h1 className="mt-3 font-brand text-3xl font-semibold tracking-tight md:text-[42px] md:leading-[1.19]">
         {t('heading')}

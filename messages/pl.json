@@ -434,7 +434,9 @@
         "trade": "Wymiana"
       }
     },
-    "similarHomesHeading": "Podobne ogłoszenia w okolicy"
+    "similarHomesHeading": "Podobne ogłoszenia w okolicy",
+    "speaksLabel": "Mówi po",
+    "callLabel": "Zadzwoń"
   },
   "reviews": {
     "sectionHeading": "Opinie",
@@ -621,7 +623,8 @@
     "body": "Po naszej stronie wystąpił nieoczekiwany błąd. Spróbuj ponownie lub wróć do strony głównej.",
     "retryCta": "Spróbuj ponownie",
     "homeCta": "Powrót do strony głównej",
-    "details": "ID referencyjne: {digest}"
+    "details": "ID referencyjne: {digest}",
+    "eyebrow": "Błąd"
   },
   "onboarding": {
     "activeHeading": "Subskrypcja aktywna — witamy w AHO",
@@ -1017,7 +1020,8 @@
       "body": "Nie udało się dokończyć logowania. Link mógł wygasnąć lub został już użyty.",
       "bodyPkceMismatch": "Wygląda na to, że link otwarto w innej przeglądarce lub na innym urządzeniu niż to, na którym rozpoczęto logowanie. Otwórz link w tej samej przeglądarce, w której wpisałeś email — to ona przechowuje weryfikacyjny cookie.",
       "tryAgainCta": "Wróć do logowania",
-      "details": "Szczegóły: {reason}"
+      "details": "Szczegóły: {reason}",
+      "eyebrow": "Błąd uwierzytelniania"
     },
     "errors": {
       "emailInvalid": "Podaj prawidłowy adres email.",
@@ -1078,7 +1082,8 @@
     "saveButtonSaved": "Zapisano ✓",
     "saveButtonAuth": "Zaloguj się, aby zapisać",
     "saveButtonError": "Błąd zapisu",
-    "alertsBlocked": "Alerty mailowe zaczną działać, gdy AHO uruchomi obsługę emaili."
+    "alertsBlocked": "Alerty mailowe zaczną działać, gdy AHO uruchomi obsługę emaili.",
+    "yourAccountEyebrow": "Twoje konto"
   },
   "metaConnect": {
     "eyebrow": "Facebook + Instagram",

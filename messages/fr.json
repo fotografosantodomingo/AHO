@@ -331,7 +331,8 @@
       "body": "Nous n'avons pas pu finaliser la connexion. Le lien a peut-être expiré ou a déjà été utilisé.",
       "bodyPkceMismatch": "Il semble que vous ayez ouvert ce lien dans un navigateur ou un appareil différent de celui où vous avez commencé la connexion. Ouvrez le lien dans le même navigateur où vous avez saisi votre e-mail — c'est ce navigateur qui détient le cookie de vérification.",
       "tryAgainCta": "Retour à la connexion",
-      "details": "Détails : {reason}"
+      "details": "Détails : {reason}",
+      "eyebrow": "Erreur d'authentification"
     },
     "errors": {
       "emailInvalid": "Saisissez une adresse e-mail valide.",
@@ -532,7 +533,9 @@
         "trade": "Échange"
       }
     },
-    "similarHomesHeading": "Biens similaires à proximité"
+    "similarHomesHeading": "Biens similaires à proximité",
+    "speaksLabel": "Parle",
+    "callLabel": "Appeler"
   },
   "contact": {
     "heading": "Contacter l'agent",
@@ -1115,7 +1118,8 @@
     "body": "Une erreur inattendue s'est produite de notre côté. Réessayez, ou revenez à l'accueil.",
     "retryCta": "Réessayer",
     "homeCta": "Retour à l'accueil",
-    "details": "ID de référence : {digest}"
+    "details": "ID de référence : {digest}",
+    "eyebrow": "Erreur"
   },
   "onboarding": {
     "activeHeading": "Vous êtes abonné — bienvenue chez AHO",
@@ -1597,7 +1601,8 @@
     "saveButtonSaved": "Enregistrée ✓",
     "saveButtonAuth": "Connectez-vous pour enregistrer",
     "saveButtonError": "Échec de l'enregistrement",
-    "alertsBlocked": "Les alertes e-mail démarreront dès qu'AHO aura finalisé le branchement de son transport e-mail."
+    "alertsBlocked": "Les alertes e-mail démarreront dès qu'AHO aura finalisé le branchement de son transport e-mail.",
+    "yourAccountEyebrow": "Votre compte"
   },
   "docs": {
     "footerLink": "Documentation",

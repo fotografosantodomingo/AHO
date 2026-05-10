@@ -426,7 +426,9 @@
         "trade": "Permuta"
       }
     },
-    "similarHomesHeading": "Imóveis similares próximos"
+    "similarHomesHeading": "Imóveis similares próximos",
+    "speaksLabel": "Idiomas",
+    "callLabel": "Ligar"
   },
   "reviews": {
     "sectionHeading": "Avaliações",
@@ -603,7 +605,8 @@
     "body": "Aconteceu um erro inesperado do nosso lado. Tente novamente, ou volte para o início.",
     "retryCta": "Tentar de novo",
     "homeCta": "Voltar ao início",
-    "details": "ID de referência: {digest}"
+    "details": "ID de referência: {digest}",
+    "eyebrow": "Erro"
   },
   "onboarding": {
     "activeHeading": "Você assinou — bem-vindo ao AHO",
@@ -1054,7 +1057,8 @@
       "body": "Não conseguimos finalizar o acesso. O link pode ter expirado ou já ter sido usado.",
       "bodyPkceMismatch": "Parece que você abriu este link em um navegador ou dispositivo diferente daquele em que iniciou o acesso. Abra o link no mesmo navegador onde digitou seu e-mail — é esse navegador que tem o cookie de verificação.",
       "tryAgainCta": "Voltar ao acesso",
-      "details": "Detalhes: {reason}"
+      "details": "Detalhes: {reason}",
+      "eyebrow": "Erro de autenticação"
     },
     "errors": {
       "emailInvalid": "Insira um endereço de e-mail válido.",
@@ -1115,7 +1119,8 @@
     "saveButtonSaved": "Salva ✓",
     "saveButtonAuth": "Entre para salvar",
     "saveButtonError": "Falha ao salvar",
-    "alertsBlocked": "Os alertas por e-mail começam quando o AHO finalizar a configuração do transporte de e-mail."
+    "alertsBlocked": "Os alertas por e-mail começam quando o AHO finalizar a configuração do transporte de e-mail.",
+    "yourAccountEyebrow": "Sua conta"
   },
   "metaConnect": {
     "eyebrow": "Facebook + Instagram",

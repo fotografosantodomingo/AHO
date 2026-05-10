@@ -423,7 +423,9 @@
         "trade": "Permuta"
       }
     },
-    "similarHomesHeading": "Inmuebles similares cerca"
+    "similarHomesHeading": "Inmuebles similares cerca",
+    "speaksLabel": "Idiomas",
+    "callLabel": "Llamar"
   },
   "reviews": {
     "sectionHeading": "Reseñas",
@@ -600,7 +602,8 @@
     "body": "Ocurrió un error inesperado de nuestro lado. Inténtalo de nuevo o vuelve al inicio.",
     "retryCta": "Intentar de nuevo",
     "homeCta": "Volver al inicio",
-    "details": "ID de referencia: {digest}"
+    "details": "ID de referencia: {digest}",
+    "eyebrow": "Error"
   },
   "onboarding": {
     "activeHeading": "Te suscribiste — bienvenido a AHO",
@@ -1051,7 +1054,8 @@
       "body": "No pudimos completar el inicio de sesión. El enlace puede haber expirado o ya haber sido usado.",
       "bodyPkceMismatch": "Parece que abriste este enlace en un navegador o dispositivo distinto al que iniciaste sesión. Abre el enlace en el mismo navegador donde escribiste tu correo — ese navegador guarda la cookie de verificación.",
       "tryAgainCta": "Volver a iniciar sesión",
-      "details": "Detalles: {reason}"
+      "details": "Detalles: {reason}",
+      "eyebrow": "Error de autenticación"
     },
     "errors": {
       "emailInvalid": "Ingresa un correo electrónico válido.",
@@ -1112,7 +1116,8 @@
     "saveButtonSaved": "Guardada ✓",
     "saveButtonAuth": "Inicia sesión para guardar",
     "saveButtonError": "Error al guardar",
-    "alertsBlocked": "Las alertas por correo empezarán cuando AHO termine de configurar su transporte de email."
+    "alertsBlocked": "Las alertas por correo empezarán cuando AHO termine de configurar su transporte de email.",
+    "yourAccountEyebrow": "Tu cuenta"
   },
   "metaConnect": {
     "eyebrow": "Facebook + Instagram",
@@ -1624,8 +1629,14 @@
             "Los resultados vacíos son honestos: cuando nada coincide con tus filtros, la página te lo dice. Nunca inventamos anuncios de demostración para llenar el espacio."
           ],
           "links": [
-            { "label": "Abrir búsqueda", "href": "search" },
-            { "label": "Explorar por país", "href": "countries" }
+            {
+              "label": "Abrir búsqueda",
+              "href": "search"
+            },
+            {
+              "label": "Explorar por país",
+              "href": "countries"
+            }
           ]
         },
         {
@@ -1636,8 +1647,14 @@
             "Las búsquedas guardadas son distintas: son un conjunto guardado de filtros que volvemos a ejecutar por ti. Abre una búsqueda que te interese, pulsa \"Guardar esta búsqueda\", ponle nombre y elige si quieres resúmenes por correo cuando aparezcan nuevos resultados. Puedes gestionarlas — renombrar, editar filtros, cambiar la frecuencia, eliminar — desde la página de Búsquedas guardadas."
           ],
           "links": [
-            { "label": "Inmuebles guardados", "href": "saved-properties" },
-            { "label": "Búsquedas guardadas", "href": "saved-searches" }
+            {
+              "label": "Inmuebles guardados",
+              "href": "saved-properties"
+            },
+            {
+              "label": "Búsquedas guardadas",
+              "href": "saved-searches"
+            }
           ]
         },
         {
@@ -1649,7 +1666,10 @@
             "Si prefieres llamar o escribir por WhatsApp, la página del agente lista los canales directos que haya añadido."
           ],
           "links": [
-            { "label": "Explorar anuncios para encontrar un agente", "href": "search" }
+            {
+              "label": "Explorar anuncios para encontrar un agente",
+              "href": "search"
+            }
           ]
         },
         {
@@ -1670,10 +1690,22 @@
             "Lee la política de privacidad completa para un desglose línea a línea de qué guardamos, por qué y durante cuánto tiempo."
           ],
           "links": [
-            { "label": "Política de privacidad", "href": "privacy" },
-            { "label": "Términos de servicio", "href": "terms" },
-            { "label": "Iniciar sesión", "href": "signin" },
-            { "label": "Crear una cuenta", "href": "signup" }
+            {
+              "label": "Política de privacidad",
+              "href": "privacy"
+            },
+            {
+              "label": "Términos de servicio",
+              "href": "terms"
+            },
+            {
+              "label": "Iniciar sesión",
+              "href": "signin"
+            },
+            {
+              "label": "Crear una cuenta",
+              "href": "signup"
+            }
           ]
         }
       ]
@@ -1691,10 +1723,22 @@
             "Tras el onboarding, tu panel se convierte en la base para todo lo demás: propiedades, contactos, publicaciones sociales, estadísticas, facturación."
           ],
           "links": [
-            { "label": "Precios y planes", "href": "pricing" },
-            { "label": "Registrarse", "href": "signup" },
-            { "label": "Bienvenida / onboarding", "href": "onboarding" },
-            { "label": "Panel", "href": "dashboard" }
+            {
+              "label": "Precios y planes",
+              "href": "pricing"
+            },
+            {
+              "label": "Registrarse",
+              "href": "signup"
+            },
+            {
+              "label": "Bienvenida / onboarding",
+              "href": "onboarding"
+            },
+            {
+              "label": "Panel",
+              "href": "dashboard"
+            }
           ]
         },
         {
@@ -1706,7 +1750,10 @@
             "Manual: el formulario clásico. Escribe cada campo, arrastra las fotos, redacta tu descripción. Siempre disponible como respaldo cuando una vía de importación falla con una fuente inusual."
           ],
           "links": [
-            { "label": "Nuevo anuncio", "href": "dashboard-new-property" }
+            {
+              "label": "Nuevo anuncio",
+              "href": "dashboard-new-property"
+            }
           ]
         },
         {
@@ -1718,7 +1765,10 @@
             "Por la regla de datos reales de la plataforma, solo se permiten fotos del inmueble real. Sin fotografía de stock, sin habitaciones generadas por IA, sin imágenes \"representativas\" de otra unidad. Los anuncios que infrinjan esto se retiran sin previo aviso por los moderadores."
           ],
           "links": [
-            { "label": "Tus propiedades", "href": "dashboard-properties" }
+            {
+              "label": "Tus propiedades",
+              "href": "dashboard-properties"
+            }
           ]
         },
         {
@@ -1730,7 +1780,10 @@
             "Archiva un anuncio cuando ya no esté a la venta pero quieras conservar el historial. Los archivados permanecen en tu panel 90 días y luego se eliminan a menos que los restaures."
           ],
           "links": [
-            { "label": "Tus propiedades", "href": "dashboard-properties" }
+            {
+              "label": "Tus propiedades",
+              "href": "dashboard-properties"
+            }
           ]
         },
         {
@@ -1742,8 +1795,14 @@
             "¿Bandeja vacía? De verdad está vacía. No sembramos contactos de demostración, nunca."
           ],
           "links": [
-            { "label": "Bandeja de contactos", "href": "dashboard-leads" },
-            { "label": "Reglas de enrutamiento", "href": "dashboard-leads-routing" }
+            {
+              "label": "Bandeja de contactos",
+              "href": "dashboard-leads"
+            },
+            {
+              "label": "Reglas de enrutamiento",
+              "href": "dashboard-leads-routing"
+            }
           ]
         },
         {
@@ -1755,7 +1814,10 @@
             "Las publicaciones incluyen el URL de tu anuncio en AHO para que los contactos vuelvan a tu bandeja. Hasta que llegue la aprobación de Meta App Review, la publicación es copia-pega; la publicación de un clic se activa automáticamente al aprobarse en un canal conectado."
           ],
           "links": [
-            { "label": "Distribución social", "href": "dashboard-social" }
+            {
+              "label": "Distribución social",
+              "href": "dashboard-social"
+            }
           ]
         },
         {
@@ -1766,7 +1828,10 @@
             "Los números son honestos: vacíos hasta que haya datos, y nunca extrapolamos. Las estadísticas por anuncio se abren desde la página de Propiedades o directamente desde la vista general de estadísticas."
           ],
           "links": [
-            { "label": "Vista general de estadísticas", "href": "dashboard-analytics" }
+            {
+              "label": "Vista general de estadísticas",
+              "href": "dashboard-analytics"
+            }
           ]
         },
         {
@@ -1778,7 +1843,10 @@
             "Mientras Meta App Review está pendiente, el botón de conectar sigue funcionando para el flujo copia-pega pero el interruptor de auto-publicación está desactivado."
           ],
           "links": [
-            { "label": "Distribución social", "href": "dashboard-social" }
+            {
+              "label": "Distribución social",
+              "href": "dashboard-social"
+            }
           ]
         },
         {
@@ -1790,7 +1858,10 @@
             "Los impuestos (IVA, sales tax) los gestiona automáticamente Stripe Tax según tu país de facturación."
           ],
           "links": [
-            { "label": "Perfil y facturación", "href": "dashboard-profile" }
+            {
+              "label": "Perfil y facturación",
+              "href": "dashboard-profile"
+            }
           ]
         },
         {
@@ -1801,7 +1872,10 @@
             "Si el correo del comprador está en el trato, AHO puede enviarle una solicitud de reseña de un clic 7 días después del cierre. Las reseñas se verifican doblemente: el correo debe coincidir con el registro del trato y un enlace tokenizado confirma que es la persona correcta."
           ],
           "links": [
-            { "label": "Tus reseñas", "href": "dashboard-reviews" }
+            {
+              "label": "Tus reseñas",
+              "href": "dashboard-reviews"
+            }
           ]
         },
         {
@@ -1812,7 +1886,10 @@
             "Una vez activada, cada inicio de sesión pide un código nuevo. Guarda los códigos de respaldo que aparecen en pantalla — son la vía de recuperación si pierdes el teléfono. Solo podemos ayudarte a restablecer con prueba de identidad; no podemos saltar el MFA por capricho."
           ],
           "links": [
-            { "label": "Configurar MFA", "href": "setup-mfa" }
+            {
+              "label": "Configurar MFA",
+              "href": "setup-mfa"
+            }
           ]
         }
       ]
@@ -1829,7 +1906,10 @@
             "Cada acción de admin se escribe en el registro de auditoría. No existe vía paralela."
           ],
           "links": [
-            { "label": "Inicio admin", "href": "admin" }
+            {
+              "label": "Inicio admin",
+              "href": "admin"
+            }
           ]
         },
         {
@@ -1877,7 +1957,10 @@
             "Los incidentes de seguridad siguen el reloj de 72 horas del RGPD: notifica a los usuarios afectados en 72 horas desde que tienes conocimiento, documenta la línea temporal, presenta la notificación al regulador."
           ],
           "links": [
-            { "label": "Política de privacidad", "href": "privacy" }
+            {
+              "label": "Política de privacidad",
+              "href": "privacy"
+            }
           ]
         }
       ]

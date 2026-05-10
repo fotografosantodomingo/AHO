@@ -1,4 +1,6 @@
-import { PATHNAMES, type Locale } from '@/i18n/config';
+import { LOCALES, PATHNAMES, type Locale } from '@/i18n/config';
+
+const LOCALE_PREFIX_RE = new RegExp(`^/(${LOCALES.join('|')})(/.*)?$`);
 
 /**
  * Re-localize a `/{locale}/...` path to a different locale using the
@@ -28,7 +30,7 @@ export function translatePathForLocale(
   safePath: string,
   userLocale: Locale,
 ): string {
-  const m = safePath.match(/^\/(en|es)(\/.*)?$/);
+  const m = safePath.match(LOCALE_PREFIX_RE);
   if (!m) return safePath;
   const currentLocale = m[1] as Locale;
   if (currentLocale === userLocale) return safePath;

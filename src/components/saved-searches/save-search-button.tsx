@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { saveSearch } from '@/lib/saved-searches/actions';
+import { LOCALES, type Locale } from '@/i18n/config';
 
 interface SaveSearchButtonProps {
   /** Filter state that will be persisted on click. */
@@ -61,9 +62,12 @@ export function SaveSearchButton({ filters, isAuthenticated }: SaveSearchButtonP
           if (filters.maxPrice != null) cleaned.maxPrice = filters.maxPrice;
           if (filters.bedsMin != null) cleaned.bedsMin = filters.bedsMin;
 
+          const safeLocale: Locale = LOCALES.includes(locale as Locale)
+            ? (locale as Locale)
+            : 'en';
           const result = await saveSearch({
             filters: cleaned,
-            locale: locale === 'es' ? 'es' : 'en',
+            locale: safeLocale,
             notifyEmail: true,
           });
           if (result.ok) {

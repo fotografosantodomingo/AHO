@@ -21,10 +21,18 @@ export const dynamic = 'force-dynamic';
  * Robots: noindex,nofollow (auth-gated; not a public surface).
  */
 
-export const metadata = {
-  title: 'Saved searches · AHO',
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'savedSearches' });
+  return {
+    title: `${t('heading')} · AHO`,
+    robots: { index: false, follow: false },
+  };
+}
 
 interface SavedSearchRowData {
   id: string;
@@ -80,7 +88,7 @@ export default async function SavedSearchesPage({
     <main className="mx-auto max-w-3xl space-y-6 px-6 py-12">
       <header className="space-y-3">
         <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
-          {typedLocale === 'es' ? 'Tu cuenta' : 'Your account'}
+          {t('yourAccountEyebrow')}
         </p>
         <h1 className="font-brand text-2xl font-semibold tracking-tight md:text-[34px] md:leading-[1.18]">
           {t('heading')}

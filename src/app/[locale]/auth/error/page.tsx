@@ -42,7 +42,7 @@ export default async function AuthErrorPage({
       <div className="relative mx-auto max-w-sm px-6 py-16">
         <div className="rounded-card border border-border-strong/40 bg-surface p-7 shadow-whisper dark:bg-surface-deep">
           <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-warn">
-            {locale === 'es' ? 'Error de autenticación' : 'Auth error'}
+            {t('eyebrow')}
           </p>
           <h1 className="mt-2 font-brand text-2xl font-semibold tracking-tight md:text-3xl">
             {t('heading')}

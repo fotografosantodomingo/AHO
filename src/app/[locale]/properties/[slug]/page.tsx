@@ -520,7 +520,7 @@ export default async function PropertyDetailPage({
                 )}
                 {(contact?.agentLanguagesSpoken?.length ?? 0) > 0 && (
                   <p className="text-xs text-helper">
-                    {typedLocale === 'es' ? 'Idiomas' : 'Speaks'}:{' '}
+                    {t('speaksLabel')}:{' '}
                     {contact!.agentLanguagesSpoken.join(' · ')}
                   </p>
                 )}
@@ -556,7 +556,7 @@ export default async function PropertyDetailPage({
                   href={telHref}
                   className="inline-flex h-9 items-center rounded-lg border border-border-strong px-3 text-sm transition hover:bg-black/5 dark:hover:bg-white/5"
                 >
-                  {typedLocale === 'es' ? 'Llamar' : 'Call'}
+                  {t('callLabel')}
                 </TrackedLink>
               )}
               {contact?.agentWebsiteUrl && (
