@@ -66,6 +66,7 @@ interface AdminListing {
     id: string;
     name: string;
     slug: string;
+    public_slug: string | null;
   } | null;
 }
 
@@ -374,7 +375,7 @@ export default async function AdminOverviewPage({
     let q = supabase
       .from('properties')
       .select(
-        'id, short_id, status, title_en, title_es, city, country_code, price_cents, currency, image_count, created_at, updated_at, organizations!inner(id, name, slug)',
+        'id, short_id, status, title_en, title_es, city, country_code, price_cents, currency, image_count, created_at, updated_at, organizations!inner(id, name, slug, public_slug)',
       )
       .order('updated_at', { ascending: false })
       .limit(200);
@@ -624,7 +625,10 @@ export default async function AdminOverviewPage({
                     </td>
                     <td className="px-3 py-2">
                       {row.org ? (
-                        <a className="underline" href={`/${locale}/agents/${row.org.slug}`}>
+                        <a
+                          className="underline"
+                          href={`/${locale}/agents/${row.org.public_slug ?? row.org.slug}`}
+                        >
                           {row.org.name}
                         </a>
                       ) : (

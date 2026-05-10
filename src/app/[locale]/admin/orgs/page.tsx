@@ -14,6 +14,7 @@ interface AdminOrg {
   id: string;
   name: string;
   slug: string;
+  public_slug: string | null;
   type: string;
   headquarters_country: string | null;
   headquarters_city: string | null;
@@ -46,7 +47,7 @@ export default async function AdminOrgsPage({
   const { data: rows, error } = await supabase
     .from('organizations')
     .select(
-      'id, name, slug, type, headquarters_country, headquarters_city, listing_cap, created_at',
+      'id, name, slug, public_slug, type, headquarters_country, headquarters_city, listing_cap, created_at',
     )
     .order('created_at', { ascending: false })
     .limit(500);
@@ -139,9 +140,21 @@ export default async function AdminOrgsPage({
                     className="transition hover:bg-black/5 dark:hover:bg-white/5"
                   >
                     <td className="px-3 py-2">
-                      <a className="underline" href={`/${locale}/agents/${org.slug}`}>
-                        {org.name}
-                      </a>
+                      {org.active_listing_count > 0 ? (
+                        <a
+                          className="underline"
+                          href={`/${locale}/agents/${org.public_slug ?? org.slug}`}
+                        >
+                          {org.name}
+                        </a>
+                      ) : (
+                        // Public agent profile is gated on having at least
+                        // one active+published listing (migration 0031).
+                        // Avoid the click-to-404 (#22).
+                        <span className="text-ink-muted dark:text-ink-inverse-muted">
+                          {org.name}
+                        </span>
+                      )}
                       {isFixture && (
                         <span className="ml-2 rounded-full bg-warn-bg px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-warn dark:bg-warn-bg/30">
                           fixture

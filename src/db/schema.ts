@@ -627,6 +627,7 @@ export const PROPERTY_EVENT_TYPES = [
   'email_click',
   'lead_form_submit',
   'favorite_add',
+  'favorite_remove',
   'share_click',
 ] as const;
 export type PropertyEventType = (typeof PROPERTY_EVENT_TYPES)[number];

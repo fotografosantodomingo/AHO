@@ -87,6 +87,21 @@ export async function POST(
       console.error('[favorite] delete', error);
       return NextResponse.json({ ok: false, errorCode: 'delete_failed' }, { status: 500 });
     }
+    // Symmetric analytics: record favorite_remove so per-property
+    // engagement metrics aren't biased by toggle-back un-favorites
+    // that were silently dropped from the event log (QA #19).
+    try {
+      await recordPropertyEvent({
+        supabase: createAdminClient(),
+        propertyId,
+        orgId: prop.org_id as string,
+        eventType: 'favorite_remove',
+        userId,
+        anonymousId: null,
+      });
+    } catch (e) {
+      console.warn('[favorite] event record failed', e);
+    }
     return NextResponse.json({ ok: true, favorited: false });
   }
 

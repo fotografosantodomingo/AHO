@@ -199,12 +199,36 @@ export async function fetchModerationQueue(): Promise<ModerationQueueReview[]> {
     }
   }
 
+  // Third pass: resolve each agent's org public_slug so the moderation
+  // UI can link straight to /agents/{slug} (QA #20). Single grouped
+  // query keyed by user_id; missing rows leave agentSlug null and the
+  // UI falls back to a non-link.
+  const agentIds = Array.from(
+    new Set((data ?? []).map((r) => r.agent_id as string)),
+  );
+  const slugByAgent = new Map<string, string>();
+  if (agentIds.length > 0) {
+    const { data: memberships } = await supabase
+      .from('organization_members')
+      .select('user_id, organizations!inner(slug, public_slug)')
+      .in('user_id', agentIds);
+    for (const m of memberships ?? []) {
+      const userId = m.user_id as string;
+      if (slugByAgent.has(userId)) continue;
+      const org = Array.isArray(m.organizations)
+        ? (m.organizations[0] as { slug?: string; public_slug?: string | null } | undefined)
+        : (m.organizations as { slug?: string; public_slug?: string | null } | null);
+      const slug = org?.public_slug ?? org?.slug ?? null;
+      if (slug) slugByAgent.set(userId, slug);
+    }
+  }
+
   return (data ?? []).map((r) => {
     const agentJoin = r.agent as { full_name?: string | null } | null;
     return {
       id: r.id as string,
       agentId: r.agent_id as string,
-      agentSlug: null, // Org slug isn't on the profile; we'd need a 2nd join via organization_members. Defer to v1.1.
+      agentSlug: slugByAgent.get(r.agent_id as string) ?? null,
       agentName: agentJoin?.full_name ?? null,
       rating: r.rating as number,
       body: r.body as string,
