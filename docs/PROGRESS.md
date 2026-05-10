@@ -12,6 +12,58 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-10 (continuation 2) — P1 third sweep: small wins + admin N+1 + lead-routing i18n
+- **Frame:** Continuing on the user "cntinue" directive after PO_ACTIONS
+  + initial P1 batches were pushed.
+- **What shipped (3 commits):**
+  - **P1 small wins × 5** (`2f7cecd`): Contact-form Turnstile state
+    surfaces "checking you're human…" + an explicit error block
+    instead of a silently disabled Send button (#18, with the new
+    `contact.captchaVerifying` + `contact.captchaError` keys
+    localized across 7 locales). PWA manifest `start_url` and
+    shortcut targets switched from `/` to `/en` so the cold-launch
+    middleware redirect goes away (#27). Offline.html locale-aware
+    via inline `data-i18n` swap on `navigator.language` — all 7
+    locales (#28). citySlug stripping fixed: explicit Polish ł +
+    Nordic ø/æ + German ß map alongside the NFD diacritic strip, so
+    "Łódź" → "lodz" instead of "odz" (#30). Hero search city option
+    values are now slugs; submit handler redirects to the
+    `/properties-in/{country}/{city}` city-landing surface when both
+    country + city are picked (#31).
+  - **Admin N+1 → grouped RPC** (`b5ac1c4`): `/admin/users` no
+    longer fires one HEAD count per user (up to 500); `/admin/orgs`
+    no longer fires two per org (up to 1000). Both collapse to a
+    single round-trip via SECURITY DEFINER RPCs gated on
+    `profiles.is_admin`. Migration `0044_admin_count_rpcs.sql` adds
+    `admin_user_membership_counts()` and `admin_org_counts()`. Pre-
+    deploy fall-back: missing RPC → counts show as 0 (visible but
+    recoverable; one refresh after migrate fixes it).
+  - **Lead-routing i18n** (`adfc33e`): the inline `TXT` constant
+    (EN/ES only) on `/dashboard/leads/routing` migrates to a
+    `leadRouting` namespace in all 7 locales' messages.json, and the
+    static metadata becomes `generateMetadata` for a localized
+    title. Marketing locales now see native copy instead of EN
+    fallback. `describeAction` rewritten to take next-intl's
+    translator function so `{name}` / `{count}` interpolation is
+    native rather than `String.replace`.
+- **What didn't ship:**
+  - **P1 #11 import-panel i18n namespace** — deferred to a focused
+    follow-up. ~70 hardcoded EN strings across URL/voice/error
+    paths; needs a clean `importPanel` namespace with parity across
+    7 locales. Not lossy work, just bigger than the rest of this
+    batch.
+  - **PO_ACTIONS migration #1 expanded** to bundle 0043 + 0044 — PO
+    needs to apply both before the favorite-toggle event log and
+    admin counts work cleanly.
+- **Test count:** 437/437 unit tests pass throughout.
+- **Commits this segment:** 3 (small wins, admin N+1, lead-routing
+  i18n) + this PROGRESS update.
+- **Next session should start with:** apply migrations 0043 + 0044
+  (one-shot SQL each, idempotent), then tackle the deferred
+  import-panel i18n migration (#11) — biggest remaining QA item.
+
+---
+
 ## 2026-05-10 (continuation) — PT/DE/IT depth + docs.* native × 5 + P1 batch (i18n + admin) + PO_ACTIONS.md
 - **Frame:** Disk freed (PO ran `tmutil deletelocalsnapshots`); resumed
   the deferred queue from the previous entry. Continuing on user
