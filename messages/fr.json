@@ -75,13 +75,145 @@
     "proSocialCta": "Voir les tarifs Pro Automation"
   },
   "pricing": {
+    "eyebrow": "Tarifs",
+    "heading": "Des plans pensés pour les agents en activité.",
+    "subheading": "Payez au mois ou faites des économies à l'année. Changez de plan à tout moment depuis le Portail Client Stripe.",
+    "compareAllPlans": "Comparer tous les plans →",
+    "focus": {
+      "agent": {
+        "eyebrow": "Agent",
+        "heading": "Tout ce qu'il faut pour publier et vendre.",
+        "subheading": "Annonces actives illimitées, boîte de contacts, profil agent et avis. Annulable à tout moment."
+      },
+      "plus": {
+        "eyebrow": "Plus",
+        "heading": "Le supplément de finition pour les closers chevronnés.",
+        "subheading": "Tout ce qui se trouve dans Agent, plus la mise en avant des annonces, le support prioritaire et le traitement visuel Plus sur votre profil public."
+      },
+      "pro_automation": {
+        "eyebrow": "Pro Automation",
+        "heading": "Publiez une fois, diffusez partout.",
+        "subheading": "Distribution en un clic vers Facebook + Instagram + WhatsApp. Planification, retry et analytics — tout est intégré. Le seul plan AHO avec automatisation sociale."
+      }
+    },
+    "periodToggleAria": "Période de facturation",
+    "period": {
+      "monthly": "Mensuel",
+      "annual": "Annuel"
+    },
+    "annualBadge": "économisez ~17 %",
+    "perMonth": "/ mois",
+    "perYear": "/ an",
+    "mostPopular": "Le plus populaire",
+    "currentPlan": "Plan actuel",
     "subscribe": "S'abonner",
     "signInToSubscribe": "Connectez-vous pour vous abonner",
     "upgradeTo": "Passer à {tier}",
     "downgradeTo": "Passer à {tier}",
     "redirecting": "Redirection vers le paiement…",
     "subscribeError": "Impossible de démarrer le paiement. Réessayez.",
-    "orgNamePrompt": "Quel est le nom de votre société ou votre nom en tant qu'agent ?"
+    "orgNamePrompt": "Quel est le nom de votre société ou votre nom en tant qu'agent ?",
+    "tier": {
+      "agent": {
+        "eyebrow": "Entrée",
+        "name": "Agent",
+        "tagline": "Mettez vos annonces en ligne et commencez à recevoir des contacts.",
+        "feat1": "Jusqu'à 5 annonces actives",
+        "feat2": "Texte de partage manuel pour FB / IG / WhatsApp",
+        "feat3": "Capture de leads WhatsApp + e-mail",
+        "feat4": "Boîte de contacts avec suivi de statut",
+        "feat5": "Analytics de performance par annonce"
+      },
+      "plus": {
+        "eyebrow": "Agence en croissance",
+        "name": "Plus",
+        "tagline": "Plus d'inventaire et signaux de confiance « agent vérifié ».",
+        "feat1": "Jusqu'à 15 annonces actives",
+        "feat2": "Badge Agent immobilier vérifié",
+        "feat3": "Placement prioritaire sur les pages de villes",
+        "feat4": "Annonces multi-villes",
+        "feat5": "Tout ce qui se trouve dans Agent"
+      },
+      "pro_automation": {
+        "eyebrow": "Plan le plus complet",
+        "name": "Pro Automation",
+        "tagline": "Publiez une fois, diffusez partout — automatiquement.",
+        "feat1": "Jusqu'à 30 annonces actives",
+        "feat2": "Publication en un clic vers Facebook + Instagram + LinkedIn",
+        "feat3": "Légendes IA spécifiques à chaque plateforme",
+        "feat4": "Historique de publication + retry + suivi du trafic",
+        "feat5": "Tout ce qui se trouve dans Plus"
+      }
+    },
+    "manageBilling": "Gérer la facturation",
+    "agentPlanName": "AHO Agent",
+    "monthly": "Mensuel",
+    "annual": "Annuel",
+    "monthlyPrice": "29 $/mois",
+    "annualPrice": "290 $/an",
+    "annualSavings": "~17 % d'économie vs. au mois",
+    "trialNote": "Annulable à tout moment depuis le Portail Client Stripe — la facturation s'arrête à la fin de la période en cours.",
+    "features": {
+      "listings": "Jusqu'à 5 annonces actives",
+      "social": "Partage en un clic vers Facebook + Instagram",
+      "whatsapp": "Capture de leads WhatsApp depuis vos annonces",
+      "inbox": "Boîte de contacts avec suivi de statut",
+      "analytics": "Analytics de performance par annonce",
+      "billing": "Gérez la facturation et les changements de plan via le Portail Client Stripe"
+    },
+    "orgNameLabel": "Nom de l'organisation",
+    "orgNameHelp": "C'est sous ce nom que les agents et les acheteurs voient votre marque. Vous pourrez le modifier plus tard.",
+    "subscribeMonthly": "S'abonner au mois",
+    "subscribeAnnual": "S'abonner à l'année",
+    "alreadySubscribed": "Vous avez déjà un abonnement Agent. Gérez-le depuis votre tableau de bord.",
+    "openDashboard": "Ouvrir le tableau de bord",
+    "needsSignIn": "Connectez-vous pour vous abonner",
+    "priceHeading": "29 $",
+    "priceSubheading": "/ mois",
+    "annualPill": "Économisez ~17 % avec l'annuel",
+    "featuresHeading": "Tout ce qu'il faut pour publier",
+    "trialBadge": "Annulable à tout moment",
+    "faqHeading": "Questions fréquentes",
+    "faq1Q": "Puis-je annuler à tout moment ?",
+    "faq1A": "Oui. Ouvrez le Portail Client Stripe depuis votre tableau de bord et annulez en deux clics. Vous gardez l'accès jusqu'à la fin de la période de facturation.",
+    "faq2Q": "Que deviennent mes annonces si j'annule ?",
+    "faq2A": "Elles passent en inactif — elles n'apparaissent plus dans la recherche publique mais restent dans votre tableau de bord. Réabonnez-vous et elles reviennent instantanément.",
+    "faq3Q": "Faut-il un plan distinct pour chaque bien ?",
+    "faq3A": "Non. Le plan Agent couvre jusqu'à 5 annonces actives. Des plafonds plus élevés arrivent avec les plans Premium et Agence.",
+    "faq4Q": "Quels moyens de paiement sont acceptés ?",
+    "faq4A": "Toutes les principales cartes via Stripe Checkout, plus 3-D Secure quand votre banque l'exige.",
+    "errors": {
+      "session_create_failed": "Impossible de démarrer le paiement. Réessayez."
+    }
+  },
+  "search": {
+    "heading": "Parcourir les annonces",
+    "filtersHeading": "Filtres",
+    "queryLabel": "Mot-clé",
+    "queryPlaceholder": "Plage, garage, piscine…",
+    "cityLabel": "Ville",
+    "countryLabel": "Pays",
+    "countryAny": "Tous les pays",
+    "transactionLabel": "Type",
+    "transactionAny": "Vente ou location",
+    "minPrice": "Prix min",
+    "maxPrice": "Prix max",
+    "bedroomsLabel": "Chambres",
+    "bedsAny": "Indifférent",
+    "applyFilters": "Appliquer les filtres",
+    "clearFilters": "Effacer",
+    "resultsCount_one": "1 annonce",
+    "resultsCount_other": "{count} annonces",
+    "resultsCountInArea_one": "1 annonce dans cette zone",
+    "resultsCountInArea_other": "{count} annonces dans cette zone",
+    "noResults": "Aucune annonce ne correspond à ces filtres.",
+    "noResultsHint": "Essayez d'élargir la fourchette de prix ou de retirer des filtres.",
+    "previousPage": "Précédent",
+    "nextPage": "Suivant",
+    "viewList": "Liste",
+    "viewMap": "Carte",
+    "bboxActive": "Affichage des annonces dans cette zone de la carte.",
+    "resetBbox": "Revenir à tous les résultats"
   },
   "footer": {
     "privacy": "Confidentialité",
@@ -145,6 +277,95 @@
         "label": "Famille",
         "description": "Chaleureux et concret — met en avant les écoles, les déplacements à pied, la place pour grandir et le rythme du quotidien."
       }
+    }
+  },
+  "auth": {
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "signInHeading": "Connexion",
+    "signUpHeading": "Créer un compte",
+    "signInCta": "Se connecter",
+    "signingIn": "Connexion…",
+    "signUpCta": "Créer un compte",
+    "signingUp": "Création du compte…",
+    "signOut": "Se déconnecter",
+    "noAccountQuestion": "Pas encore de compte ?",
+    "haveAccountQuestion": "Vous avez déjà un compte ?",
+    "createOne": "Créer un compte",
+    "passwordHelp": "Au moins 8 caractères, une majuscule et un chiffre.",
+    "acceptTerms": "J'accepte les <termsLink>Conditions générales</termsLink> et la <privacyLink>Politique de confidentialité</privacyLink>.",
+    "marketingOptIn": "Envoyez-moi par e-mail les actualités produit et les conseils.",
+    "checkYourEmailHeading": "Vérifiez votre boîte e-mail",
+    "checkYourEmailBody": "Nous venons d'envoyer un lien de confirmation à {email}. Cliquez dessus pour finaliser la création de votre compte.",
+    "forgotPasswordLink": "Mot de passe oublié ?",
+    "magicLinkAlt": "Se connecter avec un lien magique",
+    "passwordSigninAlt": "Utiliser e-mail + mot de passe",
+    "forgot": {
+      "heading": "Réinitialiser votre mot de passe",
+      "intro": "Saisissez l'e-mail associé à votre compte. Nous vous enverrons un lien pour définir un nouveau mot de passe.",
+      "submit": "Envoyer le lien de réinitialisation",
+      "submitting": "Envoi…",
+      "checkEmailHeading": "Vérifiez votre boîte e-mail",
+      "checkEmailBody": "Si un compte existe pour {email}, nous venons de lui envoyer un lien de réinitialisation. Le lien est valable une heure."
+    },
+    "reset": {
+      "heading": "Définir un nouveau mot de passe",
+      "intro": "Saisissez un nouveau mot de passe pour votre compte.",
+      "newPassword": "Nouveau mot de passe",
+      "submit": "Mettre à jour le mot de passe",
+      "submitting": "Mise à jour…",
+      "success": "Mot de passe mis à jour. Vous êtes connecté.",
+      "noSession": "Ce lien de réinitialisation a expiré ou a déjà été utilisé. Demandez-en un nouveau.",
+      "requestNewLink": "Demander un nouveau lien"
+    },
+    "magic": {
+      "heading": "Se connecter avec un lien magique",
+      "intro": "Saisissez votre e-mail et nous vous enverrons un lien de connexion en un clic.",
+      "submit": "Envoyer le lien magique",
+      "submitting": "Envoi…",
+      "checkEmailHeading": "Vérifiez votre boîte e-mail",
+      "checkEmailBody": "Si un compte existe pour {email}, nous venons de lui envoyer un lien de connexion. Le lien est valable dix minutes."
+    },
+    "error": {
+      "heading": "Problème d'authentification",
+      "body": "Nous n'avons pas pu finaliser la connexion. Le lien a peut-être expiré ou a déjà été utilisé.",
+      "bodyPkceMismatch": "Il semble que vous ayez ouvert ce lien dans un navigateur ou un appareil différent de celui où vous avez commencé la connexion. Ouvrez le lien dans le même navigateur où vous avez saisi votre e-mail — c'est ce navigateur qui détient le cookie de vérification.",
+      "tryAgainCta": "Retour à la connexion",
+      "details": "Détails : {reason}"
+    },
+    "errors": {
+      "emailInvalid": "Saisissez une adresse e-mail valide.",
+      "passwordRequired": "Le mot de passe est obligatoire.",
+      "min8": "Au moins 8 caractères.",
+      "needsUppercase": "Incluez au moins une majuscule.",
+      "needsNumber": "Incluez au moins un chiffre.",
+      "mustAcceptTerms": "Vous devez accepter les Conditions et la Politique de confidentialité.",
+      "pwned": "Ce mot de passe est apparu dans des fuites de données connues. Choisissez-en un autre.",
+      "generic": "Une erreur est survenue. Réessayez."
+    },
+    "lockout": {
+      "cooldown_1m": "Trop de tentatives de connexion infructueuses. Réessayez dans {minutes, plural, one {# minute} other {# minutes}}.",
+      "cooldown_15m": "Trop de tentatives de connexion infructueuses. Réessayez dans {minutes, plural, one {# minute} other {# minutes}}.",
+      "lockout_24h": "Ce compte est temporairement verrouillé en raison de tentatives de connexion infructueuses répétées. Contactez le support si vous avez besoin d'y accéder plus tôt."
+    },
+    "mfa": {
+      "badge": "Sécurité",
+      "setupHeading": "Configurer l'authentification à deux facteurs",
+      "introAdmin": "Les comptes administrateur doivent utiliser un code à usage unique généré par une application d'authentification pour se connecter. Ajoutez un générateur de code à votre compte pour continuer.",
+      "introOptional": "Ajoutez un code à usage unique depuis une application d'authentification pour une couche de protection supplémentaire.",
+      "step1Title": "Installez une application d'authentification",
+      "step1Body": "Utilisez Google Authenticator, 1Password, Authy ou toute application compatible TOTP.",
+      "step2Title": "Scannez ce QR code",
+      "qrAlt": "QR code pour l'application d'authentification",
+      "manualEntry": "Ou saisissez manuellement ce code secret :",
+      "step3Title": "Saisissez le code à 6 chiffres",
+      "step3Body": "Tapez le code actuellement affiché par votre application d'authentification.",
+      "verifyCta": "Vérifier et terminer",
+      "verifying": "Vérification…",
+      "preparing": "Préparation de votre code…",
+      "success": "L'authentification à deux facteurs est activée. Redirection…",
+      "errorBadCode": "Ce code ne correspond pas. Essayez le suivant affiché par votre application.",
+      "errorGeneric": "Impossible de démarrer la configuration MFA. Actualisez la page pour réessayer."
     }
   },
   "priceTile": {
