@@ -151,7 +151,12 @@ export async function searchListings(
     .eq('status', 'active')
     .not('published_at', 'is', null);
 
-  if (filters.city) query = query.eq('city', filters.city);
+  // City match is case-insensitive (`.ilike` w/o wildcards = case-
+  // insensitive equality) to mirror `searchCityLanding` and survive
+  // any author-side casing diff. Hero-search submits the display name
+  // ("Santo Domingo"), but DB rows can be saved as any case the agent
+  // typed; without `.ilike` a case mismatch silently zeroes the result.
+  if (filters.city) query = query.ilike('city', filters.city);
   if (filters.country) query = query.eq('country_code', filters.country);
   if (filters.transaction) query = query.eq('transaction_type', filters.transaction);
   if (filters.minPrice != null) query = query.gte('price_cents', filters.minPrice);
