@@ -48,10 +48,15 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    // Multiple sitemap entries are honored by Google + Bing per the
-    // sitemaps.org spec. We list both: the standard sitemap (URLs only)
-    // and the image sitemap (property URLs with <image:image> children).
-    sitemap: [`${site}/sitemap.xml`, `${site}/sitemap-images.xml`],
+    // Single sitemap-index entry — crawlers fetch the index once and
+    // traverse to every child sitemap (URL sitemap + image sitemap
+    // today; per-locale or per-resource splits when inventory grows
+    // past ~30K URLs and the URL sitemap nears the 50K-URL cap). This
+    // is the canonical entry point per sitemaps.org § "Using sitemap
+    // index files". The individual sitemaps remain reachable directly
+    // (`/sitemap.xml`, `/sitemap-images.xml`) so existing inbound
+    // references and Search Console submissions don't break.
+    sitemap: [`${site}/sitemap-index.xml`],
     host: site,
   };
 }
