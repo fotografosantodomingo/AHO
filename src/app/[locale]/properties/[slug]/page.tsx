@@ -299,7 +299,7 @@ export default async function PropertyDetailPage({
       <main className="mx-auto max-w-5xl px-6 py-8 md:py-10">
         {usingFallback && (
           <div
-            role="status"
+            role="note"
             className="mb-6 rounded-card border border-warn/30 bg-warn-bg/40 px-4 py-3 text-sm text-warn dark:border-warn/40"
           >
             {t('translationPending')}

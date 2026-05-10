@@ -348,6 +348,16 @@ function VoiceImportCard({
               { count: data.uploaded },
             ),
           );
+        } else if (
+          // Queue fully drained (remaining = 0) and we didn't already
+          // overwrite the notice with an "uploaded" message above.
+          // Clears the stale "Saved — we'll upload this when you're back
+          // online" banner that previously persisted forever after the
+          // SW silently drained the queue (#37).
+          typeof data.remaining === 'number' &&
+          data.remaining === 0
+        ) {
+          setQueuedNotice(null);
         }
       }
     };

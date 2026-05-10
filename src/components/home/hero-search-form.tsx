@@ -92,6 +92,9 @@ export function HeroSearchForm({
     return () => {
       cancelled = true;
     };
+    // setCity / setCities / setCitiesLoading are stable useState setters;
+    // react-hooks/exhaustive-deps does not flag them. Only `country` is
+    // the real trigger here.
   }, [country]);
 
   const tabs: Array<{ value: Transaction; label: string }> = [
