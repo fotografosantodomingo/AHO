@@ -12,6 +12,127 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-10 (continuation 9) — Sign-in CAPTCHA → emailed-OTP device verification (Hostinger-style)
+- **Frame:** PO directive 2026-05-10 — drop the visible Cloudflare
+  Turnstile challenge on the sign-in form, replace with a polite "we
+  noticed a sign-in from a new device, here's a code" flow. Sign-up,
+  magic-link, and contact form keep their visible Turnstile (no account
+  yet → no inbox to challenge). Trust signal is cookie + cf-connecting-
+  ip; per PO, IP-change detection is the strict variant.
+- **What shipped (3 commits `0dde5b2`, `da1588a`, `0d43d1e`):**
+  - **Migration 0046** `auth_trusted_devices` — per-user remembered-
+    device registry. Stores sha256(cookie_token) (unique), label,
+    ip_first_seen + last_ip, country_first/last (from cf-ipcountry),
+    expires_at. RLS: owner-readable + owner-deletable for the future
+    /dashboard/security devices list. 90-day TTL per PO.
+  - **Migration 0047** `auth_login_challenges` — short-lived OTP
+    tickets (15 min). code_hash (bytea), attempts cap 5, resends cap 3,
+    consumed_at, ip+country+user_agent for the verification email
+    body. No RLS — service role only.
+  - **`src/lib/auth/trusted-device.ts`** — generateDeviceToken (32-byte
+    base64url), generateOtpCode (6-digit crypto-random), `sha256()`
+    returning bytea-literal `\xHEX` strings (supabase-js JSON-
+    stringifies Uint8Array as `{"0":N,...}`, breaks bytea round-trip;
+    going via string keeps writes and `\xHEX` reads symmetric and
+    constant-time-comparable). Cookie helpers (HttpOnly, SameSite=Lax,
+    90-day Max-Age). User-agent → "Chrome on macOS"-style label for
+    the email + future devices list. Cloudflare header readers.
+  - **`src/lib/email/templates/device-verification.ts`** — bilingual
+    EN/ES template, big monospace code block, attempt-context table
+    (device + country + IP), "wasn't me?" footer pointing at the
+    canonical password-reset surface (no email-deep-link).
+  - **`POST /api/auth/signin` (rewritten)** — phase 1: lockout gate
+    (unchanged) → signInWithPassword on cookie-aware client → trust
+    check (cookie hash present + row exists + last_ip matches
+    cf-connecting-ip). Trusted → 200 ok with session intact. Untrusted
+    → signOut() to unwind the just-set session, insert challenge,
+    send OTP email, return 202 `{ needsVerification, challengeId,
+    emailHint }`. Failure pruning deferred to phase 2 success.
+  - **`POST /api/auth/verify-device` (new)** — phase 2: lookup
+    challenge (active/unexpired/attempts not maxed) → constant-time
+    hash compare → mark consumed → mint a real session via
+    `admin.generateLink('magiclink')` + `verifyOtp(token_hash,
+    type:'magiclink')` on the cookie-aware client → insert
+    auth_trusted_devices row → set the `aho-trusted-device` cookie
+    (90-day Max-Age). Bumps attempts on miss; at attempt 5 marks
+    challenge consumed and 410-Gones.
+  - **`POST /api/auth/resend-code` (new)** — overwrites code_hash with
+    a fresh code, resets attempts so the new code gets a clean 5-try
+    budget. Capped at 3 resends + 30s cooldown between sends.
+  - **`sign-in-form.tsx`** — Turnstile widget moved off-screen
+    (absolute, opacity 0, aria-hidden); token still mints, Supabase's
+    project-level captcha enforcement is unchanged. On 202 swap the
+    form for `<DeviceVerificationStep>`. POST body now includes the
+    user's locale so the email picks the right language.
+  - **`device-verification-step.tsx` (new)** — six-input OTP entry,
+    arrow-key nav, Backspace back-fill, paste-aware fan-out (paste
+    6 digits anywhere → fills all six → auto-submit). Resend button
+    with mirrored 30s cooldown. Localized errors for invalid_code (with
+    remaining attempts), too_many_attempts, expired, already_used,
+    resend_limit, cooldown.
+  - **i18n** — `auth.deviceVerification.*` added in all 7 locales
+    (en/es/pl/pt/de/fr/it). Email body itself still narrows to EN/ES
+    via `narrowContentLocale` (PL → EN copy + localized country name).
+- **Bytea bug found and fixed mid-implementation:** initial sha256()
+  returned `Uint8Array`, supabase-js serialized it as `{"0":N,"1":N,...}`
+  through JSON.stringify, the column stored the JSON-stringified object
+  hex-encoded. Round-trip fails → 100% of OTP verifications would 400.
+  Verified the fix with a probe: `sha256('123456')` → bytea-literal
+  `\x8d96...` → INSERT → SELECT returns same `\x8d96...` → string ===
+  string match.
+- **What changed since last session:** Same calendar day, continuous
+  work. Earlier today: review form anon-RETURNING RLS fix (9eb20c1),
+  reviews.locale CHECK expansion (d3379ce), reviewer-loop emails on
+  approve+reject (531bd59).
+- **Migrations applied to prod:** 0046 + 0047.
+- **Next session should start with:** Live smoke test of the full
+  flow — sign in from a fresh browser session, confirm 202 → check
+  Brevo for the OTP email → enter code → confirm session lands and
+  `aho-trusted-device` cookie is set. Then sign out and back in from
+  the same browser; should return 200 directly with no OTP. Then
+  switch to a VPN (different IP) and confirm OTP fires again.
+  Devices-management page (`/dashboard/security`) is the natural next
+  feature: list active devices, revoke. Migration RLS already supports
+  it (auth_trusted_devices_self_select + _self_delete).
+
+---
+
+## 2026-05-10 (continuation 8) — Reviews flow: anon-insert RLS fix + reviewer moderation emails
+- **Frame:** PO reported "Nie udało się wysłać opinii" on the agent
+  profile review form (locale=pl). Live curl probe of `/api/reviews`
+  returned 403 forbidden.
+- **Root cause:** Route did `.insert(...).select('id').single()` via
+  the user-context (anon) client. Postgres applies SELECT RLS to
+  `RETURNING`. Anon's only SELECT policy on `reviews` requires
+  `status='published'`; the just-inserted row is `pending_verification`,
+  so RETURNING fails as 42501 → route returns 403. Confirmed locally
+  via psql: same insert WITHOUT RETURNING succeeds; with RETURNING
+  fails. Switched the route to admin client (mirrors `/api/leads`).
+- **Second bug surfaced once RLS unblocked:** `reviews.locale` CHECK
+  from migration 0016 only allowed en/es; pl/pt/de/fr/it were rejected
+  with `check_violation`. Migration 0045 expands to all 7 locales.
+- **What shipped (3 commits `9eb20c1`, `d3379ce`, `531bd59`):**
+  - `/api/reviews` switched to admin client for INSERT + agent name
+    lookup; user-context client kept only for `auth.getUser()` to
+    stamp `reviewer_user_id` and run the route-level self-review check.
+  - Migration 0045: `reviews.locale` CHECK now `('en','es','pl','pt',
+    'de','fr','it')`. Applied to prod. Live probe post-migrate
+    returned `{ok:true, emailSent:true}`.
+  - Two new email templates: `review-approved-reviewer.ts` ("Your AHO
+    review is now live" + link to the agent's public profile) and
+    `review-rejected-reviewer.ts` ("Your AHO review wasn't published"
+    + moderator note when present, otherwise generic policy line).
+    Bilingual EN/ES (PL etc. narrow to EN via `narrowContentLocale`).
+  - `/api/admin/reviews/[id]` fan-out refactored: agent profile +
+    org slug fetched once, then reviewer email goes out on both
+    approve and reject; agent email still only on publish.
+- **What changed since last session:** Same calendar day, continuous
+  with continuation 7.
+- **Next session should start with:** Continuation 9 below (the
+  Hostinger-style sign-in OTP — already shipped immediately after).
+
+---
+
 ## 2026-05-10 (continuation 7) — P1 #21 admin-leads PII masking + audit log
 - **Frame:** Last QA P1 finding. /admin/leads dumped lead email + phone
   in plain text to every admin, no audit trail. The "every admin reads
