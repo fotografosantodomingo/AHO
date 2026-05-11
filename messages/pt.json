@@ -1096,6 +1096,28 @@
       "success": "A autenticação em dois fatores está ativa. Redirecionando…",
       "errorBadCode": "Esse código não confere. Tente o próximo que o app mostrar.",
       "errorGeneric": "Não foi possível iniciar a configuração de MFA. Atualize a página para tentar novamente."
+    },
+    "deviceVerification": {
+      "heading": "Confirma que és tu",
+      "subheading": "Enviámos um código de 6 dígitos para {email}. Insere-o abaixo para entrar. O código expira em {minutes} minutos.",
+      "codeAriaLabel": "Código de verificação",
+      "digitAriaLabel": "Dígito {index}",
+      "verifyCta": "Verificar e entrar",
+      "verifying": "A verificar…",
+      "didNotGetCode": "Não recebeste o código?",
+      "resendCta": "Enviar outro",
+      "resending": "A enviar…",
+      "resendIn": "Tenta novamente em {seconds}s",
+      "resendSent": "Um novo código está a caminho.",
+      "errors": {
+        "invalidCodeWithCount": "O código não coincide. Restam {remaining} tentativas.",
+        "tooManyAttempts": "Demasiadas tentativas. Inicia sessão novamente.",
+        "expired": "O código expirou. Inicia sessão novamente para obter um novo.",
+        "alreadyUsed": "Este código já foi usado. Inicia sessão novamente.",
+        "resendLimit": "Atingiste o limite de reenvios. Inicia sessão novamente.",
+        "resendCooldown": "Aguarda um momento antes de pedir outro código.",
+        "generic": "Algo correu mal. Tenta de novo."
+      }
     }
   },
   "savedSearches": {

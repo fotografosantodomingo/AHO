@@ -367,6 +367,28 @@
       "success": "Zwei-Faktor-Authentifizierung ist aktiv. Weiterleitung…",
       "errorBadCode": "Dieser Code passt nicht. Versuchen Sie den nächsten, den Ihre App zeigt.",
       "errorGeneric": "MFA-Setup konnte nicht gestartet werden. Aktualisieren Sie die Seite, um es erneut zu versuchen."
+    },
+    "deviceVerification": {
+      "heading": "Bestätige, dass du es bist",
+      "subheading": "Wir haben einen 6-stelligen Code an {email} gesendet. Gib ihn unten ein, um dich anzumelden. Der Code läuft in {minutes} Minuten ab.",
+      "codeAriaLabel": "Bestätigungscode",
+      "digitAriaLabel": "Ziffer {index}",
+      "verifyCta": "Bestätigen und anmelden",
+      "verifying": "Bestätigen…",
+      "didNotGetCode": "Keinen Code erhalten?",
+      "resendCta": "Erneut senden",
+      "resending": "Senden…",
+      "resendIn": "In {seconds}s erneut versuchen",
+      "resendSent": "Ein neuer Code ist unterwegs.",
+      "errors": {
+        "invalidCodeWithCount": "Der Code stimmt nicht. Noch {remaining} Versuche.",
+        "tooManyAttempts": "Zu viele Versuche. Bitte melde dich erneut an.",
+        "expired": "Der Code ist abgelaufen. Bitte melde dich erneut an.",
+        "alreadyUsed": "Dieser Code wurde bereits verwendet. Bitte melde dich erneut an.",
+        "resendLimit": "Limit für erneutes Senden erreicht. Bitte melde dich erneut an.",
+        "resendCooldown": "Bitte warte einen Moment, bevor du einen neuen Code anforderst.",
+        "generic": "Etwas ist schiefgelaufen. Bitte versuche es erneut."
+      }
     }
   },
   "priceTile": {

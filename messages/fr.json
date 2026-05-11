@@ -367,6 +367,28 @@
       "success": "L'authentification à deux facteurs est activée. Redirection…",
       "errorBadCode": "Ce code ne correspond pas. Essayez le suivant affiché par votre application.",
       "errorGeneric": "Impossible de démarrer la configuration MFA. Actualisez la page pour réessayer."
+    },
+    "deviceVerification": {
+      "heading": "Vérifie que c’est bien toi",
+      "subheading": "Nous avons envoyé un code à 6 chiffres à {email}. Saisis-le ci-dessous pour te connecter. Le code expire dans {minutes} minutes.",
+      "codeAriaLabel": "Code de vérification",
+      "digitAriaLabel": "Chiffre {index}",
+      "verifyCta": "Vérifier et se connecter",
+      "verifying": "Vérification…",
+      "didNotGetCode": "Tu n’as pas reçu le code ?",
+      "resendCta": "En envoyer un autre",
+      "resending": "Envoi…",
+      "resendIn": "Réessaie dans {seconds}s",
+      "resendSent": "Un nouveau code est en route.",
+      "errors": {
+        "invalidCodeWithCount": "Code incorrect. Il te reste {remaining} essais.",
+        "tooManyAttempts": "Trop de tentatives. Reconnecte-toi.",
+        "expired": "Le code a expiré. Reconnecte-toi pour en obtenir un nouveau.",
+        "alreadyUsed": "Ce code a déjà été utilisé. Reconnecte-toi.",
+        "resendLimit": "Limite de renvois atteinte. Reconnecte-toi.",
+        "resendCooldown": "Patiente un instant avant de demander un autre code.",
+        "generic": "Une erreur s’est produite. Réessaie."
+      }
     }
   },
   "priceTile": {

@@ -1059,6 +1059,28 @@
       "success": "Uwierzytelnianie dwuskładnikowe jest włączone. Przekierowuję…",
       "errorBadCode": "Ten kod nie pasuje. Spróbuj kolejny pokazany przez aplikację.",
       "errorGeneric": "Nie udało się rozpocząć konfiguracji MFA. Odśwież stronę, żeby spróbować ponownie."
+    },
+    "deviceVerification": {
+      "heading": "Potwierdź, że to Ty",
+      "subheading": "Wysłaliśmy 6-cyfrowy kod na {email}. Wpisz go poniżej, aby się zalogować. Kod wygaśnie za {minutes} minut.",
+      "codeAriaLabel": "Kod weryfikacyjny",
+      "digitAriaLabel": "Cyfra {index}",
+      "verifyCta": "Zweryfikuj i zaloguj",
+      "verifying": "Weryfikuję…",
+      "didNotGetCode": "Nie dostałeś kodu?",
+      "resendCta": "Wyślij ponownie",
+      "resending": "Wysyłam…",
+      "resendIn": "Spróbuj za {seconds}s",
+      "resendSent": "Nowy kod już jest w drodze.",
+      "errors": {
+        "invalidCodeWithCount": "Kod się nie zgadza. Pozostało prób: {remaining}.",
+        "tooManyAttempts": "Za dużo błędnych prób. Zaloguj się ponownie.",
+        "expired": "Kod wygasł. Zaloguj się ponownie, aby otrzymać nowy.",
+        "alreadyUsed": "Ten kod został już użyty. Zaloguj się ponownie.",
+        "resendLimit": "Limit ponownych wysyłek wyczerpany. Zaloguj się ponownie.",
+        "resendCooldown": "Poczekaj chwilę przed kolejną próbą.",
+        "generic": "Coś poszło nie tak. Spróbuj ponownie."
+      }
     }
   },
   "savedSearches": {

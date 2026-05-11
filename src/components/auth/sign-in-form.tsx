@@ -4,13 +4,14 @@ import { useCallback, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { SignInSchema, type SignInInput } from '@/lib/auth/schemas';
 import {
   TurnstileWidget,
   isTurnstileConfigured,
   type TurnstileWidgetHandle,
 } from './turnstile-widget';
+import { DeviceVerificationStep } from './device-verification-step';
 
 const inputClass =
   'mt-1 block w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm shadow-whisper outline-hidden focus:ring-3 focus:ring-action dark:bg-surface-deep dark:focus:ring-action-dark';
@@ -20,11 +21,32 @@ interface SignInFormProps {
   next?: string;
 }
 
+interface ChallengeState {
+  challengeId: string;
+  emailHint: string;
+  expiresInMinutes: number;
+}
+
+/**
+ * Two-screen sign-in. Screen 1 is the password form. On submit, the
+ * server validates the credential and either:
+ *   - returns 200 → trusted device path; we router.push(next)
+ *   - returns 202 with { needsVerification, challengeId } → swap the
+ *     form for the OTP step and let the user enter the code that just
+ *     hit their inbox.
+ *
+ * Visible Turnstile widget is gone (PO directive 2026-05-10), but it
+ * still renders off-screen so a token flows up — Supabase's
+ * project-level captcha enforcement is unchanged. Only sign-up + magic
+ * link still show a visible challenge.
+ */
 export function SignInForm({ next = '/' }: SignInFormProps) {
   const t = useTranslations('auth');
   const router = useRouter();
+  const locale = useLocale();
   const [serverError, setServerError] = useState<string | null>(null);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [challenge, setChallenge] = useState<ChallengeState | null>(null);
   const turnstileRequired = isTurnstileConfigured();
   const turnstileRef = useRef<TurnstileWidgetHandle | null>(null);
 
@@ -41,22 +63,24 @@ export function SignInForm({ next = '/' }: SignInFormProps) {
 
   async function onSubmit(values: SignInInput) {
     setServerError(null);
-    // POST to /api/auth/signin instead of calling Supabase directly. The
-    // route layers the email-keyed progressive lockout (5/10/20 failure
-    // tiers — see src/lib/auth/lockout.ts) on top of Supabase's own
-    // signInWithPassword call. The cookie-aware server client on the
-    // route side persists the session via Set-Cookie on the response,
-    // so a router.refresh() after success is enough to make the rest
-    // of the app see the new auth state.
     const res = await fetch('/api/auth/signin', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
         email: values.email,
         password: values.password,
+        locale,
         ...(captchaToken ? { captchaToken } : {}),
       }),
     });
+
+    if (res.status === 202) {
+      // New device or IP change → server issued an OTP challenge
+      // instead of a session. Swap to the verification step.
+      const body = (await res.json()) as ChallengeState;
+      setChallenge(body);
+      return;
+    }
 
     if (!res.ok) {
       const body = (await res.json().catch(() => null)) as
@@ -94,6 +118,22 @@ export function SignInForm({ next = '/' }: SignInFormProps) {
     }
     router.push(next);
     router.refresh();
+  }
+
+  // Render the OTP step when the server has issued a challenge. The
+  // password form is unmounted to free focus for the code input.
+  if (challenge) {
+    return (
+      <DeviceVerificationStep
+        challengeId={challenge.challengeId}
+        emailHint={challenge.emailHint}
+        expiresInMinutes={challenge.expiresInMinutes}
+        onVerified={() => {
+          router.push(next);
+          router.refresh();
+        }}
+      />
+    );
   }
 
   return (
@@ -140,11 +180,24 @@ export function SignInForm({ next = '/' }: SignInFormProps) {
         )}
       </div>
 
-      <TurnstileWidget
-        ref={turnstileRef}
-        onToken={onCaptchaToken}
-        onExpire={onCaptchaExpire}
-      />
+      {/* Turnstile is rendered off-screen (PO directive 2026-05-10:
+          drop the visible challenge in favour of the OTP-on-new-device
+          flow). The widget still mounts so a token is generated and
+          satisfies Supabase's project-level captcha; the user just
+          never sees it. If Cloudflare flags the request as risky and
+          force-renders an interactive challenge, the widget will pop
+          a managed challenge inside the off-screen container — rare,
+          and we accept that minor degradation as the safety net. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-[-9999px] top-[-9999px] h-0 w-0 overflow-hidden opacity-0"
+      >
+        <TurnstileWidget
+          ref={turnstileRef}
+          onToken={onCaptchaToken}
+          onExpire={onCaptchaExpire}
+        />
+      </div>
 
       {serverError && (
         <div

@@ -1096,6 +1096,28 @@
       "success": "Autenticazione a due fattori attiva. Reindirizzamento in corso…",
       "errorBadCode": "Quel codice non corrisponde. Prova il prossimo che mostra l'app.",
       "errorGeneric": "Impossibile avviare la configurazione MFA. Aggiorna la pagina per riprovare."
+    },
+    "deviceVerification": {
+      "heading": "Conferma che sei tu",
+      "subheading": "Abbiamo inviato un codice di 6 cifre a {email}. Inseriscilo qui sotto per accedere. Il codice scade tra {minutes} minuti.",
+      "codeAriaLabel": "Codice di verifica",
+      "digitAriaLabel": "Cifra {index}",
+      "verifyCta": "Verifica e accedi",
+      "verifying": "Verifica in corso…",
+      "didNotGetCode": "Non hai ricevuto il codice?",
+      "resendCta": "Inviane un altro",
+      "resending": "Invio…",
+      "resendIn": "Riprova tra {seconds}s",
+      "resendSent": "Un nuovo codice è in arrivo.",
+      "errors": {
+        "invalidCodeWithCount": "Il codice non corrisponde. Ti restano {remaining} tentativi.",
+        "tooManyAttempts": "Troppi tentativi. Effettua di nuovo l’accesso.",
+        "expired": "Il codice è scaduto. Effettua di nuovo l’accesso.",
+        "alreadyUsed": "Questo codice è già stato usato. Effettua di nuovo l’accesso.",
+        "resendLimit": "Hai raggiunto il limite di invii. Effettua di nuovo l’accesso.",
+        "resendCooldown": "Attendi un momento prima di richiedere un altro codice.",
+        "generic": "Qualcosa è andato storto. Riprova."
+      }
     }
   },
   "savedSearches": {

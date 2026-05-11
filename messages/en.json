@@ -1093,6 +1093,28 @@
       "success": "Two-factor authentication is on. Redirecting…",
       "errorBadCode": "That code didn't match. Try the next one your app shows.",
       "errorGeneric": "Couldn't start MFA setup. Refresh the page to try again."
+    },
+    "deviceVerification": {
+      "heading": "Verify it's you",
+      "subheading": "We sent a 6-digit code to {email}. Enter it below to sign in. The code expires in {minutes} minutes.",
+      "codeAriaLabel": "Verification code",
+      "digitAriaLabel": "Digit {index}",
+      "verifyCta": "Verify and sign in",
+      "verifying": "Verifying…",
+      "didNotGetCode": "Didn’t get the code?",
+      "resendCta": "Send another",
+      "resending": "Sending…",
+      "resendIn": "Try again in {seconds}s",
+      "resendSent": "A new code is on its way.",
+      "errors": {
+        "invalidCodeWithCount": "That code didn’t match. {remaining} attempts left.",
+        "tooManyAttempts": "Too many wrong codes. Please go back and sign in again.",
+        "expired": "This code expired. Please sign in again to get a new one.",
+        "alreadyUsed": "This code was already used. Please sign in again.",
+        "resendLimit": "You’ve hit the resend limit for this attempt. Please sign in again.",
+        "resendCooldown": "Please wait a moment before requesting another code.",
+        "generic": "Something went wrong. Please try again."
+      }
     }
   },
   "savedSearches": {
