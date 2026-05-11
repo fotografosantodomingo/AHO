@@ -180,30 +180,27 @@ export function SignInForm({ next = '/' }: SignInFormProps) {
         )}
       </div>
 
-      {/* Turnstile is positioned off-screen (PO directive 2026-05-10:
+      {/* Turnstile in `interaction-only` mode (PO directive 2026-05-10:
           drop the visible challenge in favour of the OTP-on-new-device
-          flow). The widget still mounts so a token is generated and
-          satisfies Supabase's project-level captcha; the user just
-          never sees it. If Cloudflare flags the request as risky and
-          force-renders an interactive challenge, the widget pops a
-          managed challenge inside the off-screen container — rare, and
-          we accept that minor degradation as the safety net.
-          Important: the container MUST give Turnstile room to render
-          (its iframe is ~300×65). A zero-sized container makes the
-          iframe never mount, the token never arrives, and the submit
-          button stays disabled forever. Using `left:-9999px` with
-          real dimensions keeps it off-screen visually while letting
-          the widget do its thing. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -left-[9999px] top-0 h-[80px] w-[320px]"
-      >
-        <TurnstileWidget
-          ref={turnstileRef}
-          onToken={onCaptchaToken}
-          onExpire={onCaptchaExpire}
-        />
-      </div>
+          flow). Cloudflare runs the bot check in the background and
+          only inserts a visible widget if the request looks risky.
+          For most sign-ins the user sees nothing here. The token still
+          flows to Supabase, so project-level captcha enforcement is
+          unchanged.
+          Earlier attempt used absolute off-screen positioning, which
+          (a) didn't actually hide the widget when Cloudflare forced a
+          managed challenge — it would render zero-sized and 110200 —
+          and (b) couldn't be E2E-tested headlessly because the
+          off-screen iframe failed to mount. `interaction-only` is
+          Cloudflare's official "invisible Turnstile" pattern and is
+          headless-detectable but degrades cleanly to a visible chip
+          when needed (which is the desired safety-net behaviour). */}
+      <TurnstileWidget
+        ref={turnstileRef}
+        onToken={onCaptchaToken}
+        onExpire={onCaptchaExpire}
+        appearance="interaction-only"
+      />
 
       {serverError && (
         <div

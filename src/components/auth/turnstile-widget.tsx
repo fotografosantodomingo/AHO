@@ -90,6 +90,13 @@ interface TurnstileWidgetProps {
   onExpire?: () => void;
   /** Theme — defaults to auto (matches user's system preference). */
   theme?: 'light' | 'dark' | 'auto';
+  /** Visibility mode. Default `always` matches the historical sign-up /
+   *  magic-link / contact-form behaviour (visible widget). Set
+   *  `interaction-only` for a Hostinger-style silent flow — Cloudflare
+   *  runs the check in the background and only inserts a visible
+   *  challenge if the request looks risky. PO directive 2026-05-10 for
+   *  the sign-in form. */
+  appearance?: 'always' | 'execute' | 'interaction-only';
 }
 
 export interface TurnstileWidgetHandle {
@@ -104,7 +111,7 @@ export const TurnstileWidget = forwardRef<
   TurnstileWidgetHandle,
   TurnstileWidgetProps
 >(function TurnstileWidget(
-  { onToken, onError, onExpire, theme = 'auto' },
+  { onToken, onError, onExpire, theme = 'auto', appearance = 'always' },
   ref,
 ) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -150,6 +157,7 @@ export const TurnstileWidget = forwardRef<
           },
           'expired-callback': onExpire,
           theme,
+          appearance,
         });
       })
       .catch(() => {
@@ -166,7 +174,7 @@ export const TurnstileWidget = forwardRef<
         widgetIdRef.current = null;
       }
     };
-  }, [siteKey, onToken, onError, onExpire, theme]);
+  }, [siteKey, onToken, onError, onExpire, theme, appearance]);
 
   // Site-key not configured — no-op. Form works without the challenge.
   if (!siteKey) return null;
