@@ -58,6 +58,15 @@ Live document. Update as risks materialize, are mitigated, or close. Status valu
 **Mitigation:** Spec already appends a `short_id` (6-char base62) to the slug — collisions are tolerated visually but resolved by the suffix. RLS on `short_id` uniqueness in DB. Document in `new-page` skill.
 **Owner:** dev (verify implementation matches spec §8.3)
 
+## R13 — Supabase advisor flags `public.spatial_ref_sys` (PostGIS reference table) as RLS-disabled
+**Status:** open (accepted)
+**Risk:** Supabase's security advisor flags `public.spatial_ref_sys` (8500 EPSG coordinate-reference-system rows shipped by the PostGIS extension) as CRITICAL because RLS is not enabled. PostgREST automatically exposes the table at `/rest/v1/spatial_ref_sys` to anyone holding the (public) anon key. Confirmed live: anon read returns full rows. The table contains no user data — every row is a published EPSG standard, also available at epsg.io — but the flag inflates our advisor surface and signals a posture inconsistency.
+**Cannot self-mitigate:** the table is owned by `supabase_admin`, a role we cannot `set role` into from any path we have access to. Tried: direct `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` from migration runner (42501), `set local role supabase_admin` in transaction (42501 "permission denied to set role"), Supabase Management API `/database/query` endpoint (42501 same error). Same blocker for `REVOKE` on the underlying grants — only the owner can adjust them.
+**Mitigation path:** Acknowledge the advisor warning in the Supabase dashboard. This is a documented Supabase platform-side issue affecting every project that enables PostGIS; resolution depends on Supabase shipping a one-click fix or moving the extension to its own schema. Open a Supabase support ticket if the advisor noise is blocking other audit work. Until then: there's no security exposure beyond the (already-public) EPSG dataset itself.
+**Owner:** Supabase platform (filed informally 2026-05-10; we have no path to fix from our side).
+
+---
+
 ## R11 — RLS test fixtures live in the same Supabase project as production
 **Status:** open
 **Risk:** `tests/rls/_setup.ts` creates fixture users (emails `*@aho.test`), fixture orgs (slugs `aho-test-org-*`), a fixture plan (id `aho_agent_monthly_test`, `is_visible=true`), and a fixture subscription/payment/founder-grant in whichever Supabase project the test is pointed at. Today there's only one Supabase project, so test fixtures sit alongside production data. If `/pricing` queries `plans` unfiltered, the fixture plan would appear. If admin tooling counts subscriptions, the fixture sub is included. Names are deliberately namespaced (`*@aho.test`, `aho-test-org-*`, `_test` suffix on plan ID) so collision is unlikely, but the dual-purpose DB is a bug magnet at scale.
