@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { sendEmail } from '@/lib/email/brevo';
 import { renderReviewVerificationEmail } from '@/lib/email/templates/review-verification';
 import { generateVerificationToken, REVIEW_TOKEN_TTL_MS } from '@/lib/reviews/token';
@@ -65,8 +66,15 @@ export async function POST(req: NextRequest) {
   }
   const data = parsed.data;
 
-  const supabase = await createServerSupabaseClient();
-  const { data: userResult } = await supabase.auth.getUser();
+  // Resolve caller identity from cookie session for self-review check
+  // and for stamping reviewer_user_id when signed in. The actual INSERT
+  // uses the admin client below — `INSERT ... RETURNING` evaluates SELECT
+  // RLS on the new row, and anon's only SELECT policy requires
+  // `status='published'`, so a user-context insert of a brand-new
+  // `pending_verification` row would always 42501. Same pattern as
+  // `/api/leads` per `docs/HANDOFF.md` §17.3.
+  const userClient = await createServerSupabaseClient();
+  const { data: userResult } = await userClient.auth.getUser();
   const reviewerUserId = userResult.user?.id ?? null;
 
   // Self-review check at the route layer for a clean error message; the
@@ -78,15 +86,13 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Resolve the target agent — fetch their full_name + locale + email
-  // for the verification email body. Read goes through the get_listing_
-  // contact-style anon-readable surfaces; profiles direct read isn't
-  // available to anon, so we use a tiny SECURITY-DEFINER-style approach
-  // by reading the profile row via the agent's own RLS path. Workaround:
-  // call the existing get_listing_contact RPC if a property_id was
-  // supplied (it returns agent_full_name on an active+published listing).
-  // Fallback path for property-less reviews: use a placeholder name
-  // ("the agent") in the verification email.
+  const supabase = createAdminClient();
+
+  // Resolve the target agent name for the verification email. When a
+  // property_id is supplied, the existing `get_listing_contact` RPC
+  // gives us `agent_full_name` cleanly. For agent-profile-page reviews
+  // (no property_id) we read the profile directly through the admin
+  // client. Falls back to the generic "the agent" if the row is gone.
   let agentDisplayName = 'the agent';
   if (data.property_id) {
     const { data: contact } = await supabase.rpc('get_listing_contact', {
@@ -95,6 +101,13 @@ export async function POST(req: NextRequest) {
     const row = Array.isArray(contact) ? contact[0] : contact;
     const fromContact = row?.agent_full_name as string | undefined;
     if (fromContact) agentDisplayName = fromContact;
+  } else {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('full_name')
+      .eq('id', data.agent_id)
+      .maybeSingle();
+    if (profile?.full_name) agentDisplayName = profile.full_name;
   }
 
   const { token, expiresAt } = generateVerificationToken();
