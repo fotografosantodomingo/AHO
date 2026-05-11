@@ -95,6 +95,51 @@ Newest entries on top. At the end of every working session, append a new entry h
   feature: list active devices, revoke. Migration RLS already supports
   it (auth_trusted_devices_self_select + _self_delete).
 
+### Same day — TEST AND DEBUG AND FIX pass (2 follow-up commits)
+
+After PO ran "TEST AND DEBUG AND FIX", a thorough back-end validation
++ headless-browser probe surfaced the off-screen Turnstile rendering
+bug. Tests run end-to-end against prod:
+
+| Test | Result |
+|---|---|
+| `verify-device` w/ correct code | ✓ 200, sets `aho-trusted-device` (90d) + `sb-...-auth-token` cookies; consumes challenge; inserts auth_trusted_devices row with last_ip+country |
+| `verify-device` w/ wrong code | ✓ 400 `invalid_code`, `remainingAttempts:4`; bumps attempts in DB |
+| `verify-device` w/ 5th wrong code | ✓ 410 `too_many_attempts`, marks consumed |
+| `verify-device` on expired challenge | ✓ 410 `challenge_expired` |
+| `verify-device` on consumed challenge | ✓ 410 `challenge_already_used` |
+| `resend-code` | ✓ 200, rotates code_hash, increments resend_count, returns `resendsRemaining:2` |
+| Trusted device lookup query | ✓ sha256(cookie) round-trips `\xHEX` literal correctly; row found by user_id+token_hash+expires_at |
+| **End-to-end browser sign-in (Playwright)** | ✗ Cloudflare blocks Playwright headless via Turnstile error 110200 — by design; same probe vs the existing visible-Turnstile sign-up form ALSO got 110200, confirming this is bot-detection working as intended, not our bug |
+
+**Critical bug found (commits `8bdd3ce` then `15ac31b`):** The
+off-screen Turnstile container (`h-0 w-0 overflow-hidden opacity-0`)
+made the iframe never mount → token never arrived → submit button
+stayed disabled forever → **nobody could sign in via password**.
+Production was broken from `0d43d1e` deploy at ~01:39Z until `15ac31b`
+deploy at ~02:14Z (~35 min window).
+
+**Fix path:** First attempt (`8bdd3ce`) gave the off-screen container
+real dimensions (320×80 at -9999px). Playwright probe revealed that
+even with proper dims the off-screen approach fails when Cloudflare
+forces a managed challenge (it'd render zero-vis off-screen and 110200).
+Real fix (`15ac31b`) switched to Cloudflare's official `interaction-
+only` mode — Turnstile runs in background, only renders a visible chip
+if the request is risky. Clean degradation; PO's "invisible safety
+net" requirement still met. Added `appearance` prop to TurnstileWidget
+(default `always` preserves sign-up / magic-link / contact form
+behaviour). DECISIONS entry updated with the correction.
+
+Test data cleared from prod (test user deleted, challenges + devices
+purged). Diagnostic Playwright script removed (Cloudflare bot detection
+makes it non-reusable).
+
+What still needs PO browser verification:
+1. Fresh incognito → /signin → enter creds → confirm OTP step renders + email arrives
+2. Enter code → confirm session lands + `aho-trusted-device` cookie set
+3. Sign out (Supabase cookies clear, trusted-device cookie persists) → sign in again → confirm 200 ok no OTP
+4. Switch VPN (different IP) → sign in → confirm OTP fires (per PO's strict-IP policy)
+
 ---
 
 ## 2026-05-10 (continuation 8) — Reviews flow: anon-insert RLS fix + reviewer moderation emails
