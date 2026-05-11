@@ -180,17 +180,23 @@ export function SignInForm({ next = '/' }: SignInFormProps) {
         )}
       </div>
 
-      {/* Turnstile is rendered off-screen (PO directive 2026-05-10:
+      {/* Turnstile is positioned off-screen (PO directive 2026-05-10:
           drop the visible challenge in favour of the OTP-on-new-device
           flow). The widget still mounts so a token is generated and
           satisfies Supabase's project-level captcha; the user just
           never sees it. If Cloudflare flags the request as risky and
-          force-renders an interactive challenge, the widget will pop
-          a managed challenge inside the off-screen container — rare,
-          and we accept that minor degradation as the safety net. */}
+          force-renders an interactive challenge, the widget pops a
+          managed challenge inside the off-screen container — rare, and
+          we accept that minor degradation as the safety net.
+          Important: the container MUST give Turnstile room to render
+          (its iframe is ~300×65). A zero-sized container makes the
+          iframe never mount, the token never arrives, and the submit
+          button stays disabled forever. Using `left:-9999px` with
+          real dimensions keeps it off-screen visually while letting
+          the widget do its thing. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-[-9999px] top-[-9999px] h-0 w-0 overflow-hidden opacity-0"
+        className="pointer-events-none absolute -left-[9999px] top-0 h-[80px] w-[320px]"
       >
         <TurnstileWidget
           ref={turnstileRef}
