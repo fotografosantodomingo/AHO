@@ -58,8 +58,17 @@ Live document. Update as risks materialize, are mitigated, or close. Status valu
 **Mitigation:** Spec already appends a `short_id` (6-char base62) to the slug — collisions are tolerated visually but resolved by the suffix. RLS on `short_id` uniqueness in DB. Document in `new-page` skill.
 **Owner:** dev (verify implementation matches spec §8.3)
 
+## R14 — Leaked-password protection (HaveIBeenPwned) not enabled
+**Status:** open (accepted — no upgrade)
+**Risk:** Supabase Auth can optionally check new passwords against the HaveIBeenPwned (HIBP) breach corpus on signup + password-change paths. We currently have `password_hibp_enabled = false`. Users can therefore set passwords that have already appeared in past breaches (e.g. `password123`, `qwerty12345`, leaked email/password pairs from third-party breaches). For an attacker, the practical impact is that credential-stuffing attacks land more reliably against AHO accounts than they would with HIBP active.
+**Why we're not enabling it:** Supabase gates `password_hibp_enabled` behind their Pro plan (~$25/mo). PO directive 2026-05-12: stay on Free tier, accept the gap rather than upgrade. Existing controls partially compensate: the progressive auth-failure lockout (5/10/20 thresholds, migration 0039) raises the cost of credential stuffing per email, and the new device-OTP flow (migrations 0046+0047, commit 0d43d1e) blocks first-login from a stolen credential unless the attacker also has the victim's inbox.
+**Reconsider if:** (a) we upgrade to Pro for unrelated reasons (database branches, larger compute) — flip the bit, ~1 min via Management API; (b) we see real evidence of credential-stuffing in `auth_failure_log` (sustained high-volume guesses against a single account from many IPs); (c) we move to a regulated jurisdiction where breach-corpus password checks become a compliance requirement (DR / regional financial regulation).
+**Owner:** PO (billing decision).
+
+---
+
 ## R13 — Supabase advisor flags `public.spatial_ref_sys` (PostGIS reference table) as RLS-disabled
-**Status:** open (accepted)
+**Status:** closed (accepted as permanent noise floor — 2026-05-12)
 **Risk:** Supabase's security advisor flags `public.spatial_ref_sys` (8500 EPSG coordinate-reference-system rows shipped by the PostGIS extension) as CRITICAL because RLS is not enabled. PostgREST automatically exposes the table at `/rest/v1/spatial_ref_sys` to anyone holding the (public) anon key. Confirmed live: anon read returns full rows. The table contains no user data — every row is a published EPSG standard, also available at epsg.io — but the flag inflates our advisor surface and signals a posture inconsistency.
 **Cannot self-mitigate:** the table is owned by `supabase_admin`, a role we cannot `set role` into from any path we have access to. Tried: direct `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` from migration runner (42501), `set local role supabase_admin` in transaction (42501 "permission denied to set role"), Supabase Management API `/database/query` endpoint (42501 same error). Same blocker for `REVOKE` on the underlying grants — only the owner can adjust them.
 **Mitigation path:** Originally written as "acknowledge in dashboard", but confirmed live 2026-05-12 that the Supabase Advisor UI in our project version has NO per-finding Acknowledge / Dismiss button. The available row-level actions are Resolve (links to docs), Ask Assistant (AI tutor), View policies, Learn more. Splinter (the underlying linter) reruns and re-flags on every refresh; there is no persistence layer for "user marked this as accepted." The advisor noise floor will persist until Supabase ships a platform-side fix OR adds a UI dismiss feature.
