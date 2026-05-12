@@ -12,6 +12,29 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-12 — Supabase advisor audit + baseline lock (4 migrations, 82 → 29 findings)
+- **Frame:** PO surfaced Supabase Security Advisor showing 1 CRITICAL `rls_disabled_in_public` on `public.spatial_ref_sys`. Initial response (R13) documented why we can't self-mitigate that specific row (supabase_admin ownership blocker). PO then asked for a full audit checklist: are our own tables clean, is this really zero-risk cosmetic, what else is hiding behind this one finding.
+- **What shipped (4 commits):**
+  - **`bad2433` (migration 0048)** — pin empty `search_path` on 7 mutable-search_path functions (require_sold_date_on_close, aggregate_rating_for_agent, trigger_recompute_agent_stats, protect_review_fields, gen_short_id, protect_profile_admin_fields, touch_updated_at). All owned by postgres, none SECURITY DEFINER. Smoke tests: gen_short_id still 6 chars, aggregate_rating returns sane data, touch_updated_at trigger still bumps. Cleared 7 `function_search_path_mutable` WARN findings.
+  - **`fee392d` (migrations 0049 + 0050)** — adversarial audit + grant tightening on 25 of the 33 SECURITY DEFINER functions in public. 0049 revoked direct per-role grants; 0050 revoked from PUBLIC pseudo-role (the actual root cause — PUBLIC inheritance was overriding the per-role revokes, which is why 0049 alone dropped only 14 findings instead of 28). Net: 25 functions tightened, advisor 75 → 29. Closed real risks: `get_decrypted_access_token` / `_refresh_token` (OAuth token brute-force attempt surface), `prune_auth_failures` (lockout bypass), `release_founder_rate_slot` (founder pool manipulation), `upsert_platform_token` (planting tokens on arbitrary user_id). Smoke tested live (anon→42501, admin→OK, RLS helpers still callable).
+  - **`4f735dd` (migration 0051)** — adversarial audit of the 5 SECURITY DEFINER functions we deliberately left anon-callable. 4 cleared as SAFE (is_platform_admin, get_user_org_role, can_insert_listing, verify_review_token). 1 real finding: `get_listing_contact` lacked the R11 fixture-org filter (`aho-test-org-%` / `aho-fixture-%`) that every other public surface applies. During an ephemeral RLS test run an anon caller probing property uuids could have received fixture-agent profile data. Added the filter. Live test: real property → 1 row, fixture property → 0 rows.
+- **Final advisor state — the 29-finding baseline:**
+  | Severity | Lint | Count | Status |
+  |---|---|---|---|
+  | ERROR | `rls_disabled_in_public` (spatial_ref_sys) | 1 | Platform-blocked (R13) |
+  | WARN | `extension_in_public` (citext, pg_trgm, postgis) | 3 | Platform-blocked (supabase_admin owned) |
+  | WARN | `anon_security_definer_function_executable` | 8 | 5 audited SAFE (is_platform_admin / get_user_org_role / can_insert_listing — 43 RLS refs total; get_listing_contact / verify_review_token — public APIs) + 3 PostGIS st_estimatedextent (platform-blocked) |
+  | WARN | `authenticated_security_definer_function_executable` | 12 | Same 8 as anon + 4 admin-by-design (admin_org_counts, admin_user_membership_counts, merge_anon_recent_views, sweep_stale_pending_images) |
+  | WARN | `auth_leaked_password_protection` | 1 | Real gap — HaveIBeenPwned requires Supabase Pro plan ($25/mo), PO billable decision |
+  | INFO | `rls_enabled_no_policy` | 4 | Service-role-only pattern (aho_migrations, auth_login_challenges, founder_rate_counter, stripe_events_processed) — RLS deny-all is the intended access control |
+- **HIBP dead-end:** PATCH `/v1/projects/.../config/auth` with `password_hibp_enabled: true` responded `"Configuring leaked password protection via HaveIBeenPwned.org is available on Pro Plans and up."` Free plan limit. PO action required: upgrade to Pro (~$25/mo) OR accept the gap.
+- **Dashboard dismiss dead-end:** PO opened the Advisor row and pasted the visible row-level actions: **Resolve / Ask Assistant / View policies / Learn more / Reset suggestions / Rerun linter**. **No per-finding Acknowledge or Dismiss button.** Splinter reruns and re-flags on every refresh — there is no persistence layer for "user marked this as accepted." This means the 29-finding noise floor is permanent until Supabase ships either a UI dismiss control or platform-side fixes for the supabase_admin-owned objects. R13 updated with this correction.
+- **Real security exposure after this work:** zero, with one caveat (HIBP). Every remaining finding is either (a) platform-owned by Supabase and unfixable from our side, or (b) audited and confirmed intentional. Adversarial probes all returned the expected denial / data shape.
+- **What changed since last session:** Continuation of 2026-05-10 — same calendar window, new tracks (advisor audit + reviewer-loop emails + sign-in OTP). 4 new migrations on prod: 0048, 0049, 0050, 0051.
+- **Next session should start with:** PO decision on HIBP (upgrade to Pro vs accept). If upgraded → 1 minute task: PATCH `password_hibp_enabled: true` via Management API. If accepted as-is → just close R13 from `open (accepted)` → `closed (accepted noise floor)`. Browser smoke test of the sign-in OTP flow still pending (Playwright can't pass Turnstile bot detection — only a real incognito session can confirm the full UX). For real engineering work: the v1.1+ backlog in PO_ACTIONS.md.
+
+---
+
 ## 2026-05-10 (continuation 9) — Sign-in CAPTCHA → emailed-OTP device verification (Hostinger-style)
 - **Frame:** PO directive 2026-05-10 — drop the visible Cloudflare
   Turnstile challenge on the sign-in form, replace with a polite "we
