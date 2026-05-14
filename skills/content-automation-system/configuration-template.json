@@ -1,0 +1,136 @@
+{
+  "$schema": "./configuration-template.schema.json",
+  "_comment": "Drop-in template for a new brand. All <PLACEHOLDER> values must be replaced before deploy. Items marked 'secret: true' go to `wrangler secret put`; items with 'var: true' go in wrangler.toml [vars] section.",
+
+  "brand": {
+    "name": "<BRAND_NAME>",
+    "voice_summary": "<one paragraph describing brand voice — sensory? technical? warm? professional? — fed into the Claude system prompt>",
+    "primary_language": "es",
+    "alt_language": "en",
+    "primary_keyword": "<e.g. 'organic Caribbean sparkling wine'>",
+    "site_url": "https://<brand>.com",
+    "review_email": "info@<brand>.com",
+    "review_email_from": "<Brand Name> <info@<brand>.com>"
+  },
+
+  "cloudflare": {
+    "var": true,
+    "WORKER_BASE_URL": "https://<brand>-drive-pipeline.<your-subdomain>.workers.dev",
+    "SITE_URL": "https://<brand>.com",
+    "cron_schedule": "0 19 * * *",
+    "_cron_note": "UTC. Pick a time during your owner's working hours so they can review same-day. e.g. 0 19 * * * = 3 PM AST."
+  },
+
+  "google_drive": {
+    "GOOGLE_SERVICE_ACCOUNT_JSON": {
+      "secret": true,
+      "value": "<full JSON from a GCP service account; do NOT inline in repo>"
+    },
+    "GOOGLE_DRIVE_FOLDER_ID": {
+      "secret": true,
+      "value": "<watched folder id; share the folder with the service account email>"
+    },
+    "_drive_setup_notes": [
+      "Enable Drive API at console.cloud.google.com/apis/library/drive.googleapis.com",
+      "Create a service account in IAM, no roles needed at project level",
+      "Share the Drive folder with the service account email as Viewer",
+      "If using a Workspace Shared Drive, add service account as a Member"
+    ]
+  },
+
+  "supabase": {
+    "var": true,
+    "SUPABASE_URL": "https://<project-ref>.supabase.co",
+    "SUPABASE_STORAGE_BUCKET": "blog_media",
+    "secret": {
+      "SUPABASE_SERVICE_ROLE_KEY": "<full service role key, NEVER expose to client>"
+    },
+    "schema_required": [
+      "blog_posts (with columns: id uuid, title, slug, content text, description, featured_image_url, alt_text, seo_title, seo_description, seo_keywords, reading_time, published bool, source text, auto_draft_meta jsonb)",
+      "processed_drive_files (file_id text PK, drive_modified_time timestamptz, blog_post_id uuid, status text, processed_at timestamptz)",
+      "cross_post_jobs (id uuid PK, blog_post_id uuid, platform text, status text, platform_post_id text, error_msg text, attempted_at timestamptz, UNIQUE(blog_post_id, platform))"
+    ],
+    "storage_required": "Public bucket named SUPABASE_STORAGE_BUCKET. Images uploaded under auto/<group_key>/<file_id>.<ext>"
+  },
+
+  "anthropic": {
+    "secret": true,
+    "ANTHROPIC_API_KEY": "<sk-ant-...>",
+    "var": {
+      "ANTHROPIC_MODEL": "claude-haiku-4-5-20251001"
+    },
+    "_model_notes": "Haiku 4.5 fits 700-word bilingual posts in Workers Free 30s budget. Upgrade to claude-sonnet-4-6 if Workers Paid (15-min budget). Opus 4.7 for max quality, slowest."
+  },
+
+  "email_review": {
+    "secret": {
+      "BREVO_API_KEY": "<xkeysib-...>",
+      "EMAIL_LINK_SECRET": "<openssl rand -base64 32>"
+    },
+    "var": {
+      "REVIEW_EMAIL_FROM": "<Brand Name> <info@<brand>.com>",
+      "REVIEW_EMAIL_TO": "info@<brand>.com"
+    },
+    "_setup_notes": "Verify the sender domain in Brevo dashboard before sending. EMAIL_LINK_SECRET signs the approve/reject magic links."
+  },
+
+  "social_facebook": {
+    "secret": {
+      "META_PAGE_ACCESS_TOKEN": "<permanent Page token derived from long-lived user token>",
+      "META_PAGE_ID": "<numeric FB Page id>"
+    },
+    "var": {
+      "META_ENABLED": "true"
+    },
+    "_setup_notes": [
+      "Create Meta app at developers.facebook.com → type Business",
+      "Add Use Cases: 'Manage everything on your Page'",
+      "Owner must be Page admin AND on this FB account",
+      "In Graph API Explorer: get short user token → exchange to long-lived → derive Page token via /me/accounts. Page token from a long-lived user token never expires.",
+      "Business Manager enrollment unblocks IG publishing for new accounts"
+    ]
+  },
+
+  "social_instagram": {
+    "secret": {
+      "META_IG_BUSINESS_ID": "<numeric IG Business Account id, derived from /{page-id}?fields=instagram_business_account>"
+    },
+    "var": {
+      "META_IG_ENABLED": "false"
+    },
+    "_setup_notes": [
+      "IG must be Business or Creator account type, linked to the FB Page",
+      "Add Use Case: 'Manage messaging & content on Instagram'",
+      "Permissions needed: instagram_basic, instagram_content_publish",
+      "Start with META_IG_ENABLED=false. After first post via API, monitor results.",
+      "QUIRK: Meta returns 'transient' error on publish even when it succeeds. The Worker handles this by checking recent media post-publish. Without this, you get duplicate posts."
+    ]
+  },
+
+  "social_linkedin": {
+    "secret": {
+      "LINKEDIN_CLIENT_ID": "<from developer.linkedin.com/apps>",
+      "LINKEDIN_CLIENT_SECRET": "<from developer.linkedin.com/apps>",
+      "LINKEDIN_ACCESS_TOKEN": "<60-day token from OAuth flow via /auth/linkedin/start>",
+      "LINKEDIN_AUTHOR_URN": "<urn:li:person:XXX for personal OR urn:li:organization:YYY for Company Page (MDP-approved only)>"
+    },
+    "var": {
+      "LINKEDIN_ENABLED": "false"
+    },
+    "_setup_notes": [
+      "Create LinkedIn app at developer.linkedin.com/apps/new",
+      "Add Products: 'Sign In with LinkedIn using OpenID Connect' + 'Share on LinkedIn'",
+      "Add Redirect URL: <WORKER_BASE_URL>/auth/linkedin/callback",
+      "Personal profile posting (w_member_social) works immediately, no review needed",
+      "Company Page posting requires Marketing Developer Platform approval (1-4 weeks, can be rejected)",
+      "Token lasts ~60 days. Set calendar reminder to re-OAuth before expiry."
+    ]
+  },
+
+  "feature_flags_summary": {
+    "_explanation": "Each platform can be independently flipped. Useful when one is blocked or in cooling-off period.",
+    "META_ENABLED": "true (covers FB)",
+    "META_IG_ENABLED": "false (true only after first successful test, since new IG accounts may have hidden cooling-off)",
+    "LINKEDIN_ENABLED": "false (true only after OAuth completes and access token is in secrets)"
+  }
+}
