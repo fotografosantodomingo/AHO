@@ -20,10 +20,27 @@ interface Props {
   locale: string;
 }
 
+// Sample audience CSV. 15 realistic-looking rows across AHO's anchor
+// market (DR) + LATAM + EU + NA. Emails on @example.com per RFC 2606
+// — a reserved placeholder domain that cannot deliver, so no real
+// inbox is ever hit if the template gets accidentally uploaded as-is.
+// Kept in sync with docs/email-contacts-template.csv.
 const TEMPLATE_CSV = `name,country,email
-Maria Lopez,DO,maria.lopez@example.com
-John Smith,US,john.smith@example.com
-Anna Müller,DE,anna.mueller@example.com
+María Pérez Sosa,DO,maria.perez@example.com
+Juan Carlos Mejía,DO,juan.mejia@example.com
+Ana Polanco,DO,ana.polanco@example.com
+Roberto Fernández Cruz,DO,roberto.fernandez@example.com
+Patricia Rodríguez,DO,patricia.rodriguez@example.com
+Luis Hernández Soto,MX,luis.hernandez@example.com
+Sofía Ramírez Castro,MX,sofia.ramirez@example.com
+Andrés Gómez Lugo,CO,andres.gomez@example.com
+Valentina Restrepo,CO,valentina.restrepo@example.com
+Diego Martínez Ruiz,AR,diego.martinez@example.com
+Carmen García López,ES,carmen.garcia@example.com
+Francesco Romano,IT,francesco.romano@example.com
+Jürgen Hoffmann,DE,juergen.hoffmann@example.com
+Małgorzata Wiśniewska,PL,malgorzata.wisniewska@example.com
+Sarah O'Connor,US,sarah.oconnor@example.com
 `;
 
 /**
