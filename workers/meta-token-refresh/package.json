@@ -1,0 +1,18 @@
+{
+  "name": "aho-meta-token-refresh",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AHO scheduled worker — daily proxy to /api/cron/meta-token-refresh on the Pages app. Keeps connected agents' Meta long-lived user tokens fresh within 7 days of expiry. See ../../docs/SOCIAL_AUTOMATION_PLAN.md Phase G.",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "deploy:dry-run": "wrangler deploy --dry-run",
+    "dev": "wrangler dev",
+    "trigger": "wrangler dev --test-scheduled",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240620.0",
+    "typescript": "^5.5.4",
+    "wrangler": "^4.88.0"
+  }
+}

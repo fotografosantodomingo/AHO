@@ -1,0 +1,35 @@
+name = "aho-meta-token-refresh"
+main = "src/index.ts"
+compatibility_date = "2025-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Cron Trigger — runs once a day at 04:00 UTC.
+# Coverage: 00:00 ET / 23:00 PT (prev day) / 06:00 Madrid / 07:00 Warsaw.
+# Off-hours globally — minimises overlap with /api/cron/meta-insights
+# (which runs at 05:00 UTC in the future once scheduled) so the Pages
+# worker isn't doing two cron calls back-to-back.
+#
+# Why daily: Meta long-lived user-access tokens expire at ~60 days. The
+# Pages route at /api/cron/meta-token-refresh refreshes any token within
+# 7 days of expiry. Daily cadence gives 7 retries before a token would
+# actually expire — ample buffer against a single failed run.
+#
+# IMPORTANT: per CLAUDE.md hard rule #9, the first live run calls the
+# Meta /oauth/access_token endpoint for every connected agent. That's
+# free + idempotent, but it does shift each token's expiry forward —
+# don't deploy this Worker until at least one production user has
+# connected Facebook through the OAuth flow. Until then there's nothing
+# eligible to refresh and the run is a no-op (returns `scanned: 0`).
+[triggers]
+crons = ["0 4 * * *"]
+
+# Secrets — set via `wrangler secret put` per environment, never
+# committed:
+#   - CRON_SECRET    (matches the Pages env CRON_SECRET; the Pages route
+#                     validates the Authorization: Bearer ${CRON_SECRET}
+#                     header via the shared checkCronAuth helper)
+[vars]
+LOG_LEVEL = "info"
+# Pages deployment URL the Worker calls. Override per-environment with
+# `wrangler vars set AHO_PAGES_URL=...` if needed (e.g. staging).
+AHO_PAGES_URL = "https://advertisehomes.online"
