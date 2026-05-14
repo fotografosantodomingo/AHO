@@ -1179,14 +1179,26 @@
     },
     "upgradeCta": "Upgrade to Pro Automation",
     "upgradeNote": "$99/month or $990/year",
-    "unlockedEyebrow": "Pro Automation — your plan",
-    "unlockedHeading": "Social automation, coming online soon",
-    "unlockedBody": "You're on Pro Automation. We're rolling out the connect-and-publish flow in stages — you'll see new sections appear here as each phase ships.",
-    "rollout": {
-      "rolloutOauth": "Connect Facebook / Instagram / LinkedIn accounts (Phase 4)",
-      "rolloutPreview": "Preview AI-generated posts before publishing (Phase 5)",
-      "rolloutPosting": "Async posting with retry + token refresh (Phase 6)",
-      "rolloutHistory": "Post history with external links + status (Phase 7)"
+    "share": {
+      "heading": "Share to my socials",
+      "body": "Publish this listing to your connected Facebook Pages and Instagram Business accounts in one click.",
+      "willPost": "{count, plural, =1 {Will post to 1 account} other {Will post to # accounts}}.",
+      "shareNow": "Share now",
+      "posting": "Posting…",
+      "retryFailed": "Retry failed",
+      "emptyHeading": "Connect Facebook to publish",
+      "emptyBody": "You haven't connected any social accounts yet. Connect Facebook to publish your listings on your Pages and linked Instagram Business accounts.",
+      "connectFirst": "Connect Facebook",
+      "draftNotice": "This listing isn't published yet. Publish it first to share.",
+      "outcome": {
+        "succeeded": "Posted",
+        "failed": "Failed",
+        "skipped": "Skipped"
+      },
+      "viewPost": "View post",
+      "errorPrefix": "Reason",
+      "unexpectedError": "Unexpected error",
+      "serverErrorCode": "Server error: {code}"
     }
   },
   "analytics": {

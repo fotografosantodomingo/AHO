@@ -15,7 +15,7 @@ import {
   isOrgOnProAutomation,
 } from '@/lib/billing/plan-gating';
 import { LockedSocialModule } from '@/components/social/locked-social-module';
-import { UnlockedSocialPlaceholder } from '@/components/social/unlocked-social-placeholder';
+import { ShareToSocials, type ConnectedAccount, type SharePlatform } from '@/components/listings/share-to-socials';
 
 export const runtime = 'edge';
 
@@ -52,6 +52,42 @@ export default async function EditListingPage({
   const proUnlocked = planCtx
     ? await isOrgOnProAutomation(supabase, planCtx.orgId)
     : false;
+
+  // Pro Automation users — fetch their connected social accounts now so
+  // the <ShareToSocials> component renders the right state (empty vs
+  // pre-flight list) on first paint. RLS allows the owner to read their
+  // own `ad_platform_tokens` rows.
+  const connectedAccounts: ConnectedAccount[] = [];
+  if (proUnlocked) {
+    const { data: tokens } = await supabase
+      .from('ad_platform_tokens')
+      .select('platform, external_account_id, display_name')
+      .is('revoked_at', null);
+    for (const t of tokens ?? []) {
+      if (t.platform === 'meta') {
+        if (t.external_account_id.startsWith('page:')) {
+          connectedAccounts.push({
+            platform: 'facebook',
+            externalAccountId: t.external_account_id,
+            displayName: t.display_name,
+          });
+        } else if (t.external_account_id.startsWith('ig:')) {
+          connectedAccounts.push({
+            platform: 'instagram',
+            externalAccountId: t.external_account_id,
+            displayName: t.display_name,
+          });
+        }
+        // Skip the user-level meta token row — it's not a publish target.
+      } else if (t.platform === 'linkedin') {
+        connectedAccounts.push({
+          platform: 'linkedin' as SharePlatform,
+          externalAccountId: t.external_account_id,
+          displayName: t.display_name,
+        });
+      }
+    }
+  }
 
   const title =
     (typedLocale === 'es' ? listing.title_es : listing.title_en) ??
@@ -156,13 +192,18 @@ export default async function EditListingPage({
         initialCount={listing.image_count}
       />
 
-      {/* Social Media Automation module — visible to all paid agents,
-          interactive only on Pro Automation. Lower tiers see the
-          locked upsell + "Upgrade to Pro Automation" CTA. Phase F of
-          docs/SOCIAL_AUTOMATION_PLAN.md replaces this with the real
-          "Share to my socials" surface. */}
+      {/* Social Media Automation — visible to all paid agents, interactive
+          only on Pro Automation. Lower tiers see the locked upsell + the
+          "Upgrade to Pro Automation" CTA. Pro Automation orgs see the
+          real one-click share surface (Phase F of
+          docs/SOCIAL_AUTOMATION_PLAN.md). */}
       {proUnlocked ? (
-        <UnlockedSocialPlaceholder locale={typedLocale} />
+        <ShareToSocials
+          propertyId={listing.id}
+          locale={typedLocale}
+          connectedAccounts={connectedAccounts}
+          isPublished={listing.status === 'active' && !!listing.published_at}
+        />
       ) : (
         <LockedSocialModule locale={typedLocale} size="compact" />
       )}

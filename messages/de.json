@@ -1484,16 +1484,7 @@
       "featHistory": "Post-Historie + Retry bei Fehlschlag"
     },
     "upgradeCta": "Auf Pro Automation upgraden",
-    "upgradeNote": "$99/Monat oder $990/Jahr",
-    "unlockedEyebrow": "Pro Automation — Ihr Tarif",
-    "unlockedHeading": "Social-Automatisierung kommt bald online",
-    "unlockedBody": "Sie sind im Pro-Automation-Tarif. Wir rollen den Verbinden-und-Veröffentlichen-Flow stufenweise aus — neue Bereiche erscheinen hier, sobald jede Phase ausgeliefert ist.",
-    "rollout": {
-      "rolloutOauth": "Facebook- / Instagram- / LinkedIn-Konten verbinden (Phase 4)",
-      "rolloutPreview": "Vorschau KI-generierter Posts vor Veröffentlichung (Phase 5)",
-      "rolloutPosting": "Asynchrones Posting mit Retry + Token-Erneuerung (Phase 6)",
-      "rolloutHistory": "Post-Historie mit externen Links + Status (Phase 7)"
-    }
+    "upgradeNote": "$99/Monat oder $990/Jahr"
   },
   "analytics": {
     "heading": "Performance",

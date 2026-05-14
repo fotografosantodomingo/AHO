@@ -1181,16 +1181,7 @@
       "featHistory": "Storico pubblicazioni + retry in caso di errore"
     },
     "upgradeCta": "Passa a Pro Automation",
-    "upgradeNote": "99 $/mese o 990 $/anno",
-    "unlockedEyebrow": "Pro Automation — il tuo piano",
-    "unlockedHeading": "Automazione social, in arrivo",
-    "unlockedBody": "Sei su Pro Automation. Stiamo rilasciando il flusso connetti-e-pubblica per fasi — vedrai apparire qui nuove sezioni man mano che ogni fase viene rilasciata.",
-    "rollout": {
-      "rolloutOauth": "Collega gli account Facebook / Instagram / LinkedIn (Fase 4)",
-      "rolloutPreview": "Anteprima dei post generati dall'IA prima della pubblicazione (Fase 5)",
-      "rolloutPosting": "Pubblicazione asincrona con retry + refresh del token (Fase 6)",
-      "rolloutHistory": "Storico pubblicazioni con link esterni + stato (Fase 7)"
-    }
+    "upgradeNote": "99 $/mese o 990 $/anno"
   },
   "analytics": {
     "heading": "Performance",

@@ -1179,14 +1179,26 @@
     },
     "upgradeCta": "Actualizar a Pro Automation",
     "upgradeNote": "$99/mes o $990/año",
-    "unlockedEyebrow": "Pro Automation — tu plan",
-    "unlockedHeading": "Automatización social, llegando pronto",
-    "unlockedBody": "Estás en Pro Automation. Estamos desplegando el flujo de conectar y publicar por fases — verás nuevas secciones aparecer aquí conforme cada fase se publique.",
-    "rollout": {
-      "rolloutOauth": "Conectar cuentas de Facebook / Instagram / LinkedIn (Fase 4)",
-      "rolloutPreview": "Previsualizar publicaciones generadas por IA antes de publicar (Fase 5)",
-      "rolloutPosting": "Publicación asíncrona con reintento + renovación de tokens (Fase 6)",
-      "rolloutHistory": "Historial de publicaciones con enlaces externos + estado (Fase 7)"
+    "share": {
+      "heading": "Comparte en tus redes",
+      "body": "Publica esta propiedad en tus Páginas de Facebook y cuentas de Instagram Business conectadas con un clic.",
+      "willPost": "{count, plural, =1 {Se publicará en 1 cuenta} other {Se publicará en # cuentas}}.",
+      "shareNow": "Publicar ahora",
+      "posting": "Publicando…",
+      "retryFailed": "Reintentar fallidos",
+      "emptyHeading": "Conecta Facebook para publicar",
+      "emptyBody": "Aún no has conectado ninguna cuenta social. Conecta Facebook para publicar tus listados en tus Páginas y cuentas vinculadas de Instagram Business.",
+      "connectFirst": "Conectar Facebook",
+      "draftNotice": "Esta propiedad aún no está publicada. Publícala primero para poder compartir.",
+      "outcome": {
+        "succeeded": "Publicado",
+        "failed": "Falló",
+        "skipped": "Omitido"
+      },
+      "viewPost": "Ver publicación",
+      "errorPrefix": "Motivo",
+      "unexpectedError": "Error inesperado",
+      "serverErrorCode": "Error del servidor: {code}"
     }
   },
   "analytics": {

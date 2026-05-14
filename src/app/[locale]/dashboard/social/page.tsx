@@ -6,7 +6,6 @@ import {
   isOrgOnProAutomation,
 } from '@/lib/billing/plan-gating';
 import { LockedSocialModule } from '@/components/social/locked-social-module';
-import { UnlockedSocialPlaceholder } from '@/components/social/unlocked-social-placeholder';
 import { ConnectMetaSection } from '@/components/social/connect-meta-section';
 
 export const runtime = 'edge';
@@ -89,10 +88,7 @@ export default async function SocialDashboardPage({
       </header>
 
       {unlocked ? (
-        <>
-          <ConnectMetaSection locale={typedLocale} flash={flash} />
-          <UnlockedSocialPlaceholder locale={typedLocale} />
-        </>
+        <ConnectMetaSection locale={typedLocale} flash={flash} />
       ) : (
         <LockedSocialModule locale={typedLocale} size="full" />
       )}
