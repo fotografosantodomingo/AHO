@@ -1204,7 +1204,19 @@
       "copyErrorCopied": "Copied",
       "emailSupport": "Email support",
       "mailtoSubject": "AHO share failed — {ref}",
-      "mailtoBody": "Hi AHO support,\n\nMy Share-to-socials failed.\nError reference: {ref}\nPlatform: {platform}\nAccount: {account}\nListing: {listingUrl}\n\nPlease help. Thanks."
+      "mailtoBody": "Hi AHO support,\n\nMy Share-to-socials failed.\nError reference: {ref}\nPlatform: {platform}\nAccount: {account}\nListing: {listingUrl}\n\nPlease help. Thanks.",
+      "generateDraft": "Generate AI draft",
+      "regenerateDraft": "Regenerate AI draft",
+      "generating": "Generating…",
+      "reviewBeforeShare": "Review and edit each draft before sharing. Empty drafts use the default template.",
+      "resetDraft": "Reset to AI draft",
+      "useTemplate": "Use template instead",
+      "aiUnavailable": "AI draft unavailable — you can share with the default template or try again in a moment.",
+      "platformDraftLabel": {
+        "facebook": "Facebook draft",
+        "instagram": "Instagram draft",
+        "linkedin": "LinkedIn draft"
+      }
     }
   },
   "analytics": {

@@ -63,6 +63,35 @@ const PLATFORM_EMOJI: Record<SharePlatform, string> = {
   linkedin: '💼',
 };
 
+/** Drafter response from /api/social/ai-draft. */
+interface DraftResponse {
+  ok: boolean;
+  drafts: {
+    facebook?: { message: string };
+    instagram?: { caption: string };
+    linkedin?: {
+      commentary: string;
+      contentTitle: string;
+      contentDescription: string;
+    };
+  };
+  aiErrorCode?: string;
+}
+
+/** Distinct set of platforms across the agent's connected accounts.
+ *  (One agent might have 2 FB Pages but only one "facebook" draft.) */
+function distinctPlatforms(accounts: ConnectedAccount[]): SharePlatform[] {
+  return Array.from(new Set(accounts.map((a) => a.platform)));
+}
+
+/** Soft caps mirroring src/lib/social/post-formatter.ts. Surfaced in the
+ *  UI as character counters. */
+const PLATFORM_CAPS: Record<SharePlatform, number> = {
+  facebook: 4000,
+  instagram: 2000,
+  linkedin: 2800,
+};
+
 export function ShareToSocials({
   propertyId,
   locale,
@@ -74,10 +103,106 @@ export function ShareToSocials({
   const [attempts, setAttempts] = useState<AttemptOutcome[] | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
 
+  // Phase J — AI draft editor state.
+  const [drafting, setDrafting] = useState(false);
+  const [drafts, setDrafts] = useState<DraftResponse['drafts'] | null>(null);
+  const [edits, setEdits] = useState<Partial<Record<SharePlatform, string>>>({});
+  const [aiUnavailable, setAiUnavailable] = useState(false);
+
+  const platformsInScope = distinctPlatforms(connectedAccounts);
+
+  async function generateDrafts() {
+    setDrafting(true);
+    setAiUnavailable(false);
+    setServerError(null);
+    try {
+      const res = await fetch('/api/social/ai-draft', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          propertyId,
+          locale,
+          platforms: platformsInScope,
+        }),
+      });
+      const json = (await res.json()) as DraftResponse | {
+        ok: false;
+        errorCode: string;
+      };
+      if (!res.ok) {
+        // Hard 4xx/5xx: the AI route itself failed (auth, plan, listing
+        // not published, etc). Surface as a top-level server error.
+        const code = 'errorCode' in json ? json.errorCode : `http_${res.status}`;
+        setServerError(t('serverErrorCode', { code }));
+        return;
+      }
+      const dr = json as DraftResponse;
+      if (!dr.ok || !dr.drafts || Object.keys(dr.drafts).length === 0) {
+        // Soft failure: Anthropic timed out, rate-limited, refused, etc.
+        // We show a small inline note and let the agent share with the
+        // deterministic template (no overrides) — flow is never blocked.
+        setAiUnavailable(true);
+        return;
+      }
+      setDrafts(dr.drafts);
+      // Seed the editor with the AI's text so the agent can edit in-place.
+      const seeded: Partial<Record<SharePlatform, string>> = {};
+      if (dr.drafts.facebook) seeded.facebook = dr.drafts.facebook.message;
+      if (dr.drafts.instagram) seeded.instagram = dr.drafts.instagram.caption;
+      if (dr.drafts.linkedin) seeded.linkedin = dr.drafts.linkedin.commentary;
+      setEdits(seeded);
+    } catch (err) {
+      setServerError(err instanceof Error ? err.message : t('unexpectedError'));
+    } finally {
+      setDrafting(false);
+    }
+  }
+
+  function resetDraft(platform: SharePlatform) {
+    if (!drafts) return;
+    const original =
+      platform === 'facebook'
+        ? drafts.facebook?.message
+        : platform === 'instagram'
+          ? drafts.instagram?.caption
+          : platform === 'linkedin'
+            ? drafts.linkedin?.commentary
+            : undefined;
+    if (original != null) setEdits((e) => ({ ...e, [platform]: original }));
+  }
+
+  function clearDraft(platform: SharePlatform) {
+    setEdits((e) => {
+      const next = { ...e };
+      delete next[platform];
+      return next;
+    });
+  }
+
   async function submit(platformsToInclude?: SharePlatform[]) {
     setPosting(true);
     setServerError(null);
     try {
+      // Build per-platform overrides from the non-empty edits. A
+      // platform with no edit (or empty string after the agent cleared
+      // it) submits without override → server uses the deterministic
+      // formatter.
+      const overrides: {
+        facebook?: { message: string };
+        instagram?: { caption: string };
+        linkedin?: { commentary: string };
+      } = {};
+      if (edits.facebook && edits.facebook.trim().length > 0) {
+        overrides.facebook = { message: edits.facebook };
+      }
+      if (edits.instagram && edits.instagram.trim().length > 0) {
+        overrides.instagram = { caption: edits.instagram };
+      }
+      if (edits.linkedin && edits.linkedin.trim().length > 0) {
+        overrides.linkedin = { commentary: edits.linkedin };
+      }
+      const hasOverrides = Object.keys(overrides).length > 0;
+
       const res = await fetch('/api/social/post', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -85,6 +210,7 @@ export function ShareToSocials({
           propertyId,
           locale,
           ...(platformsToInclude ? { platforms: platformsToInclude } : {}),
+          ...(hasOverrides ? { overrides } : {}),
         }),
       });
       const json = (await res.json()) as
@@ -164,14 +290,28 @@ export function ShareToSocials({
           </p>
         </div>
         {isPublished ? (
-          <button
-            type="button"
-            onClick={() => submit()}
-            disabled={posting}
-            className="btn-primary inline-flex h-10 shrink-0 items-center px-5 disabled:opacity-50"
-          >
-            {posting ? t('posting') : t('shareNow')}
-          </button>
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={generateDrafts}
+              disabled={drafting || posting}
+              className="inline-flex h-10 items-center rounded-lg border border-border-strong bg-surface px-4 text-sm transition hover:bg-black/5 disabled:opacity-50 dark:bg-surface-deep dark:hover:bg-white/5"
+            >
+              {drafting
+                ? t('generating')
+                : drafts
+                  ? t('regenerateDraft')
+                  : t('generateDraft')}
+            </button>
+            <button
+              type="button"
+              onClick={() => submit()}
+              disabled={posting || drafting}
+              className="btn-primary inline-flex h-10 items-center px-5 disabled:opacity-50"
+            >
+              {posting ? t('posting') : t('shareNow')}
+            </button>
+          </div>
         ) : null}
       </header>
 
@@ -196,6 +336,88 @@ export function ShareToSocials({
           className="mt-4 rounded-card border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm text-amber-800 dark:text-amber-200"
         >
           {t('draftNotice')}
+        </p>
+      )}
+
+      {/* Phase J — AI draft editor. Shows only after Generate is
+          clicked; textareas pre-fill with AI text, agent edits in place,
+          Share now submits the edited text as `overrides`. */}
+      {drafts && (
+        <div className="mt-5 space-y-3">
+          <p className="text-xs text-helper">{t('reviewBeforeShare')}</p>
+          {platformsInScope.map((platform) => {
+            if (
+              (platform === 'facebook' && !drafts.facebook) ||
+              (platform === 'instagram' && !drafts.instagram) ||
+              (platform === 'linkedin' && !drafts.linkedin)
+            ) {
+              return null;
+            }
+            const value = edits[platform] ?? '';
+            const cap = PLATFORM_CAPS[platform];
+            return (
+              <div
+                key={platform}
+                className="rounded-card border border-border bg-surface-muted/40 p-3 dark:border-border-strong/40 dark:bg-surface-dark/40"
+              >
+                <div className="mb-1.5 flex items-center justify-between gap-2">
+                  <span className="text-xs font-semibold text-ink dark:text-ink-inverse">
+                    {PLATFORM_EMOJI[platform]}{' '}
+                    {platform === 'facebook'
+                      ? 'Facebook'
+                      : platform === 'instagram'
+                        ? 'Instagram'
+                        : 'LinkedIn'}
+                  </span>
+                  <span
+                    className={
+                      value.length > cap
+                        ? 'text-xs font-mono text-red-700 dark:text-red-300'
+                        : 'text-xs font-mono text-helper'
+                    }
+                  >
+                    {value.length}/{cap}
+                  </span>
+                </div>
+                <textarea
+                  value={value}
+                  onChange={(e) =>
+                    setEdits((prev) => ({ ...prev, [platform]: e.target.value }))
+                  }
+                  rows={platform === 'instagram' ? 8 : 6}
+                  className="w-full resize-y rounded-md border border-border bg-surface px-3 py-2 font-mono text-[13px] leading-relaxed shadow-whisper outline-hidden focus:ring-3 focus:ring-action dark:bg-surface-deep dark:focus:ring-action-dark"
+                  aria-label={t(
+                    `platformDraftLabel.${platform}` as 'platformDraftLabel.facebook',
+                  )}
+                />
+                <div className="mt-1.5 flex flex-wrap gap-3 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => resetDraft(platform)}
+                    className="text-helper underline-offset-2 hover:underline"
+                  >
+                    {t('resetDraft')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => clearDraft(platform)}
+                    className="text-helper underline-offset-2 hover:underline"
+                  >
+                    {t('useTemplate')}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {aiUnavailable && (
+        <p
+          role="status"
+          className="mt-4 rounded-card border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm text-amber-800 dark:text-amber-200"
+        >
+          {t('aiUnavailable')}
         </p>
       )}
 

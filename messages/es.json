@@ -1204,7 +1204,19 @@
       "copyErrorCopied": "Copiado",
       "emailSupport": "Escribir a soporte",
       "mailtoSubject": "Falló compartir en AHO — {ref}",
-      "mailtoBody": "Hola soporte de AHO,\n\nMi acción de Compartir en redes falló.\nReferencia de error: {ref}\nPlataforma: {platform}\nCuenta: {account}\nListado: {listingUrl}\n\nPor favor ayúdenme. Gracias."
+      "mailtoBody": "Hola soporte de AHO,\n\nMi acción de Compartir en redes falló.\nReferencia de error: {ref}\nPlataforma: {platform}\nCuenta: {account}\nListado: {listingUrl}\n\nPor favor ayúdenme. Gracias.",
+      "generateDraft": "Generar borrador IA",
+      "regenerateDraft": "Regenerar borrador IA",
+      "generating": "Generando…",
+      "reviewBeforeShare": "Revisa y edita cada borrador antes de compartir. Los campos vacíos usan la plantilla predeterminada.",
+      "resetDraft": "Volver al borrador IA",
+      "useTemplate": "Usar plantilla",
+      "aiUnavailable": "Borrador IA no disponible — puedes compartir con la plantilla predeterminada o intentarlo en un momento.",
+      "platformDraftLabel": {
+        "facebook": "Borrador de Facebook",
+        "instagram": "Borrador de Instagram",
+        "linkedin": "Borrador de LinkedIn"
+      }
     }
   },
   "analytics": {
