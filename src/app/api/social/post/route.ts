@@ -15,6 +15,7 @@ import {
   pickFacebookPost,
   pickInstagramPost,
   pickLinkedInPost,
+  IG_CAROUSEL_MAX,
   type PostInput,
 } from '@/lib/social/post-formatter';
 import {
@@ -228,21 +229,32 @@ export async function POST(req: NextRequest) {
   );
   const url = `${publicEnv().NEXT_PUBLIC_SITE_URL}${propertyStem}/${slug}-${property.short_id}`;
 
-  // -------- Resolve primary image URL --------
-  const { data: imgRow } = await supabase
+  // -------- Resolve images, sorted primary-first --------
+  // For FB + LinkedIn we use index 0 as the hero. For IG we use the
+  // whole array — 1 photo = standard publish, 2-10 = carousel.
+  // Clamp to IG_CAROUSEL_MAX at the DB query (defense-in-depth + the
+  // formatter re-clamps).
+  const { data: imgRows } = await supabase
     .from('property_images')
-    .select('cf_image_id, r2_key')
+    .select('cf_image_id, r2_key, is_primary, position')
     .eq('property_id', property.id)
-    .eq('is_primary', true)
     .eq('upload_status', 'confirmed')
-    .maybeSingle();
-  const imageUrl = imgRow
-    ? buildImageUrl({
-        cfImageId: imgRow.cf_image_id,
-        r2Key: imgRow.r2_key,
+    // Primary first (boolean true sorts after false ascending), then
+    // ascending position. We use a two-step order to guarantee the
+    // is_primary photo lands at index 0 even if its position is not
+    // 0 in the DB.
+    .order('is_primary', { ascending: false })
+    .order('position', { ascending: true })
+    .limit(IG_CAROUSEL_MAX);
+  const imageUrls = (imgRows ?? [])
+    .map((r) =>
+      buildImageUrl({
+        cfImageId: r.cf_image_id,
+        r2Key: r.r2_key,
         variant: 'public',
-      })
-    : null;
+      }),
+    )
+    .filter((u): u is string => !!u);
 
   const postInput: PostInput = {
     title,
@@ -254,7 +266,7 @@ export async function POST(req: NextRequest) {
     bathrooms: property.bathrooms != null ? Number(property.bathrooms) : null,
     areaSqm: property.area_sqm != null ? Number(property.area_sqm) : null,
     url,
-    ...(imageUrl ? { imageUrl } : {}),
+    ...(imageUrls.length > 0 ? { imageUrls } : {}),
     locale: contentLocale,
   };
 
@@ -434,11 +446,11 @@ export async function POST(req: NextRequest) {
             post: pickFacebookPost(postInput, body.overrides?.facebook),
           });
         } else if (t.platform === 'instagram') {
-          if (!postInput.imageUrl) {
+          if (!postInput.imageUrls || postInput.imageUrls.length === 0) {
             result = {
               ok: false,
               errorCode: 'image_required',
-              errorMessage: 'Listing has no primary image — IG publish skipped',
+              errorMessage: 'Listing has no confirmed images — IG publish skipped',
             };
           } else {
             const igId = t.externalAccountId.slice('ig:'.length);

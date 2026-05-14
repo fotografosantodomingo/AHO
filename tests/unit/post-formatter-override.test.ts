@@ -29,7 +29,7 @@ const BASE: PostInput = {
   bathrooms: 2,
   areaSqm: 95,
   url: 'https://advertisehomes.online/en/properties/modern-2br-loft-cQF9BN',
-  imageUrl: 'https://imagedelivery.net/abc/img-id/og',
+  imageUrls: ['https://imagedelivery.net/abc/img-id/og'],
   locale: 'en',
 };
 
@@ -53,12 +53,13 @@ describe('post-formatter · pickFacebookPost', () => {
     expect(out.link).toBe(
       'https://advertisehomes.online/en/properties/modern-2br-loft-cQF9BN?utm_source=facebook&utm_medium=social&utm_campaign=agent_share',
     );
-    expect(out.imageUrl).toBe(BASE.imageUrl);
+    // FB still uses a single hero imageUrl (no FB carousel via Graph API).
+    expect(out.imageUrl).toBe(BASE.imageUrls?.[0]);
   });
 
   it('override + no imageUrl → output omits imageUrl', () => {
     const out = pickFacebookPost(
-      { ...BASE, imageUrl: undefined },
+      { ...BASE, imageUrls: undefined },
       { message: 'text only' },
     );
     expect(out.message).toBe('text only');
@@ -71,7 +72,7 @@ describe('post-formatter · pickInstagramPost', () => {
     const out = pickInstagramPost(BASE);
     expect(out.caption).toContain('Modern 2BR loft near Zona Colonial');
     expect(out.caption).toContain('Link in bio');
-    expect(out.imageUrl).toBe(BASE.imageUrl);
+    expect(out.imageUrls).toEqual(BASE.imageUrls);
   });
 
   it('override → agent caption replaces formatter; imageUrl preserved', () => {
@@ -79,20 +80,20 @@ describe('post-formatter · pickInstagramPost', () => {
       caption: "Custom IG caption ✨\nLink in bio",
     });
     expect(out.caption).toBe("Custom IG caption ✨\nLink in bio");
-    expect(out.imageUrl).toBe(BASE.imageUrl);
+    expect(out.imageUrls).toEqual(BASE.imageUrls);
   });
 
   it('override CANNOT bypass IG image requirement — throws MissingImageError', () => {
     expect(() =>
       pickInstagramPost(
-        { ...BASE, imageUrl: undefined },
+        { ...BASE, imageUrls: undefined },
         { caption: 'agent text' },
       ),
     ).toThrow(MissingImageError);
   });
 
   it('no override + no imageUrl → throws MissingImageError', () => {
-    expect(() => pickInstagramPost({ ...BASE, imageUrl: undefined })).toThrow(
+    expect(() => pickInstagramPost({ ...BASE, imageUrls: undefined })).toThrow(
       MissingImageError,
     );
   });
@@ -115,7 +116,7 @@ describe('post-formatter · pickLinkedInPost', () => {
     expect(out.contentTitle).toBe(BASE.title);
     expect(out.contentDescription).toContain('Santo Domingo');
     expect(out.contentUrl).toMatch(/utm_source=linkedin/);
-    expect(out.contentThumbnailUrl).toBe(BASE.imageUrl);
+    expect(out.contentThumbnailUrl).toBe(BASE.imageUrls?.[0]);
   });
 
   it('override commentary too long is clamped to LinkedIn cap', () => {

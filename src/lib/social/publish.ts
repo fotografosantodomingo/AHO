@@ -253,15 +253,14 @@ export async function publishToFacebookPage(args: {
 // ============================================================
 
 /**
- * Publish to an Instagram Business account.
+ * Publish to an Instagram Business account. Branches on photo count:
+ *   - 1 photo  → 2-step single-image publish (existing flow)
+ *   - 2-10 photos → 3-step carousel publish (Phase K)
  *
- * IG requires the 2-step container + publish flow:
- *   1. POST /{ig-id}/media with image_url + caption → returns creation_id
- *   2. POST /{ig-id}/media_publish with creation_id → returns media id
- *
- * Step 2 can fail with `container_not_ready` if step 1's media is still
- * being processed (large images, slow CDN). Our caller (Phase E) sees
- * this as a retryable error.
+ * Step 2 / step 3 can fail with `container_not_ready` if media is still
+ * being processed (large images, slow CDN). Caller (Phase E) treats
+ * this as a retryable error and the retry rebuilds containers from
+ * scratch — Meta auto-expires orphaned children in ~24h.
  */
 export async function publishToInstagramBusiness(args: {
   igId: string;
@@ -271,20 +270,42 @@ export async function publishToInstagramBusiness(args: {
   if (!args.igId || !args.pageToken) {
     return { ok: false, errorCode: 'invalid_input', errorMessage: 'igId and pageToken are required' };
   }
-  if (!args.post.imageUrl) {
-    return { ok: false, errorCode: 'image_required', errorMessage: 'Instagram requires imageUrl' };
+  const validImages = (args.post.imageUrls ?? []).filter(
+    (u): u is string => typeof u === 'string' && u.length > 0,
+  );
+  if (validImages.length === 0) {
+    return {
+      ok: false,
+      errorCode: 'image_required',
+      errorMessage: 'Instagram requires at least one imageUrl',
+    };
   }
+  if (validImages.length === 1) {
+    return publishIgSingle(args.igId, args.pageToken, args.post.caption, validImages[0]!);
+  }
+  return publishIgCarousel(args.igId, args.pageToken, args.post.caption, validImages);
+}
 
+/**
+ * Single-image IG publish — 2-step (container + publish). Existing
+ * Phase D flow preserved verbatim; carousel branches off above.
+ */
+async function publishIgSingle(
+  igId: string,
+  pageToken: string,
+  caption: string,
+  imageUrl: string,
+): Promise<PublishResult> {
   // Step 1 — create the media container.
   const containerBody = new URLSearchParams();
-  containerBody.set('image_url', args.post.imageUrl);
-  containerBody.set('caption', args.post.caption);
-  containerBody.set('access_token', args.pageToken);
+  containerBody.set('image_url', imageUrl);
+  containerBody.set('caption', caption);
+  containerBody.set('access_token', pageToken);
 
   let containerRes: Response;
   try {
     containerRes = await fetch(
-      `${META_GRAPH_BASE}/${encodeURIComponent(args.igId)}/media`,
+      `${META_GRAPH_BASE}/${encodeURIComponent(igId)}/media`,
       { method: 'POST', body: containerBody },
     );
   } catch (err) {
@@ -316,15 +337,144 @@ export async function publishToInstagramBusiness(args: {
     };
   }
 
-  // Step 2 — publish the container.
+  return publishIgContainer(igId, pageToken, containerId, 'single');
+}
+
+/**
+ * Carousel IG publish — 3-step (N children + parent + publish). Each
+ * child container is created with `is_carousel_item=true`; the parent
+ * is `media_type=CAROUSEL` with a comma-separated `children` field;
+ * the publish step is identical to single. Children are created
+ * SEQUENTIALLY (Meta rate-limits aggressive parallel POSTs to /media
+ * for the same IG account; sequential adds ~200ms/photo but avoids
+ * spurious rate_limited errors mid-batch).
+ */
+async function publishIgCarousel(
+  igId: string,
+  pageToken: string,
+  caption: string,
+  imageUrls: string[],
+): Promise<PublishResult> {
+  const childIds: string[] = [];
+
+  // Step 1 — create N child containers, sequential.
+  for (let i = 0; i < imageUrls.length; i++) {
+    const url = imageUrls[i]!;
+    const childBody = new URLSearchParams();
+    childBody.set('image_url', url);
+    childBody.set('is_carousel_item', 'true');
+    childBody.set('access_token', pageToken);
+    // Caption deliberately omitted from children — Meta attaches it to
+    // the parent only. Sending it here just adds noise.
+
+    let res: Response;
+    try {
+      res = await fetch(
+        `${META_GRAPH_BASE}/${encodeURIComponent(igId)}/media`,
+        { method: 'POST', body: childBody },
+      );
+    } catch (err) {
+      const fail = networkFailure(err);
+      return {
+        ...fail,
+        errorMessage: `IG /media (child ${i + 1}/${imageUrls.length}): ${fail.errorMessage}`,
+      };
+    }
+    let json: unknown;
+    try {
+      json = await res.json();
+    } catch {
+      return {
+        ok: false,
+        errorCode: res.status >= 500 ? 'transient_5xx' : 'unknown',
+        errorMessage: `IG /media (child ${i + 1}/${imageUrls.length}) HTTP ${res.status} (no JSON body)`,
+      };
+    }
+    if (!res.ok) {
+      const { code, message } = categorizeMetaError(res.status, json as MetaApiError);
+      return {
+        ok: false,
+        errorCode: code,
+        errorMessage: `IG /media (child ${i + 1}/${imageUrls.length}): ${message}`,
+      };
+    }
+    const id = (json as { id?: string }).id;
+    if (!id) {
+      return {
+        ok: false,
+        errorCode: 'unknown',
+        errorMessage: `IG /media (child ${i + 1}/${imageUrls.length}) returned 2xx but no id`,
+      };
+    }
+    childIds.push(id);
+  }
+
+  // Step 2 — create the parent CAROUSEL container.
+  const parentBody = new URLSearchParams();
+  parentBody.set('media_type', 'CAROUSEL');
+  parentBody.set('children', childIds.join(','));
+  parentBody.set('caption', caption);
+  parentBody.set('access_token', pageToken);
+
+  let parentRes: Response;
+  try {
+    parentRes = await fetch(
+      `${META_GRAPH_BASE}/${encodeURIComponent(igId)}/media`,
+      { method: 'POST', body: parentBody },
+    );
+  } catch (err) {
+    const fail = networkFailure(err);
+    return {
+      ...fail,
+      errorMessage: `IG /media (carousel parent): ${fail.errorMessage}`,
+    };
+  }
+  let parentJson: unknown;
+  try {
+    parentJson = await parentRes.json();
+  } catch {
+    return {
+      ok: false,
+      errorCode: parentRes.status >= 500 ? 'transient_5xx' : 'unknown',
+      errorMessage: `IG /media (carousel parent) HTTP ${parentRes.status} (no JSON body)`,
+    };
+  }
+  if (!parentRes.ok) {
+    const { code, message } = categorizeMetaError(parentRes.status, parentJson as MetaApiError);
+    return {
+      ok: false,
+      errorCode: code,
+      errorMessage: `IG /media (carousel parent): ${message}`,
+    };
+  }
+  const parentId = (parentJson as { id?: string }).id;
+  if (!parentId) {
+    return {
+      ok: false,
+      errorCode: 'unknown',
+      errorMessage: 'IG /media (carousel parent) returned 2xx but no id',
+    };
+  }
+
+  // Step 3 — publish.
+  return publishIgContainer(igId, pageToken, parentId, 'carousel');
+}
+
+/** Shared step-3 publish call — used by both single and carousel paths. */
+async function publishIgContainer(
+  igId: string,
+  pageToken: string,
+  creationId: string,
+  shape: 'single' | 'carousel',
+): Promise<PublishResult> {
   const publishBody = new URLSearchParams();
-  publishBody.set('creation_id', containerId);
-  publishBody.set('access_token', args.pageToken);
+  publishBody.set('creation_id', creationId);
+  publishBody.set('access_token', pageToken);
 
   let publishRes: Response;
   try {
     publishRes = await fetch(
-      `${META_GRAPH_BASE}/${encodeURIComponent(args.igId)}/media_publish`,
+      `${META_GRAPH_BASE}/${encodeURIComponent(igId)}/media_publish`,
       { method: 'POST', body: publishBody },
     );
   } catch (err) {
@@ -344,7 +494,11 @@ export async function publishToInstagramBusiness(args: {
 
   if (!publishRes.ok) {
     const { code, message } = categorizeMetaError(publishRes.status, publishJson as MetaApiError);
-    return { ok: false, errorCode: code, errorMessage: `IG /media_publish: ${message}` };
+    return {
+      ok: false,
+      errorCode: code,
+      errorMessage: `IG /media_publish (${shape}): ${message}`,
+    };
   }
 
   const mediaId = (publishJson as { id?: string }).id;
@@ -358,10 +512,8 @@ export async function publishToInstagramBusiness(args: {
   return {
     ok: true,
     externalPostId: mediaId,
-    // IG doesn't return a permalink in the publish response. The
-    // caller can derive one via GET /{media-id}?fields=permalink in
-    // a follow-up step; we leave externalPostUrl undefined here to
-    // avoid an extra blocking call on the hot path.
+    // IG doesn't return a permalink in the publish response. Caller
+    // can fetch one via GET /{media-id}?fields=permalink if needed.
   };
 }
 

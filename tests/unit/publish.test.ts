@@ -34,8 +34,15 @@ const FB_POST_PHOTO: FacebookPost = {
 
 const IG_POST: InstagramPost = {
   caption: 'A nice IG caption',
-  imageUrl: 'https://imagedelivery.net/abc/img-1/igsquare',
+  imageUrls: ['https://imagedelivery.net/abc/img-1/igsquare'],
 };
+
+function igPostWithImages(n: number): InstagramPost {
+  return {
+    caption: `Carousel caption with ${n} photos`,
+    imageUrls: Array.from({ length: n }, (_, i) => `https://imagedelivery.net/abc/img-${i + 1}/igsquare`),
+  };
+}
 
 const LI_POST: LinkedInPost = {
   commentary: 'A nice LI post',
@@ -287,7 +294,7 @@ describe('publish · publishToInstagramBusiness', () => {
 
     const [url1, init1] = fetchMock.mock.calls[0]! as unknown as [string, RequestInit];
     expect(url1).toContain('/IG_BIZ_1/media');
-    expect((init1?.body as URLSearchParams).get('image_url')).toBe(IG_POST.imageUrl);
+    expect((init1?.body as URLSearchParams).get('image_url')).toBe(IG_POST.imageUrls[0]);
     expect((init1?.body as URLSearchParams).get('caption')).toBe(IG_POST.caption);
 
     const [url2, init2] = fetchMock.mock.calls[1]! as unknown as [string, RequestInit];
@@ -386,13 +393,13 @@ describe('publish · publishToInstagramBusiness', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it('returns image_required if the post somehow lacks imageUrl', async () => {
+  it('returns image_required if imageUrls is empty', async () => {
     const fetchMock = vi.fn();
     global.fetch = fetchMock as unknown as typeof fetch;
     const r = await publishToInstagramBusiness({
       igId: 'IG_BIZ_1',
       pageToken: 'tok',
-      post: { caption: 'no image', imageUrl: '' } as InstagramPost,
+      post: { caption: 'no image', imageUrls: [] } satisfies InstagramPost,
     });
     expect(r.errorCode).toBe('image_required');
     expect(fetchMock).not.toHaveBeenCalled();
@@ -411,6 +418,187 @@ describe('publish · publishToInstagramBusiness', () => {
 
     expect(result.errorCode).toBe('network_timeout');
     expect(result.errorMessage).toContain('socket hang up');
+  });
+});
+
+// ============================================================
+// publishToInstagramBusiness — Phase K carousel branch (>1 image)
+// ============================================================
+
+describe('publish · publishToInstagramBusiness (carousel)', () => {
+  it('happy 2-image carousel — 4 fetches (2 child + parent + publish)', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(mockResponse(200, { id: 'CHILD_1' }))
+      .mockResolvedValueOnce(mockResponse(200, { id: 'CHILD_2' }))
+      .mockResolvedValueOnce(mockResponse(200, { id: 'PARENT_42' }))
+      .mockResolvedValueOnce(mockResponse(200, { id: 'MEDIA_99' }));
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    const result = await publishToInstagramBusiness({
+      igId: 'IG_BIZ_1',
+      pageToken: 'tok',
+      post: igPostWithImages(2),
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.externalPostId).toBe('MEDIA_99');
+    expect(fetchMock).toHaveBeenCalledTimes(4);
+
+    // Child 1 — is_carousel_item=true, caption NOT sent on children
+    const [, init1] = fetchMock.mock.calls[0]! as unknown as [string, RequestInit];
+    const body1 = init1.body as URLSearchParams;
+    expect(body1.get('image_url')).toBe('https://imagedelivery.net/abc/img-1/igsquare');
+    expect(body1.get('is_carousel_item')).toBe('true');
+    expect(body1.get('caption')).toBeNull();
+
+    // Parent — media_type=CAROUSEL + children comma-list + caption
+    const [, init3] = fetchMock.mock.calls[2]! as unknown as [string, RequestInit];
+    const body3 = init3.body as URLSearchParams;
+    expect(body3.get('media_type')).toBe('CAROUSEL');
+    expect(body3.get('children')).toBe('CHILD_1,CHILD_2');
+    expect(body3.get('caption')).toBe('Carousel caption with 2 photos');
+
+    // Publish — creation_id=parent
+    const [, init4] = fetchMock.mock.calls[3]! as unknown as [string, RequestInit];
+    expect((init4.body as URLSearchParams).get('creation_id')).toBe('PARENT_42');
+  });
+
+  it('happy 5-image carousel — 7 fetches', async () => {
+    const fetchMock = vi.fn();
+    for (let i = 1; i <= 5; i++) {
+      fetchMock.mockResolvedValueOnce(mockResponse(200, { id: `CHILD_${i}` }));
+    }
+    fetchMock.mockResolvedValueOnce(mockResponse(200, { id: 'PARENT_X' }));
+    fetchMock.mockResolvedValueOnce(mockResponse(200, { id: 'MEDIA_X' }));
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    const result = await publishToInstagramBusiness({
+      igId: 'IG_BIZ_1',
+      pageToken: 'tok',
+      post: igPostWithImages(5),
+    });
+
+    expect(result.ok).toBe(true);
+    expect(fetchMock).toHaveBeenCalledTimes(7);
+    const [, parentInit] = fetchMock.mock.calls[5]! as unknown as [string, RequestInit];
+    expect((parentInit.body as URLSearchParams).get('children')).toBe(
+      'CHILD_1,CHILD_2,CHILD_3,CHILD_4,CHILD_5',
+    );
+  });
+
+  it('child fail at index 2 of 5 → 3 fetches, message contains "child 3/5"', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(mockResponse(200, { id: 'CHILD_1' }))
+      .mockResolvedValueOnce(mockResponse(200, { id: 'CHILD_2' }))
+      .mockResolvedValueOnce(
+        mockResponse(400, {
+          error: { code: 190, message: 'Token expired mid-batch' },
+        }),
+      );
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    const result = await publishToInstagramBusiness({
+      igId: 'IG_BIZ_1',
+      pageToken: 'tok',
+      post: igPostWithImages(5),
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.errorCode).toBe('token_invalid');
+    expect(result.errorMessage).toContain('child 3/5');
+    expect(fetchMock).toHaveBeenCalledTimes(3); // stopped at the failure
+  });
+
+  it('parent fail (step 2) → no publish call', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(mockResponse(200, { id: 'CHILD_1' }))
+      .mockResolvedValueOnce(mockResponse(200, { id: 'CHILD_2' }))
+      .mockResolvedValueOnce(
+        mockResponse(400, {
+          error: {
+            code: 100,
+            error_subcode: 2207026,
+            message: 'Image fetch failed for one of the children',
+          },
+        }),
+      );
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    const result = await publishToInstagramBusiness({
+      igId: 'IG_BIZ_1',
+      pageToken: 'tok',
+      post: igPostWithImages(2),
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.errorCode).toBe('image_url_unreachable');
+    expect(result.errorMessage).toContain('carousel parent');
+    expect(fetchMock).toHaveBeenCalledTimes(3); // no publish
+  });
+
+  it('publish fail with container_not_ready → retryable', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(mockResponse(200, { id: 'CHILD_1' }))
+      .mockResolvedValueOnce(mockResponse(200, { id: 'CHILD_2' }))
+      .mockResolvedValueOnce(mockResponse(200, { id: 'PARENT_55' }))
+      .mockResolvedValueOnce(
+        mockResponse(400, {
+          error: { code: 9007, message: 'Media not yet available' },
+        }),
+      );
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    const result = await publishToInstagramBusiness({
+      igId: 'IG_BIZ_1',
+      pageToken: 'tok',
+      post: igPostWithImages(2),
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.errorCode).toBe('container_not_ready');
+    expect(result.errorMessage).toContain('carousel');
+    expect(isRetryable(result.errorCode)).toBe(true);
+  });
+
+  it('children created sequentially (one fetch in flight at a time)', async () => {
+    // We assert sequentiality by recording the order calls START vs end:
+    // each child's response is delayed; if they ran in parallel we'd see
+    // the second fetch START before the first END. Sequential design
+    // guarantees one-at-a-time.
+    const callOrder: string[] = [];
+    const fetchMock = vi.fn(
+      async (_url: string | URL, init?: RequestInit): Promise<Response> => {
+        const body = init?.body as URLSearchParams | undefined;
+        const isChild = body?.get('is_carousel_item') === 'true';
+        const tag = isChild ? `child:${body?.get('image_url')}` : 'other';
+        callOrder.push(`start:${tag}`);
+        await new Promise((r) => setTimeout(r, 5));
+        callOrder.push(`end:${tag}`);
+        return mockResponse(200, { id: `RESULT_${callOrder.length}` });
+      },
+    );
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    await publishToInstagramBusiness({
+      igId: 'IG_BIZ_1',
+      pageToken: 'tok',
+      post: igPostWithImages(3),
+    });
+
+    // First three operations must be children, each starting after the
+    // previous ended (sequential).
+    expect(callOrder.slice(0, 6)).toEqual([
+      'start:child:https://imagedelivery.net/abc/img-1/igsquare',
+      'end:child:https://imagedelivery.net/abc/img-1/igsquare',
+      'start:child:https://imagedelivery.net/abc/img-2/igsquare',
+      'end:child:https://imagedelivery.net/abc/img-2/igsquare',
+      'start:child:https://imagedelivery.net/abc/img-3/igsquare',
+      'end:child:https://imagedelivery.net/abc/img-3/igsquare',
+    ]);
   });
 });
 

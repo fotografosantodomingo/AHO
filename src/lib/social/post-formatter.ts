@@ -37,6 +37,11 @@ const LINKEDIN_MAX_CHARS = 2800;
 const LINKEDIN_TITLE_MAX = 200;
 const LINKEDIN_DESCRIPTION_MAX = 256;
 
+/** Maximum number of images allowed in a single Instagram Business
+ *  carousel per Meta's content-publishing API. Used by post-formatter +
+ *  publish.ts; the route clamps before passing through. */
+export const IG_CAROUSEL_MAX = 10;
+
 /** Input shape — what every formatter takes. */
 export interface PostInput {
   /** Listing title in the listing's authored language. */
@@ -52,8 +57,11 @@ export interface PostInput {
   /** Absolute URL to the public listing page (without UTM params).
    *  Formatters append per-platform `utm_source` for analytics. */
   url: string;
-  /** Hero image URL (Cloudflare Images variant `og` or `card`). Required for IG. */
-  imageUrl?: string;
+  /** Property image URLs ordered by `position` (primary first). FB +
+   *  LinkedIn use index 0 as their hero. IG uses the whole array —
+   *  one photo = standard publish, 2-10 photos = carousel. Required
+   *  for IG (any length ≥1); optional for FB + LinkedIn. */
+  imageUrls?: string[];
   /** Listing locale — narrowed to EN/ES at the input boundary. */
   locale: Locale;
 }
@@ -72,8 +80,10 @@ export interface InstagramPost {
   /** Body text — IG strips URLs from clickability, so we keep the URL
    *  in the caption for read-only reference + push agents to "link in bio". */
   caption: string;
-  /** REQUIRED — IG won't publish without a media object. */
-  imageUrl: string;
+  /** REQUIRED — IG won't publish without media. Length 1 → single-image
+   *  2-step publish. Length 2-10 → carousel 3-step publish. Caller is
+   *  responsible for clamping to IG_CAROUSEL_MAX. */
+  imageUrls: string[];
 }
 
 export interface LinkedInPost {
@@ -160,15 +170,22 @@ export function formatFacebookPost(input: PostInput): FacebookPost {
         `#realestate #aho${tag ? ` #${tag}` : ''}`,
       ];
 
+  // FB uses the hero image only (no FB carousel via Graph API today).
+  const heroImage = input.imageUrls?.[0];
   return {
     message: clamp(lines.join('\n'), FB_MAX_CHARS),
     link,
-    ...(input.imageUrl ? { imageUrl: input.imageUrl } : {}),
+    ...(heroImage ? { imageUrl: heroImage } : {}),
   };
 }
 
 export function formatInstagramPost(input: PostInput): InstagramPost {
-  if (!input.imageUrl) throw new MissingImageError('Instagram');
+  const validImageUrls =
+    input.imageUrls?.filter((u) => typeof u === 'string' && u.length > 0) ?? [];
+  if (validImageUrls.length === 0) throw new MissingImageError('Instagram');
+  // Defense-in-depth: clamp to the IG carousel limit even if caller
+  // forgot. Source-of-truth clamp happens in the route layer.
+  const imageUrls = validImageUrls.slice(0, IG_CAROUSEL_MAX);
 
   const contentLocale = narrowContentLocale(input.locale);
   const price = formatPrice(input.priceCents, input.currency, contentLocale);
@@ -203,7 +220,7 @@ export function formatInstagramPost(input: PostInput): InstagramPost {
 
   return {
     caption: clamp(lines.join('\n'), IG_MAX_CHARS),
-    imageUrl: input.imageUrl,
+    imageUrls,
   };
 }
 
@@ -227,27 +244,30 @@ export function pickFacebookPost(
   override?: { message: string },
 ): FacebookPost {
   if (override) {
+    const heroImage = input.imageUrls?.[0];
     return {
       message: override.message,
       link: withUtm(input.url, 'facebook'),
-      ...(input.imageUrl ? { imageUrl: input.imageUrl } : {}),
+      ...(heroImage ? { imageUrl: heroImage } : {}),
     };
   }
   return formatFacebookPost(input);
 }
 
 /** Build an InstagramPost from either the agent's edited caption or
- *  the deterministic formatter output. IG hard-requires imageUrl;
- *  overriding does not bypass that. */
+ *  the deterministic formatter output. IG hard-requires at least one
+ *  imageUrl; overriding does not bypass that. */
 export function pickInstagramPost(
   input: PostInput,
   override?: { caption: string },
 ): InstagramPost {
-  if (!input.imageUrl) throw new MissingImageError('Instagram');
+  const validImageUrls =
+    input.imageUrls?.filter((u) => typeof u === 'string' && u.length > 0) ?? [];
+  if (validImageUrls.length === 0) throw new MissingImageError('Instagram');
   if (override) {
     return {
       caption: override.caption,
-      imageUrl: input.imageUrl,
+      imageUrls: validImageUrls.slice(0, IG_CAROUSEL_MAX),
     };
   }
   return formatInstagramPost(input);
@@ -303,11 +323,13 @@ export function formatLinkedInPost(input: PostInput): LinkedInPost {
   // adds little value over the structured data.
   const description = `${input.city}, ${input.countryDisplay} · ${price}${specs ? ` · ${specs}` : ''}`;
 
+  // LinkedIn article card thumbnail is the hero image only.
+  const heroImage = input.imageUrls?.[0];
   return {
     commentary: clamp(commentaryLines.join('\n'), LINKEDIN_MAX_CHARS),
     contentUrl: link,
     contentTitle: clamp(input.title, LINKEDIN_TITLE_MAX),
     contentDescription: clamp(description, LINKEDIN_DESCRIPTION_MAX),
-    ...(input.imageUrl ? { contentThumbnailUrl: input.imageUrl } : {}),
+    ...(heroImage ? { contentThumbnailUrl: heroImage } : {}),
   };
 }

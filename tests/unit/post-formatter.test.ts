@@ -30,7 +30,7 @@ const BASE: PostInput = {
   bathrooms: 2,
   areaSqm: 95,
   url: 'https://advertisehomes.online/en/properties/modern-2br-loft-cQF9BN',
-  imageUrl: 'https://imagedelivery.net/abc/img-id/og',
+  imageUrls: ['https://imagedelivery.net/abc/img-id/og'],
   locale: 'en',
 };
 
@@ -124,7 +124,7 @@ describe('post-formatter · formatFacebookPost', () => {
     expect(out.message).toContain('🛏 2 · 🛁 2 · 📐 95 m²');
     expect(out.message).toContain('#realestate #aho #santodomingo');
     expect(out.link).toMatch(/utm_source=facebook/);
-    expect(out.imageUrl).toBe(BASE.imageUrl);
+    expect(out.imageUrl).toBe(BASE.imageUrls?.[0]);
   });
 
   it('happy path — ES locale uses Spanish hashtags', () => {
@@ -134,7 +134,7 @@ describe('post-formatter · formatFacebookPost', () => {
   });
 
   it('omits imageUrl in output when not provided', () => {
-    const out = formatFacebookPost({ ...BASE, imageUrl: undefined });
+    const out = formatFacebookPost({ ...BASE, imageUrls: undefined });
     expect(out.imageUrl).toBeUndefined();
   });
 
@@ -182,13 +182,37 @@ describe('post-formatter · formatFacebookPost', () => {
 // ============================================================
 
 describe('post-formatter · formatInstagramPost', () => {
-  it('happy path — caption + imageUrl returned', () => {
+  it('happy path — caption + imageUrls returned', () => {
     const out = formatInstagramPost(BASE);
     expect(out.caption).toContain('✨ Modern 2BR loft near Zona Colonial');
     expect(out.caption).toContain('Link in bio:');
     expect(out.caption).toContain(BASE.url);
     expect(out.caption).toContain('#realestate #aho #propertyforsale #santodomingo #homesforsale');
-    expect(out.imageUrl).toBe(BASE.imageUrl);
+    expect(out.imageUrls).toEqual(BASE.imageUrls);
+  });
+
+  it('preserves multi-image carousel input through to imageUrls', () => {
+    const out = formatInstagramPost({
+      ...BASE,
+      imageUrls: ['url-1', 'url-2', 'url-3'],
+    });
+    expect(out.imageUrls).toEqual(['url-1', 'url-2', 'url-3']);
+  });
+
+  it('clamps imageUrls past IG_CAROUSEL_MAX (10) to the first 10', () => {
+    const urls = Array.from({ length: 15 }, (_, i) => `url-${i}`);
+    const out = formatInstagramPost({ ...BASE, imageUrls: urls });
+    expect(out.imageUrls).toHaveLength(10);
+    expect(out.imageUrls[0]).toBe('url-0');
+    expect(out.imageUrls[9]).toBe('url-9');
+  });
+
+  it('filters out empty-string URLs before evaluating MissingImageError', () => {
+    expect(() =>
+      formatInstagramPost({ ...BASE, imageUrls: ['', ''] }),
+    ).toThrow(MissingImageError);
+    const out = formatInstagramPost({ ...BASE, imageUrls: ['', 'real-url'] });
+    expect(out.imageUrls).toEqual(['real-url']);
   });
 
   it('ES locale uses "Enlace en bio" + Spanish hashtags', () => {
@@ -197,8 +221,9 @@ describe('post-formatter · formatInstagramPost', () => {
     expect(out.caption).toContain('#inmuebles #aho #bienesraices #santodomingo #propiedadesenventa');
   });
 
-  it('throws MissingImageError when imageUrl is not provided', () => {
-    expect(() => formatInstagramPost({ ...BASE, imageUrl: undefined })).toThrow(MissingImageError);
+  it('throws MissingImageError when imageUrls is absent or empty', () => {
+    expect(() => formatInstagramPost({ ...BASE, imageUrls: undefined })).toThrow(MissingImageError);
+    expect(() => formatInstagramPost({ ...BASE, imageUrls: [] })).toThrow(MissingImageError);
   });
 
   it('clamps the caption to the IG cap', () => {
@@ -229,7 +254,7 @@ describe('post-formatter · formatLinkedInPost', () => {
     expect(out.contentUrl).toMatch(/utm_source=linkedin/);
     expect(out.contentTitle).toBe(BASE.title);
     expect(out.contentDescription).toContain('Santo Domingo');
-    expect(out.contentThumbnailUrl).toBe(BASE.imageUrl);
+    expect(out.contentThumbnailUrl).toBe(BASE.imageUrls?.[0]);
   });
 
   it('happy path — ES', () => {
@@ -262,7 +287,7 @@ describe('post-formatter · formatLinkedInPost', () => {
   });
 
   it('omits contentThumbnailUrl when imageUrl absent', () => {
-    const out = formatLinkedInPost({ ...BASE, imageUrl: undefined });
+    const out = formatLinkedInPost({ ...BASE, imageUrls: undefined });
     expect(out.contentThumbnailUrl).toBeUndefined();
   });
 
