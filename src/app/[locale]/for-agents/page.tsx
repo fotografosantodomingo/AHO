@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { localePath } from '@/i18n/routing';
@@ -218,6 +219,51 @@ export default async function ForAgentsPage({
         secondaryCtaHref={visionAnchor}
         pricingCtaHref={pricingFocusHref}
       />
+      <ShareGuideCta locale={typedLocale} />
     </>
+  );
+}
+
+/**
+ * Standalone CTA appended below the main LandingPage. Drives agents
+ * to the step-by-step manual at /[locale]/share-guide before they
+ * subscribe — so they know exactly what they're paying for. Added
+ * 2026-05-14 per PO directive (separate page with simple end-to-end
+ * instructions).
+ *
+ * Uses translations from the `forAgents.manualCta` namespace which
+ * was added alongside the new /share-guide page. All 7 locales.
+ */
+async function ShareGuideCta({ locale }: { locale: Locale }) {
+  const t = await getTranslations({ locale, namespace: 'forAgents.manualCta' });
+  const guideHref = localePath(locale, '/share-guide');
+  return (
+    <section
+      aria-labelledby="for-agents-manual-cta"
+      className="mx-auto max-w-3xl px-4 pb-16 pt-8 md:pb-24"
+    >
+      <div className="rounded-card border border-border bg-surface p-6 shadow-whisper dark:border-border-strong/40 dark:bg-surface-deep md:p-10">
+        <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-action dark:text-action-dark">
+          {t('eyebrow')}
+        </p>
+        <h2
+          id="for-agents-manual-cta"
+          className="mt-2 font-brand text-2xl font-semibold tracking-tight md:text-[32px]"
+        >
+          {t('heading')}
+        </h2>
+        <p className="mt-3 text-base text-ink-muted dark:text-ink-inverse-muted md:text-lg">
+          {t('body')}
+        </p>
+        <div className="mt-6">
+          <Link
+            href={guideHref}
+            className="btn-primary inline-flex h-12 items-center px-6 text-base font-semibold"
+          >
+            {t('cta')} →
+          </Link>
+        </div>
+      </div>
+    </section>
   );
 }

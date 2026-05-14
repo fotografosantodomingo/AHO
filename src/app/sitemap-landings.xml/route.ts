@@ -21,7 +21,12 @@ export const runtime = 'edge';
  */
 export async function GET(): Promise<Response> {
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
-  const pathKeys = ['/for-agents', '/automation', '/save-time'] as const;
+  const pathKeys = [
+    '/for-agents',
+    '/automation',
+    '/save-time',
+    '/share-guide',
+  ] as const;
   const entries: UrlEntry[] = [];
   for (const pathKey of pathKeys) {
     const alts = buildLandingAlternates({

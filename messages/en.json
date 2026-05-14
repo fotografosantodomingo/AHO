@@ -1415,6 +1415,12 @@
       "heading": "Your next listing could be live in 60 seconds.",
       "sub": "Pro Automation, $99/mo. Cancel any time.",
       "cta": "Subscribe — $99/mo"
+    },
+    "manualCta": {
+      "eyebrow": "New here?",
+      "heading": "See the full 4-step manual before you subscribe",
+      "body": "A short, simple guide showing exactly what you do from sign-up to your first live Facebook + Instagram post. Most agents finish in under 5 minutes.",
+      "cta": "Read the agent manual"
     }
   },
   "automation": {
@@ -2077,5 +2083,48 @@
     "revealing": "Revealing…",
     "revealEmailAria": "Reveal email — writes an audit log entry",
     "revealPhoneAria": "Reveal phone — writes an audit log entry"
+  },
+  "agentGuide": {
+    "metaTitle": "How to share your listings to Facebook + Instagram | AHO",
+    "metaDescription": "Step-by-step guide for real estate agents. Subscribe → Connect Facebook → Publish a listing → Click Share. Your first post goes live in under 5 minutes.",
+    "eyebrow": "Agent quick-start",
+    "heading": "Share your listings on social media in 4 steps",
+    "subheading": "A short manual. Most agents finish their first share in under 5 minutes from sign-up.",
+    "step1Number": "Step 1",
+    "step1Title": "Subscribe to Pro Automation",
+    "step1Body": "Social automation is part of the $99/month Pro Automation plan. Lower plans show the feature but the publish buttons stay locked. Open the pricing page and pick Pro Automation. Payment is via Stripe — cancel any time from the Customer Portal.",
+    "step1Cta": "Go to pricing",
+    "step2Number": "Step 2",
+    "step2Title": "Connect Facebook (one time, about 30 seconds)",
+    "step2Body": "Open Dashboard → Social. Click Connect Facebook. Facebook will show a permission dialog asking for access to your Pages and any Instagram Business accounts linked to them. Click Continue. AHO never sees your Facebook password.",
+    "step2WhatHeading": "Permissions we ask Facebook for:",
+    "step2WhatP1": "List the Facebook Pages you manage",
+    "step2WhatP2": "Publish posts on your selected Page",
+    "step2WhatP3": "Read post engagement (powers your analytics dashboard)",
+    "step2WhatP4": "Detect Instagram Business accounts linked to your Page and publish to them too",
+    "step3Number": "Step 3",
+    "step3Title": "Publish a property listing",
+    "step3Body": "Dashboard → Properties → New. Fill the form (title, price, beds, baths, area, photos). Or paste a competitor portal URL and AHO auto-fills the fields. Click Publish. The listing goes live at a permanent URL on advertisehomes.online — that URL is what your social posts will link back to.",
+    "step4Number": "Step 4",
+    "step4Title": "Click \"Share to my socials\"",
+    "step4Body": "Open the listing edit page. Scroll past the form and image uploader. You will see a \"Share to my socials\" card listing every Facebook Page and Instagram account you connected. Two buttons:",
+    "step4OptATitle": "Generate AI draft (optional)",
+    "step4OptABody": "AI proposes platform-appropriate captions you can read, edit, or replace before publishing. AI never publishes by itself — you are still the one clicking Share.",
+    "step4OptBTitle": "Share now",
+    "step4OptBBody": "Publishes the post immediately to every connected account. Takes about 3-5 seconds. Multiple photos go to Instagram as a carousel automatically.",
+    "successHeading": "What you will see when it works",
+    "successP1": "Green ✓ for each Facebook Page and Instagram Business account",
+    "successP2": "\"View post →\" link to the live post on each platform",
+    "successP3": "Inside every post: the AHO listing URL — buyers click it and land on your property page",
+    "failureHeading": "What to do if something fails",
+    "failureP1": "A red ✗ row shows the platform that failed plus a short reason (for example, \"image too large\")",
+    "failureP2": "Copy the short error reference on the row (it looks like AHO-SP-IMG-a3f7b2c1)",
+    "failureP3": "Email info@advertisehomes.online — paste the reference, we look up the failure and reply",
+    "failureP4": "Some failures are retryable — click \"Retry failed\" to try just the failed accounts. Successful posts are not duplicated.",
+    "ctaEyebrow": "Ready to start?",
+    "ctaHeading": "Subscribe to Pro Automation",
+    "ctaPrice": "$99 / month",
+    "ctaSub": "Or $990/year (save ~17%). Cancel any time.",
+    "ctaButton": "Start Pro Automation"
   }
 }

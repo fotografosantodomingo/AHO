@@ -271,4 +271,18 @@ export const PATHNAMES = {
     fr: '/documentation',
     it: '/documentazione',
   },
+
+  // Step-by-step manual: how an agent goes from sign-up to a live
+  // Facebook + Instagram post in 4 steps. Linked from /for-agents.
+  // Per-locale slugs because the URL IS the keyword Google indexes —
+  // "how to share real estate listings on social media" in each market.
+  '/share-guide': {
+    en: '/share-guide',
+    es: '/guia-de-publicacion',
+    pl: '/przewodnik-publikacji',
+    pt: '/guia-de-publicacao',
+    de: '/teilen-anleitung',
+    fr: '/guide-de-partage',
+    it: '/guida-condivisione',
+  },
 } as const;

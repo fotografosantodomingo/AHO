@@ -687,6 +687,12 @@
       "heading": "Ihr nächstes Inserat kann in 60 Sekunden live sein.",
       "sub": "Pro Automation, $99/Monat. Jederzeit kündbar.",
       "cta": "Abonnieren — $99/Monat"
+    },
+    "manualCta": {
+      "eyebrow": "Neu hier?",
+      "heading": "Lies das vollständige 4-Schritte-Manual vor dem Abonnement",
+      "body": "Eine kurze, einfache Anleitung, die zeigt, was du von der Anmeldung bis zum ersten Live-Post auf Facebook + Instagram tust. Die meisten Makler sind in unter 5 Minuten fertig.",
+      "cta": "Anleitung lesen"
     }
   },
   "automation": {
@@ -2038,5 +2044,48 @@
     "revealing": "Wird angezeigt…",
     "revealEmailAria": "E-Mail anzeigen — schreibt einen Audit-Log-Eintrag",
     "revealPhoneAria": "Telefon anzeigen — schreibt einen Audit-Log-Eintrag"
+  },
+  "agentGuide": {
+    "metaTitle": "So teilst du deine Inserate auf Facebook + Instagram | AHO",
+    "metaDescription": "Schritt-für-Schritt-Anleitung für Immobilienmakler. Abonnieren → Facebook verbinden → Inserat veröffentlichen → Teilen klicken. Dein erster Post ist in unter 5 Minuten live.",
+    "eyebrow": "Schnellstart für Makler",
+    "heading": "Teile deine Inserate in 4 Schritten in sozialen Medien",
+    "subheading": "Kurze Anleitung. Die meisten Makler veröffentlichen ihren ersten Post in unter 5 Minuten nach der Anmeldung.",
+    "step1Number": "Schritt 1",
+    "step1Title": "Pro Automation abonnieren",
+    "step1Body": "Die Social-Automation gehört zum Pro Automation-Plan (99 USD/Monat). Günstigere Pläne zeigen die Funktion, aber die Veröffentlichen-Buttons bleiben gesperrt. Öffne die Preisseite und wähle Pro Automation. Zahlung via Stripe — jederzeit über das Kundenportal kündbar.",
+    "step1Cta": "Zur Preisseite",
+    "step2Number": "Schritt 2",
+    "step2Title": "Facebook verbinden (einmalig, etwa 30 Sekunden)",
+    "step2Body": "Öffne Dashboard → Social. Klicke auf Facebook verbinden. Facebook zeigt einen Berechtigungsdialog mit Zugriff auf deine Seiten und alle verknüpften Instagram-Business-Konten. Klicke Weiter. AHO sieht dein Facebook-Passwort nie.",
+    "step2WhatHeading": "Berechtigungen, die wir von Facebook anfragen:",
+    "step2WhatP1": "Liste der von dir verwalteten Facebook-Seiten",
+    "step2WhatP2": "Beiträge auf der von dir gewählten Seite veröffentlichen",
+    "step2WhatP3": "Reichweite der Beiträge auslesen (für dein Analyse-Dashboard)",
+    "step2WhatP4": "Verknüpfte Instagram-Business-Konten erkennen und ebenfalls posten",
+    "step3Number": "Schritt 3",
+    "step3Title": "Inserat veröffentlichen",
+    "step3Body": "Dashboard → Inserate → Neu. Formular ausfüllen (Titel, Preis, Zimmer, Bäder, Fläche, Fotos). Oder eine Portal-URL einfügen — AHO füllt die Felder automatisch. Veröffentlichen klicken. Das Inserat ist unter einer dauerhaften URL auf advertisehomes.online online — diese URL verlinken deine Social-Posts.",
+    "step4Number": "Schritt 4",
+    "step4Title": "\"In meinen Social Media teilen\" klicken",
+    "step4Body": "Öffne die Inseratsbearbeitung. Scrolle unter das Formular und den Bild-Uploader. Du siehst eine Karte \"In meinen Social Media teilen\" mit jeder verbundenen Facebook-Seite und jedem Instagram-Konto. Zwei Buttons:",
+    "step4OptATitle": "KI-Entwurf erstellen (optional)",
+    "step4OptABody": "Die KI schlägt plattformgerechte Texte vor, die du vor dem Posten lesen, bearbeiten oder ersetzen kannst. Die KI postet nie von selbst — du klickst Teilen.",
+    "step4OptBTitle": "Jetzt teilen",
+    "step4OptBBody": "Veröffentlicht sofort auf jedem verbundenen Konto. Dauert etwa 3-5 Sekunden. Mehrere Fotos gehen automatisch als Carousel auf Instagram.",
+    "successHeading": "Was du siehst, wenn es funktioniert",
+    "successP1": "Grüner ✓ Haken für jede Facebook-Seite und jedes Instagram-Business-Konto",
+    "successP2": "\"Beitrag ansehen →\" Link zum Live-Post auf jeder Plattform",
+    "successP3": "In jedem Post: die AHO-Inserats-URL — Interessenten klicken sie an und landen auf deiner Inseratsseite",
+    "failureHeading": "Was tun, wenn etwas fehlschlägt",
+    "failureP1": "Eine rote ✗ Zeile zeigt die fehlgeschlagene Plattform plus einen kurzen Grund (z. B. \"Bild zu groß\")",
+    "failureP2": "Kopiere die kurze Fehlerreferenz auf der Zeile (sieht so aus: AHO-SP-IMG-a3f7b2c1)",
+    "failureP3": "Schreib an info@advertisehomes.online — füge die Referenz ein, wir prüfen den Fehler und antworten",
+    "failureP4": "Manche Fehler sind wiederholbar — klicke \"Fehlgeschlagene wiederholen\", um nur die fehlgeschlagenen Konten erneut zu versuchen. Erfolgreiche Posts werden nicht dupliziert.",
+    "ctaEyebrow": "Bereit loszulegen?",
+    "ctaHeading": "Pro Automation abonnieren",
+    "ctaPrice": "99 USD / Monat",
+    "ctaSub": "Oder 990 USD/Jahr (~17 % Ersparnis). Jederzeit kündbar.",
+    "ctaButton": "Pro Automation starten"
   }
 }

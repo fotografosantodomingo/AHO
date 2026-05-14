@@ -1376,6 +1376,12 @@
       "heading": "Il tuo prossimo annuncio può essere online in 60 secondi.",
       "sub": "Pro Automation, 99$/mese. Cancella in qualsiasi momento.",
       "cta": "Abbonati — 99$/mese"
+    },
+    "manualCta": {
+      "eyebrow": "Nuovo qui?",
+      "heading": "Leggi il manuale completo in 4 passi prima di abbonarti",
+      "body": "Una guida breve e semplice che mostra esattamente cosa fare dalla registrazione alla prima pubblicazione su Facebook + Instagram. La maggior parte degli agenti finisce in meno di 5 minuti.",
+      "cta": "Leggi il manuale"
     }
   },
   "automation": {
@@ -2038,5 +2044,48 @@
     "revealing": "Mostrando…",
     "revealEmailAria": "Mostra e-mail — scrive una voce nell'audit log",
     "revealPhoneAria": "Mostra telefono — scrive una voce nell'audit log"
+  },
+  "agentGuide": {
+    "metaTitle": "Come condividere gli annunci su Facebook + Instagram | AHO",
+    "metaDescription": "Guida passo passo per agenti immobiliari. Abbonati → Collega Facebook → Pubblica un annuncio → Clicca Condividi. La prima pubblicazione è online in meno di 5 minuti.",
+    "eyebrow": "Avvio rapido per agenti",
+    "heading": "Condividi i tuoi annunci sui social in 4 passi",
+    "subheading": "Manuale breve. La maggior parte degli agenti completa la prima condivisione in meno di 5 minuti dalla registrazione.",
+    "step1Number": "Passo 1",
+    "step1Title": "Abbonati al piano Pro Automation",
+    "step1Body": "L'automazione social fa parte del piano Pro Automation (99 USD/mese). I piani inferiori mostrano la funzione ma i pulsanti di pubblicazione restano bloccati. Apri la pagina prezzi e scegli Pro Automation. Pagamento via Stripe — annullabile in qualsiasi momento dal Portale Cliente.",
+    "step1Cta": "Vai ai prezzi",
+    "step2Number": "Passo 2",
+    "step2Title": "Collega Facebook (una sola volta, circa 30 secondi)",
+    "step2Body": "Apri Dashboard → Social. Clicca Collega Facebook. Facebook mostrerà una finestra di permessi chiedendo l'accesso alle tue Pagine e agli account Instagram Business collegati. Clicca Continua. AHO non vede mai la tua password Facebook.",
+    "step2WhatHeading": "Permessi che chiediamo a Facebook:",
+    "step2WhatP1": "Elenca le Pagine Facebook che gestisci",
+    "step2WhatP2": "Pubblicare sulla Pagina che scegli",
+    "step2WhatP3": "Leggere il rendimento dei post (alimenta la tua dashboard analitica)",
+    "step2WhatP4": "Rilevare gli account Instagram Business collegati alla Pagina e pubblicare anche lì",
+    "step3Number": "Passo 3",
+    "step3Title": "Pubblica un annuncio immobiliare",
+    "step3Body": "Dashboard → Annunci → Nuovo. Compila il modulo (titolo, prezzo, camere, bagni, superficie, foto). Oppure incolla l'URL di un portale concorrente e AHO riempirà i campi automaticamente. Clicca Pubblica. L'annuncio va online su un URL permanente di advertisehomes.online — è questo l'URL che i post social linkeranno.",
+    "step4Number": "Passo 4",
+    "step4Title": "Clicca \"Condividi sui miei social\"",
+    "step4Body": "Apri la pagina di modifica dell'annuncio. Scorri sotto il modulo e l'uploader di immagini. Vedrai una scheda \"Condividi sui miei social\" con ogni Pagina Facebook e account Instagram collegato. Due pulsanti:",
+    "step4OptATitle": "Genera bozza con IA (opzionale)",
+    "step4OptABody": "L'IA propone testi adatti a ciascuna piattaforma che puoi leggere, modificare o sostituire prima di pubblicare. L'IA non pubblica mai da sola — sei tu a cliccare Condividi.",
+    "step4OptBTitle": "Condividi adesso",
+    "step4OptBBody": "Pubblica immediatamente su ogni account collegato. Richiede circa 3-5 secondi. Più foto vanno su Instagram come carosello automaticamente.",
+    "successHeading": "Cosa vedrai quando funziona",
+    "successP1": "Spunta verde ✓ per ogni Pagina Facebook e account Instagram Business",
+    "successP2": "Link \"Vedi post →\" al post live su ciascuna piattaforma",
+    "successP3": "Dentro ogni post: l'URL dell'annuncio AHO — gli acquirenti lo cliccano e atterrano sulla tua pagina",
+    "failureHeading": "Cosa fare se qualcosa fallisce",
+    "failureP1": "Una riga rossa ✗ mostra la piattaforma fallita e un motivo breve (per esempio \"immagine troppo grande\")",
+    "failureP2": "Copia il breve riferimento di errore dalla riga (è simile a AHO-SP-IMG-a3f7b2c1)",
+    "failureP3": "Scrivi a info@advertisehomes.online — incolla il riferimento, controlliamo il problema e rispondiamo",
+    "failureP4": "Alcuni errori sono ripetibili — clicca \"Riprova falliti\" per ritentare solo gli account che hanno fallito. I post riusciti non vengono duplicati.",
+    "ctaEyebrow": "Pronto per iniziare?",
+    "ctaHeading": "Abbonati a Pro Automation",
+    "ctaPrice": "99 USD / mese",
+    "ctaSub": "Oppure 990 USD/anno (risparmi ~17%). Annullabile in qualsiasi momento.",
+    "ctaButton": "Inizia Pro Automation"
   }
 }

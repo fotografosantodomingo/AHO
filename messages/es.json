@@ -1415,6 +1415,12 @@
       "heading": "Tu próximo anuncio puede estar en línea en 60 segundos.",
       "sub": "Pro Automation, $99/mes. Cancela cuando quieras.",
       "cta": "Suscribirme — $99/mes"
+    },
+    "manualCta": {
+      "eyebrow": "¿Nuevo aquí?",
+      "heading": "Lee el manual completo de 4 pasos antes de suscribirte",
+      "body": "Una guía corta y sencilla que muestra exactamente qué hacer desde el registro hasta tu primera publicación en Facebook + Instagram. La mayoría de agentes terminan en menos de 5 minutos.",
+      "cta": "Leer el manual del agente"
     }
   },
   "automation": {
@@ -2077,5 +2083,48 @@
     "revealing": "Mostrando…",
     "revealEmailAria": "Mostrar e-mail — registra una entrada en el log de auditoría",
     "revealPhoneAria": "Mostrar teléfono — registra una entrada en el log de auditoría"
+  },
+  "agentGuide": {
+    "metaTitle": "Cómo compartir tus propiedades en Facebook + Instagram | AHO",
+    "metaDescription": "Guía paso a paso para agentes inmobiliarios. Suscríbete → Conecta Facebook → Publica una propiedad → Pulsa Compartir. Tu primera publicación sale en menos de 5 minutos.",
+    "eyebrow": "Inicio rápido para agentes",
+    "heading": "Comparte tus propiedades en redes sociales en 4 pasos",
+    "subheading": "Un manual breve. La mayoría de agentes completan su primera publicación en menos de 5 minutos desde el registro.",
+    "step1Number": "Paso 1",
+    "step1Title": "Suscríbete al plan Pro Automation",
+    "step1Body": "La automatización social forma parte del plan Pro Automation ($99/mes). Los planes inferiores muestran la función, pero los botones de publicación quedan bloqueados. Abre la página de precios y elige Pro Automation. El pago es vía Stripe — puedes cancelar en cualquier momento desde el Portal de Cliente.",
+    "step1Cta": "Ir a precios",
+    "step2Number": "Paso 2",
+    "step2Title": "Conecta Facebook (una sola vez, unos 30 segundos)",
+    "step2Body": "Abre Panel → Social. Pulsa Conectar Facebook. Facebook mostrará un diálogo de permisos pidiendo acceso a tus Páginas y a las cuentas de Instagram Business vinculadas. Pulsa Continuar. AHO nunca ve tu contraseña de Facebook.",
+    "step2WhatHeading": "Permisos que pedimos a Facebook:",
+    "step2WhatP1": "Listar las Páginas de Facebook que administras",
+    "step2WhatP2": "Publicar en la Página que elijas",
+    "step2WhatP3": "Leer el rendimiento de las publicaciones (alimenta tu panel de analítica)",
+    "step2WhatP4": "Detectar cuentas de Instagram Business vinculadas a tu Página y publicar también allí",
+    "step3Number": "Paso 3",
+    "step3Title": "Publica una propiedad",
+    "step3Body": "Panel → Propiedades → Nueva. Rellena el formulario (título, precio, habitaciones, baños, superficie, fotos). O pega la URL de un portal competidor y AHO autocompleta los campos. Pulsa Publicar. La propiedad queda activa en una URL permanente de advertisehomes.online — esa URL es la que tus publicaciones sociales enlazarán.",
+    "step4Number": "Paso 4",
+    "step4Title": "Pulsa \"Compartir en mis redes\"",
+    "step4Body": "Abre la página de edición de la propiedad. Desplázate más allá del formulario y del cargador de imágenes. Verás una tarjeta \"Compartir en mis redes\" con cada Página de Facebook y cuenta de Instagram que conectaste. Dos botones:",
+    "step4OptATitle": "Generar borrador con IA (opcional)",
+    "step4OptABody": "La IA propone leyendas específicas por plataforma que puedes leer, editar o reemplazar antes de publicar. La IA nunca publica por sí sola — tú eres quien pulsa Compartir.",
+    "step4OptBTitle": "Publicar ahora",
+    "step4OptBBody": "Publica inmediatamente en cada cuenta conectada. Tarda unos 3-5 segundos. Varias fotos se publican en Instagram como carrusel automáticamente.",
+    "successHeading": "Lo que verás cuando funcione",
+    "successP1": "Marca verde ✓ en cada Página de Facebook y cuenta de Instagram Business",
+    "successP2": "Enlace \"Ver publicación →\" a la publicación activa en cada plataforma",
+    "successP3": "Dentro de cada publicación: la URL de la propiedad en AHO — los compradores la pulsan y aterrizan en tu página",
+    "failureHeading": "Qué hacer si algo falla",
+    "failureP1": "Una fila roja ✗ muestra la plataforma que falló y un motivo corto (por ejemplo, \"imagen demasiado grande\")",
+    "failureP2": "Copia la referencia de error corta de la fila (tiene esta forma: AHO-SP-IMG-a3f7b2c1)",
+    "failureP3": "Envía un correo a info@advertisehomes.online — pega la referencia, revisamos el fallo y respondemos",
+    "failureP4": "Algunos fallos se pueden reintentar — pulsa \"Reintentar fallidos\" para volver a probar solo las cuentas que fallaron. Las publicaciones exitosas no se duplican.",
+    "ctaEyebrow": "¿Listo para empezar?",
+    "ctaHeading": "Suscríbete a Pro Automation",
+    "ctaPrice": "99 USD / mes",
+    "ctaSub": "O 990 USD/año (ahorra ~17%). Cancela cuando quieras.",
+    "ctaButton": "Empezar Pro Automation"
   }
 }

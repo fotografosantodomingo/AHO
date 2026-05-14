@@ -1339,6 +1339,12 @@
       "heading": "Twoje następne ogłoszenie może być online za 60 sekund.",
       "sub": "Pro Automation, $99/mies. Anuluj kiedy chcesz.",
       "cta": "Subskrybuj — $99/mc"
+    },
+    "manualCta": {
+      "eyebrow": "Nowy tutaj?",
+      "heading": "Przeczytaj kompletny przewodnik w 4 krokach przed subskrypcją",
+      "body": "Krótki, prosty poradnik pokazujący dokładnie co robić od rejestracji do pierwszej publikacji na Facebooku + Instagramie. Większość pośredników kończy w mniej niż 5 minut.",
+      "cta": "Przeczytaj przewodnik"
     }
   },
   "automation": {
@@ -2058,5 +2064,48 @@
     "revealing": "Pokazywanie…",
     "revealEmailAria": "Pokaż e-mail — zapisuje wpis do dziennika audytu",
     "revealPhoneAria": "Pokaż telefon — zapisuje wpis do dziennika audytu"
+  },
+  "agentGuide": {
+    "metaTitle": "Jak publikować oferty na Facebooku + Instagramie | AHO",
+    "metaDescription": "Przewodnik krok po kroku dla pośredników. Zasubskrybuj → Połącz Facebook → Opublikuj ofertę → Kliknij Udostępnij. Pierwsza publikacja gotowa w mniej niż 5 minut.",
+    "eyebrow": "Szybki start dla pośrednika",
+    "heading": "Udostępniaj oferty w mediach społecznościowych w 4 krokach",
+    "subheading": "Krótka instrukcja. Większość pośredników publikuje pierwszy post w mniej niż 5 minut od rejestracji.",
+    "step1Number": "Krok 1",
+    "step1Title": "Wykup plan Pro Automation",
+    "step1Body": "Automatyzacja social media jest częścią planu Pro Automation (99 USD/miesiąc). Tańsze plany pokazują funkcję, ale przyciski publikacji są zablokowane. Otwórz stronę cennika i wybierz Pro Automation. Płatność przez Stripe — możesz anulować w dowolnym momencie z Portalu Klienta.",
+    "step1Cta": "Przejdź do cennika",
+    "step2Number": "Krok 2",
+    "step2Title": "Połącz Facebook (jednorazowo, około 30 sekund)",
+    "step2Body": "Otwórz Panel → Social. Kliknij Połącz Facebook. Facebook wyświetli okno uprawnień z prośbą o dostęp do Twoich Stron i kont Instagram Business z nimi połączonych. Kliknij Kontynuuj. AHO nigdy nie widzi Twojego hasła do Facebooka.",
+    "step2WhatHeading": "Uprawnienia, o które prosimy Facebook:",
+    "step2WhatP1": "Wyświetlenie listy Twoich Stron Facebook",
+    "step2WhatP2": "Publikowanie postów na wybranej Stronie",
+    "step2WhatP3": "Odczyt statystyk postów (zasila Twój panel analityczny)",
+    "step2WhatP4": "Wykrycie kont Instagram Business połączonych ze Stroną i publikacja również tam",
+    "step3Number": "Krok 3",
+    "step3Title": "Opublikuj ofertę nieruchomości",
+    "step3Body": "Panel → Nieruchomości → Nowa. Wypełnij formularz (tytuł, cena, pokoje, łazienki, powierzchnia, zdjęcia). Albo wklej URL z innego portalu, a AHO automatycznie uzupełni pola. Kliknij Opublikuj. Oferta pojawia się pod stałym adresem na advertisehomes.online — to ten URL będą linkować Twoje posty.",
+    "step4Number": "Krok 4",
+    "step4Title": "Kliknij \"Udostępnij w mediach społecznościowych\"",
+    "step4Body": "Otwórz stronę edycji oferty. Przewiń poniżej formularza i uploadera zdjęć. Zobaczysz kartę \"Udostępnij w mediach społecznościowych\" z każdą Stroną Facebook i kontem Instagram, które połączyłeś. Dwa przyciski:",
+    "step4OptATitle": "Wygeneruj wersję AI (opcjonalnie)",
+    "step4OptABody": "AI proponuje opisy dopasowane do każdej platformy — możesz je przeczytać, edytować lub zastąpić własnym tekstem przed publikacją. AI nigdy nie publikuje sama — to Ty klikasz Udostępnij.",
+    "step4OptBTitle": "Udostępnij teraz",
+    "step4OptBBody": "Publikuje natychmiast na każdym połączonym koncie. Trwa około 3-5 sekund. Wiele zdjęć trafia na Instagram jako karuzela automatycznie.",
+    "successHeading": "Co zobaczysz, gdy zadziała",
+    "successP1": "Zielony znak ✓ przy każdej Stronie Facebook i koncie Instagram Business",
+    "successP2": "Link \"Zobacz post →\" prowadzący do opublikowanego postu na każdej platformie",
+    "successP3": "W każdym poście: URL oferty na AHO — kupujący go klikają i trafiają na Twoją stronę nieruchomości",
+    "failureHeading": "Co zrobić, jeśli coś się nie uda",
+    "failureP1": "Czerwony wiersz ✗ pokazuje platformę, która zawiodła, oraz krótki powód (np. \"zdjęcie za duże\")",
+    "failureP2": "Skopiuj krótki numer referencyjny błędu z wiersza (wygląda tak: AHO-SP-IMG-a3f7b2c1)",
+    "failureP3": "Napisz na info@advertisehomes.online — wklej numer, znajdziemy problem i odpowiemy",
+    "failureP4": "Niektóre błędy można ponowić — kliknij \"Ponów nieudane\", aby spróbować tylko z kontami, które zawiodły. Udane publikacje nie są duplikowane.",
+    "ctaEyebrow": "Gotowy zacząć?",
+    "ctaHeading": "Wykup Pro Automation",
+    "ctaPrice": "99 USD / miesiąc",
+    "ctaSub": "Albo 990 USD/rok (oszczędzasz ~17%). Anulujesz w dowolnym momencie.",
+    "ctaButton": "Rozpocznij Pro Automation"
   }
 }
