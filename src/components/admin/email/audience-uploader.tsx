@@ -245,9 +245,9 @@ export function AudienceUploader({ locale }: Props) {
           3. Consent (GDPR / CAN-SPAM)
         </h2>
         <p className="text-sm text-amber-900 dark:text-amber-100">
-          AHO's email send infrastructure is shared with transactional emails.
+          AHO&apos;s email send infrastructure is shared with transactional emails.
           Bulk emailing contacts who did not opt in to receive marketing from
-          you exposes both your sender reputation and AHO's domain reputation
+          you exposes both your sender reputation and AHO&apos;s domain reputation
           to spam complaints + blocklisting.
         </p>
         <label className="flex items-start gap-3 text-sm text-amber-900 dark:text-amber-100">
