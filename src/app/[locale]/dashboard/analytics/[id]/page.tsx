@@ -81,8 +81,8 @@ export default async function PropertyAnalyticsPage({
   ]);
 
   // Sprint 3 — "Social performance" tab is plan-gated to Pro Automation
-  // (matches the social-grid + /dashboard/social gating). Lower tiers
-  // don't see the empty state; they see no extra section.
+  // (matches the /dashboard/social gating). Lower tiers don't see the
+  // empty state; they see no extra section.
   const showSocialPerformance = planCtx
     ? await isOrgOnProAutomation(supabase, planCtx.orgId)
     : false;

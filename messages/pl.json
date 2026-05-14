@@ -1126,23 +1126,6 @@
     "flashDenied": "Odmówiłeś uprawnień. AHO ich potrzebuje, by publikować w Twoim imieniu — spróbuj ponownie, gdy będziesz gotowy.",
     "flashError": "Coś poszło nie tak podczas łączenia ({reason}). Spróbuj ponownie lub skontaktuj się z pomocą, jeśli problem się powtarza."
   },
-  "socialTones": {
-    "label": "Ton wypowiedzi",
-    "tones": {
-      "luxury": {
-        "label": "Luksus",
-        "description": "Aspiracyjny i ekskluzywny — eksponuje rzadkość, prestiżowy adres, jakość wykonania i styl życia jako wyznacznik statusu."
-      },
-      "investment": {
-        "label": "Inwestycja",
-        "description": "Konkretny i liczbowy — eksponuje stopę zwrotu z najmu, wzrost wartości i pozycję rynkową."
-      },
-      "family": {
-        "label": "Rodzina",
-        "description": "Ciepły i konkretny — eksponuje szkoły, spacerowy zasięg, miejsce do życia i rytm codziennego dnia."
-      }
-    }
-  },
   "social": {
     "pageHeading": "Automatyzacja social media",
     "pageSubheading": "Publikuj ogłoszenia na Facebooku, Instagramie i LinkedIn automatycznie.",
@@ -1170,27 +1153,6 @@
       "rolloutPreview": "Podgląd postów wygenerowanych przez AI przed publikacją (Faza 5)",
       "rolloutPosting": "Asynchroniczna publikacja z ponawianiem i odświeżaniem tokenów (Faza 6)",
       "rolloutHistory": "Historia publikacji z linkami zewnętrznymi i statusem (Faza 7)"
-    }
-  },
-  "manualShare": {
-    "eyebrow": "Udostępnianie ręczne",
-    "heading": "Udostępnij na swoich kanałach społecznościowych",
-    "body": "Gotowe opisy na Facebook, Instagram, LinkedIn i WhatsApp — kopiuj i wklej z telefonu lub laptopa.",
-    "openButton": "Pobierz tekst do udostępnienia",
-    "inlineButtonLabel": "Udostępnij",
-    "inlineButtonAria": "Udostępnij to ogłoszenie w social media",
-    "modalHeading": "Udostępnij to ogłoszenie",
-    "close": "Zamknij",
-    "tablistLabel": "Wybierz platformę",
-    "captionLabel": "Tekst opisu",
-    "copyCaption": "Skopiuj opis",
-    "copied": "Skopiowano!",
-    "openWhatsApp": "Otwórz w WhatsApp",
-    "tip": {
-      "facebook": "Wklej to na swojej Stronie lub w Grupie. Link wygeneruje bogaty podgląd po opublikowaniu.",
-      "instagram": "Instagram nie pozwala klikać linków w opisach — wklej tekst do posta i umieść URL w bio.",
-      "linkedin": "Najlepiej działa jako post osobisty albo udostępniony na stronie firmy.",
-      "whatsapp": "Stuknij \"Otwórz w WhatsApp\", by wybrać kontakt, albo skopiuj tekst i wyślij ręcznie."
     }
   },
   "analytics": {

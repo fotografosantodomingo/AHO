@@ -16,10 +16,6 @@ import {
 } from '@/lib/billing/plan-gating';
 import { LockedSocialModule } from '@/components/social/locked-social-module';
 import { UnlockedSocialPlaceholder } from '@/components/social/unlocked-social-placeholder';
-import { ManualShareModule } from '@/components/listings/manual-share-module';
-import { SocialGrid } from '@/components/dashboard/social-grid';
-import { getCountryName } from '@/lib/i18n/countries';
-import { publicEnv } from '@/lib/env';
 
 export const runtime = 'edge';
 
@@ -160,43 +156,11 @@ export default async function EditListingPage({
         initialCount={listing.image_count}
       />
 
-      {/* Manual social share — Phase 3 of the social-distribution spec.
-          Available to all paid agents (regardless of tier) since this is
-          the manual stopgap that runs while Phase 4+ OAuth + auto-posting
-          waits on Meta + LinkedIn app review. Only renders once the
-          listing has a public URL — drafts without a slug have nothing
-          shareable yet. */}
-      {publicPath && (
-        <ManualShareModule
-          share={{
-            title,
-            city: listing.city,
-            countryDisplay: getCountryName(listing.country_code, typedLocale),
-            priceCents: Number(listing.price_cents),
-            currency: listing.currency,
-            bedrooms: listing.bedrooms,
-            bathrooms: listing.bathrooms != null ? Number(listing.bathrooms) : null,
-            areaSqm: listing.area_sqm != null ? Number(listing.area_sqm) : null,
-            baseUrl: `${publicEnv().NEXT_PUBLIC_SITE_URL}${publicPath}`,
-            locale: typedLocale,
-          }}
-        />
-      )}
-
-      {/* AI Content Hub — generate 21 caption variants (3 platforms × 7
-          locales) for this published listing. Each variant has the
-          listing's permanent AHO URL embedded so social posts link back
-          to advertisehomes.online. Pro Automation tier only;
-          published listings only (the API enforces both server-side). */}
-      {proUnlocked && listing.status === 'active' && (
-        <SocialGrid propertyId={listing.id} locale={typedLocale} />
-      )}
-
       {/* Social Media Automation module — visible to all paid agents,
           interactive only on Pro Automation. Lower tiers see the
-          locked upsell + "Upgrade to Pro Automation" CTA. The Content
-          Hub above is the new primary surface; this placeholder
-          remains for the rollout-status copy until Phase 4 ships. */}
+          locked upsell + "Upgrade to Pro Automation" CTA. Phase F of
+          docs/SOCIAL_AUTOMATION_PLAN.md replaces this with the real
+          "Share to my socials" surface. */}
       {proUnlocked ? (
         <UnlockedSocialPlaceholder locale={typedLocale} />
       ) : (

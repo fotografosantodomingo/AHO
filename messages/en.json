@@ -1160,23 +1160,6 @@
     "flashDenied": "You declined the permissions. AHO needs them to publish on your behalf — try again when you're ready.",
     "flashError": "Something went wrong while connecting ({reason}). Try again, or contact support if it persists."
   },
-  "socialTones": {
-    "label": "Tone of voice",
-    "tones": {
-      "luxury": {
-        "label": "Luxury",
-        "description": "Aspirational and exclusive — leads with rarity, address, craftsmanship, and lifestyle as a status signal."
-      },
-      "investment": {
-        "label": "Investment",
-        "description": "Numerate and grounded — leads with rental yield, capital appreciation, and market positioning."
-      },
-      "family": {
-        "label": "Family",
-        "description": "Warm and concrete — leads with schools, walkability, room to grow, and the rhythm of daily life."
-      }
-    }
-  },
   "social": {
     "pageHeading": "Social Media Automation",
     "pageSubheading": "Post your listings to Facebook, Instagram and LinkedIn automatically.",
@@ -1204,27 +1187,6 @@
       "rolloutPreview": "Preview AI-generated posts before publishing (Phase 5)",
       "rolloutPosting": "Async posting with retry + token refresh (Phase 6)",
       "rolloutHistory": "Post history with external links + status (Phase 7)"
-    }
-  },
-  "manualShare": {
-    "eyebrow": "Manual share",
-    "heading": "Share to your social channels",
-    "body": "Pre-formatted captions for Facebook, Instagram, LinkedIn and WhatsApp — copy and paste from your phone or laptop.",
-    "openButton": "Get share text",
-    "inlineButtonLabel": "Share",
-    "inlineButtonAria": "Share this listing on social media",
-    "modalHeading": "Share this listing",
-    "close": "Close",
-    "tablistLabel": "Choose a platform",
-    "captionLabel": "Caption text",
-    "copyCaption": "Copy caption",
-    "copied": "Copied!",
-    "openWhatsApp": "Open in WhatsApp",
-    "tip": {
-      "facebook": "Paste this on your Page or in a Group. The link generates a rich preview when posted.",
-      "instagram": "Instagram doesn't make captions clickable — paste this in your post and put the URL in your bio.",
-      "linkedin": "Best as a personal post or shared on your company page.",
-      "whatsapp": "Tap \"Open in WhatsApp\" to pick a contact, or copy the text and send manually."
     }
   },
   "analytics": {

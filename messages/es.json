@@ -1160,23 +1160,6 @@
     "flashDenied": "Rechazaste los permisos. AHO los necesita para publicar en tu nombre — vuelve a intentarlo cuando estés listo.",
     "flashError": "Algo salió mal al conectar ({reason}). Inténtalo de nuevo, o contacta soporte si persiste."
   },
-  "socialTones": {
-    "label": "Tono de voz",
-    "tones": {
-      "luxury": {
-        "label": "Lujo",
-        "description": "Aspiracional y exclusivo — destaca rareza, dirección, oficio y estilo de vida como signo de estatus."
-      },
-      "investment": {
-        "label": "Inversión",
-        "description": "Numérico y fundamentado — destaca rentabilidad por alquiler, plusvalía y posicionamiento de mercado."
-      },
-      "family": {
-        "label": "Familia",
-        "description": "Cálido y concreto — destaca colegios, paseos a pie, espacio para crecer y el ritmo del día a día."
-      }
-    }
-  },
   "social": {
     "pageHeading": "Automatización de Redes Sociales",
     "pageSubheading": "Publica tus anuncios automáticamente en Facebook, Instagram y LinkedIn.",
@@ -1204,27 +1187,6 @@
       "rolloutPreview": "Previsualizar publicaciones generadas por IA antes de publicar (Fase 5)",
       "rolloutPosting": "Publicación asíncrona con reintento + renovación de tokens (Fase 6)",
       "rolloutHistory": "Historial de publicaciones con enlaces externos + estado (Fase 7)"
-    }
-  },
-  "manualShare": {
-    "eyebrow": "Publicación manual",
-    "heading": "Comparte en tus redes sociales",
-    "body": "Subtítulos pre-formateados para Facebook, Instagram, LinkedIn y WhatsApp — copia y pega desde tu teléfono o laptop.",
-    "openButton": "Obtener texto",
-    "inlineButtonLabel": "Compartir",
-    "inlineButtonAria": "Compartir este anuncio en redes sociales",
-    "modalHeading": "Compartir este anuncio",
-    "close": "Cerrar",
-    "tablistLabel": "Elige una plataforma",
-    "captionLabel": "Texto del subtítulo",
-    "copyCaption": "Copiar texto",
-    "copied": "¡Copiado!",
-    "openWhatsApp": "Abrir en WhatsApp",
-    "tip": {
-      "facebook": "Pega esto en tu Página o en un Grupo. El enlace genera una vista previa enriquecida al publicar.",
-      "instagram": "Instagram no permite enlaces clicables en subtítulos — pega esto en tu publicación y pon la URL en tu bio.",
-      "linkedin": "Mejor como publicación personal o compartido en tu página de empresa.",
-      "whatsapp": "Toca \"Abrir en WhatsApp\" para elegir un contacto, o copia el texto y envíalo manualmente."
     }
   },
   "analytics": {

@@ -1163,23 +1163,6 @@
     "flashDenied": "Você recusou as permissões. O AHO precisa delas para publicar em seu nome — tente novamente quando estiver pronto.",
     "flashError": "Algo deu errado ao conectar ({reason}). Tente novamente, ou contate o suporte se persistir."
   },
-  "socialTones": {
-    "label": "Tom de voz",
-    "tones": {
-      "luxury": {
-        "label": "Luxo",
-        "description": "Aspiracional e exclusivo — destaca raridade, endereço, requinte e estilo de vida como sinal de status."
-      },
-      "investment": {
-        "label": "Investimento",
-        "description": "Numérico e fundamentado — destaca rentabilidade do aluguel, valorização e posicionamento de mercado."
-      },
-      "family": {
-        "label": "Família",
-        "description": "Acolhedor e concreto — destaca escolas, caminhabilidade, espaço para crescer e o ritmo do dia a dia."
-      }
-    }
-  },
   "social": {
     "pageHeading": "Automação de Redes Sociais",
     "pageSubheading": "Publique seus anúncios no Facebook, Instagram e LinkedIn automaticamente.",
@@ -1207,27 +1190,6 @@
       "rolloutPreview": "Pré-visualizar posts gerados por IA antes de publicar (Fase 5)",
       "rolloutPosting": "Postagem assíncrona com retry + renovação de token (Fase 6)",
       "rolloutHistory": "Histórico de posts com links externos + status (Fase 7)"
-    }
-  },
-  "manualShare": {
-    "eyebrow": "Compartilhamento manual",
-    "heading": "Compartilhe nas suas redes sociais",
-    "body": "Legendas pré-formatadas para Facebook, Instagram, LinkedIn e WhatsApp — copie e cole do seu celular ou notebook.",
-    "openButton": "Obter texto para compartilhar",
-    "inlineButtonLabel": "Compartilhar",
-    "inlineButtonAria": "Compartilhar este anúncio nas redes sociais",
-    "modalHeading": "Compartilhar este anúncio",
-    "close": "Fechar",
-    "tablistLabel": "Escolha uma plataforma",
-    "captionLabel": "Texto da legenda",
-    "copyCaption": "Copiar legenda",
-    "copied": "Copiado!",
-    "openWhatsApp": "Abrir no WhatsApp",
-    "tip": {
-      "facebook": "Cole isto na sua Página ou em um Grupo. O link gera prévia rica quando publicado.",
-      "instagram": "O Instagram não torna legendas clicáveis — cole isto no seu post e coloque a URL na sua bio.",
-      "linkedin": "Melhor como post pessoal ou compartilhado na página da sua empresa.",
-      "whatsapp": "Toque em \"Abrir no WhatsApp\" para escolher um contato, ou copie o texto e envie manualmente."
     }
   },
   "analytics": {

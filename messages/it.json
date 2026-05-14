@@ -1163,23 +1163,6 @@
     "flashDenied": "Hai rifiutato i permessi. AHO ne ha bisogno per pubblicare per tuo conto — riprova quando sei pronto.",
     "flashError": "Qualcosa è andato storto durante il collegamento ({reason}). Riprova o contatta il supporto se persiste."
   },
-  "socialTones": {
-    "label": "Tono di voce",
-    "tones": {
-      "luxury": {
-        "label": "Lusso",
-        "description": "Aspirazionale ed esclusivo — mette in primo piano rarità, indirizzo, sapienza artigianale e stile di vita come segno di status."
-      },
-      "investment": {
-        "label": "Investimento",
-        "description": "Numerico e concreto — mette in primo piano rendita da locazione, rivalutazione del capitale e posizionamento di mercato."
-      },
-      "family": {
-        "label": "Famiglia",
-        "description": "Caloroso e concreto — mette in primo piano scuole, percorsi a piedi, spazio per crescere e il ritmo della vita quotidiana."
-      }
-    }
-  },
   "social": {
     "pageHeading": "Automazione Social Media",
     "pageSubheading": "Pubblica i tuoi annunci su Facebook, Instagram e LinkedIn automaticamente.",
@@ -1207,27 +1190,6 @@
       "rolloutPreview": "Anteprima dei post generati dall'IA prima della pubblicazione (Fase 5)",
       "rolloutPosting": "Pubblicazione asincrona con retry + refresh del token (Fase 6)",
       "rolloutHistory": "Storico pubblicazioni con link esterni + stato (Fase 7)"
-    }
-  },
-  "manualShare": {
-    "eyebrow": "Condivisione manuale",
-    "heading": "Condividi sui tuoi canali social",
-    "body": "Caption pre-formattate per Facebook, Instagram, LinkedIn e WhatsApp — copia e incolla dal telefono o dal computer.",
-    "openButton": "Ottieni testo di condivisione",
-    "inlineButtonLabel": "Condividi",
-    "inlineButtonAria": "Condividi questo annuncio sui social",
-    "modalHeading": "Condividi questo annuncio",
-    "close": "Chiudi",
-    "tablistLabel": "Scegli una piattaforma",
-    "captionLabel": "Testo della caption",
-    "copyCaption": "Copia caption",
-    "copied": "Copiato!",
-    "openWhatsApp": "Apri in WhatsApp",
-    "tip": {
-      "facebook": "Incolla questo sulla tua Pagina o in un Gruppo. Il link genera un'anteprima ricca quando pubblicato.",
-      "instagram": "Instagram non rende cliccabili le caption — incolla questo nel post e metti l'URL nella tua bio.",
-      "linkedin": "Funziona meglio come post personale o condiviso sulla pagina aziendale.",
-      "whatsapp": "Tocca \"Apri in WhatsApp\" per scegliere un contatto, oppure copia il testo e invialo manualmente."
     }
   },
   "analytics": {

@@ -262,23 +262,6 @@
     "fr": "Français",
     "it": "Italiano"
   },
-  "socialTones": {
-    "label": "Ton de voix",
-    "tones": {
-      "luxury": {
-        "label": "Luxe",
-        "description": "Aspirationnel et exclusif — met en avant la rareté, l'adresse, le savoir-faire et l'art de vivre comme signe de statut."
-      },
-      "investment": {
-        "label": "Investissement",
-        "description": "Chiffré et concret — met en avant la rentabilité locative, la plus-value et le positionnement de marché."
-      },
-      "family": {
-        "label": "Famille",
-        "description": "Chaleureux et concret — met en avant les écoles, les déplacements à pied, la place pour grandir et le rythme du quotidien."
-      }
-    }
-  },
   "auth": {
     "email": "E-mail",
     "password": "Mot de passe",
@@ -1510,27 +1493,6 @@
       "rolloutPreview": "Aperçu des publications générées par IA avant publication (Phase 5)",
       "rolloutPosting": "Publication asynchrone avec retry + renouvellement de token (Phase 6)",
       "rolloutHistory": "Historique des publications avec liens externes + statut (Phase 7)"
-    }
-  },
-  "manualShare": {
-    "eyebrow": "Partage manuel",
-    "heading": "Partagez sur vos réseaux sociaux",
-    "body": "Légendes pré-formatées pour Facebook, Instagram, LinkedIn et WhatsApp — copiez-collez depuis votre téléphone ou votre ordinateur.",
-    "openButton": "Obtenir le texte de partage",
-    "inlineButtonLabel": "Partager",
-    "inlineButtonAria": "Partager cette annonce sur les réseaux sociaux",
-    "modalHeading": "Partager cette annonce",
-    "close": "Fermer",
-    "tablistLabel": "Choisir une plateforme",
-    "captionLabel": "Texte de la légende",
-    "copyCaption": "Copier la légende",
-    "copied": "Copié !",
-    "openWhatsApp": "Ouvrir dans WhatsApp",
-    "tip": {
-      "facebook": "Collez ceci sur votre Page ou dans un Groupe. Le lien génère un aperçu enrichi à la publication.",
-      "instagram": "Instagram ne rend pas les légendes cliquables — collez ceci dans votre publication et placez l'URL dans votre bio.",
-      "linkedin": "Idéal en publication personnelle ou partagé sur la page de votre entreprise.",
-      "whatsapp": "Touchez « Ouvrir dans WhatsApp » pour choisir un contact, ou copiez le texte et envoyez-le manuellement."
     }
   },
   "analytics": {

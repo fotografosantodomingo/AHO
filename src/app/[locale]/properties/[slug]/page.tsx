@@ -28,7 +28,6 @@ import { TrackPropertyView } from '@/components/listings/track-property-view';
 import { RecentlyViewed } from '@/components/listings/recently-viewed';
 import { TrackedLink } from '@/components/listings/tracked-link';
 import { TrackGalleryOpen } from '@/components/listings/track-gallery-open';
-import { ManualShareModule } from '@/components/listings/manual-share-module';
 
 export const runtime = 'edge';
 // Force dynamic rendering on every request. Without this, Cloudflare
@@ -362,22 +361,6 @@ export default async function PropertyDetailPage({
                 isAuthed={!!userId}
                 locale={typedLocale}
                 size="detail"
-              />
-              <ManualShareModule
-                variant="inline"
-                share={{
-                  title: title,
-                  city: property.city,
-                  countryDisplay: getCountryName(property.countryCode, typedLocale),
-                  priceCents: property.priceCents,
-                  currency: property.currency,
-                  bedrooms: property.bedrooms,
-                  bathrooms: property.bathrooms,
-                  areaSqm: property.areaSqm,
-                  baseUrl: `${_site}${localePath(typedLocale, '/properties/[slug]').replace('/[slug]', '')}/${canonicalSlug ?? parsed.slugPart}-${property.shortId}`,
-                  locale: typedLocale,
-                  campaign: 'visitor_share',
-                }}
               />
             </div>
           </div>

@@ -262,23 +262,6 @@
     "fr": "Français",
     "it": "Italiano"
   },
-  "socialTones": {
-    "label": "Tonfall",
-    "tones": {
-      "luxury": {
-        "label": "Luxus",
-        "description": "Aspirativ und exklusiv — stellt Seltenheit, Lage, Handwerkskunst und Lebensstil als Statussignal in den Vordergrund."
-      },
-      "investment": {
-        "label": "Investment",
-        "description": "Sachlich und fundiert — stellt Mietrendite, Wertsteigerung und Marktpositionierung in den Vordergrund."
-      },
-      "family": {
-        "label": "Familie",
-        "description": "Warm und konkret — stellt Schulen, fußläufige Erreichbarkeit, Platz zum Wachsen und den Alltagsrhythmus in den Vordergrund."
-      }
-    }
-  },
   "auth": {
     "email": "E-Mail",
     "password": "Passwort",
@@ -1510,27 +1493,6 @@
       "rolloutPreview": "Vorschau KI-generierter Posts vor Veröffentlichung (Phase 5)",
       "rolloutPosting": "Asynchrones Posting mit Retry + Token-Erneuerung (Phase 6)",
       "rolloutHistory": "Post-Historie mit externen Links + Status (Phase 7)"
-    }
-  },
-  "manualShare": {
-    "eyebrow": "Manuelles Teilen",
-    "heading": "Auf Ihren Social-Kanälen teilen",
-    "body": "Vorformatierte Texte für Facebook, Instagram, LinkedIn und WhatsApp — vom Telefon oder Laptop kopieren und einfügen.",
-    "openButton": "Teilen-Text holen",
-    "inlineButtonLabel": "Teilen",
-    "inlineButtonAria": "Dieses Inserat in sozialen Medien teilen",
-    "modalHeading": "Dieses Inserat teilen",
-    "close": "Schließen",
-    "tablistLabel": "Plattform wählen",
-    "captionLabel": "Caption-Text",
-    "copyCaption": "Caption kopieren",
-    "copied": "Kopiert!",
-    "openWhatsApp": "In WhatsApp öffnen",
-    "tip": {
-      "facebook": "Auf Ihrer Seite oder in einer Gruppe einfügen. Der Link erzeugt beim Posten eine reichhaltige Vorschau.",
-      "instagram": "Instagram macht Captions nicht klickbar — fügen Sie diesen Text in Ihren Post ein und packen Sie die URL in Ihre Bio.",
-      "linkedin": "Am besten als persönlicher Post oder geteilt auf Ihrer Unternehmensseite.",
-      "whatsapp": "Tippen Sie auf \"In WhatsApp öffnen\", um einen Kontakt zu wählen, oder kopieren Sie den Text und senden Sie ihn manuell."
     }
   },
   "analytics": {
