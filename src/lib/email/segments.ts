@@ -83,7 +83,30 @@ export const SEGMENTS: readonly SegmentDefinition[] = [
 export type SegmentKey = (typeof SEGMENTS)[number]['key'];
 
 export function findSegment(key: string): SegmentDefinition | null {
+  if (key.startsWith('audience:')) {
+    return AUDIENCE_SEGMENT;
+  }
   return SEGMENTS.find((s) => s.key === key) ?? null;
+}
+
+/**
+ * Synthetic segment definition for any `audience:<uuid>` key. The
+ * audience id is parsed out by the resolver below and passed to
+ * segment_email_audience(uuid). Not enumerated in SEGMENTS — it
+ * doesn't make sense as a static dropdown choice; the composer
+ * fetches the list of audiences from the DB and renders one option
+ * per row.
+ */
+const AUDIENCE_SEGMENT: SegmentDefinition = {
+  key: 'audience',
+  label: 'Custom audience',
+  description: 'Resolved from an uploaded contact list.',
+  rpcName: 'segment_email_audience',
+};
+
+export function parseAudienceKey(key: string): string | null {
+  if (!key.startsWith('audience:')) return null;
+  return key.slice('audience:'.length);
 }
 
 export interface SegmentRecipient {
@@ -114,7 +137,17 @@ export async function resolveSegment({
   if (!seg) {
     throw new Error(`unknown segment_key: ${segmentKey}`);
   }
-  const args = seg.needsAdminId ? { p_admin_id: adminId } : undefined;
+  // Three argument shapes:
+  //   - audience:<uuid>  → { p_audience_id: <uuid> }
+  //   - test_self        → { p_admin_id: <adminId> }
+  //   - everything else  → no args
+  let args: Record<string, unknown> | undefined;
+  const audienceId = parseAudienceKey(segmentKey);
+  if (audienceId) {
+    args = { p_audience_id: audienceId };
+  } else if (seg.needsAdminId) {
+    args = { p_admin_id: adminId };
+  }
   const { data, error } = await supabase.rpc(seg.rpcName, args);
   if (error) {
     throw new Error(`segment resolve failed: ${error.message}`);

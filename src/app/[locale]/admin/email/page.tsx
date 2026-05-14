@@ -83,12 +83,20 @@ export default async function AdminEmailPage({
         <h1 className="font-brand text-2xl font-semibold tracking-tight md:text-[26px]">
           Email · Campaigns ({campaigns.length})
         </h1>
-        <Link
-          href={`/${locale}/admin/email/new`}
-          className="inline-flex h-9 items-center rounded-lg bg-action px-4 text-sm font-semibold text-white shadow-whisper transition hover:opacity-90 dark:bg-action-dark dark:text-surface-deep"
-        >
-          + New campaign
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href={`/${locale}/admin/email/audiences`}
+            className="inline-flex h-9 items-center rounded-lg border border-border-strong bg-surface px-4 text-sm font-medium transition hover:bg-black/5 dark:bg-surface-deep dark:hover:bg-white/5"
+          >
+            Audiences
+          </Link>
+          <Link
+            href={`/${locale}/admin/email/new`}
+            className="inline-flex h-9 items-center rounded-lg bg-action px-4 text-sm font-semibold text-white shadow-whisper transition hover:opacity-90 dark:bg-action-dark dark:text-surface-deep"
+          >
+            + New campaign
+          </Link>
+        </div>
       </div>
 
       <section
