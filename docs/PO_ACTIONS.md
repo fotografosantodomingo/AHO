@@ -2,7 +2,25 @@
 
 Items that block forward motion on AHO and that **only the product owner can do** because they require credentials, registrar access, lawyer engagement, or commercial decisions outside Claude's scope. Sorted by impact-per-minute.
 
-Last updated: 2026-05-10
+Last updated: 2026-05-13
+
+---
+
+## 0. Meta App Review submission — files the $99 Pro Automation feature (estimated 4-8 wks turnaround)
+
+**Why it matters:** Phase A-F of the social-publish feature shipped 2026-05-13 — code is ready end-to-end. The remaining gate to "real $99 customer can publish on Facebook + Instagram" is Meta App Review. Without approval, only Facebook accounts added to App Roles can OAuth and publish (dev-mode tester path). Originally scheduled for slice-1 week 1 per `DECISIONS.md` 2026-04-29; slipped. Filing now puts approval in flight while dev moves to Phase G (token-refresh cron) in parallel.
+
+**What to do:** open `docs/META_APP_REVIEW_SUBMISSION.md` — it's the complete pack:
+1. **§2.2 — Fix the OAuth dialog 502 first** (it's been broken since 2026-05-07, debug checklist included). Filing without fixing → rejection-rate goes up because reviewers test the dialog.
+2. **§3 — Per-permission text** (4 permissions: `pages_show_list`, `pages_manage_posts`, `instagram_basic`, `instagram_content_publish`). Copy/paste verbatim into the dashboard.
+3. **§4 — Screencast script** (~3:30 outline with timestamps + narration). Record against the test agent account; upload to the submission form.
+4. **§5 — Free-form app-details + test-instructions text**. Copy/paste.
+5. **§6 — Post-approval steps**. App Mode flip to Live + DECISIONS.md entry per CLAUDE.md hard rule #9.
+6. **§7 — End-to-end smoke test** (9-step probe before opening public Pro Automation enrollment).
+
+**Done when:** Meta dashboard shows "In Review" for all 4 permissions. Surface the date in PROGRESS.md so we can track the calendar.
+
+**Parallel work:** Dev moves to Phase G (token-refresh cron + connection-test endpoint) while waiting. PO_ACTION #2 (custom domain) also helps — Meta reviewers prefer canonical domains over `.pages.dev`.
 
 ---
 
