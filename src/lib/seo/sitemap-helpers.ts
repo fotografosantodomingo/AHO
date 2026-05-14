@@ -102,6 +102,12 @@ export function buildContentAlternates(args: {
 /**
  * Marketing chrome pathnames keys — pages that emit one entry per
  * locale (7 entries each). Order is preserved in the sitemap output.
+ *
+ * `/docs` added 2026-05-14: the documentation hub has per-locale
+ * slugs (/documentacion, /dokumentacja, …) and Google deep-links to
+ * its section anchors (#agents-billing etc.) via the H2 ids on the
+ * page — but only if the page itself is in a sitemap. Was missing
+ * before.
  */
 export const MARKETING_PATH_KEYS = [
   '/',
@@ -109,6 +115,7 @@ export const MARKETING_PATH_KEYS = [
   '/privacy',
   '/terms',
   '/countries',
+  '/docs',
 ] as const;
 
 /** Per-page change-frequency + priority hints for the marketing chrome. */
@@ -121,6 +128,7 @@ const MARKETING_HINTS: Record<
   '/privacy': { changeFrequency: 'yearly', priority: 0.2 },
   '/terms': { changeFrequency: 'yearly', priority: 0.2 },
   '/countries': { changeFrequency: 'daily', priority: 0.6 },
+  '/docs': { changeFrequency: 'monthly', priority: 0.5 },
 };
 
 /**

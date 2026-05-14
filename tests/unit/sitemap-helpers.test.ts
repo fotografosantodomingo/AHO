@@ -114,10 +114,12 @@ describe('sitemap-helpers / buildContentAlternates', () => {
 });
 
 describe('sitemap-helpers / buildMarketingChromeEntries', () => {
-  it('emits one entry per page per locale (5 pages * 7 locales = 35)', () => {
+  it('emits one entry per page per locale (6 pages * 7 locales = 42)', () => {
     const entries = buildMarketingChromeEntries({ siteUrl: SITE });
     expect(entries.length).toBe(MARKETING_PATH_KEYS.length * LOCALES.length);
-    expect(entries.length).toBe(35);
+    // 6 marketing pages (homepage + /pricing + /privacy + /terms +
+    // /countries + /docs) × 7 locales = 42.
+    expect(entries.length).toBe(42);
   });
 
   it('uses the fixed MARKETING_LASTMOD constant by default (no per-request churn)', () => {
