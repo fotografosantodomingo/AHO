@@ -122,6 +122,12 @@ const serverSchema = z.object({
   // when set. Optional so build-time validation passes in envs that
   // haven't wired the cron yet.
   CRON_SECRET: z.string().min(32).optional(),
+  /** Tawk.to webhook signing secret. Set in the Tawk dashboard
+   *  (Administration → Webhooks → per-webhook secret). The webhook
+   *  handler at /api/webhooks/tawk HMAC-SHA1-verifies the raw body
+   *  against this secret before processing. Missing in deployed env
+   *  ⇒ handler returns 503 and Tawk retries with backoff. */
+  TAWK_WEBHOOK_SECRET: z.string().min(1).optional(),
 });
 
 export type PublicEnv = z.infer<typeof publicSchema>;
