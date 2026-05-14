@@ -66,15 +66,13 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    // Single sitemap-index entry — crawlers fetch the index once and
-    // traverse to every child sitemap (URL sitemap + image sitemap
-    // today; per-locale or per-resource splits when inventory grows
-    // past ~30K URLs and the URL sitemap nears the 50K-URL cap). This
-    // is the canonical entry point per sitemaps.org § "Using sitemap
-    // index files". The individual sitemaps remain reachable directly
-    // (`/sitemap.xml`, `/sitemap-images.xml`) so existing inbound
-    // references and Search Console submissions don't break.
-    sitemap: [`${site}/sitemap-index.xml`],
+    // Canonical entry point per sitemaps.org § "Using sitemap index
+    // files". `/sitemap.xml` IS the master index (refactored 2026-05-14);
+    // it lists 6 sub-sitemaps (pages / landings / properties / agents /
+    // locations / images). Each sub-sitemap is independently fetched by
+    // crawlers, so adding one listing only bumps the freshness signal
+    // for /sitemap-properties.xml instead of the entire URL set.
+    sitemap: [`${site}/sitemap.xml`],
     host: site,
   };
 }

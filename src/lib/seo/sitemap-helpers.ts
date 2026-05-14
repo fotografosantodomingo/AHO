@@ -171,3 +171,135 @@ export function maxDate(
   }
   return best;
 }
+
+// ============================================================
+// XML rendering primitives (used by the per-resource sitemap routes
+// + the master /sitemap.xml index — replaced the single-file
+// MetadataRoute.Sitemap default export on 2026-05-14 with a 6-child
+// sitemap-index layout so new listings only bump
+// /sitemap-properties.xml, not the whole tree.)
+// ============================================================
+
+/** XML escape for content placed between tags or inside attribute values. */
+export function escapeXml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+/** A single <url> entry in a sitemap, with optional hreflang alternates. */
+export interface UrlEntry {
+  loc: string;
+  lastmod?: Date;
+  changefreq?: MetadataRoute.Sitemap[number]['changeFrequency'];
+  priority?: number;
+  /** Map of hreflang code → absolute URL. Renders as
+   *  `<xhtml:link rel="alternate" hreflang="…" href="…" />` children. */
+  alternates?: Record<string, string>;
+}
+
+function indent(s: string, n: number): string {
+  return ' '.repeat(n) + s;
+}
+
+function urlEntryLines(entry: UrlEntry): string[] {
+  const lines: string[] = ['<url>'];
+  lines.push(indent(`<loc>${escapeXml(entry.loc)}</loc>`, 2));
+  if (entry.alternates) {
+    for (const [hreflang, href] of Object.entries(entry.alternates)) {
+      if (!href) continue;
+      lines.push(
+        indent(
+          `<xhtml:link rel="alternate" hreflang="${escapeXml(hreflang)}" href="${escapeXml(href)}" />`,
+          2,
+        ),
+      );
+    }
+  }
+  if (entry.lastmod) {
+    lines.push(indent(`<lastmod>${entry.lastmod.toISOString()}</lastmod>`, 2));
+  }
+  if (entry.changefreq) {
+    lines.push(indent(`<changefreq>${entry.changefreq}</changefreq>`, 2));
+  }
+  if (typeof entry.priority === 'number') {
+    lines.push(indent(`<priority>${entry.priority.toFixed(1)}</priority>`, 2));
+  }
+  lines.push('</url>');
+  return lines;
+}
+
+/** Build a full `<urlset>` sitemap XML document from a list of entries. */
+export function renderSitemap(entries: ReadonlyArray<UrlEntry>): string {
+  const lines: string[] = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">',
+  ];
+  for (const entry of entries) {
+    lines.push(...urlEntryLines(entry));
+  }
+  lines.push('</urlset>');
+  return lines.join('\n');
+}
+
+/** A single child of a sitemap-index document. */
+export interface SitemapIndexChild {
+  loc: string;
+  lastmod?: Date;
+}
+
+/** Build a full `<sitemapindex>` document for the master /sitemap.xml. */
+export function renderSitemapIndex(
+  children: ReadonlyArray<SitemapIndexChild>,
+): string {
+  const lines: string[] = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+  ];
+  for (const child of children) {
+    lines.push('  <sitemap>');
+    lines.push(indent(`<loc>${escapeXml(child.loc)}</loc>`, 4));
+    if (child.lastmod) {
+      lines.push(indent(`<lastmod>${child.lastmod.toISOString()}</lastmod>`, 4));
+    }
+    lines.push('  </sitemap>');
+  }
+  lines.push('</sitemapindex>');
+  return lines.join('\n');
+}
+
+/** Convert MetadataRoute.Sitemap entries to UrlEntry — bridges the old
+ *  helpers (buildMarketingChromeEntries) to the new XML renderer. */
+export function metadataToUrlEntries(
+  entries: ReadonlyArray<MetadataRoute.Sitemap[number]>,
+): UrlEntry[] {
+  return entries.map((e) => ({
+    loc: e.url,
+    lastmod:
+      e.lastModified instanceof Date
+        ? e.lastModified
+        : e.lastModified
+          ? new Date(e.lastModified)
+          : undefined,
+    changefreq: e.changeFrequency,
+    priority: e.priority,
+    alternates: e.alternates?.languages as Record<string, string> | undefined,
+  }));
+}
+
+/** Build an HTTP Response with the right Content-Type + sensible cache
+ *  headers for a sitemap XML body. `cacheSeconds` controls both max-age
+ *  and s-maxage (CDN cache). 300s default = sitemap stays fresh enough
+ *  for incremental crawl signals without hammering Supabase. */
+export function xmlResponse(body: string, cacheSeconds = 300): Response {
+  return new Response(body, {
+    status: 200,
+    headers: {
+      'content-type': 'application/xml; charset=UTF-8',
+      'cache-control': `public, max-age=${cacheSeconds}, s-maxage=${cacheSeconds * 2}`,
+    },
+  });
+}
