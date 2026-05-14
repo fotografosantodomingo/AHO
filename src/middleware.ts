@@ -100,6 +100,14 @@ export const config = {
     //   - SEO metadata routes (sitemap.xml, robots.txt) — they live at the
     //     site root and must NOT get a locale prefix; otherwise crawlers see
     //     a 307 to `/en/sitemap.xml` and ignore the canonical URL.
+    //     Match `sitemap.xml` AND every child of the sitemap-index split
+    //     shipped 2026-05-14 (sitemap-pages, sitemap-landings,
+    //     sitemap-properties, sitemap-agents, sitemap-locations,
+    //     sitemap-images) via `sitemap(?:-[a-z]+)?\\.xml`. Bug
+    //     2026-05-14: only `sitemap.xml` + `sitemap-images.xml` were
+    //     listed literally, so the 5 new sub-sitemaps fell through to
+    //     next-intl which 307'd them to `/en/…` and Google reported
+    //     "Couldn't fetch" on every child of the index.
     //   - PWA root assets (sw.js, manifest.webmanifest) — service worker
     //     registration scope is `/`, so these must stay at the site root
     //     without a locale prefix.
@@ -111,6 +119,6 @@ export const config = {
     //   - `.css` files anywhere — locale-prefixing a stylesheet has no
     //     legitimate use case and breaks every static-CSS asset that
     //     gets fetched outside `_next/static`.
-    '/((?!_next/static|_next/image|favicon\\.ico|icon|apple-icon|sitemap\\.xml|sitemap-images\\.xml|robots\\.txt|sw\\.js|manifest\\.webmanifest|leaflet/|.*\\.(?:css|svg|png|jpg|jpeg|gif|webp|avif|ico)$|api/|auth/callback).*)',
+    '/((?!_next/static|_next/image|favicon\\.ico|icon|apple-icon|sitemap(?:-[a-z]+)?\\.xml|robots\\.txt|sw\\.js|manifest\\.webmanifest|leaflet/|.*\\.(?:css|svg|png|jpg|jpeg|gif|webp|avif|ico)$|api/|auth/callback).*)',
   ],
 };
