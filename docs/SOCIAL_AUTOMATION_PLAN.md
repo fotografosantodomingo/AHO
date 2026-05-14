@@ -23,38 +23,35 @@ If any of these eight is "best-effort" instead of "guaranteed", we don't ship to
 
 ---
 
-## 2. Current state — 2026-05-12
+## 2. Current state — 2026-05-13 (Phases A-F + J + K shipped today)
 
-### What's already built (and works)
+### What's built and working end-to-end
 
 | Surface | Status | Where |
 |---|---|---|
-| `ad_platform_tokens` table — encrypted user/page/IG tokens, 5-platform check constraint | ✅ Live | migration 0036 |
-| AES decrypt RPCs (`get_decrypted_access_token`, `get_decrypted_refresh_token`) — service-role only | ✅ Live | migration 0036 + 0049/0050 (grants tightened) |
-| `upsert_platform_token` RPC — encrypts on write | ✅ Live | migration 0036 |
-| Meta OAuth start — Login-for-Business config, CSRF state cookie | ✅ Code OK | [src/app/api/oauth/meta/start/route.ts](src/app/api/oauth/meta/start/route.ts) |
-| Meta OAuth callback — exchange code → long-lived token → fetch user + pages + IG accounts → encrypted upsert | ✅ Code OK | [src/app/api/oauth/meta/callback/route.ts](src/app/api/oauth/meta/callback/route.ts) |
-| Connect UI on `/dashboard/social` — Connect button, connected-accounts list per FB Page + IG account, flash banner | ✅ Live | [src/components/social/connect-meta-section.tsx](src/components/social/connect-meta-section.tsx) |
-| `listing_post_metrics` — daily snapshot table for the Performance tab | ✅ Live | migration 0038 |
-| Meta + LinkedIn insights crons | ⚠️ Stubs (return `[]` until tokens valid for live publish) | [src/app/api/cron/meta-insights/route.ts](src/app/api/cron/meta-insights/route.ts), [.../linkedin-insights/route.ts](src/app/api/cron/linkedin-insights/route.ts) |
-| Plan-gating helpers — `isOrgOnProAutomation` + `getCurrentUserOrgPlan` | ✅ Live | [src/lib/billing/plan-gating.ts](src/lib/billing/plan-gating.ts) |
-| Manual-token import script (workaround for blocked OAuth dialog) | ⚠️ Last-resort tool | `scripts/import-meta-token.ts` |
+| `ad_platform_tokens` — encrypted user/page/IG tokens, 5-platform check, RLS + decrypt RPCs | ✅ Live | migration 0036 |
+| Meta OAuth (start + callback) — Login-for-Business, encrypted upsert of FB pages + linked IG | ✅ Live | [src/app/api/oauth/meta/*](src/app/api/oauth/meta) |
+| Connect UI on `/dashboard/social` — Connect button + accounts list | ✅ Live | [src/components/social/connect-meta-section.tsx](src/components/social/connect-meta-section.tsx) |
+| `social_posts` + `social_post_attempts` — audit + idempotency tables (Phase B) | ✅ Live | migration 0052 |
+| `social_post_attempts.used_override` — Phase J audit column | ✅ Live | migration 0053 |
+| Post formatter (FB / IG / LinkedIn, pure, deterministic) — Phase C | ✅ Live | [src/lib/social/post-formatter.ts](src/lib/social/post-formatter.ts) |
+| Picker helpers — Phase J part 2 (override-aware) | ✅ Live | same file |
+| Meta publish primitives (FB Page + IG single + IG carousel 3-step) — Phase D + K | ✅ Live | [src/lib/social/publish.ts](src/lib/social/publish.ts) |
+| LinkedIn publish stub — Phase D | ⚠️ Returns `oauth_not_implemented` until partner approval | same file |
+| `PublishErrorCode` taxonomy + `buildSupportRef` — error UX | ✅ Live | same file |
+| `/api/social/post` real handler — Phase E + Phase J overrides | ✅ Live | [src/app/api/social/post/route.ts](src/app/api/social/post/route.ts) |
+| AI drafter lib + `/api/social/ai-draft` route — Phase J part 1 | ✅ Live | [src/lib/social/ai-drafter.ts](src/lib/social/ai-drafter.ts), [src/app/api/social/ai-draft/route.ts](src/app/api/social/ai-draft/route.ts) |
+| `<ShareToSocials>` UI: connected-accounts pre-flight + Generate AI draft + edit + Share + per-attempt result panel + supportRef Copy + Email-support — Phase F + J part 3 | ✅ Live | [src/components/listings/share-to-socials.tsx](src/components/listings/share-to-socials.tsx) |
+| Custom domain `advertisehomes.online` | ✅ Live | DNS + Cloudflare Pages (PO confirmed 2026-05-13) |
 
-### What's broken or missing (must fix before $99 customer)
+### What's broken / missing
 
-| Gap | Impact | Where |
+| Gap | Impact | Note |
 |---|---|---|
-| `/api/social/post` returns 501 `not_implemented` | **Feature does not work.** This is THE missing core. | [src/app/api/social/post/route.ts](src/app/api/social/post/route.ts) |
-| No `social_posts` / `social_post_attempts` tables | No audit trail; no idempotency; no retry; no per-attempt status | — |
-| No actual FB Page publish call (`/{page-id}/feed` or `/photos`) | Even with tokens, we can't post | — |
-| No IG Business publish (2-step `/media` + `/media_publish`) | IG side is wholly unimplemented | — |
-| No post formatter — skill step #5 calls for `(property, account, locale) → text + media` | We'd otherwise build it inline in the route, which the skill explicitly warns against | — |
-| No "Share to connected accounts" UI on listing edit | Even if the API worked there's no button to call it | — |
-| `UnlockedSocialPlaceholder` says "rolling out soon" | This is what a $99 customer sees today after paying | [src/components/social/unlocked-social-placeholder.tsx](src/components/social/unlocked-social-placeholder.tsx) |
-| No connection-test endpoint (skill step #8) | Agent can't tell if their token's still valid without trying to post | — |
-| No token-refresh cron (skill step #10) | User tokens silently expire at 60d, IG publish breaks | — |
-| Duplicate shell routes `/api/social/connect/[platform]/{start,disconnect}` returning 501 | Dead code that competes with the real `/api/oauth/meta/*` routes | [src/app/api/social/connect/[platform]/start/route.ts](src/app/api/social/connect/[platform]/start/route.ts), [.../disconnect/route.ts](src/app/api/social/connect/[platform]/disconnect/route.ts) |
-| OLD compose-then-copy flow still wired into the listing edit page | The new one-click button has nowhere to live until this is removed | [.../properties/[id]/page.tsx:170,192](src/app/[locale]/dashboard/properties/[id]/page.tsx) |
+| Connection-test endpoint (skill step #8) | Agent can't pre-flight token validity without trying to post | Phase G — dev work, deferrable until App Review |
+| Token-refresh cron (skill step #10) | User tokens silently expire at 60d | Phase G |
+| `ANTHROPIC_API_KEY` in Cloudflare Pages Production env | Without it, AI draft returns `no_api_key` and UI silently falls back to template | PO action — quick env-var add |
+| Cloudflare Pages prod env `NEXT_PUBLIC_SITE_URL` confirmation | Deployed sitemap/canonical/OG could still emit `.pages.dev` until verified | PO action — open prod, view-source, check `<link rel="canonical">` |
 
 ### External blockers (NOT under our control)
 
@@ -192,6 +189,34 @@ New `src/components/listings/share-to-socials.tsx` — mounted on `dashboard/pro
 - Action: POSTs to `/api/social/post`.
 - Result panel: per-attempt row with status badge (✓ green / ✗ red / ⏳ amber), external URL (when ✓), retry button (when ✗).
 - "Last shared" history pulled from `social_posts` + `social_post_attempts` so the agent can see what's already gone out.
+
+### Phase J — AI caption drafter (pre-share editor) [SHIPPED 2026-05-13]
+
+Three parts shipped this session.
+
+**Part 1 (commit `041babf`)** — `src/lib/social/ai-drafter.ts` + `/api/social/ai-draft` route. Anthropic Claude Haiku via fetch, tool-use schema forces structured JSON, 8s AbortController timeout. Categorized failure modes (`no_api_key`, `timeout`, `rate_limited`, `transient_5xx`, `refusal`, `malformed_json`, `unknown`) — on any failure returns empty drafts; UI falls back to deterministic template silently. System prompt enforces HARD RULES: use ONLY listing-JSON facts; no superlatives; locale-strict. 12-case test suite mocking Anthropic.
+
+**Part 2 (commit `5715b9a`)** — extends `/api/social/post` with optional `overrides`. New picker helpers `pickFacebookPost`, `pickInstagramPost`, `pickLinkedInPost` in `post-formatter.ts`: when override present, agent prose replaces formatter prose but PLUMBING (UTM link, imageUrl, LinkedIn contentTitle + contentDescription) stays deterministic. IG image requirement enforced regardless of override. LinkedIn commentary clamp at 2800 chars defensively. Route writes `used_override boolean` per attempt to migration `0053`'s column. 9-case test suite for the pickers.
+
+**Part 3 (commit `2b2f6a8`)** — `<ShareToSocials>` UI: "Generate AI draft" button → per-platform editable textareas pre-filled with AI text + character counters + Reset / Use-template per card. On AI failure: amber inline note "AI draft unavailable", agent still publishes via template. `submit()` builds `overrides` from non-empty edits. New i18n: `social.share.{generateDraft, regenerateDraft, generating, reviewBeforeShare, resetDraft, useTemplate, aiUnavailable, platformDraftLabel.*}`.
+
+**Cost envelope:** Haiku at ~$0.002/call × ~32 calls/agent/month ≈ $0.07/agent/month. Comfortable inside $99 MRR.
+
+**Dependency:** `ANTHROPIC_API_KEY` must be set in Cloudflare Pages Production env. Without it, the route returns `no_api_key` and UI falls back to template — feature degrades cleanly, not catastrophically.
+
+### Phase K — Instagram carousel (multi-image) [SHIPPED 2026-05-13]
+
+Commit `75d86db`. Extends IG publishing from single-image to multi-image carousels (1-10 photos per Meta's hard limit). `IG_CAROUSEL_MAX = 10`; `InstagramPost.imageUrl` → `imageUrls: string[]`; FB + LinkedIn use `imageUrls[0]` as their hero (no FB carousel via Graph API today).
+
+`publishToInstagramBusiness` dispatches:
+- length 1 → existing `publishIgSingle` 2-step (refactored out, all Phase D tests still pass)
+- length 2-10 → new `publishIgCarousel` 3-step (N sequential child containers with `is_carousel_item=true` + parent CAROUSEL container with comma-joined `children` + `caption` + `media_publish`)
+
+Sequential children per the skill (`skills/content-automation-system/process-blueprint.md §"IG carousel"`) — Meta rate-limits aggressive parallel `/media` POSTs for the same IG account; sequential adds ~200ms/photo but avoids spurious `rate_limited` mid-batch.
+
+Route fetches `property_images` sorted (`is_primary desc, position asc`) limited to `IG_CAROUSEL_MAX`, builds the URL array.
+
+6 new carousel test cases: happy 2-image (4 fetches asserting is_carousel_item on children + caption only on parent + children comma-list), happy 5-image (7 fetches), child fail at index 2/5 (3 fetches, "child 3/5" in error message), parent fail with image_url_unreachable (no publish call), publish fail with container_not_ready (retryable), sequentiality probe via setTimeout-delayed responses.
 
 ### Phase G — Connection test endpoint + token-refresh cron (PO-blocked on App Review)
 - `GET /api/social/connection-test?platform=meta&account_id=...` — calls a benign endpoint (`/me` for user token, `/{page-id}` for page token), returns `{ ok, scopes, expiresAt }`. Skill step #8.
