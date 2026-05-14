@@ -1,0 +1,63 @@
+{
+  "seoTitle": "Email templates — Admin",
+  "backToDashboard": "Email dashboard",
+  "heading": "Email templates",
+  "subheading": "Edit the copy for transactional order emails. Layout, header, and footer stay fixed; only the copy below is editable.",
+  "intro": "Each row is one (type × language) template. Subject lines can include {{order_number}} as a placeholder.",
+  "buttons": {
+    "refresh": "Refresh",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "resetToDefault": "Reset to default",
+    "close": "Close"
+  },
+  "table": {
+    "type": "Type",
+    "lang": "Lang",
+    "subject": "Subject",
+    "updated": "Updated",
+    "actions": "Actions",
+    "empty": "No templates yet — reset to defaults by sending one order email."
+  },
+  "types": {
+    "confirmation": "Order confirmation",
+    "tracking": "Tracking / shipped",
+    "refund": "Refund processed",
+    "abandoned_cart": "Abandoned cart",
+    "admin_new_order": "Admin: new order",
+    "admin_refunded": "Admin: refund"
+  },
+  "langs": {
+    "es": "Spanish",
+    "en": "English"
+  },
+  "modal": {
+    "editTitle": "Edit template",
+    "fields": {
+      "subject": "Subject",
+      "subjectHelp": "Supports {{order_number}} placeholder.",
+      "heading": "Heading",
+      "intro": "Intro paragraph",
+      "outro": "Outro paragraph",
+      "itemsLabel": "Items label",
+      "subtotalLabel": "Subtotal label",
+      "shippingLabel": "Shipping label",
+      "totalLabel": "Total label",
+      "shipToLabel": "Ship-to label",
+      "trackingLabel": "Tracking number label",
+      "methodLabel": "Shipping method label",
+      "ctaLabel": "Call-to-action button label"
+    }
+  },
+  "confirm": {
+    "reset": "Reset {{type}} ({{lang}}) to the hardcoded default? The current text will be lost."
+  },
+  "toast": {
+    "loadFailed": "Failed to load templates",
+    "saved": "Template saved.",
+    "saveFailed": "Save failed.",
+    "reset": "Template reset to default.",
+    "resetFailed": "Reset failed."
+  }
+}

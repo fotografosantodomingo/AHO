@@ -1,0 +1,65 @@
+{
+  "seoTitle": "Campañas de email — Admin",
+  "backToDashboard": "Panel de email",
+  "heading": "Campañas",
+  "subheading": "Crea, envía y revisa los envíos masivos de email.",
+  "buttons": {
+    "refresh": "Actualizar",
+    "newCampaign": "Nueva campaña",
+    "createFirst": "Crear la primera",
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "view": "Ver",
+    "edit": "Editar",
+    "duplicate": "Duplicar",
+    "delete": "Eliminar",
+    "clearDates": "limpiar fechas"
+  },
+  "filters": {
+    "all": "Todas",
+    "draft": "Borrador",
+    "sending": "Enviando",
+    "sent": "Enviada",
+    "failed": "Fallida",
+    "from": "Desde",
+    "to": "Hasta"
+  },
+  "table": {
+    "name": "Nombre",
+    "subject": "Asunto",
+    "audience": "Audiencia",
+    "recipients": "Destinatarios",
+    "status": "Estado",
+    "sent": "Enviada",
+    "actions": "Acciones",
+    "empty": "Aún no hay campañas."
+  },
+  "pagination": {
+    "summary": "Página {{page}} de {{total}} · {{count}} campaña",
+    "summaryPlural": "Página {{page}} de {{total}} · {{count}} campañas"
+  },
+  "drawer": {
+    "title": "Detalles de la campaña",
+    "name": "Nombre",
+    "subject": "Asunto",
+    "status": "Estado",
+    "recipients": "Destinatarios",
+    "sentAt": "Enviada el",
+    "audience": "Audiencia",
+    "engagement": "Engagement",
+    "noStats": "No hay estadísticas disponibles."
+  },
+  "duplicateLabel": " (copia)",
+  "confirm": {
+    "delete": "¿Eliminar el borrador «{{name}}»?"
+  },
+  "toast": {
+    "loadFailed": "Error al cargar las campañas",
+    "duplicated": "Campaña duplicada.",
+    "duplicateFailed": "Error al duplicar.",
+    "onlyDrafts": "Solo se pueden eliminar borradores.",
+    "draftDeleted": "Borrador eliminado.",
+    "deleteFailed": "Error al eliminar.",
+    "statsLoadFailed": "Error al cargar las estadísticas."
+  }
+}

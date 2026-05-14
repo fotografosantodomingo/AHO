@@ -1,0 +1,160 @@
+{
+  "_comment": "Drop-in template for a new brand. All <PLACEHOLDER> values must be replaced before deploy. Items under 'secret' go to `wrangler secret put` (Worker) or `supabase secrets set` (Edge Function). Items under 'var' go in wrangler.toml [vars] section.",
+
+  "brand": {
+    "name": "<BRAND_NAME>",
+    "domain": "<brand>.com",
+    "site_url": "https://<brand>.com",
+    "tagline": "<one-line marketing tagline for welcome email header>",
+    "address": "<physical address, used in welcome email footer + admin notice>",
+    "timezone": "America/Santo_Domingo",
+    "locale": "es-DO",
+    "accent_color": "#D4A574",
+    "copyright": "© <Brand> · <country>",
+    "socials": {
+      "instagram": "https://www.instagram.com/<handle>",
+      "facebook":  "https://www.facebook.com/<handle>",
+      "tiktok":    "https://www.tiktok.com/@<handle>",
+      "linkedin":  "https://www.linkedin.com/company/<id>"
+    },
+    "_setup_notes": [
+      "These values populate the BRAND const in worker/index.ts.",
+      "Same socials must match the brand site's Footer.jsx + SchemaMarkup.jsx 'sameAs' array — Google flags inconsistent URLs as identity-graph noise.",
+      "accent_color is used in welcome email gold rule + NewsletterSignup buttons."
+    ]
+  },
+
+  "cloudflare_worker": {
+    "var": {
+      "WORKER_BASE_URL":   "https://<brand>-email-campaigns.<your-subdomain>.workers.dev",
+      "SITE_URL":          "https://<brand>.com",
+      "SUPABASE_URL":      "https://<project-ref>.supabase.co",
+      "REVIEW_EMAIL_FROM": "<Brand Name> <info@<brand>.com>",
+      "REVIEW_EMAIL_TO":   "info@<brand>.com"
+    },
+    "secret": {
+      "SUPABASE_SERVICE_ROLE_KEY": "<from Supabase → Settings → API>",
+      "BREVO_API_KEY":             "<xkeysib-... from app.brevo.com/settings/keys/api>",
+      "EMAIL_LINK_SECRET":         "<openssl rand -base64 32>",
+      "BREVO_WEBHOOK_SECRET":      "<any random string; goes in Brevo webhook URL>"
+    },
+    "_setup_notes": [
+      "EMAIL_LINK_SECRET signs unsubscribe + .ics calendar links. MUST match the Edge Function's secret of the same name.",
+      "BREVO_WEBHOOK_SECRET is used as a URL parameter (?secret=...) when Brevo posts to /webhooks/brevo. Treat as a shared secret.",
+      "REVIEW_EMAIL_TO is the admin email that /email/send checks JWT against — only this address can send campaigns.",
+      "Push secrets with: wrangler secret put <NAME>"
+    ]
+  },
+
+  "supabase_edge_function": {
+    "function_name": "send-order-email",
+    "secret": {
+      "BREVO_API_KEY":      "<same value as Worker's BREVO_API_KEY>",
+      "ORDER_EMAIL_FROM":   "<Brand> <orders@<brand>.com>",
+      "ADMIN_NOTIFY_EMAIL": "info@<brand>.com",
+      "EMAIL_LINK_SECRET":  "<same value as Worker's EMAIL_LINK_SECRET>",
+      "WORKER_BASE_URL":    "https://<brand>-email-campaigns.<your-subdomain>.workers.dev"
+    },
+    "auto_injected_by_supabase": [
+      "SUPABASE_URL",
+      "SUPABASE_SERVICE_ROLE_KEY",
+      "SUPABASE_ANON_KEY"
+    ],
+    "_setup_notes": [
+      "ORDER_EMAIL_FROM must be a Brevo-verified sender. Verify a single address at app.brevo.com/senders/list (fast) OR your full domain via DNS for production.",
+      "Set ADMIN_NOTIFY_EMAIL to '' (empty string) to disable admin BCC on order confirmations + refunds.",
+      "Push secrets with: supabase secrets set <NAME>=<value>",
+      "Deploy with: supabase functions deploy send-order-email"
+    ]
+  },
+
+  "brevo": {
+    "webhook": {
+      "url":    "https://<your-worker>/webhooks/brevo?secret=<BREVO_WEBHOOK_SECRET>",
+      "events": ["sent", "delivered", "opened", "clicked", "hard_bounce", "soft_bounce", "spam", "unsubscribed", "blocked", "deferred"]
+    },
+    "_setup_notes": [
+      "Configure at app.brevo.com → Settings → Webhooks → Add Webhook → Transactional.",
+      "Free plan: 300 sends/day. Sufficient for newsletter + a few hundred contacts. Upgrade to Lite ($9/mo, 5k/day) when contact list crosses ~1k.",
+      "Sender verification REQUIRED before any send works. Either single-address verification (instant) or full-domain DKIM+SPF (production).",
+      "After first webhook fires, check wrangler tail to confirm events are reaching the Worker."
+    ]
+  },
+
+  "supabase_db": {
+    "migrations_required": [
+      "01_email_marketing.sql",
+      "02_newsletter_mirror_to_email_contacts.sql",
+      "03_email_templates_table.sql"
+    ],
+    "tables_created": [
+      "email_contacts  (id, email UNIQUE, first_name, last_name, company_name, segment, subtype_tags TEXT[], merge_vars JSONB, status, source, notes, created_at, updated_at)",
+      "email_campaigns (id, name, subject, html_content, from_name, from_email, reply_to, segment_filter JSONB, recipients_count, status, sent_at, sent_by, created_at, updated_at)",
+      "email_logs      (id, campaign_id, recipient, contact_id, message_id, campaign_type, status, sent_at, delivered_at, opened_at, clicked_at, bounced_at, bounce_reason, raw_event JSONB, created_at, updated_at)",
+      "email_templates (id, type, lang, subject, heading, intro, outro, items_label, subtotal_label, shipping_label, total_label, ship_to_label, tracking_label, method_label, cta_label, UNIQUE(type,lang))"
+    ],
+    "function_required": "public.is_admin() — returns true if JWT email matches REVIEW_EMAIL_TO OR if auth.uid() has role='admin' in public.users",
+    "prerequisite_tables": [
+      "public.users(id uuid, role text)        — used by is_admin(). Create if missing or rewrite is_admin().",
+      "public.newsletter_subscribers           — used by migration #2. Skip migration #2 if absent."
+    ],
+    "_setup_notes": [
+      "Migrations are idempotent (CREATE TABLE IF NOT EXISTS + ON CONFLICT DO NOTHING). Re-applying is safe.",
+      "RLS is admin-only on all 4 tables. Worker uses service role to bypass RLS for writes.",
+      "Migration #1 seeds 2 example contacts. Migration #3 seeds 10 template rows (5 types × 2 langs)."
+    ]
+  },
+
+  "frontend": {
+    "deps_to_install": [
+      "recharts@^3",
+      "framer-motion@^11",
+      "lucide-react@^0",
+      "sonner@^2",
+      "react-helmet@^6"
+    ],
+    "expected_provisions": [
+      "@/lib/customSupabaseClient — exports { supabase } from @supabase/supabase-js",
+      "@/components/ui/{button,input,use-toast} — shadcn/ui or equivalents",
+      "@/lib/utils — exports cn(...classes)",
+      "<ProtectedAdminRoute> wrapper — sample implementation in replication-guide step 6"
+    ],
+    "routes_to_wire": [
+      "/admin/email                   → EmailDashboardPage",
+      "/admin/email/contacts          → EmailContactsPage",
+      "/admin/email/campaigns         → EmailCampaignsPage",
+      "/admin/email/compose           → EmailComposerPage",
+      "/admin/email/compose/:campaignId → EmailComposerPage (edit existing)",
+      "/admin/email/templates         → EmailTemplatesPage"
+    ],
+    "i18n_namespaces_to_add": [
+      "adminEmailDashboard",
+      "adminEmailContacts",
+      "adminEmailCampaigns",
+      "adminEmailComposer",
+      "adminEmailTemplates",
+      "newsletter"
+    ],
+    "config_file_to_edit": "src/config/emailWorker.js → set EMAIL_WORKER_BASE_URL to your deployed Worker host"
+  },
+
+  "stripe_webhook_integration": {
+    "owned_by": "consumer — not bundled in this skill",
+    "calling_pattern": "POST $SUPABASE_URL/functions/v1/send-order-email with { order_id, type } and Bearer $SUPABASE_SERVICE_ROLE_KEY",
+    "events_to_fire": {
+      "payment_intent.succeeded":  ["confirmation (→ customer)", "admin_new_order (→ admin)"],
+      "charge.refunded":           ["refund (→ customer)",       "admin_refunded (→ admin)"]
+    },
+    "_setup_notes": "Tracking emails are fired manually from /admin/orders. Abandoned-cart emails are fired by a scheduled function (not bundled) that scans for orders stuck at status='pending' for >2 hours."
+  },
+
+  "smoke_test_sequence": [
+    "1. curl https://<worker>/health → 'ok'",
+    "2. Subscribe via NewsletterSignup form → welcome arrives, admin notice arrives",
+    "3. Inspect email_contacts row created via DB trigger",
+    "4. Click unsubscribe in welcome email → confirmation page + DB status flips",
+    "5. /admin/email/compose → Send test → arrives + email_logs row 'sent'",
+    "6. Open test email → wrangler tail shows webhook event + email_logs status='opened'",
+    "7. (Optional) Complete checkout → confirmation + admin_new_order arrive"
+  ]
+}

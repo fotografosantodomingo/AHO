@@ -1,0 +1,30 @@
+# Greenfield Worker config for the email-campaigns skill.
+# Rename to wrangler.toml after you fill in the placeholders.
+
+name = "<brand>-email-campaigns"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+
+# ---------------------------------------------------------------------------
+# Non-secret vars. Update for each brand.
+# ---------------------------------------------------------------------------
+[vars]
+SUPABASE_URL = "https://<project-ref>.supabase.co"
+SITE_URL = "https://<brand>.com"
+WORKER_BASE_URL = "https://<brand>-email-campaigns.<your-subdomain>.workers.dev"
+REVIEW_EMAIL_FROM = "<Brand Name> <info@<brand>.com>"
+REVIEW_EMAIL_TO = "info@<brand>.com"
+
+# ---------------------------------------------------------------------------
+# Secrets (push via `wrangler secret put <NAME>`):
+#
+#   SUPABASE_SERVICE_ROLE_KEY   service role for REST writes (bypasses RLS)
+#   BREVO_API_KEY               from app.brevo.com/settings/keys/api
+#   EMAIL_LINK_SECRET           openssl rand -base64 32  (signs unsubscribe + .ics)
+#   BREVO_WEBHOOK_SECRET        random string; also used in Brevo dashboard webhook URL
+# ---------------------------------------------------------------------------
+
+# Optional: custom domain route. Replace with your zone.
+# [[routes]]
+# pattern = "email.<brand>.com/*"
+# zone_name = "<brand>.com"

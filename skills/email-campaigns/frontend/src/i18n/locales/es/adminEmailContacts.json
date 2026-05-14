@@ -1,0 +1,118 @@
+{
+  "seoTitle": "Contactos de email — Admin",
+  "backToDashboard": "Panel de email",
+  "heading": "Contactos",
+  "subheadingPrefix": "Lista maestra de",
+  "subheadingSuffix": " — segmentada B2B / Individual.",
+  "buttons": {
+    "refresh": "Actualizar",
+    "bulkImport": "Importar en lote",
+    "csv": "CSV",
+    "addContact": "Agregar contacto",
+    "edit": "Editar",
+    "unsub": "Dar de baja",
+    "delete": "Eliminar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "prev": "Anterior",
+    "next": "Siguiente"
+  },
+  "kpis": {
+    "total": "Total",
+    "active": "Activos",
+    "b2b": "B2B",
+    "individual": "Individual"
+  },
+  "search": {
+    "placeholder": "Buscar email, nombre, empresa…"
+  },
+  "filters": {
+    "segments": {
+      "all": "Todos los segmentos",
+      "b2b": "B2B",
+      "individual": "Individual"
+    },
+    "status": {
+      "all": "Todos los estados",
+      "active": "Activos",
+      "unsubscribed": "Dados de baja",
+      "bounced": "Rebotados"
+    },
+    "tagsLabel": "Etiquetas:",
+    "tagsClear": "limpiar"
+  },
+  "table": {
+    "email": "Email",
+    "name": "Nombre",
+    "company": "Empresa",
+    "segment": "Segmento",
+    "tags": "Etiquetas",
+    "status": "Estado",
+    "created": "Creado",
+    "actions": "Acciones",
+    "empty": "Ningún contacto coincide con el filtro actual."
+  },
+  "pagination": {
+    "summary": "Página {{page}} de {{total}} · {{count}} contacto",
+    "summaryPlural": "Página {{page}} de {{total}} · {{count}} contactos"
+  },
+  "modal": {
+    "addTitle": "Agregar contacto",
+    "editTitle": "Editar contacto",
+    "importTitle": "Importar contactos en lote (CSV)",
+    "fields": {
+      "email": "Email *",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "company": "Empresa",
+      "segment": "Segmento",
+      "tags": "Etiquetas (separadas por comas)",
+      "tagsPlaceholder": "hotel, mayorista",
+      "mergeVars": "Variables de merge",
+      "mergeVarKey": "clave",
+      "mergeVarValue": "valor",
+      "addMergeVar": "+ agregar variable",
+      "notes": "Notas"
+    },
+    "import": {
+      "instructionsPrefix": "Fila de encabezado obligatoria. Columnas reconocidas:",
+      "columnsHint": "(b2b/individual)",
+      "tagsHint": "(separadas por «|»).",
+      "previewLabel": "Vista previa ({{count}} filas):",
+      "csvPlaceholder": "email,first_name,segment,tags\njane@x.com,Jane,b2b,hotel|mayorista",
+      "previewEmail": "Email",
+      "previewName": "Nombre",
+      "previewSegment": "Segmento",
+      "previewTags": "Etiquetas",
+      "upsert": "Upsert {{count}} filas"
+    }
+  },
+  "confirm": {
+    "unsubscribe": "¿Dar de baja a {{email}}?",
+    "delete": "¿Eliminar {{email}} de forma permanente?"
+  },
+  "toast": {
+    "emailRequired": "El email es obligatorio.",
+    "updated": "Contacto actualizado.",
+    "created": "Contacto creado.",
+    "saveFailed": "Error al guardar.",
+    "alreadyUnsubscribed": "Ya está dado de baja.",
+    "unsubscribed": "Contacto dado de baja.",
+    "deleted": "Contacto eliminado.",
+    "failed": "Error.",
+    "loadFailed": "Error al cargar los contactos",
+    "noneToExport": "No hay contactos en el filtro actual.",
+    "exported": "Se exportó {{count}} contacto.",
+    "exportedPlural": "Se exportaron {{count}} contactos.",
+    "exportFailed": "Error al exportar.",
+    "nothingToImport": "Nada para importar.",
+    "imported": "Se importaron {{count}} contactos.",
+    "importFailed": "Error al importar."
+  },
+  "csvErrors": {
+    "needRows": "Se requiere una fila de encabezado + al menos 1 fila de datos.",
+    "missingEmailCol": "Falta la columna obligatoria «email».",
+    "missingEmail": "Fila {{row}}: falta email.",
+    "invalidEmail": "Fila {{row}}: email inválido «{{email}}»."
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "firstNamePlaceholder": "First Name",
+  "emailPlaceholder": "Email Address",
+  "defaultButton": "Sign Up",
+  "defaultSuccessMessage": "Welcome to our list!",
+  "successTitle": "You're on the list!",
+  "toast": {
+    "successTitle": "Success!",
+    "errorTitle": "Error"
+  },
+  "consent": {
+    "prefix": "By signing up, you agree to our ",
+    "privacyLink": "Privacy Policy",
+    "suffix": ". You can unsubscribe at any time."
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "seoTitle": "Email marketing — Admin",
+  "backToDashboard": "Panel admin",
+  "heading": "Email marketing",
+  "subheading": "KPIs, gráficos y accesos rápidos del programa de email.",
+  "buttons": {
+    "refresh": "Actualizar",
+    "manageContacts": "Gestionar contactos",
+    "allCampaigns": "Todas las campañas",
+    "newCampaign": "Nueva campaña"
+  },
+  "kpis": {
+    "activeContacts": "Contactos activos",
+    "campaignsSent": "Campañas enviadas",
+    "deliverability30d": "Entregabilidad 30d",
+    "openRate30d": "Tasa de apertura 30d"
+  },
+  "charts": {
+    "emailsSent30d": "Emails enviados — últimos 30 días",
+    "statusDistribution": "Distribución por estado (30d)"
+  },
+  "comparison": {
+    "title": "B2B vs Individual",
+    "b2b": "B2B",
+    "individual": "Individual",
+    "recipients": "Destinatarios",
+    "openRate": "Tasa de apertura",
+    "bounceRate": "Tasa de rebote"
+  },
+  "bouncing": {
+    "title": "Top 5 dominios con rebotes (30d)",
+    "noBounces": "Sin rebotes en los últimos 30 días.",
+    "domain": "Dominio",
+    "bounces": "Rebotes"
+  },
+  "errors": {
+    "loadFailed": "Error al cargar los datos del panel"
+  }
+}

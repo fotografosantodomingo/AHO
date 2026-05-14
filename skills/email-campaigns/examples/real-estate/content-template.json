@@ -1,0 +1,189 @@
+{
+  "_comment": "Real estate platform install of the email-campaigns skill. Drop into a residential brokerage / listings site. Pulls in all the same surfaces (welcome, order/transactional, admin notice, unsubscribe) but with vertical-appropriate copy. After copying, see ./README.md for the 3-place install checklist.",
+
+  "brand": {
+    "name": "Casa Caribe",
+    "domain": "casacaribe.com",
+    "site_url": "https://casacaribe.com",
+    "tagline_es": "Bienes raíces premium en el Caribe",
+    "tagline_en": "Premium Caribbean real estate",
+    "long_tagline_es": "Propiedades residenciales y de inversión en la República Dominicana. Servicio bilingüe, listados verificados y acompañamiento legal.",
+    "long_tagline_en": "Residential and investment properties across the Dominican Republic. Bilingual service, verified listings, and end-to-end legal support.",
+    "address": "Av. Winston Churchill 1099, Piantini, Santo Domingo · República Dominicana",
+    "address_en_suffix": "Dominican Republic",
+    "address_es_suffix": "República Dominicana",
+    "support_email": "hello@casacaribe.com",
+    "from_name": "Casa Caribe",
+    "from_email": "hello@casacaribe.com",
+    "orders_from": "Casa Caribe <transactions@casacaribe.com>",
+    "admin_label": "Casa Caribe admin",
+    "admin_recipient_name": "Casa Caribe Team",
+    "timezone": "America/Santo_Domingo",
+    "locale": "es-DO",
+    "accent_color": "#0F766E",
+    "copyright_es": "© Casa Caribe · República Dominicana",
+    "copyright_en": "© Casa Caribe · Dominican Republic",
+    "socials": {
+      "instagram": "https://www.instagram.com/casacaribe",
+      "facebook": "https://www.facebook.com/casacaribe",
+      "tiktok": "https://www.tiktok.com/@casacaribe",
+      "linkedin": "https://www.linkedin.com/company/casacaribe"
+    },
+    "reservation": {
+      "_comment": "Real estate uses this for property showings / open houses. Re-purpose the .ics endpoint to deliver showing invitations instead of winery experiences.",
+      "location": "Showing address provided in the listing details",
+      "place_label_es": "Propiedad",
+      "place_label_en": "Property",
+      "qr_caption_es": "Muestra este código al agente al llegar",
+      "qr_caption_en": "Show this code to the agent on arrival",
+      "calendar_title_template_es": "Visita {{brand_name}}: {{product_name}}",
+      "calendar_title_template_en": "{{brand_name}} showing: {{product_name}}",
+      "calendar_details_es": "Detalles de tu visita con {{brand_name}}.",
+      "calendar_details_en": "Details for your {{brand_name}} showing."
+    }
+  },
+
+  "newsletter_welcome": {
+    "subject_template_es": "Bienvenido/a a {{brand_name}} — gracias por suscribirte",
+    "subject_template_en": "Welcome to {{brand_name}} — thanks for subscribing",
+    "kicker_es": "Bienvenido/a a la lista",
+    "kicker_en": "Welcome to the list",
+    "heading_greeting_es": "gracias por suscribirte",
+    "heading_greeting_en": "thanks for subscribing",
+    "intro_es": "Ya estás en la lista de {{brand_name}}. Te enviaremos lo que de verdad importa:",
+    "intro_en": "You're on the {{brand_name}} list. We'll send you what actually matters:",
+    "bullets_es": [
+      "Nuevas propiedades en las zonas que sigues",
+      "Resumen de open houses del fin de semana",
+      "Reportes mensuales del mercado y tendencias de precios",
+      "Oportunidades off-market antes de salir publicadas"
+    ],
+    "bullets_en": [
+      "New listings in your saved neighborhoods",
+      "Open-house weekend roundups",
+      "Monthly market reports and pricing trends",
+      "Off-market opportunities before they go public"
+    ],
+    "cta_label_es": "Ver propiedades destacadas",
+    "cta_label_en": "Browse featured listings",
+    "cta_url": "/listings",
+    "secondary_cta_label_es": "O agenda una llamada con un agente",
+    "secondary_cta_label_en": "Or book a call with an agent",
+    "secondary_cta_url": "/contact",
+    "footer_unsubscribe_label_es": "Cancelar suscripción",
+    "footer_unsubscribe_label_en": "Unsubscribe"
+  },
+
+  "newsletter_admin_notice": {
+    "subject_template_es": "[{{brand_name}}] Nuevo prospecto: {{email}}",
+    "subject_template_en": "[{{brand_name}}] New lead: {{email}}",
+    "kicker_es": "{{brand_name}} admin · listas de leads",
+    "kicker_en": "{{brand_name}} admin · lead list",
+    "heading_es": "Nuevo prospecto",
+    "heading_en": "New lead",
+    "email_label_es": "Email",
+    "email_label_en": "Email",
+    "name_label_es": "Nombre",
+    "name_label_en": "Name",
+    "source_label_es": "Origen",
+    "source_label_en": "Source",
+    "source_value_es": "Formulario web",
+    "source_value_en": "Web form",
+    "time_label_es": "Hora",
+    "time_label_en": "Time",
+    "cta_label_template_es": "Abrir CRM en {{admin_path}}",
+    "cta_label_template_en": "Open CRM at {{admin_path}}"
+  },
+
+  "unsubscribe_page": {
+    "success_heading_es": "Te has dado de baja",
+    "success_heading_en": "You're unsubscribed",
+    "failure_heading_es": "Error al darse de baja",
+    "failure_heading_en": "Unsubscribe failed",
+    "success_message_template_es": "Ya no recibirás emails de marketing de {{brand_name}}. Tu cuenta y favoritos siguen activos.",
+    "success_message_template_en": "You won't receive marketing emails from {{brand_name}}. Your account and saved properties remain active.",
+    "back_link_template_es": "Volver a {{brand_name}}",
+    "back_link_template_en": "Back to {{brand_name}}"
+  },
+
+  "order_emails": {
+    "_comment": "For real estate, 'order' maps to 'transaction' — a signed offer, deposit, or closing. 'tracking' becomes 'closing status update'. 'refund' is a deposit return after a deal falls through. 'abandoned_cart' is a started-but-not-submitted offer.",
+    "confirmation": {
+      "subject_template_es": "Oferta recibida — {{order_number}}",
+      "subject_template_en": "Offer received — {{order_number}}",
+      "heading_es": "¡Gracias por tu oferta!",
+      "heading_en": "Thanks for your offer!",
+      "intro_es": "Recibimos tu oferta y la estamos revisando con el vendedor. Te avisaremos en cuanto haya respuesta — normalmente en 24-48 horas.",
+      "intro_en": "We've received your offer and we're reviewing it with the seller. We'll be in touch as soon as we hear back — usually within 24-48 hours.",
+      "outro_es": "Si tienes alguna pregunta, responde a este correo o llama a tu agente.",
+      "outro_en": "If you have any questions, reply to this email or call your agent.",
+      "items_label_es": "Propiedad",
+      "items_label_en": "Property",
+      "subtotal_label_es": "Precio ofrecido",
+      "subtotal_label_en": "Offer price",
+      "shipping_label_es": "Honorarios estimados",
+      "shipping_label_en": "Estimated fees",
+      "total_label_es": "Total estimado",
+      "total_label_en": "Estimated total",
+      "ship_to_label_es": "A nombre de",
+      "ship_to_label_en": "On behalf of"
+    },
+    "tracking": {
+      "subject_template_es": "Actualización del cierre — {{order_number}}",
+      "subject_template_en": "Closing update — {{order_number}}",
+      "heading_es": "Tu transacción avanza",
+      "heading_en": "Your transaction is moving forward",
+      "intro_es": "Aquí tienes el estado actual de tu cierre y los próximos pasos.",
+      "intro_en": "Here's the current status of your closing and the next steps.",
+      "outro_es": "¡Casi lo logramos! Cualquier duda, responde a este correo.",
+      "outro_en": "Almost there! Any questions, just reply to this email.",
+      "tracking_label_es": "Etapa actual",
+      "tracking_label_en": "Current stage",
+      "method_label_es": "Tipo de transacción",
+      "method_label_en": "Transaction type"
+    },
+    "refund": {
+      "subject_template_es": "Depósito devuelto — {{order_number}}",
+      "subject_template_en": "Deposit returned — {{order_number}}",
+      "heading_es": "Tu depósito fue devuelto",
+      "heading_en": "Your deposit has been returned",
+      "intro_es": "Procesamos la devolución de tu depósito. Debería reflejarse en tu cuenta en 5–10 días hábiles según tu banco.",
+      "intro_en": "We've processed the return of your deposit. It should appear in your account within 5–10 business days depending on your bank.",
+      "outro_es": "Sentimos que esta transacción no se concretara. Cuando estés listo/a, aquí estamos.",
+      "outro_en": "Sorry this one didn't work out. Whenever you're ready, we're here."
+    },
+    "abandoned_cart": {
+      "subject_template_es": "¿Sigues interesado/a? — Oferta {{order_number}}",
+      "subject_template_en": "Still interested? — Offer {{order_number}}",
+      "heading_es": "Tu oferta sigue en borrador",
+      "heading_en": "Your offer is still in draft",
+      "intro_es": "Empezaste una oferta pero no llegaste a enviarla. Las propiedades buenas no esperan — termina cuando puedas.",
+      "intro_en": "You started an offer but didn't submit it. Good properties don't wait — finish whenever you can.",
+      "outro_es": "Vuelve a {{brand_domain}}/offers para retomar o responde si necesitas hablar con un agente.",
+      "outro_en": "Head back to {{brand_domain}}/offers to pick up, or reply if you'd like to talk to an agent.",
+      "items_label_es": "Propiedad",
+      "items_label_en": "Property",
+      "subtotal_label_es": "Precio ofrecido",
+      "subtotal_label_en": "Offer price",
+      "shipping_label_es": "Honorarios estimados",
+      "shipping_label_en": "Estimated fees",
+      "total_label_es": "Total estimado",
+      "total_label_en": "Estimated total",
+      "ship_to_label_es": "A nombre de",
+      "ship_to_label_en": "On behalf of",
+      "cta_label_es": "Terminar mi oferta",
+      "cta_label_en": "Finish my offer",
+      "cta_url_template": "{{site_url}}/offers"
+    },
+    "admin_new_order": {
+      "subject_template_en": "[{{brand_name}}] New offer {{order_number}}",
+      "heading_en": "New offer submitted",
+      "intro_en": "A buyer just submitted an offer. Details below."
+    },
+    "admin_refunded": {
+      "subject_template_en": "[{{brand_name}}] Deposit returned {{order_number}}",
+      "heading_en": "Deposit returned",
+      "intro_en": "A deposit was returned on the transaction below."
+    }
+  }
+}

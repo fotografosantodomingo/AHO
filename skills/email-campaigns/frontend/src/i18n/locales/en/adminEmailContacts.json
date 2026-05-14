@@ -1,0 +1,118 @@
+{
+  "seoTitle": "Email contacts — Admin",
+  "backToDashboard": "Email dashboard",
+  "heading": "Contacts",
+  "subheadingPrefix": "Master list of",
+  "subheadingSuffix": " — segmented B2B / Individual.",
+  "buttons": {
+    "refresh": "Refresh",
+    "bulkImport": "Bulk import",
+    "csv": "CSV",
+    "addContact": "Add contact",
+    "edit": "Edit",
+    "unsub": "Unsub",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save",
+    "prev": "Prev",
+    "next": "Next"
+  },
+  "kpis": {
+    "total": "Total",
+    "active": "Active",
+    "b2b": "B2B",
+    "individual": "Individual"
+  },
+  "search": {
+    "placeholder": "Search email, name, company…"
+  },
+  "filters": {
+    "segments": {
+      "all": "All segments",
+      "b2b": "B2B",
+      "individual": "Individual"
+    },
+    "status": {
+      "all": "All status",
+      "active": "Active",
+      "unsubscribed": "Unsubscribed",
+      "bounced": "Bounced"
+    },
+    "tagsLabel": "Tags:",
+    "tagsClear": "clear"
+  },
+  "table": {
+    "email": "Email",
+    "name": "Name",
+    "company": "Company",
+    "segment": "Segment",
+    "tags": "Tags",
+    "status": "Status",
+    "created": "Created",
+    "actions": "Actions",
+    "empty": "No contacts match the current filter."
+  },
+  "pagination": {
+    "summary": "Page {{page}} of {{total}} · {{count}} contact",
+    "summaryPlural": "Page {{page}} of {{total}} · {{count}} contacts"
+  },
+  "modal": {
+    "addTitle": "Add contact",
+    "editTitle": "Edit contact",
+    "importTitle": "Bulk import contacts (CSV)",
+    "fields": {
+      "email": "Email *",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "company": "Company",
+      "segment": "Segment",
+      "tags": "Tags (comma-separated)",
+      "tagsPlaceholder": "hotel, wholesale",
+      "mergeVars": "Merge vars",
+      "mergeVarKey": "key",
+      "mergeVarValue": "value",
+      "addMergeVar": "+ add merge var",
+      "notes": "Notes"
+    },
+    "import": {
+      "instructionsPrefix": "Header row required. Recognized columns:",
+      "columnsHint": "(b2b/individual)",
+      "tagsHint": "(pipe-separated).",
+      "previewLabel": "Preview ({{count}} rows):",
+      "csvPlaceholder": "email,first_name,segment,tags\njane@x.com,Jane,b2b,hotel|wholesale",
+      "previewEmail": "Email",
+      "previewName": "Name",
+      "previewSegment": "Segment",
+      "previewTags": "Tags",
+      "upsert": "Upsert {{count}} rows"
+    }
+  },
+  "confirm": {
+    "unsubscribe": "Unsubscribe {{email}}?",
+    "delete": "Permanently delete {{email}}?"
+  },
+  "toast": {
+    "emailRequired": "Email is required.",
+    "updated": "Contact updated.",
+    "created": "Contact created.",
+    "saveFailed": "Save failed.",
+    "alreadyUnsubscribed": "Already unsubscribed.",
+    "unsubscribed": "Contact unsubscribed.",
+    "deleted": "Contact deleted.",
+    "failed": "Failed.",
+    "loadFailed": "Failed to load contacts",
+    "noneToExport": "No contacts in current filter.",
+    "exported": "Exported {{count}} contact.",
+    "exportedPlural": "Exported {{count}} contacts.",
+    "exportFailed": "Export failed.",
+    "nothingToImport": "Nothing to import.",
+    "imported": "Imported {{count}} contacts.",
+    "importFailed": "Import failed."
+  },
+  "csvErrors": {
+    "needRows": "Need at least a header row + 1 data row.",
+    "missingEmailCol": "Missing required \"email\" column.",
+    "missingEmail": "Row {{row}}: missing email.",
+    "invalidEmail": "Row {{row}}: invalid email \"{{email}}\"."
+  }
+}

@@ -1,0 +1,179 @@
+{
+  "_comment": "Single source of truth for all email body copy + brand chrome in this skill. Three consumers read from this shape: (1) worker/index.ts (welcome email + admin notice), (2) database/03_email_templates_table.sql (seeded order template rows — admin can edit them later in /admin/email/templates without redeploying), (3) edge-function/send-order-email/index.ts (fallback defaults when a templates row is missing). Frontend i18n strings are also derived from these brand values. After install for a new vertical, edit ONLY this file plus your i18n locale JSON, redeploy, done — no grep-and-replace.",
+  "_consumer_install_checklist": [
+    "1. Copy this file's values into worker/index.ts BRAND and CONTENT consts (or import + inline at build time).",
+    "2. Re-run database/03_email_templates_table.sql with the seed rows reflecting these values OR edit copy in /admin/email/templates after first deploy.",
+    "3. Update frontend/src/i18n/locales/{es,en}/newsletter.json + adminEmailComposer.json success/reply-to/placeholder strings to match brand.name and brand.domain."
+  ],
+
+  "brand": {
+    "name": "Kibay",
+    "domain": "kibay.com.do",
+    "site_url": "https://kibay.com.do",
+    "tagline_es": "Vino Espumoso Orgánico del Caribe",
+    "tagline_en": "Premium Caribbean Organic Sparkling Wine",
+    "long_tagline_es": "Vino espumoso orgánico premium de la República Dominicana. Elaborado con pasión, sostenibilidad y los mejores frutos locales.",
+    "long_tagline_en": "Premium organic sparkling wine from the Dominican Republic. Crafted with passion, sustainability, and the finest local fruits.",
+    "address": "Bahía de Ocoa, Km 6 1/2 Hatillo, Azua 71003 · República Dominicana",
+    "address_en_suffix": "Dominican Republic",
+    "address_es_suffix": "República Dominicana",
+    "support_email": "info@kibay.com.do",
+    "from_name": "Kibay",
+    "from_email": "info@kibay.com.do",
+    "orders_from": "Kibay <orders@kibay.com.do>",
+    "admin_label": "Kibay admin",
+    "admin_recipient_name": "Kibay Admin",
+    "timezone": "America/Santo_Domingo",
+    "locale": "es-DO",
+    "accent_color": "#D4A574",
+    "copyright_es": "© Kibay · Hecho en la República Dominicana",
+    "copyright_en": "© Kibay · Made in the Dominican Republic",
+    "socials": {
+      "instagram": "https://www.instagram.com/kibaywine",
+      "facebook": "https://www.facebook.com/profile.php?id=61589761255222",
+      "tiktok": "https://www.tiktok.com/@kibaywine",
+      "linkedin": "https://www.linkedin.com/company/116054911"
+    },
+    "reservation": {
+      "_comment": "Used by /calendar/order/:id.ics in the worker for experience-product bookings. If your vertical has no reservations (most do not), the .ics endpoint is unused — leave defaults or omit.",
+      "location": "Bahía de Ocoa, Carretera Hatillo Palmar de Ocoa Km 6/12, Hatillo, Azua 71003, DO",
+      "place_label_es": "Bahía de Ocoa",
+      "place_label_en": "Bahía de Ocoa",
+      "qr_caption_es": "Muestra este código al llegar a Bahía de Ocoa",
+      "qr_caption_en": "Show this code on arrival at Bahía de Ocoa",
+      "calendar_title_template_es": "Reserva {{brand_name}}: {{product_name}}",
+      "calendar_title_template_en": "{{brand_name}} reservation: {{product_name}}",
+      "calendar_details_es": "Detalles de tu reserva en {{brand_name}}.",
+      "calendar_details_en": "Details for your {{brand_name}} reservation."
+    }
+  },
+
+  "newsletter_welcome": {
+    "subject_template_es": "Bienvenido/a a {{brand_name}} — gracias por suscribirte",
+    "subject_template_en": "Welcome to {{brand_name}} — thanks for subscribing",
+    "kicker_es": "Bienvenido/a a la lista",
+    "kicker_en": "Welcome to the list",
+    "heading_greeting_es": "gracias por suscribirte",
+    "heading_greeting_en": "thanks for subscribing",
+    "intro_es": "Ya estás en la lista de {{brand_name}}. Te escribiremos de vez en cuando — sin spam, sin prisa.",
+    "intro_en": "You're on the {{brand_name}} list. We'll write occasionally — no spam, no rush.",
+    "cta_label_es": "Explorar {{brand_name}}",
+    "cta_label_en": "Explore {{brand_name}}",
+    "cta_url": "/",
+    "footer_unsubscribe_label_es": "Cancelar suscripción",
+    "footer_unsubscribe_label_en": "Unsubscribe"
+  },
+
+  "newsletter_admin_notice": {
+    "subject_template_es": "[{{brand_name}}] Nuevo suscriptor: {{email}}",
+    "subject_template_en": "[{{brand_name}}] New subscriber: {{email}}",
+    "kicker_es": "{{brand_name}} admin · newsletter",
+    "kicker_en": "{{brand_name}} admin · newsletter",
+    "heading_es": "Nuevo suscriptor",
+    "heading_en": "New subscriber",
+    "email_label_es": "Email",
+    "email_label_en": "Email",
+    "name_label_es": "Nombre",
+    "name_label_en": "Name",
+    "source_label_es": "Fuente",
+    "source_label_en": "Source",
+    "source_value_es": "Formulario footer",
+    "source_value_en": "Footer form",
+    "time_label_es": "Hora",
+    "time_label_en": "Time",
+    "cta_label_template_es": "Ver en {{admin_path}}",
+    "cta_label_template_en": "View in {{admin_path}}"
+  },
+
+  "unsubscribe_page": {
+    "success_heading_es": "Te has dado de baja",
+    "success_heading_en": "You're unsubscribed",
+    "failure_heading_es": "Error al darse de baja",
+    "failure_heading_en": "Unsubscribe failed",
+    "success_message_template_es": "Ya no recibirás emails de marketing de {{brand_name}}. Puedes volver a suscribirte respondiendo a un correo.",
+    "success_message_template_en": "You won't receive marketing emails from {{brand_name}}. You can resubscribe anytime by replying.",
+    "back_link_template_es": "Volver a {{brand_name}}",
+    "back_link_template_en": "Back to {{brand_name}}"
+  },
+
+  "order_emails": {
+    "_comment": "These are the DEFAULTS that ship in the SQL seed for migration 03 AND the fallback constants in edge-function/send-order-email/index.ts. Once installed, admins edit them in /admin/email/templates — no redeploy needed.",
+    "confirmation": {
+      "subject_template_es": "Pedido confirmado — {{order_number}}",
+      "subject_template_en": "Order confirmed — {{order_number}}",
+      "heading_es": "¡Gracias por tu pedido!",
+      "heading_en": "Thanks for your order!",
+      "intro_es": "Recibimos tu pago y estamos preparando tu pedido. Te avisaremos cuando se envíe.",
+      "intro_en": "We've received your payment and we're preparing your order. We'll let you know when it ships.",
+      "outro_es": "Si tienes alguna pregunta, responde a este correo.",
+      "outro_en": "If you have any questions, just reply to this email.",
+      "items_label_es": "Productos",
+      "items_label_en": "Items",
+      "subtotal_label_es": "Subtotal",
+      "subtotal_label_en": "Subtotal",
+      "shipping_label_es": "Envío",
+      "shipping_label_en": "Shipping",
+      "total_label_es": "Total",
+      "total_label_en": "Total",
+      "ship_to_label_es": "Envío a",
+      "ship_to_label_en": "Ship to"
+    },
+    "tracking": {
+      "subject_template_es": "Tu pedido va en camino — {{order_number}}",
+      "subject_template_en": "Your order is on its way — {{order_number}}",
+      "heading_es": "Tu pedido está en camino",
+      "heading_en": "Your order is on its way",
+      "intro_es": "Acabamos de enviar tu pedido. Aquí tienes los detalles para seguirlo.",
+      "intro_en": "We just shipped your order. Here are the details to track it.",
+      "outro_es": "Te llegará pronto. ¡Gracias por elegir {{brand_name}}!",
+      "outro_en": "You'll have it soon. Thanks for choosing {{brand_name}}!",
+      "tracking_label_es": "Número de rastreo",
+      "tracking_label_en": "Tracking number",
+      "method_label_es": "Método",
+      "method_label_en": "Method"
+    },
+    "refund": {
+      "subject_template_es": "Reembolso procesado — {{order_number}}",
+      "subject_template_en": "Refund processed — {{order_number}}",
+      "heading_es": "Reembolso procesado",
+      "heading_en": "Refund processed",
+      "intro_es": "Hemos procesado el reembolso de tu pedido. El monto debería aparecer en tu cuenta en 5–10 días hábiles según tu banco.",
+      "intro_en": "We've processed the refund for your order. It should appear on your account within 5–10 business days depending on your bank.",
+      "outro_es": "Si tienes alguna pregunta, responde a este correo.",
+      "outro_en": "If you have any questions, just reply to this email."
+    },
+    "abandoned_cart": {
+      "subject_template_es": "¿Olvidaste algo? — Pedido {{order_number}}",
+      "subject_template_en": "Did you forget something? — Order {{order_number}}",
+      "heading_es": "Tu pedido te está esperando",
+      "heading_en": "Your order is still waiting",
+      "intro_es": "Vimos que empezaste un pedido pero no llegaste al pago. No te preocupes — está guardado por un rato más. Termina cuando puedas.",
+      "intro_en": "We saw you started an order but didn't make it to payment. Don't worry — it's still saved for a little while. Finish when you can.",
+      "outro_es": "Si decides terminar la compra, vuelve a {{brand_domain}}/cart o responde a este correo si tienes alguna pregunta.",
+      "outro_en": "To finish your order, head to {{brand_domain}}/cart or reply to this email with any questions.",
+      "items_label_es": "Productos en tu carrito",
+      "items_label_en": "Items in your cart",
+      "subtotal_label_es": "Subtotal",
+      "subtotal_label_en": "Subtotal",
+      "shipping_label_es": "Envío",
+      "shipping_label_en": "Shipping",
+      "total_label_es": "Total",
+      "total_label_en": "Total",
+      "ship_to_label_es": "Envío a",
+      "ship_to_label_en": "Ship to",
+      "cta_label_es": "Terminar mi pedido",
+      "cta_label_en": "Finish my order",
+      "cta_url_template": "{{site_url}}/cart"
+    },
+    "admin_new_order": {
+      "subject_template_en": "[{{brand_name}}] New order {{order_number}}",
+      "heading_en": "New paid order",
+      "intro_en": "A customer just completed checkout. Details below."
+    },
+    "admin_refunded": {
+      "subject_template_en": "[{{brand_name}}] Refunded {{order_number}}",
+      "heading_en": "Order refunded",
+      "intro_en": "A refund was processed for the order below."
+    }
+  }
+}

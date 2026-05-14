@@ -1,0 +1,68 @@
+{
+  "seoTitle": {
+    "edit": "Edit campaign — Admin",
+    "create": "New campaign — Admin"
+  },
+  "backToCampaigns": "Campaigns",
+  "heading": {
+    "edit": "Edit campaign",
+    "create": "Compose campaign"
+  },
+  "fields": {
+    "name": "Campaign name *",
+    "namePlaceholder": "Internal label, e.g. May 2026 launch",
+    "subject": "Subject *",
+    "fromName": "From name",
+    "fromEmail": "From email",
+    "replyTo": "Reply-to (optional)",
+    "replyToPlaceholder": "hello@example.com",
+    "htmlBody": "HTML body *"
+  },
+  "audience": {
+    "title": "Audience",
+    "tagsLabel": "Tag filters (optional)",
+    "statusLabel": "Status:",
+    "status": {
+      "active": "active",
+      "unsubscribed": "unsubscribed",
+      "bounced": "bounced"
+    },
+    "recipientSuffix": " matching recipient",
+    "recipientSuffixPlural": " matching recipients"
+  },
+  "personalization": {
+    "title": "Personalization tokens"
+  },
+  "buttons": {
+    "saveDraft": "Save draft",
+    "sendTest": "Send test to me",
+    "sendCampaign": "Send campaign",
+    "cancel": "Cancel"
+  },
+  "preview": {
+    "label": "Preview",
+    "withSample": "Preview with sample data",
+    "iframeTitle": "Email preview"
+  },
+  "confirm": {
+    "title": "Confirm send",
+    "body": "Send {{count}} email now? This cannot be undone.",
+    "bodyPlural": "Send {{count}} emails now? This cannot be undone.",
+    "send": "Send to {{count}}"
+  },
+  "validation": {
+    "nameRequired": "Campaign name is required.",
+    "subjectRequired": "Subject is required.",
+    "bodyRequired": "Email body is required."
+  },
+  "toast": {
+    "loadFailed": "Failed to load campaign",
+    "draftSaved": "Draft saved.",
+    "saveFailed": "Save failed.",
+    "noAdmin": "No admin email on session.",
+    "testSent": "Test sent to {{email}}.",
+    "testFailed": "Test send failed.",
+    "queued": "Campaign queued for delivery.",
+    "sendFailed": "Send failed."
+  }
+}

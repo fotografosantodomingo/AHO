@@ -1,0 +1,63 @@
+{
+  "seoTitle": "Plantillas de correo — Admin",
+  "backToDashboard": "Panel de correo",
+  "heading": "Plantillas de correo",
+  "subheading": "Edita el texto de los correos transaccionales de pedidos. El diseño, encabezado y pie de página son fijos; solo el texto de abajo es editable.",
+  "intro": "Cada fila es una plantilla (tipo × idioma). El asunto admite {{order_number}} como marcador.",
+  "buttons": {
+    "refresh": "Refrescar",
+    "edit": "Editar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "resetToDefault": "Restaurar predeterminado",
+    "close": "Cerrar"
+  },
+  "table": {
+    "type": "Tipo",
+    "lang": "Idioma",
+    "subject": "Asunto",
+    "updated": "Actualizado",
+    "actions": "Acciones",
+    "empty": "Sin plantillas — el sistema usará los textos predeterminados."
+  },
+  "types": {
+    "confirmation": "Confirmación de pedido",
+    "tracking": "Envío / rastreo",
+    "refund": "Reembolso procesado",
+    "abandoned_cart": "Carrito abandonado",
+    "admin_new_order": "Admin: pedido nuevo",
+    "admin_refunded": "Admin: reembolso"
+  },
+  "langs": {
+    "es": "Español",
+    "en": "Inglés"
+  },
+  "modal": {
+    "editTitle": "Editar plantilla",
+    "fields": {
+      "subject": "Asunto",
+      "subjectHelp": "Admite el marcador {{order_number}}.",
+      "heading": "Encabezado",
+      "intro": "Párrafo de introducción",
+      "outro": "Párrafo de cierre",
+      "itemsLabel": "Etiqueta de productos",
+      "subtotalLabel": "Etiqueta de subtotal",
+      "shippingLabel": "Etiqueta de envío",
+      "totalLabel": "Etiqueta de total",
+      "shipToLabel": "Etiqueta de dirección de envío",
+      "trackingLabel": "Etiqueta de número de rastreo",
+      "methodLabel": "Etiqueta de método de envío",
+      "ctaLabel": "Etiqueta del botón de acción"
+    }
+  },
+  "confirm": {
+    "reset": "¿Restaurar {{type}} ({{lang}}) al texto predeterminado? El texto actual se perderá."
+  },
+  "toast": {
+    "loadFailed": "No se pudieron cargar las plantillas",
+    "saved": "Plantilla guardada.",
+    "saveFailed": "Error al guardar.",
+    "reset": "Plantilla restaurada al predeterminado.",
+    "resetFailed": "Error al restaurar."
+  }
+}

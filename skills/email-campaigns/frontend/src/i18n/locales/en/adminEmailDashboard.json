@@ -1,0 +1,39 @@
+{
+  "seoTitle": "Email marketing — Admin",
+  "backToDashboard": "Admin dashboard",
+  "heading": "Email marketing",
+  "subheading": "KPIs, charts, and quick links for the email program.",
+  "buttons": {
+    "refresh": "Refresh",
+    "manageContacts": "Manage contacts",
+    "allCampaigns": "All campaigns",
+    "newCampaign": "New campaign"
+  },
+  "kpis": {
+    "activeContacts": "Active contacts",
+    "campaignsSent": "Campaigns sent",
+    "deliverability30d": "30d deliverability",
+    "openRate30d": "30d open rate"
+  },
+  "charts": {
+    "emailsSent30d": "Emails sent — last 30 days",
+    "statusDistribution": "Status distribution (30d)"
+  },
+  "comparison": {
+    "title": "B2B vs Individual",
+    "b2b": "B2B",
+    "individual": "Individual",
+    "recipients": "Recipients",
+    "openRate": "Open rate",
+    "bounceRate": "Bounce rate"
+  },
+  "bouncing": {
+    "title": "Top 5 bouncing domains (30d)",
+    "noBounces": "No bounces in the last 30 days.",
+    "domain": "Domain",
+    "bounces": "Bounces"
+  },
+  "errors": {
+    "loadFailed": "Failed to load dashboard data"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "firstNamePlaceholder": "Nombre",
+  "emailPlaceholder": "Correo electrónico",
+  "defaultButton": "Suscribirme",
+  "defaultSuccessMessage": "¡Bienvenido a nuestra lista!",
+  "successTitle": "¡Ya estás en la lista!",
+  "toast": {
+    "successTitle": "¡Listo!",
+    "errorTitle": "Error"
+  },
+  "consent": {
+    "prefix": "Al suscribirte aceptas nuestra ",
+    "privacyLink": "Política de Privacidad",
+    "suffix": ". Puedes darte de baja en cualquier momento."
+  }
+}

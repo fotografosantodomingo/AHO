@@ -1,0 +1,68 @@
+{
+  "seoTitle": {
+    "edit": "Editar campaña — Admin",
+    "create": "Nueva campaña — Admin"
+  },
+  "backToCampaigns": "Campañas",
+  "heading": {
+    "edit": "Editar campaña",
+    "create": "Componer campaña"
+  },
+  "fields": {
+    "name": "Nombre de la campaña *",
+    "namePlaceholder": "Etiqueta interna, ej: Lanzamiento mayo 2026",
+    "subject": "Asunto *",
+    "fromName": "Nombre del remitente",
+    "fromEmail": "Email del remitente",
+    "replyTo": "Reply-to (opcional)",
+    "replyToPlaceholder": "hello@example.com",
+    "htmlBody": "Cuerpo HTML *"
+  },
+  "audience": {
+    "title": "Audiencia",
+    "tagsLabel": "Filtros por etiqueta (opcional)",
+    "statusLabel": "Estado:",
+    "status": {
+      "active": "activo",
+      "unsubscribed": "dado de baja",
+      "bounced": "rebotado"
+    },
+    "recipientSuffix": " destinatario coincide",
+    "recipientSuffixPlural": " destinatarios coinciden"
+  },
+  "personalization": {
+    "title": "Tokens de personalización"
+  },
+  "buttons": {
+    "saveDraft": "Guardar borrador",
+    "sendTest": "Enviarme un test",
+    "sendCampaign": "Enviar campaña",
+    "cancel": "Cancelar"
+  },
+  "preview": {
+    "label": "Vista previa",
+    "withSample": "Vista previa con datos de muestra",
+    "iframeTitle": "Vista previa del email"
+  },
+  "confirm": {
+    "title": "Confirmar envío",
+    "body": "¿Enviar {{count}} email ahora? Esta acción no se puede deshacer.",
+    "bodyPlural": "¿Enviar {{count}} emails ahora? Esta acción no se puede deshacer.",
+    "send": "Enviar a {{count}}"
+  },
+  "validation": {
+    "nameRequired": "El nombre de la campaña es obligatorio.",
+    "subjectRequired": "El asunto es obligatorio.",
+    "bodyRequired": "El cuerpo del email es obligatorio."
+  },
+  "toast": {
+    "loadFailed": "Error al cargar la campaña",
+    "draftSaved": "Borrador guardado.",
+    "saveFailed": "Error al guardar.",
+    "noAdmin": "No hay email admin en la sesión.",
+    "testSent": "Test enviado a {{email}}.",
+    "testFailed": "Error al enviar el test.",
+    "queued": "Campaña en cola para envío.",
+    "sendFailed": "Error al enviar."
+  }
+}

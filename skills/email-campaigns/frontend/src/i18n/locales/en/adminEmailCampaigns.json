@@ -1,0 +1,65 @@
+{
+  "seoTitle": "Email campaigns — Admin",
+  "backToDashboard": "Email dashboard",
+  "heading": "Campaigns",
+  "subheading": "Draft, send, and review email broadcasts.",
+  "buttons": {
+    "refresh": "Refresh",
+    "newCampaign": "New campaign",
+    "createFirst": "Create the first one",
+    "prev": "Prev",
+    "next": "Next",
+    "view": "View",
+    "edit": "Edit",
+    "duplicate": "Duplicate",
+    "delete": "Delete",
+    "clearDates": "clear dates"
+  },
+  "filters": {
+    "all": "All",
+    "draft": "Draft",
+    "sending": "Sending",
+    "sent": "Sent",
+    "failed": "Failed",
+    "from": "From",
+    "to": "To"
+  },
+  "table": {
+    "name": "Name",
+    "subject": "Subject",
+    "audience": "Audience",
+    "recipients": "Recipients",
+    "status": "Status",
+    "sent": "Sent",
+    "actions": "Actions",
+    "empty": "No campaigns yet."
+  },
+  "pagination": {
+    "summary": "Page {{page}} of {{total}} · {{count}} campaign",
+    "summaryPlural": "Page {{page}} of {{total}} · {{count}} campaigns"
+  },
+  "drawer": {
+    "title": "Campaign details",
+    "name": "Name",
+    "subject": "Subject",
+    "status": "Status",
+    "recipients": "Recipients",
+    "sentAt": "Sent at",
+    "audience": "Audience",
+    "engagement": "Engagement",
+    "noStats": "No stats available."
+  },
+  "duplicateLabel": " (copy)",
+  "confirm": {
+    "delete": "Delete draft \"{{name}}\"?"
+  },
+  "toast": {
+    "loadFailed": "Failed to load campaigns",
+    "duplicated": "Campaign duplicated.",
+    "duplicateFailed": "Duplicate failed.",
+    "onlyDrafts": "Only drafts can be deleted.",
+    "draftDeleted": "Draft deleted.",
+    "deleteFailed": "Delete failed.",
+    "statsLoadFailed": "Failed to load stats."
+  }
+}
