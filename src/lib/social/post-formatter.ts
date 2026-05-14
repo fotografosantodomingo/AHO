@@ -207,6 +207,67 @@ export function formatInstagramPost(input: PostInput): InstagramPost {
   };
 }
 
+// ============================================================
+// Override-aware pickers (Phase J — pre-share editor)
+// ============================================================
+//
+// When the agent has used the AI drafter and edited the suggested
+// captions, the publish route passes per-platform `overrides` to the
+// picker functions below. The picker replaces the platform's *prose*
+// with the agent's text but keeps the deterministic plumbing
+// (UTM-tagged link, hero imageUrl, LinkedIn contentTitle +
+// contentDescription) intact. This split is deliberate: agents control
+// what they say; the system controls how the listing is identified.
+
+/** Build a FacebookPost from either the agent's edited message or the
+ *  deterministic formatter output. UTM-tagged link is always
+ *  formatter-derived. */
+export function pickFacebookPost(
+  input: PostInput,
+  override?: { message: string },
+): FacebookPost {
+  if (override) {
+    return {
+      message: override.message,
+      link: withUtm(input.url, 'facebook'),
+      ...(input.imageUrl ? { imageUrl: input.imageUrl } : {}),
+    };
+  }
+  return formatFacebookPost(input);
+}
+
+/** Build an InstagramPost from either the agent's edited caption or
+ *  the deterministic formatter output. IG hard-requires imageUrl;
+ *  overriding does not bypass that. */
+export function pickInstagramPost(
+  input: PostInput,
+  override?: { caption: string },
+): InstagramPost {
+  if (!input.imageUrl) throw new MissingImageError('Instagram');
+  if (override) {
+    return {
+      caption: override.caption,
+      imageUrl: input.imageUrl,
+    };
+  }
+  return formatInstagramPost(input);
+}
+
+/** Build a LinkedInPost — only `commentary` is agent-controllable;
+ *  contentUrl, contentTitle, contentDescription, contentThumbnailUrl
+ *  stay deterministic (the article card is platform-identity, not voice). */
+export function pickLinkedInPost(
+  input: PostInput,
+  override?: { commentary: string },
+): LinkedInPost {
+  const fromFormatter = formatLinkedInPost(input);
+  if (!override) return fromFormatter;
+  return {
+    ...fromFormatter,
+    commentary: clamp(override.commentary, LINKEDIN_MAX_CHARS),
+  };
+}
+
 export function formatLinkedInPost(input: PostInput): LinkedInPost {
   const contentLocale = narrowContentLocale(input.locale);
   const price = formatPrice(input.priceCents, input.currency, contentLocale);

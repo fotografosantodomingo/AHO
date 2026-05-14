@@ -12,9 +12,9 @@ import { LOCALES, type Locale } from '@/i18n/config';
 import { getCountryName } from '@/lib/i18n/countries';
 import { buildImageUrl } from '@/lib/listings/image-url';
 import {
-  formatFacebookPost,
-  formatInstagramPost,
-  formatLinkedInPost,
+  pickFacebookPost,
+  pickInstagramPost,
+  pickLinkedInPost,
   type PostInput,
 } from '@/lib/social/post-formatter';
 import {
@@ -68,6 +68,26 @@ const BodySchema = z.object({
    *  has connected accounts for. */
   platforms: z
     .array(z.enum(['facebook', 'instagram', 'linkedin']))
+    .optional(),
+  /** Phase J — agent-edited caption overrides. Per platform; when
+   *  present we bypass the deterministic formatter for that platform's
+   *  prose. Plumbing (UTM-tagged link, imageUrl, LinkedIn title +
+   *  description) stays formatter-derived. Caps mirror the formatter's
+   *  internal caps so an agent's paste can never blow past Meta's
+   *  platform ceilings. */
+  overrides: z
+    .object({
+      facebook: z
+        .object({ message: z.string().min(1).max(4000) })
+        .optional(),
+      instagram: z
+        .object({ caption: z.string().min(1).max(2000) })
+        .optional(),
+      linkedin: z
+        .object({ commentary: z.string().min(1).max(2800) })
+        .optional(),
+    })
+    .partial()
     .optional(),
 });
 
@@ -391,6 +411,19 @@ export async function POST(req: NextRequest) {
         };
       }
 
+      // Determine whether the agent's edited text is being used for
+      // this platform (Phase J). Recorded in social_post_attempts.used_override
+      // for telemetry + support triage.
+      const platformOverride =
+        t.platform === 'facebook'
+          ? body.overrides?.facebook
+          : t.platform === 'instagram'
+            ? body.overrides?.instagram
+            : t.platform === 'linkedin'
+              ? body.overrides?.linkedin
+              : undefined;
+      const usedOverride = platformOverride != null;
+
       let result: PublishResult;
       try {
         if (t.platform === 'facebook') {
@@ -398,7 +431,7 @@ export async function POST(req: NextRequest) {
           result = await publishToFacebookPage({
             pageId,
             pageToken: tokenPlain as string,
-            post: formatFacebookPost(postInput),
+            post: pickFacebookPost(postInput, body.overrides?.facebook),
           });
         } else if (t.platform === 'instagram') {
           if (!postInput.imageUrl) {
@@ -412,7 +445,7 @@ export async function POST(req: NextRequest) {
             result = await publishToInstagramBusiness({
               igId,
               pageToken: tokenPlain as string,
-              post: formatInstagramPost(postInput),
+              post: pickInstagramPost(postInput, body.overrides?.instagram),
             });
           }
         } else {
@@ -420,7 +453,7 @@ export async function POST(req: NextRequest) {
           result = await publishToLinkedIn({
             authorUrn: t.externalAccountId,
             accessToken: tokenPlain as string,
-            post: formatLinkedInPost(postInput),
+            post: pickLinkedInPost(postInput, body.overrides?.linkedin),
           });
         }
       } catch (err) {
@@ -440,12 +473,14 @@ export async function POST(req: NextRequest) {
               external_post_id: result.externalPostId ?? null,
               external_post_url: result.externalPostUrl ?? null,
               finished_at: finishedAt,
+              used_override: usedOverride,
             }
           : {
               status,
               error_code: result.errorCode ?? 'unknown',
               error_message: result.errorMessage ?? null,
               finished_at: finishedAt,
+              used_override: usedOverride,
             };
       await admin.from('social_post_attempts').update(update).eq('id', attemptId);
       return { target: t, result };
