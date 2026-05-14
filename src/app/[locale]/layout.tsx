@@ -8,6 +8,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/footer/site-footer';
 import { PwaRegister } from '@/components/pwa-register';
+import { TawkWidget } from '@/components/chat/tawk-widget';
 import '../globals.css';
 
 // Brand font — substituted for HashiCorp Sans (proprietary; we don't have
@@ -140,6 +141,7 @@ export default async function LocaleLayout({
           </ThemeProvider>
         </NextIntlClientProvider>
         <PwaRegister />
+        <TawkWidget />
       </body>
     </html>
   );

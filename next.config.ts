@@ -25,25 +25,29 @@ const csp = [
   "default-src 'self'",
   // js.stripe.com — Checkout/Elements; challenges.cloudflare.com — Turnstile
   // bot challenge widget script.
-  "script-src 'self' 'unsafe-inline' https://js.stripe.com https://challenges.cloudflare.com",
+  // embed.tawk.to + *.tawk.to — Tawk live-chat widget loader + runtime.
+  "script-src 'self' 'unsafe-inline' https://js.stripe.com https://challenges.cloudflare.com https://embed.tawk.to https://*.tawk.to",
   "style-src 'self' 'unsafe-inline'",
   // Cloudflare R2 public dev URL (pub-<hash>.r2.dev) — fallback image
   // host while Cloudflare Images is not yet configured. Once a custom
   // domain like images.advertisehomes.online is set up, the wildcard
-  // r2.dev entry can come out.
-  "img-src 'self' data: blob: https://imagedelivery.net https://*.tile.openstreetmap.org https://*.r2.dev",
-  "font-src 'self' data:",
+  // r2.dev entry can come out. Plus *.tawk.to + *.tawkcdn.com for
+  // chat-agent avatars + widget icons.
+  "img-src 'self' data: blob: https://imagedelivery.net https://*.tile.openstreetmap.org https://*.r2.dev https://*.tawk.to https://*.tawkcdn.com",
+  "font-src 'self' data: https://*.tawk.to",
   // api.pwnedpasswords.com — HIBP k-anonymity check on signup; never sees
   // the password (only first 5 chars of SHA-1 hash). Turnstile callbacks
-  // are same-origin via the script.
-  "connect-src 'self' https://*.supabase.co https://api.stripe.com https://api.pwnedpasswords.com",
+  // are same-origin via the script. Plus *.tawk.to + WSS for the live-
+  // chat persistent connection.
+  "connect-src 'self' https://*.supabase.co https://api.stripe.com https://api.pwnedpasswords.com https://*.tawk.to wss://*.tawk.to",
   // Service worker (PWA install). default-src 'self' would already cover
   // same-origin workers, but worker-src is the explicit directive Chrome
   // consults first, and PWA installability tooling (Lighthouse) lints
   // for it.
   "worker-src 'self'",
-  // Stripe 3DS challenge iframe + Turnstile challenge iframe.
-  "frame-src https://js.stripe.com https://hooks.stripe.com https://challenges.cloudflare.com",
+  // Stripe 3DS challenge iframe + Turnstile challenge iframe + Tawk
+  // chat-window iframe.
+  "frame-src https://js.stripe.com https://hooks.stripe.com https://challenges.cloudflare.com https://*.tawk.to",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
