@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import type { Locale } from '@/i18n/config';
+import { TestConnectionButton } from '@/components/social/test-connection-button';
 
 interface Props {
   locale: Locale;
@@ -150,10 +151,11 @@ export async function ConnectMetaSection({ locale, flash }: Props) {
                 {pageTokens.map((p) => (
                   <li
                     key={p.id}
-                    className="flex items-center gap-2 text-sm text-ink-muted dark:text-ink-inverse-muted"
+                    className="flex flex-wrap items-center gap-2 text-sm text-ink-muted dark:text-ink-inverse-muted"
                   >
                     <span aria-hidden="true">📘</span>
                     <span className="font-medium text-ink">{p.display_name ?? p.external_account_id}</span>
+                    <TestConnectionButton platform="meta" externalAccountId={p.external_account_id} />
                   </li>
                 ))}
               </ul>
@@ -169,10 +171,11 @@ export async function ConnectMetaSection({ locale, flash }: Props) {
                 {igTokens.map((p) => (
                   <li
                     key={p.id}
-                    className="flex items-center gap-2 text-sm text-ink-muted dark:text-ink-inverse-muted"
+                    className="flex flex-wrap items-center gap-2 text-sm text-ink-muted dark:text-ink-inverse-muted"
                   >
                     <span aria-hidden="true">📷</span>
                     <span className="font-medium text-ink">{p.display_name ?? p.external_account_id}</span>
+                    <TestConnectionButton platform="meta" externalAccountId={p.external_account_id} />
                   </li>
                 ))}
               </ul>
