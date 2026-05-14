@@ -45,7 +45,10 @@ interface AttemptOutcome {
   errorCode?: string;
   errorMessage?: string;
   isRetryable: boolean;
+  supportRef?: string;
 }
+
+const SUPPORT_EMAIL = 'info@advertisehomes.online';
 
 interface Props {
   propertyId: string;
@@ -209,7 +212,13 @@ export function ShareToSocials({
       {attempts && attempts.length > 0 && (
         <div className="mt-5 space-y-2">
           {attempts.map((a) => (
-            <AttemptRow key={`${a.platform}:${a.externalAccountId}`} attempt={a} t={t} />
+            <AttemptRow
+              key={`${a.platform}:${a.externalAccountId}`}
+              attempt={a}
+              t={t}
+              propertyId={propertyId}
+              siteUrl={process.env.NEXT_PUBLIC_SITE_URL ?? ''}
+            />
           ))}
           {failedRetryable.length > 0 && (
             <div className="pt-2">
@@ -236,9 +245,13 @@ export function ShareToSocials({
 function AttemptRow({
   attempt,
   t,
+  propertyId,
+  siteUrl,
 }: {
   attempt: AttemptOutcome;
   t: ReturnType<typeof useTranslations<'social.share'>>;
+  propertyId: string;
+  siteUrl: string;
 }) {
   const tone =
     attempt.status === 'succeeded'
@@ -248,6 +261,38 @@ function AttemptRow({
         : 'border-amber-500/30 bg-amber-500/5 text-amber-800 dark:text-amber-200';
   const icon =
     attempt.status === 'succeeded' ? '✓' : attempt.status === 'failed' ? '✗' : '⊖';
+  const [copied, setCopied] = useState(false);
+
+  async function copyRef() {
+    if (!attempt.supportRef) return;
+    try {
+      await navigator.clipboard.writeText(attempt.supportRef);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard refused (insecure context / permissions) — silently no-op.
+      // The agent can still select-and-copy the visible <code> manually.
+    }
+  }
+
+  // Build a mailto: link with the supportRef pre-filled in subject + body.
+  // Only relevant for failed (not skipped) attempts — skipped means
+  // "agent fixes a precondition themselves", not "ask support for help".
+  const showSupportControls =
+    attempt.status === 'failed' && !!attempt.supportRef;
+  const mailtoHref = showSupportControls
+    ? `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(
+        t('mailtoSubject', { ref: attempt.supportRef! }),
+      )}&body=${encodeURIComponent(
+        t('mailtoBody', {
+          ref: attempt.supportRef!,
+          platform: attempt.platform,
+          account: attempt.displayName ?? attempt.externalAccountId,
+          listingUrl: `${siteUrl}/dashboard/properties/${propertyId}`,
+        }),
+      )}`
+    : null;
+
   return (
     <div className={`rounded-card border px-3 py-2 text-sm ${tone}`}>
       <div className="flex flex-wrap items-center gap-2">
@@ -275,6 +320,30 @@ function AttemptRow({
           {t('errorPrefix')}: {attempt.errorCode ? `${attempt.errorCode} — ` : ''}
           {attempt.errorMessage}
         </p>
+      )}
+      {showSupportControls && (
+        <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs">
+          <span className="opacity-75">{t('errorRefLabel')}:</span>
+          <code className="rounded border border-current/30 bg-current/5 px-1.5 py-0.5 font-mono">
+            {attempt.supportRef}
+          </code>
+          <button
+            type="button"
+            onClick={copyRef}
+            className="inline-flex h-7 items-center rounded-md border border-current/30 px-2 transition hover:bg-current/5"
+            aria-label={t('copyError')}
+          >
+            {copied ? t('copyErrorCopied') : t('copyError')}
+          </button>
+          {mailtoHref && (
+            <a
+              href={mailtoHref}
+              className="inline-flex h-7 items-center rounded-md border border-current/30 px-2 transition hover:bg-current/5"
+            >
+              {t('emailSupport')}
+            </a>
+          )}
+        </div>
       )}
     </div>
   );

@@ -59,13 +59,11 @@ The dialog has returned 502 ("Sorry, something went wrong") since 2026-05-07 for
 4. **App Review → Permissions and Features**: each of the 4 publishing permissions must show "Available for Testing" (not "Not Available"). If "Not Available" — the permission requires Business Verification, which links back to 2.1.
 5. **Test live (current branch is `main` @ `add2b28`)**: visit `https://aho-web.pages.dev/en/dashboard/social` as the PO Facebook account. Click "Connect Facebook". If the dialog renders permissions list → 502 fixed. If still 502 → check the browser console for the `?error_reason=...` returned to our callback.
 
-### 2.3 Custom domain (recommended before submission)
+### 2.3 ~~Custom domain~~ — **DONE 2026-05-13**
 
-Per `PO_ACTIONS.md` #2: DNS for `advertisehomes.online` → Cloudflare Pages.
+`https://advertisehomes.online` is live. Verified: `/sitemap.xml` returns 200, `www.` → apex 301 redirect works, `NEXT_PUBLIC_SITE_URL` points at canonical in `.env.local`. Residual PO confirmation: same env var set in Cloudflare Pages Production env (so deployed builds emit canonical URLs, not preview URLs). This submission can therefore proceed with `advertisehomes.online` as the canonical domain throughout.
 
-Meta reviewers historically scrutinize `.pages.dev` / staging-style domains more harshly than custom domains. Submission can succeed against `aho-web.pages.dev`, but the success rate is higher with the canonical domain live. Plus the Privacy + Terms URLs already point at `advertisehomes.online` in our App Settings, so the domain must resolve.
-
-If custom domain isn't ready by submission time: temporarily flip the Privacy + Terms URLs in the Meta dashboard to `https://aho-web.pages.dev/en/privacy` etc., and switch back after DNS lands.
+**Remaining Meta-dashboard action tied to this:** add `https://advertisehomes.online/api/oauth/meta/callback` to the Configuration `27924900597099409` redirect URIs (keep `aho-web.pages.dev` callback as fallback during transition).
 
 ---
 

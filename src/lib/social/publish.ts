@@ -58,6 +58,42 @@ export function isRetryable(code: PublishErrorCode | undefined): boolean {
   return code != null && RETRYABLE_CODES.has(code);
 }
 
+/**
+ * 3-letter abbreviations for support-reference codes. Used to build the
+ * `AHO-SP-{CODE}-{LAST8}` reference an agent can copy and email to support.
+ * Stable wire format — adding a new PublishErrorCode requires adding an
+ * entry here (typescript exhaustiveness check via Record<PublishErrorCode>).
+ */
+export const ERROR_CODE_SHORT: Record<PublishErrorCode, string> = {
+  token_invalid: 'TOK',
+  permission_denied: 'PRM',
+  rate_limited: 'RTL',
+  image_required: 'IMR',
+  image_too_large: 'IMG',
+  image_url_unreachable: 'IMU',
+  container_not_ready: 'CNR',
+  network_timeout: 'NET',
+  transient_5xx: 'T5X',
+  oauth_not_implemented: 'OAN',
+  invalid_input: 'INP',
+  unknown: 'UNK',
+};
+
+/**
+ * Build the short error reference an agent copies and emails to support.
+ * Format: `AHO-SP-{CODE}-{LAST8}` — total 19 chars, phone-readable in chunks.
+ * The LAST8 (last 8 chars of the attempt UUID) gives support enough to grep
+ * `select * from social_post_attempts where id::text like '%<last8>'`.
+ */
+export function buildSupportRef(
+  errorCode: PublishErrorCode | undefined,
+  attemptId: string,
+): string {
+  const short = errorCode ? (ERROR_CODE_SHORT[errorCode] ?? 'UNK') : 'UNK';
+  const last8 = attemptId.replace(/-/g, '').slice(-8);
+  return `AHO-SP-${short}-${last8}`;
+}
+
 export interface PublishResult {
   ok: boolean;
   /** Platform's stable post id. FB: `{page_id}_{post_id}`. IG: media id. LinkedIn: share URN. */

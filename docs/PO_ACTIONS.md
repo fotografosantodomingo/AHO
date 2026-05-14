@@ -30,7 +30,11 @@ Applied via `pnpm tsx scripts/migrate.ts` after fixing a pre-existing IMMUTABLE-
 
 ---
 
-## 2. Custom-domain DNS for advertisehomes.online → Cloudflare Pages (15 minutes)
+## 2. ~~Custom-domain DNS for advertisehomes.online → Cloudflare Pages~~ — **DONE 2026-05-13**
+
+Verified live 2026-05-13 — `curl https://advertisehomes.online/sitemap.xml` returns 200; `www.` → apex 301 redirect works; `NEXT_PUBLIC_SITE_URL` set to canonical in `.env.local`. **One residual PO confirmation needed:** verify `NEXT_PUBLIC_SITE_URL=https://advertisehomes.online` is also set in Cloudflare Pages → `aho-web` → Settings → Environment variables → Production. If not, deployed builds still emit `.pages.dev` URLs in sitemap/canonical/OG. Quick check: open the site, View Source, look for `<link rel="canonical" href="...">` — if it points at the canonical domain, the env var is set correctly. Original entry preserved below for archive.
+
+### Original entry (for archive)
 
 **Why it matters:** Today the live URL is `https://aho-web.pages.dev`. Every public-facing surface (sitemap, canonical URLs, OG images, social shares) reads from `NEXT_PUBLIC_SITE_URL`. Pivoting to the real domain is a single env-var change once DNS is live; everything downstream (search-engine indexing, social-share previews, agent trust) auto-pivots.
 

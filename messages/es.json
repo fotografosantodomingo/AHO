@@ -1198,7 +1198,13 @@
       "viewPost": "Ver publicación",
       "errorPrefix": "Motivo",
       "unexpectedError": "Error inesperado",
-      "serverErrorCode": "Error del servidor: {code}"
+      "serverErrorCode": "Error del servidor: {code}",
+      "errorRefLabel": "Referencia de error",
+      "copyError": "Copiar error",
+      "copyErrorCopied": "Copiado",
+      "emailSupport": "Escribir a soporte",
+      "mailtoSubject": "Falló compartir en AHO — {ref}",
+      "mailtoBody": "Hola soporte de AHO,\n\nMi acción de Compartir en redes falló.\nReferencia de error: {ref}\nPlataforma: {platform}\nCuenta: {account}\nListado: {listingUrl}\n\nPor favor ayúdenme. Gracias."
     }
   },
   "analytics": {

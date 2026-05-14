@@ -1198,7 +1198,13 @@
       "viewPost": "View post",
       "errorPrefix": "Reason",
       "unexpectedError": "Unexpected error",
-      "serverErrorCode": "Server error: {code}"
+      "serverErrorCode": "Server error: {code}",
+      "errorRefLabel": "Error reference",
+      "copyError": "Copy error",
+      "copyErrorCopied": "Copied",
+      "emailSupport": "Email support",
+      "mailtoSubject": "AHO share failed — {ref}",
+      "mailtoBody": "Hi AHO support,\n\nMy Share-to-socials failed.\nError reference: {ref}\nPlatform: {platform}\nAccount: {account}\nListing: {listingUrl}\n\nPlease help. Thanks."
     }
   },
   "analytics": {

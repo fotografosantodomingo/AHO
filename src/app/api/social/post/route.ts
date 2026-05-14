@@ -22,6 +22,7 @@ import {
   publishToInstagramBusiness,
   publishToLinkedIn,
   isRetryable,
+  buildSupportRef,
   type PublishResult,
   type PublishErrorCode,
 } from '@/lib/social/publish';
@@ -90,6 +91,11 @@ interface AttemptOutcome {
   errorCode?: PublishErrorCode;
   errorMessage?: string;
   isRetryable: boolean;
+  /** Short, copyable error reference (e.g. "AHO-SP-IMG-a3f7b2c1") the
+   *  agent pastes into an email to info@advertisehomes.online. Present
+   *  only on non-succeeded attempts. Built server-side so the client
+   *  doesn't need the ERROR_CODE_SHORT map. */
+  supportRef?: string;
 }
 
 function categorizeStatus(
@@ -448,6 +454,7 @@ export async function POST(req: NextRequest) {
 
   const attempts: AttemptOutcome[] = settled.map((s, idx) => {
     const t = filteredTargets[idx]!;
+    const attemptId = attemptIdByAccount.get(t.externalAccountId);
     if (s.status === 'rejected') {
       // Promise rejected outside the inner try/catch — shouldn't
       // happen because we catch inside, but if it does we mark
@@ -462,10 +469,17 @@ export async function POST(req: NextRequest) {
         errorCode: 'unknown',
         errorMessage: message,
         isRetryable: true,
+        ...(attemptId ? { supportRef: buildSupportRef('unknown', attemptId) } : {}),
       };
     }
     const { result } = s.value;
     const status = categorizeStatus(result);
+    // Support reference only on non-succeeded outcomes — agents copy
+    // it into a support email when they need help.
+    const supportRef =
+      status !== 'succeeded' && attemptId
+        ? buildSupportRef(result.errorCode, attemptId)
+        : undefined;
     return {
       platform: t.platform,
       externalAccountId: t.externalAccountId,
@@ -476,6 +490,7 @@ export async function POST(req: NextRequest) {
       ...(result.errorCode ? { errorCode: result.errorCode } : {}),
       ...(result.errorMessage ? { errorMessage: result.errorMessage } : {}),
       isRetryable: result.errorCode ? isRetryable(result.errorCode) : false,
+      ...(supportRef ? { supportRef } : {}),
     };
   });
 
