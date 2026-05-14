@@ -144,7 +144,7 @@ export function AudienceUploader({ locale }: Props) {
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Real estate agents — Dominican Republic Q2 2026"
             maxLength={200}
-            className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm dark:bg-surface-dark"
+            className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-ink placeholder:text-ink-muted dark:bg-surface-deep dark:text-ink-inverse dark:placeholder:text-ink-inverse-muted"
           />
         </label>
         <label className="block">
@@ -157,7 +157,7 @@ export function AudienceUploader({ locale }: Props) {
             placeholder="Source of the list, date acquired, anything that helps you remember why this exists"
             maxLength={2000}
             rows={2}
-            className="w-full rounded-lg border border-border-strong bg-surface p-3 text-sm dark:bg-surface-dark"
+            className="w-full rounded-lg border border-border-strong bg-surface p-3 text-sm text-ink placeholder:text-ink-muted dark:bg-surface-deep dark:text-ink-inverse dark:placeholder:text-ink-inverse-muted"
           />
         </label>
       </section>

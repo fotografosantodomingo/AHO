@@ -138,7 +138,7 @@ export function CampaignComposer({ locale, segments }: Props) {
               onChange={(e) => setName(e.target.value)}
               maxLength={200}
               placeholder="e.g. June 2026 — Pro upsell"
-              className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm dark:bg-surface-dark"
+              className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-ink placeholder:text-ink-muted dark:bg-surface-deep dark:text-ink-inverse dark:placeholder:text-ink-inverse-muted"
             />
           </Field>
           <Field label="Subject (shown in inbox)">
@@ -148,14 +148,14 @@ export function CampaignComposer({ locale, segments }: Props) {
               onChange={(e) => setSubject(e.target.value)}
               maxLength={200}
               placeholder="e.g. Save 8 hours/week with Pro Automation"
-              className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm dark:bg-surface-dark"
+              className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-ink placeholder:text-ink-muted dark:bg-surface-deep dark:text-ink-inverse dark:placeholder:text-ink-inverse-muted"
             />
           </Field>
           <Field label="Segment">
             <select
               value={segmentKey}
               onChange={(e) => setSegmentKey(e.target.value)}
-              className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm dark:bg-surface-dark"
+              className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-ink placeholder:text-ink-muted dark:bg-surface-deep dark:text-ink-inverse dark:placeholder:text-ink-inverse-muted"
             >
               {segments.map((s) => (
                 <option key={s.key} value={s.key}>
@@ -172,7 +172,7 @@ export function CampaignComposer({ locale, segments }: Props) {
               value={htmlBody}
               onChange={(e) => setHtmlBody(e.target.value)}
               rows={18}
-              className="w-full rounded-lg border border-border-strong bg-surface p-3 font-mono text-xs leading-relaxed dark:bg-surface-dark"
+              className="w-full rounded-lg border border-border-strong bg-surface p-3 font-mono text-xs leading-relaxed text-ink placeholder:text-ink-muted dark:bg-surface-deep dark:text-ink-inverse dark:placeholder:text-ink-inverse-muted"
             />
             <p className="mt-1 text-xs text-helper">
               Inline-styled HTML only. A per-recipient unsubscribe footer is

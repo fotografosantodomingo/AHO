@@ -4,11 +4,9 @@ import { localePath } from '@/i18n/routing';
 import { LocaleToggle } from '@/components/locale-toggle';
 import { NewsletterForm } from './newsletter-form';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { FACEBOOK_URL, INSTAGRAM_URL, LINKEDIN_URL } from '@/lib/social-urls';
 
 const SUPPORT_EMAIL = 'info@advertisehomes.online';
-const FACEBOOK_URL = 'https://facebook.com/advertisehomesonline';
-const INSTAGRAM_URL = 'https://instagram.com/advertisehomesonline';
-const LINKEDIN_URL = 'https://linkedin.com/company/advertisehomesonline';
 
 interface Props {
   locale: Locale;

@@ -4,6 +4,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { findSegment, resolveSegment } from '@/lib/email/segments';
 import { buildUnsubscribeUrl } from '@/lib/email/unsubscribe';
+import { FACEBOOK_URL, INSTAGRAM_URL } from '@/lib/social-urls';
 import { serverEnv } from '@/lib/env';
 
 export const runtime = 'edge';
@@ -261,6 +262,10 @@ function appendUnsubscribeFooter(html: string, email: string): string {
   const url = buildUnsubscribeUrl(email);
   const footer = `
 <div style="margin-top:32px;padding-top:16px;border-top:1px solid #e5e7eb;font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:12px;color:#6b7280;text-align:center;">
+  <p style="margin:0 0 12px 0;">
+    <a href="${FACEBOOK_URL}" style="color:#6b7280;text-decoration:underline;margin-right:12px;">Facebook</a>
+    <a href="${INSTAGRAM_URL}" style="color:#6b7280;text-decoration:underline;">Instagram</a>
+  </p>
   <p style="margin:0 0 8px 0;">You're receiving this because you opted in to AHO marketing emails.</p>
   <p style="margin:0;"><a href="${url}" style="color:#6b7280;text-decoration:underline;">Unsubscribe</a> · <a href="https://advertisehomes.online" style="color:#6b7280;text-decoration:underline;">advertisehomes.online</a></p>
 </div>

@@ -17,6 +17,8 @@
  * lowest-friction path that survives every major mail client.
  */
 
+import { FACEBOOK_URL, INSTAGRAM_URL, LINKEDIN_URL } from '@/lib/social-urls';
+
 interface LayoutArgs {
   preheader?: string;
   bodyHtml: string;
@@ -25,9 +27,6 @@ interface LayoutArgs {
 
 const SITE_URL = 'https://advertisehomes.online';
 const SUPPORT_EMAIL = 'info@advertisehomes.online';
-const FACEBOOK_URL = 'https://facebook.com/advertisehomesonline';
-const INSTAGRAM_URL = 'https://instagram.com/advertisehomesonline';
-const LINKEDIN_URL = 'https://linkedin.com/company/advertisehomesonline';
 const BUSINESS_ADDRESS =
   'AHO · Advertise Homes Online · Santo Domingo, Dominican Republic';
 
