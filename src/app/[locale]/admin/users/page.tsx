@@ -17,7 +17,7 @@ interface AdminUser {
   full_name: string | null;
   is_admin: boolean;
   admin_role: string | null;
-  locale: string | null;
+  preferred_language: string | null;
   created_at: string;
   org_membership_count: number;
 }
@@ -63,7 +63,7 @@ export default async function AdminUsersPage({
 
   let query = supabase
     .from('profiles')
-    .select('id, email, full_name, is_admin, admin_role, locale, created_at')
+    .select('id, email, full_name, is_admin, admin_role, preferred_language, created_at')
     .order('is_admin', { ascending: false })
     .order('created_at', { ascending: false })
     .limit(500);
@@ -185,7 +185,7 @@ export default async function AdminUsersPage({
                         <span className="text-helper">—</span>
                       )}
                     </td>
-                    <td className="px-3 py-2 text-helper">{user.locale ?? '—'}</td>
+                    <td className="px-3 py-2 text-helper">{user.preferred_language ?? '—'}</td>
                     <td className="px-3 py-2 text-right tabular-nums">
                       {user.org_membership_count}
                     </td>
