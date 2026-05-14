@@ -46,6 +46,17 @@ export const dynamic = 'force-dynamic';
  * Supabase to find max(properties.updated_at) and max(organizations
  * .updated_at). One query, two columns, ~5-10ms. Falls back to
  * MARKETING_LASTMOD if either returns null (no listings yet).
+ *
+ * Empty-platform behaviour (2026-05-14 fix): when there are zero
+ * active+published listings, the 4 content-driven children
+ * (properties / agents / locations / images) are OMITTED from the
+ * index entirely. Reason: Google Search Console reports an empty
+ * `<urlset></urlset>` as "Mapa witryny może zostać odczytana, ale
+ * zawiera błędy — Brak tagu XML / Tag: url". Pre-launch (no real
+ * listings yet per CLAUDE.md hard rule #8), advertising 4 empty
+ * children produces 4 GSC warnings. By gating them on `listingRow`,
+ * GSC sees a clean 2-child index until the first real listing
+ * lands, then all 6 children appear automatically.
  */
 export async function GET(): Promise<Response> {
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
@@ -77,14 +88,23 @@ export async function GET(): Promise<Response> {
   const children: SitemapIndexChild[] = [
     { loc: `${site}/sitemap-pages.xml`, lastmod: MARKETING_LASTMOD },
     { loc: `${site}/sitemap-landings.xml`, lastmod: MARKETING_LASTMOD },
-    { loc: `${site}/sitemap-properties.xml`, lastmod: listingsLastmod },
-    { loc: `${site}/sitemap-agents.xml`, lastmod: agentsLastmod },
-    { loc: `${site}/sitemap-locations.xml`, lastmod: listingsLastmod },
-    // Image sitemap re-fetches on every Google visit; per-request lastmod
-    // is correct here (image uploads happen at any hour and we want
-    // crawlers re-pulling the image set promptly).
-    { loc: `${site}/sitemap-images.xml`, lastmod: now },
   ];
+
+  // Only advertise the dynamic children when there's at least one real
+  // listing. Otherwise these all return `<urlset></urlset>` which GSC
+  // flags as malformed (missing required `<url>` tag). See the empty-
+  // platform note in the header doc-block.
+  if (listingRow) {
+    children.push(
+      { loc: `${site}/sitemap-properties.xml`, lastmod: listingsLastmod },
+      { loc: `${site}/sitemap-agents.xml`, lastmod: agentsLastmod },
+      { loc: `${site}/sitemap-locations.xml`, lastmod: listingsLastmod },
+      // Image sitemap re-fetches on every Google visit; per-request lastmod
+      // is correct here (image uploads happen at any hour and we want
+      // crawlers re-pulling the image set promptly).
+      { loc: `${site}/sitemap-images.xml`, lastmod: now },
+    );
+  }
 
   return xmlResponse(renderSitemapIndex(children), 300);
 }
