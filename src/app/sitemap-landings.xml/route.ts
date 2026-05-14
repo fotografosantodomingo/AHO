@@ -26,6 +26,7 @@ export async function GET(): Promise<Response> {
     '/automation',
     '/save-time',
     '/share-guide',
+    '/profile-guide',
   ] as const;
   const entries: UrlEntry[] = [];
   for (const pathKey of pathKeys) {

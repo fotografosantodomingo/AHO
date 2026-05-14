@@ -285,4 +285,19 @@ export const PATHNAMES = {
     fr: '/guide-de-partage',
     it: '/guida-condivisione',
   },
+
+  // Profile-SEO guide: how to fill the AHO agent profile so Google
+  // picks the agent up for "real estate agent in {city}" searches.
+  // Covers the structured-data fields we auto-emit (RealEstateAgent
+  // JSON-LD) + which profile fields drive each schema property.
+  // Linked from /share-guide and /for-agents.
+  '/profile-guide': {
+    en: '/profile-guide',
+    es: '/guia-perfil',
+    pl: '/przewodnik-profilu',
+    pt: '/guia-do-perfil',
+    de: '/profil-anleitung',
+    fr: '/guide-du-profil',
+    it: '/guida-profilo',
+  },
 } as const;

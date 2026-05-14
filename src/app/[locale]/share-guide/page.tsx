@@ -68,7 +68,12 @@ export default async function ShareGuidePage({
   setRequestLocale(typedLocale);
 
   const t = await getTranslations({ locale, namespace: 'agentGuide' });
+  const tProfileLink = await getTranslations({
+    locale,
+    namespace: 'agentGuide.profileLink',
+  });
   const pricingHref = localePath(typedLocale, '/pricing') + '?focus=pro_automation';
+  const profileGuideHref = localePath(typedLocale, '/profile-guide');
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-12 md:py-16">
@@ -182,10 +187,37 @@ export default async function ShareGuidePage({
         </div>
       </section>
 
+      {/* Cross-link to /profile-guide — "now optimize your profile for Google" */}
+      <section
+        aria-labelledby="share-guide-profile-link"
+        className="mt-12 rounded-card border border-border bg-surface p-6 shadow-whisper dark:border-border-strong/40 dark:bg-surface-deep md:p-8"
+      >
+        <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-action dark:text-action-dark">
+          {tProfileLink('eyebrow')}
+        </p>
+        <h2
+          id="share-guide-profile-link"
+          className="mt-2 font-brand text-xl font-semibold tracking-tight md:text-2xl"
+        >
+          {tProfileLink('heading')}
+        </h2>
+        <p className="mt-3 text-base leading-relaxed text-ink-muted dark:text-ink-inverse-muted">
+          {tProfileLink('body')}
+        </p>
+        <div className="mt-5">
+          <Link
+            href={profileGuideHref}
+            className="inline-flex h-10 items-center rounded-lg border border-border-strong bg-surface px-5 text-sm font-semibold transition hover:bg-black/5 dark:bg-surface-deep dark:hover:bg-white/5"
+          >
+            {tProfileLink('cta')} →
+          </Link>
+        </div>
+      </section>
+
       {/* Bottom CTA */}
       <section
         aria-labelledby="share-guide-cta"
-        className="mt-16 rounded-card border border-action/30 bg-action/5 p-8 text-center shadow-whisper dark:border-action-dark/30 dark:bg-action-dark/10 md:p-12"
+        className="mt-12 rounded-card border border-action/30 bg-action/5 p-8 text-center shadow-whisper dark:border-action-dark/30 dark:bg-action-dark/10 md:p-12"
       >
         <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-action dark:text-action-dark">
           {t('ctaEyebrow')}
