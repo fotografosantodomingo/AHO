@@ -2,11 +2,65 @@
 
 Items that block forward motion on AHO and that **only the product owner can do** because they require credentials, registrar access, lawyer engagement, or commercial decisions outside Claude's scope. Sorted by impact-per-minute.
 
-Last updated: 2026-05-13
+Last updated: 2026-05-14
 
 ---
 
-## 0. Meta App Review submission — files the $99 Pro Automation feature (estimated 4-8 wks turnaround)
+## 0. Agent acquisition outreach — first 50 paying agents
+
+**Why it matters:** AHO has zero real agents on the platform. Every feature shipped — Pro Automation, audience uploader, social automation, /share-guide, /profile-guide — is downstream of "real agents exist who pay for it." Without paying agents, none of the product investment compounds. The Founder Rate ($19/mo lifetime) caps at 50 agents; getting to that ceiling is the milestone that proves the funnel + unlocks the next pricing phase.
+
+**Why this is a PO task and not Claude's:** I can do market research (DONE — see `docs/AGENT_OUTREACH_RESEARCH.md`) and draft personalized pitches via the `agent-outreach` subagent. I cannot **send** outreach. The pitches must come from your personal Gmail / Outlook / LinkedIn / WhatsApp — not from `info@advertisehomes.online` (cold mail through that domain burns the transactional channel that paying customers depend on for listing-share confirmations + billing).
+
+**What's already in hand:**
+- Public-directory map for the 4 legally-permissive markets: US (Miami), Mexico (CDMX + coastal), Australia (Sydney/Brisbane/Melbourne), Singapore. Full doc: `docs/AGENT_OUTREACH_RESEARCH.md`.
+- 5-agent first-wave shortlist diversified across markets + pricing tiers ($19 / $29 / $49 / $99) — so the first week of reply data tells you which (market × tier) combos convert.
+- `.claude/agents/agent-outreach.md` subagent — Mode 1 (market research) + Mode 2 (personalized 3-channel pitch: email + LinkedIn DM + WhatsApp opener). Available after Claude Code restart.
+
+**What to do (first 2 weeks):**
+1. Send the 5 first-wave pitches (Mode 2 drafts available on request; I'll fire them in parallel when you say "go"). From your personal channels, one per day spread across the week.
+2. Track replies in a simple sheet: `name, market, plan_tier_pitched, channel, sent_at, replied, outcome` (interested / not now / blocked / silent).
+3. After day 7, count replies by (market × tier). Whichever combo has the highest reply rate gets ramped to 5-10 pitches/week. Drop the laggards.
+4. Once you find a working pattern, ask me to run `agent-outreach` Mode 2 in batches of 10 against named agents you've picked from the directories.
+
+**Done when:** 50 paying agents on the platform (Founder Rate seats filled). Early-stop signal: if reply rate is <2% across 30 pitches after 2 weeks, the message + targeting needs rework — escalate before continuing.
+
+**Parallel: paid acquisition.** When monthly outreach exceeds time-available, scale via Meta Ads / Google Ads against `/for-agents` + `/automation`. Budget question — flag when ready.
+
+---
+
+## 1. Google OAuth provider — Supabase + Google Cloud Console config
+
+**Why it matters:** Lowest-friction signup path for buyers + agents. Google's the dominant identity provider in every market we target (US, MX, AU, SG, plus DR + EU); a "Continue with Google" button typically lifts signup conversion 30-50% over email-only forms. The UI is already wired (commit landed 2026-05-14 — button visible on `/signin` + `/signup`) but clicking it surfaces "Unsupported provider" until the dashboard config below is done.
+
+**One-time setup (~15 min):**
+
+1. **Google Cloud Console** — https://console.cloud.google.com/apis/credentials
+   - Create a new project (or reuse an existing AHO project)
+   - Enable the **Google Identity Services** API
+   - APIs & Services → Credentials → Create Credentials → OAuth client ID → Web application
+   - Authorized JavaScript origins: `https://advertisehomes.online`
+   - Authorized redirect URIs: `https://lqujtquofsdsxtujvjtl.supabase.co/auth/v1/callback`
+   - Save → copy the Client ID + Client Secret (don't paste in chat — they go straight into Supabase dashboard in step 2)
+   - Configure OAuth consent screen:
+     - App name: `AHO — Advertise Homes Online`
+     - User support email: `info@advertisehomes.online`
+     - Authorized domains: `advertisehomes.online` + `supabase.co`
+     - Scopes: `email`, `profile`, `openid` (defaults — don't add more)
+     - Publishing status: **In production** (else only Google Workspace users in your org can sign in)
+
+2. **Supabase Dashboard** — https://supabase.com/dashboard/project/lqujtquofsdsxtujvjtl/auth/providers
+   - Authentication → Providers → Google → Enable
+   - Paste Client ID + Client Secret from step 1
+   - Save
+
+**Done when:** clicking "Continue with Google" on `/en/signin` redirects to Google's consent screen, returns successfully, and lands the user on `/en/dashboard`. Smoke test from an incognito window with a Google account.
+
+**Risk:** If Google rejects the OAuth consent screen submission (App verification step), Google limits sign-ins to 100 users until app review passes. That's plenty for soft beta but flag the verification cycle when it lands.
+
+---
+
+## 2. Meta App Review submission — files the $99 Pro Automation feature (estimated 4-8 wks turnaround)
 
 **Why it matters:** Phase A-F of the social-publish feature shipped 2026-05-13 — code is ready end-to-end. The remaining gate to "real $99 customer can publish on Facebook + Instagram" is Meta App Review. Without approval, only Facebook accounts added to App Roles can OAuth and publish (dev-mode tester path). Originally scheduled for slice-1 week 1 per `DECISIONS.md` 2026-04-29; slipped. Filing now puts approval in flight while dev moves to Phase G (token-refresh cron) in parallel.
 

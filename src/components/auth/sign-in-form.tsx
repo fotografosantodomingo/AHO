@@ -12,6 +12,7 @@ import {
   type TurnstileWidgetHandle,
 } from './turnstile-widget';
 import { DeviceVerificationStep } from './device-verification-step';
+import { GoogleSignInButton } from './google-signin-button';
 
 const inputClass =
   'mt-1 block w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm shadow-whisper outline-hidden focus:ring-3 focus:ring-action dark:bg-surface-deep dark:focus:ring-action-dark';
@@ -137,11 +138,18 @@ export function SignInForm({ next = '/' }: SignInFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium">
-          {t('email')}
-        </label>
+    <div className="space-y-4">
+      <GoogleSignInButton />
+      <div className="relative flex items-center gap-3 text-xs uppercase tracking-[0.13em] text-helper">
+        <span className="h-px flex-1 bg-border-strong/40" aria-hidden="true" />
+        <span>{t('orContinueWithEmail')}</span>
+        <span className="h-px flex-1 bg-border-strong/40" aria-hidden="true" />
+      </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium">
+            {t('email')}
+          </label>
         <input
           id="email"
           type="email"
@@ -218,6 +226,7 @@ export function SignInForm({ next = '/' }: SignInFormProps) {
       >
         {isSubmitting ? t('signingIn') : t('signInCta')}
       </button>
-    </form>
+      </form>
+    </div>
   );
 }
