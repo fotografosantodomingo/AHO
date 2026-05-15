@@ -2,7 +2,7 @@
 
 Items that block forward motion on AHO and that **only the product owner can do** because they require credentials, registrar access, lawyer engagement, or commercial decisions outside Claude's scope. Sorted by impact-per-minute.
 
-Last updated: 2026-05-14
+Last updated: 2026-05-15
 
 ---
 
@@ -29,34 +29,9 @@ Last updated: 2026-05-14
 
 ---
 
-## 1. Google OAuth provider — Supabase + Google Cloud Console config
+## 1. ~~Google OAuth provider — Supabase + Google Cloud Console config~~ — **DONE 2026-05-15**
 
-**Why it matters:** Lowest-friction signup path for buyers + agents. Google's the dominant identity provider in every market we target (US, MX, AU, SG, plus DR + EU); a "Continue with Google" button typically lifts signup conversion 30-50% over email-only forms. The UI is already wired (commit landed 2026-05-14 — button visible on `/signin` + `/signup`) but clicking it surfaces "Unsupported provider" until the dashboard config below is done.
-
-**One-time setup (~15 min):**
-
-1. **Google Cloud Console** — https://console.cloud.google.com/apis/credentials
-   - Create a new project (or reuse an existing AHO project)
-   - Enable the **Google Identity Services** API
-   - APIs & Services → Credentials → Create Credentials → OAuth client ID → Web application
-   - Authorized JavaScript origins: `https://advertisehomes.online`
-   - Authorized redirect URIs: `https://lqujtquofsdsxtujvjtl.supabase.co/auth/v1/callback`
-   - Save → copy the Client ID + Client Secret (don't paste in chat — they go straight into Supabase dashboard in step 2)
-   - Configure OAuth consent screen:
-     - App name: `AHO — Advertise Homes Online`
-     - User support email: `info@advertisehomes.online`
-     - Authorized domains: `advertisehomes.online` + `supabase.co`
-     - Scopes: `email`, `profile`, `openid` (defaults — don't add more)
-     - Publishing status: **In production** (else only Google Workspace users in your org can sign in)
-
-2. **Supabase Dashboard** — https://supabase.com/dashboard/project/lqujtquofsdsxtujvjtl/auth/providers
-   - Authentication → Providers → Google → Enable
-   - Paste Client ID + Client Secret from step 1
-   - Save
-
-**Done when:** clicking "Continue with Google" on `/en/signin` redirects to Google's consent screen, returns successfully, and lands the user on `/en/dashboard`. Smoke test from an incognito window with a Google account.
-
-**Risk:** If Google rejects the OAuth consent screen submission (App verification step), Google limits sign-ins to 100 users until app review passes. That's plenty for soft beta but flag the verification cycle when it lands.
+Google Cloud OAuth 2.0 Client created (Web application, project "AHO google"), authorized origins `https://advertisehomes.online` + `https://aho-web.pages.dev`, redirect URI `https://lqujtquofsdsxtujvjtl.supabase.co/auth/v1/callback`. `external_google_enabled=true` set on Supabase via Management API PATCH `/v1/projects/lqujtquofsdsxtujvjtl/config/auth` — client ID + secret stored Supabase-side. App stays in **Testing** mode (consent screen yellow warning, 100-user cap — sufficient for soft beta). Follow-up: file Google verification once first soft-beta agents are real.
 
 ---
 
@@ -84,9 +59,9 @@ Applied via `pnpm tsx scripts/migrate.ts` after fixing a pre-existing IMMUTABLE-
 
 ---
 
-## 2. ~~Custom-domain DNS for advertisehomes.online → Cloudflare Pages~~ — **DONE 2026-05-13**
+## 2. ~~Custom-domain DNS for advertisehomes.online → Cloudflare Pages~~ — **DONE 2026-05-13** (env confirmed 2026-05-15)
 
-Verified live 2026-05-13 — `curl https://advertisehomes.online/sitemap.xml` returns 200; `www.` → apex 301 redirect works; `NEXT_PUBLIC_SITE_URL` set to canonical in `.env.local`. **One residual PO confirmation needed:** verify `NEXT_PUBLIC_SITE_URL=https://advertisehomes.online` is also set in Cloudflare Pages → `aho-web` → Settings → Environment variables → Production. If not, deployed builds still emit `.pages.dev` URLs in sitemap/canonical/OG. Quick check: open the site, View Source, look for `<link rel="canonical" href="...">` — if it points at the canonical domain, the env var is set correctly. Original entry preserved below for archive.
+Verified live 2026-05-13 — `curl https://advertisehomes.online/sitemap.xml` returns 200; `www.` → apex 301 redirect works; `NEXT_PUBLIC_SITE_URL` set to canonical in `.env.local`. **Env-var confirmation 2026-05-15:** all sitemap entries on `/sitemap-pages.xml` resolve as `https://advertisehomes.online/...` (not `aho-web.pages.dev/...`), proving `NEXT_PUBLIC_SITE_URL=https://advertisehomes.online` is set in Cloudflare Pages → `aho-web` → Settings → Environment variables → Production. Original entry preserved below for archive.
 
 ### Original entry (for archive)
 
@@ -106,22 +81,9 @@ Verified live 2026-05-13 — `curl https://advertisehomes.online/sitemap.xml` re
 
 ---
 
-## 3. Supabase Auth → Brevo SMTP relay (10 minutes)
+## 3. ~~Supabase Auth → Brevo SMTP relay~~ — **DONE** (verified 2026-05-15)
 
-**Why it matters:** `src/lib/email/brevo.ts` already routes our app-side transactional email (welcome, lead notification, review request, magic-link click confirmations) through Brevo on `advertisehomes.online`. Supabase Auth's own outbound (signup confirmation, password reset, magic-link link) still uses Supabase's built-in SMTP, which is rate-limited and lacks AHO branding.
-
-**What to do:**
-
-1. Brevo dashboard → SMTP & API → SMTP → create an **SMTP key** (separate from the transactional API key already in `.env.local`).
-2. Supabase Studio → Project settings → Auth → SMTP settings → toggle "Enable custom SMTP server" and fill:
-   - Host: `smtp-relay.brevo.com`
-   - Port: `587`
-   - Username: the Brevo SMTP login (shown next to the SMTP key)
-   - Password: the SMTP key just created
-   - Sender email: `info@advertisehomes.online`
-   - Sender name: `AHO`
-3. Save. Supabase tests the connection inline — it should succeed because the apex already passes DKIM (see `docs/DNS.md` "Email — Brevo (LIVE)").
-4. Trigger a password-reset email from `/forgot-password` to confirm delivery from the AHO sender.
+Supabase Management API audit on 2026-05-15 confirmed custom SMTP is fully configured: `smtp_host=smtp-relay.brevo.com`, `smtp_port=587`, `smtp_user=a9d89c001@smtp-brevo.com`, `smtp_pass=set`, `smtp_admin_email=info@advertisehomes.online`, `smtp_sender_name=AHO`. Was wired previously (PROGRESS.md note "Supabase Auth emails go through Supabase's SMTP relay" implies pre-2026-05-14). Signup-confirm / magic-link / password-reset / change-email all send from the AHO-branded sender. Doc entry was stale; removing.
 
 ---
 
