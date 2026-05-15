@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { QRCodeSVG } from 'qrcode.react';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 
 const inputClass =
@@ -32,10 +33,9 @@ interface EnrollState {
  * supabase.auth.mfa.verify(). On success we router.refresh() so the
  * server-side gate re-runs and lets the user through to /admin.
  *
- * QR rendering: we use a server-rendered image via Google Charts as
- * a zero-dep fallback. (The TOTP otpauth URI is non-secret —
- * including it in a query string is fine.) If we add a runtime QR
- * lib later (`qrcode.react`), swap this <img> for the component.
+ * QR rendering: `qrcode.react` renders an SVG client-side. Previous
+ * impl used chart.googleapis.com/chart which Google retired in 2024;
+ * that's the bug this replaces.
  */
 export function SetupMfaCard({ locale, isAdmin }: SetupMfaCardProps) {
   const t = useTranslations('auth.mfa');
@@ -150,11 +150,6 @@ export function SetupMfaCard({ locale, isAdmin }: SetupMfaCardProps) {
     );
   }
 
-  // Google Charts QR: stable URL contract, no JS dep, fine for an
-  // internal admin surface. Image is opaque to the otpauth URI
-  // (which is non-secret) so privacy is unaffected.
-  const qrUrl = `https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=${encodeURIComponent(enroll.uri)}&choe=UTF-8`;
-
   return (
     <form onSubmit={onVerify} className="space-y-4">
       <ol className="space-y-3 text-sm">
@@ -165,12 +160,11 @@ export function SetupMfaCard({ locale, isAdmin }: SetupMfaCardProps) {
         <li>
           <p className="font-medium">{t('step2Title')}</p>
           <div className="mt-2 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={qrUrl}
-              alt={t('qrAlt')}
-              width={200}
-              height={200}
+            <QRCodeSVG
+              value={enroll.uri}
+              size={200}
+              level="M"
+              aria-label={t('qrAlt')}
               className="rounded-md border border-border bg-white p-2"
             />
             <div className="text-xs text-helper">

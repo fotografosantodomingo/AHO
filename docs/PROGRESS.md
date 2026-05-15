@@ -12,6 +12,16 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-15 — Google OAuth provider enabled + MFA QR bug fix
+
+- **Google OAuth live.** Created Google Cloud OAuth 2.0 Client (Web), authorized origins `https://advertisehomes.online` + `https://aho-web.pages.dev`, redirect URI `https://lqujtquofsdsxtujvjtl.supabase.co/auth/v1/callback`. Enabled `external_google_enabled=true` on the Supabase project via Management API PATCH `/v1/projects/lqujtquofsdsxtujvjtl/config/auth` — client ID + secret stored Supabase-side. App stays in **Testing** mode for now (consent screen shows the yellow warning, capped at 100 test users — sufficient for soft-beta; verification submission is the follow-up once first agents are real). PO action tracker entry from prior sessions ("Google OAuth waits for OAuth-app credentials") closed. No code change required — `GoogleSignInButton` + `/auth/callback` were already wired.
+- **MFA QR bug fix.** `setup-mfa-card.tsx` was rendering the TOTP QR via `chart.googleapis.com/chart` — Google retired that endpoint in 2024, so the QR image was blank on the live `/setup-mfa` flow (manual-secret-entry fallback still worked). Replaced with `qrcode.react`'s `<QRCodeSVG>` (added as dep, ~5KB), client-side SVG render. The TOTP otpauth URI never leaves the browser now. Tracked-by comment updated to record the dead-endpoint history. Typecheck + lint clean.
+- **What changed since last session:** Auth surface now has all three providers from the spec live (email+password, magic link, Google) plus working TOTP enrollment. Both shipped same commit.
+- **Blockers / open questions:** None from this work. PO can still add test users in Google Cloud Console → OAuth consent screen → Test users until verification is filed.
+- **Next session should start with:** Confirm Google sign-up flow end-to-end on prod (`/en/sign-up` → Continue with Google → consent → dashboard); verify the new `auth.users` row + matching `profiles` row + welcome email + admin-new-user email all fire. Then proceed with whichever slice-3 polish item is on top of the queue.
+
+---
+
 ## 2026-05-14 — Phase G + cron worker + sitemap-index + /share-guide + /profile-guide + /docs sitemap fix
 
 - **Frame:** PO confirmed domain LIVE the night before; today was about closing the Phase-G dev work (so the social-publish surface is fully self-healing once App Review approves), then SEO + acquisition-funnel hardening — a smart partitioned sitemap suitable for GSC submission, plus two long-form agent manuals linked from /for-agents (the "how do I actually use this $99 thing" gap that's been blocking conversion conviction since the Pro Automation tier was scoped).
