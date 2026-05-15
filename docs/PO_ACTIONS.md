@@ -112,11 +112,9 @@ Supabase Management API audit on 2026-05-15 confirmed custom SMTP is fully confi
 
 ---
 
-## 6. 21st.dev API key rotation (5 minutes)
+## 6. ~~21st.dev API key rotation~~ — **REMOVED 2026-05-15**
 
-**Why it matters:** The previous key leaked in chat 2026-04-30 (per `docs/DECISIONS.md` "UI/UX polish phase"). Until rotated, the leaked key remains valid and the leakage isn't formally closed. UI/UX polish via the `ui-ux-pro-max` skill is parked behind this.
-
-**What to do:** 21st.dev dashboard → API keys → revoke the leaked key, generate a new one, paste into `.env.local` under `TWENTY_FIRST_DEV_API_KEY`. Restart Claude Code so the new value reaches the MCP server.
+21st.dev "Magic" MCP server (and the parked `ui-ux-pro-max` skill) were never actually used — zero code imports, zero generated components. The HashiCorp-tokens + Inter design system carried the whole shipped product in 7 locales without it. Per PO decision 2026-05-15: pull the dep entirely rather than rotate a key for a tool we'd never invoke. Removed `.mcp.json`, removed `TWENTY_FIRST_DEV_API_KEY` from `.env.local`, removed the WebFetch(domain:21st.dev) allowlist entry. The leaked key from 2026-04-30 is now actively unused on AHO's side; recommend revoking it in the 21st.dev dashboard so it can't bill against any account. If a future polish phase wants fancy marketing primitives, re-add then.
 
 ---
 
@@ -136,8 +134,8 @@ Supabase Management API audit on 2026-05-15 confirmed custom SMTP is fully confi
 
 A lot of the "still pending" items in `CLAUDE.md` § Current focus are blocked on **one** PO action and unblock cascades:
 
-- Custom domain DNS (#2) → unblocks production SEO, social-share previews, the entire agent-trust story.
 - Soft-beta agents (#4) → unblocks the real-only data rule's payoff: public homepage, city landing pages, agent profiles, lead routing rules, all start showing real activity.
-- 21st.dev key rotation (#6) → unblocks the UI/UX polish phase (`ui-ux-pro-max`), which is the only remaining slice-1 polish lever I still can't pull autonomously.
+- Meta App Review (#2) → unblocks $99 Pro Automation revenue for non-tester accounts.
+- Agent outreach (#0) → the human-channel work that feeds #4.
 
-Three external decisions, three big unlocks.
+The biggest remaining unlocks are now market-side, not infrastructure-side.
