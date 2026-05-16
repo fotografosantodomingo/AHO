@@ -129,6 +129,14 @@ const serverSchema = z.object({
   // tester's profile. Flip to absent/false after the first successful
   // real post and a DECISIONS.md entry per CLAUDE.md hard rule #9.
   LINKEDIN_DRY_RUN: z.enum(['true', 'false']).optional(),
+  // Gates whether /api/oauth/linkedin/start requests the
+  // `w_member_social` scope (publishing). Default: false (sign-in
+  // identity scopes only). Flip to 'true' after the LinkedIn dev app's
+  // "Share on LinkedIn" product reaches Verified status (1-2 wks
+  // LinkedIn turnaround). Asking for an unapproved scope makes the
+  // ENTIRE OAuth flow fail with "Scope X is not authorized" — no
+  // partial grant — so we can't optimistically request and degrade.
+  LINKEDIN_PUBLISH_ENABLED: z.enum(['true', 'false']).optional(),
   // Shared bearer secret for ALL cron-triggered API routes (LinkedIn /
   // Meta insights writers, hourly photo-import retry, future cron jobs).
   // The external scheduler — GitHub Actions cron, cron-job.org, or a

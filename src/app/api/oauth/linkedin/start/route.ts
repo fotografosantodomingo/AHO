@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { publicEnv, serverEnv } from '@/lib/env';
-import { buildAuthUrl } from '@/lib/oauth/linkedin';
+import { buildAuthUrl, chooseScopes } from '@/lib/oauth/linkedin';
 import { buildState, STATE_COOKIE } from '@/lib/oauth/state';
 
 export const runtime = 'edge';
@@ -55,10 +55,17 @@ export async function GET(req: NextRequest) {
     returnTo,
   });
 
+  // Scope set is conditional: identity-only by default, identity+publish
+  // once env LINKEDIN_PUBLISH_ENABLED='true' (paired with the dev app's
+  // Share-on-LinkedIn product reaching Verified). LinkedIn rejects the
+  // entire flow if any requested scope isn't approved on the app, so we
+  // can't optimistically request and degrade.
+  const publishEnabled = env.LINKEDIN_PUBLISH_ENABLED === 'true';
   const authUrl = buildAuthUrl({
     clientId: env.LINKEDIN_CLIENT_ID,
     redirectUri,
     state,
+    scopes: chooseScopes(publishEnabled),
   });
 
   const res = NextResponse.redirect(authUrl, { status: 302 });

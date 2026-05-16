@@ -29,13 +29,27 @@ import 'server-only';
 export const LINKEDIN_OAUTH_BASE = 'https://www.linkedin.com/oauth/v2';
 export const LINKEDIN_API_BASE = 'https://api.linkedin.com';
 
-/** OIDC + posting scopes. Space-separated in the auth URL. */
+/** Sign-in / identity scopes. Always requested (gated by Sign-In product). */
+export const LINKEDIN_IDENTITY_SCOPES = ['openid', 'profile', 'email'] as const;
+
+/** Posting scope. Requested only when env LINKEDIN_PUBLISH_ENABLED='true'
+ *  AND the dev app's Share-on-LinkedIn product is Verified. Asking for an
+ *  unapproved scope fails the WHOLE flow ("Scope X is not authorized") —
+ *  no partial grant. */
+export const LINKEDIN_PUBLISH_SCOPES = ['w_member_social'] as const;
+
+/** Full set when both products are approved. Kept for type/runtime checks. */
 export const LINKEDIN_SCOPES = [
-  'openid',
-  'profile',
-  'email',
-  'w_member_social',
+  ...LINKEDIN_IDENTITY_SCOPES,
+  ...LINKEDIN_PUBLISH_SCOPES,
 ] as const;
+
+/** Pick the scope set to request based on the publish-enabled flag. */
+export function chooseScopes(publishEnabled: boolean): readonly string[] {
+  return publishEnabled
+    ? [...LINKEDIN_IDENTITY_SCOPES, ...LINKEDIN_PUBLISH_SCOPES]
+    : [...LINKEDIN_IDENTITY_SCOPES];
+}
 
 /**
  * Build the OAuth dialog URL for the start route. The state token is
@@ -45,13 +59,15 @@ export function buildAuthUrl(args: {
   clientId: string;
   redirectUri: string;
   state: string;
+  /** Scope list to request. Pass via chooseScopes(publishEnabled). */
+  scopes: readonly string[];
 }): string {
   const url = new URL(`${LINKEDIN_OAUTH_BASE}/authorization`);
   url.searchParams.set('response_type', 'code');
   url.searchParams.set('client_id', args.clientId);
   url.searchParams.set('redirect_uri', args.redirectUri);
   url.searchParams.set('state', args.state);
-  url.searchParams.set('scope', LINKEDIN_SCOPES.join(' '));
+  url.searchParams.set('scope', args.scopes.join(' '));
   return url.toString();
 }
 

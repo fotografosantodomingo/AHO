@@ -10,6 +10,8 @@ interface Props {
     status:
       | 'connected'
       | 'denied'
+      | 'scope_not_authorized'
+      | 'invalid_client'
       | 'invalid'
       | 'state_mismatch'
       | 'exchange_failed'
@@ -18,6 +20,9 @@ interface Props {
     name?: string;
     reason?: string;
   };
+  /** True when env LINKEDIN_PUBLISH_ENABLED='true' (Share-on-LinkedIn
+   *  product is Verified). Drives copy + post-connect badge. */
+  publishEnabled: boolean;
 }
 
 /**
@@ -31,7 +36,7 @@ interface Props {
  * publishing (Marketing Developer Platform / w_organization_social)
  * stays v1.1.
  */
-export async function ConnectLinkedInSection({ locale, flash }: Props) {
+export async function ConnectLinkedInSection({ locale, flash, publishEnabled }: Props) {
   const t = await getTranslations({ locale, namespace: 'linkedinConnect' });
   const supabase = await createServerSupabaseClient();
   const { data: userResult } = await supabase.auth.getUser();
@@ -102,8 +107,16 @@ export async function ConnectLinkedInSection({ locale, flash }: Props) {
           {t('flashDenied')}
         </p>
       )}
+      {flash?.status === 'scope_not_authorized' && (
+        <p
+          role="alert"
+          className="rounded-card border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm text-amber-800 dark:text-amber-200"
+        >
+          {t('flashScopeNotAuthorized', { reason: flash.reason ?? '' })}
+        </p>
+      )}
       {flash?.status &&
-        !['connected', 'denied'].includes(flash.status) && (
+        !['connected', 'denied', 'scope_not_authorized'].includes(flash.status) && (
           <p
             role="alert"
             className="rounded-card border border-red-500/30 bg-red-500/5 px-4 py-3 text-sm text-red-800 dark:text-red-200"
@@ -112,10 +125,18 @@ export async function ConnectLinkedInSection({ locale, flash }: Props) {
           </p>
         )}
 
+      {!publishEnabled && (
+        <p
+          className="rounded-card border border-blue-500/30 bg-blue-500/5 px-4 py-3 text-xs text-blue-800 dark:text-blue-200"
+        >
+          {t('publishPendingBanner')}
+        </p>
+      )}
+
       {!connected ? (
         <div className="space-y-3">
           <p className="text-sm text-ink-muted dark:text-ink-inverse-muted">
-            {t('explainerNotConnected')}
+            {publishEnabled ? t('explainerNotConnected') : t('explainerNotConnectedIdentityOnly')}
           </p>
           {/* Plain <a> — same-origin GET to an API route that 302s to
               linkedin.com. <Link> would prefetch and break OAuth. */}

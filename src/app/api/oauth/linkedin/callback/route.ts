@@ -3,9 +3,9 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { publicEnv, serverEnv } from '@/lib/env';
 import {
+  chooseScopes,
   exchangeCode,
   fetchUserInfo,
-  LINKEDIN_SCOPES,
 } from '@/lib/oauth/linkedin';
 import { verifyState, STATE_COOKIE } from '@/lib/oauth/state';
 
@@ -82,8 +82,23 @@ export async function GET(req: NextRequest) {
   }
 
   if (liError) {
+    // Disambiguate the broad "denied" bucket. LinkedIn surfaces the real
+    // root cause via error_description; we map the common categories so the
+    // UI can render an actionable message instead of "you declined" for
+    // every failure mode.
+    const desc = (liErrorDescription ?? '').toLowerCase();
+    let status = 'denied';
+    if (liError === 'user_cancelled_login' || liError === 'user_cancelled_authorize') {
+      status = 'denied';
+    } else if (desc.includes('not authorized for your application') || desc.includes('scope')) {
+      status = 'scope_not_authorized';
+    } else if (liError === 'unauthorized_client' || liError === 'invalid_client') {
+      status = 'invalid_client';
+    } else if (liError === 'access_denied') {
+      status = 'denied';
+    }
     return bounce(
-      `linkedin_oauth=denied&reason=${encodeURIComponent(liErrorDescription ?? liError)}`,
+      `linkedin_oauth=${status}&reason=${encodeURIComponent(liErrorDescription ?? liError)}`,
     );
   }
   if (!code || !stateFromQuery) {
@@ -139,7 +154,10 @@ export async function GET(req: NextRequest) {
     p_access_token: token.access_token,
     p_refresh_token: token.refresh_token ?? null,
     p_expires_at: expiresAt,
-    p_scopes: [...LINKEDIN_SCOPES],
+    // Record the scopes we ASKED for (not what LinkedIn returned — they
+    // grant exactly the requested set or fail the whole flow). Mirrors
+    // the chooseScopes() decision in /api/oauth/linkedin/start.
+    p_scopes: [...chooseScopes(env.LINKEDIN_PUBLISH_ENABLED === 'true')],
     p_user_agent: userAgent,
     p_ip_address: ipFromHeader,
     p_key: env.AHO_TOKEN_ENCRYPTION_KEY,

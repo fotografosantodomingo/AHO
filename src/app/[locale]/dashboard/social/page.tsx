@@ -8,6 +8,7 @@ import {
 import { LockedSocialModule } from '@/components/social/locked-social-module';
 import { ConnectMetaSection } from '@/components/social/connect-meta-section';
 import { ConnectLinkedInSection } from '@/components/social/connect-linkedin-section';
+import { serverEnv } from '@/lib/env';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -26,6 +27,8 @@ type FlashStatus = (typeof KNOWN_FLASH_STATUSES)[number];
 const KNOWN_LINKEDIN_FLASH_STATUSES = [
   'connected',
   'denied',
+  'scope_not_authorized',
+  'invalid_client',
   'invalid',
   'state_mismatch',
   'exchange_failed',
@@ -119,7 +122,11 @@ export default async function SocialDashboardPage({
       {unlocked ? (
         <div className="space-y-6">
           <ConnectMetaSection locale={typedLocale} flash={flash} />
-          <ConnectLinkedInSection locale={typedLocale} flash={liFlash} />
+          <ConnectLinkedInSection
+            locale={typedLocale}
+            flash={liFlash}
+            publishEnabled={serverEnv().LINKEDIN_PUBLISH_ENABLED === 'true'}
+          />
         </div>
       ) : (
         <LockedSocialModule locale={typedLocale} size="full" />

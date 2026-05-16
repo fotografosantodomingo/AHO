@@ -1137,12 +1137,15 @@
     "heading": "Połącz swój profil LinkedIn",
     "statusConnected": "Połączono",
     "explainerNotConnected": "Połącz swój prywatny LinkedIn, by AHO mogło publikować Twoje ogłoszenia na Twojej tablicy. Pełna kontrola po Twojej stronie — każdy post najpierw generujemy jako podgląd; nic nie idzie na żywo bez Twojej zgody.",
+    "explainerNotConnectedIdentityOnly": "Połącz swój prywatny LinkedIn, by AHO wiedziało kim jesteś na platformie. Publikacja czeka na osobne zatwierdzenie produktu LinkedIn (1–2 tyg.); po jego zatwierdzeniu poprosimy o ponowne połączenie, aby uzyskać uprawnienia do publikacji.",
     "explainerConnected": "Połączono jako {name}. Możemy publikować na Twojej tablicy LinkedIn w Twoim imieniu.",
     "scopesNote": "Prosimy o uprawnienia: odczyt imienia + e-maila (logowanie), publikacja na Twojej własnej tablicy (w_member_social). Tylko profil prywatny — publikacja na stronach firmowych w późniejszym etapie.",
     "connectButton": "Połącz LinkedIn",
     "reconnectButton": "Połącz ponownie / odśwież uprawnienia",
+    "publishPendingBanner": "Publikacja na LinkedIn czeka na zatwierdzenie produktu \"Share on LinkedIn\" (typowo 1–2 tyg. po stronie LinkedIn). Aktualne połączenie daje tylko identyfikację; po odblokowaniu publikacji poprosimy o ponowne połączenie.",
     "flashConnected": "Połączono jako {name}. Możesz teraz publikować ogłoszenia na LinkedIn z przycisku Udostępnij na każdym aktywnym ogłoszeniu.",
-    "flashDenied": "Odmówiłeś uprawnień. AHO ich potrzebuje, by publikować w Twoim imieniu — spróbuj ponownie, gdy będziesz gotowy.",
+    "flashDenied": "Odmówiłeś uprawnień na ekranie zgody LinkedIn. Spróbuj ponownie, gdy będziesz gotowy.",
+    "flashScopeNotAuthorized": "LinkedIn odrzucił żądanie, bo wymagane uprawnienie nie jest jeszcze zatwierdzone na aplikacji AHO. Najczęściej oznacza to, że produkt \"Sign In with LinkedIn\" lub \"Share on LinkedIn\" wciąż czeka na review. Szczegóły: {reason}",
     "flashError": "Coś poszło nie tak podczas łączenia ({reason}). Spróbuj ponownie lub skontaktuj się z pomocą, jeśli problem się powtarza."
   },
   "social": {

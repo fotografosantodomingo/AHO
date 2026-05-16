@@ -1174,12 +1174,15 @@
     "heading": "Connect your LinkedIn profile",
     "statusConnected": "Connected",
     "explainerNotConnected": "Connect your personal LinkedIn so AHO can post your listings to your feed. You stay in control — every post is generated as a preview first; nothing goes live without your approval.",
+    "explainerNotConnectedIdentityOnly": "Connect your personal LinkedIn so AHO knows who you are on the platform. Publishing is gated on a separate LinkedIn product approval (1–2 weeks); once that lands, click Reconnect to grant publishing permission.",
     "explainerConnected": "Connected as {name}. We can publish to your LinkedIn feed on your behalf.",
     "scopesNote": "We request: read your name + email (sign-in), publish to your own feed (w_member_social). Personal profile only — company-page publishing comes later.",
     "connectButton": "Connect LinkedIn",
     "reconnectButton": "Reconnect / refresh permissions",
+    "publishPendingBanner": "LinkedIn publishing is pending the \"Share on LinkedIn\" product approval (typical: 1–2 weeks LinkedIn-side). Connect now grants identity only; we'll prompt you to reconnect once publishing unlocks.",
     "flashConnected": "Connected as {name}. You can now publish your listings to LinkedIn from the Share button on any active listing.",
-    "flashDenied": "You declined the permissions. AHO needs them to publish on your behalf — try again when you're ready.",
+    "flashDenied": "You declined the permissions on LinkedIn's consent screen. Try again when you're ready.",
+    "flashScopeNotAuthorized": "LinkedIn rejected the request because a requested permission isn't approved on the AHO LinkedIn app yet. Usually means the \"Sign In with LinkedIn\" or \"Share on LinkedIn\" product is still pending review. Details: {reason}",
     "flashError": "Something went wrong while connecting ({reason}). Try again, or contact support if it persists."
   },
   "social": {
