@@ -29,6 +29,15 @@ const MODEL_ID = 'claude-sonnet-4-6';
 
 /** Cap to prevent a malicious or huge page from stalling the worker. */
 const MAX_FETCH_BYTES = 1_500_000; // 1.5 MB
+
+/**
+ * URL-segment patterns that indicate a non-listing image (logo, icon,
+ * social-share button, banner, agent avatar). Matched against the full
+ * URL (case-insensitive). Word boundaries on most tokens so we don't
+ * falsely-reject filenames that happen to contain the substring.
+ */
+const PHOTO_NON_LISTING_PATTERN =
+  /[/_-](?:logo|favicon|icon|sprite|badge|avatar|profile[-_]?pic|profile[-_]?photo|tracking|pixel|banner|advert|advertisement|watermark|brand[-_]?mark|social[-_]?(?:icon|share|button)|share[-_]?button|nav[-_]?arrow)(?:[/_-]|\.|$)/i;
 const FETCH_TIMEOUT_MS = 7_000;
 /** Send at most this much HTML/text to Claude — keeps cost bounded. */
 const MAX_PROMPT_CHARS = 90_000;
@@ -304,7 +313,9 @@ Output rules:
 7. Filter out portal boilerplate from descriptions (cookie banners, "Contact agent", "View 50 more listings" etc.).
 8. Strip the agent's contact info from descriptions — phone numbers, emails, agency names — keep only the property pitch.
 9. NEVER translate proper nouns: city names, neighborhood names, transit / school / landmark names. "Szkoła Podstawowa nr 4" stays "Szkoła Podstawowa nr 4" in English (with brief gloss like "Primary School #4" in parentheses if helpful), and "PKP Legionowo Piaski" stays as-is. Same in Spanish.
-10. Never invent yield numbers, ROI percentages, or future-projection claims. If the source surfaces them, repeat verbatim. If not, omit — the agent can add positioning hints later.`;
+10. Never invent yield numbers, ROI percentages, or future-projection claims. If the source surfaces them, repeat verbatim. If not, omit — the agent can add positioning hints later.
+11. photoUrls — INCLUDE ONLY photographs of the actual property (interior rooms, exterior, balcony, kitchen, bathrooms, plot, view from windows). EXCLUDE: site logos, favicons, social-media icons (FB / IG / X / WhatsApp share buttons), agent profile / agency logo headshots, banner ads, tracking pixels, watermark / disclaimer images, navigation arrows, currency / language flag icons, "next" / "prev" gallery controls, footer brand marks. If a page has NO real property photos, return an EMPTY array — DO NOT pad with stray graphics. Better empty than wrong; the agent can upload manually.
+12. photoUrls quality bar — typical listing photos are 800×600 or larger and rendered as thumbnails on the gallery grid. If a URL clearly represents a small icon or sprite (e.g. paths containing /icon, /logo, /favicon, /sprite, /badge, /social, /pixel, /tracking, /avatar, /profile, /banner, /advert, /watermark), exclude it.`;
 
 /**
  * SSRF guard. Returns true when the hostname looks like an internal
@@ -421,7 +432,23 @@ export async function importFromUrl(args: {
       ? extracted.amenities.map((a) => String(a)).filter((a) => a.length > 0).slice(0, 15)
       : [],
     photoUrls: Array.isArray(extracted.photoUrls)
-      ? extracted.photoUrls.map((u) => String(u)).filter((u) => /^https?:\/\//.test(u)).slice(0, 30)
+      ? extracted.photoUrls
+          .map((u) => String(u))
+          .filter((u) => /^https?:\/\//.test(u))
+          // Defensive URL-pattern filter — even with a tightened prompt
+          // the model occasionally returns logos / icons / social
+          // buttons. Reject paths whose segments scream non-listing.
+          // Pattern boundaries (\b or path-segment match) so we don't
+          // false-positive on legitimate filenames containing the word
+          // (e.g. "kitchen-island-kitchen-icon-look.jpg" — unlikely but
+          // possible).
+          .filter((u) => !PHOTO_NON_LISTING_PATTERN.test(u))
+          // SVG is almost never a listing photo (always vector logo /
+          // icon / chart). Real estate photos are JPG / WebP / PNG.
+          .filter((u) => !/\.svg(\?|#|$)/i.test(u))
+          // 1×1 tracking pixels — if the URL itself signals dimensions.
+          .filter((u) => !/[/_-](?:pixel|spacer|blank|transparent)\.(?:gif|png)(\?|#|$)/i.test(u))
+          .slice(0, 30)
       : [],
     sourceUrl: parsed.toString(),
   };
