@@ -46,6 +46,13 @@ export const IG_CAROUSEL_MAX = 10;
 export interface PostInput {
   /** Listing title in the listing's authored language. */
   title: string;
+  /** Full listing description in the active content locale (EN or ES).
+   *  Pass the AGENT'S written description verbatim — no auto-summary,
+   *  no clamp at the caller. The formatter is responsible for fitting
+   *  within per-platform body caps. Optional because some legacy
+   *  listings have null/empty descriptions; the formatter omits the
+   *  block cleanly in that case. */
+  description?: string | null;
   city: string;
   /** Country display name in the active locale (e.g. "Dominican Republic" / "República Dominicana"). */
   countryDisplay: string;
@@ -149,23 +156,39 @@ export function formatFacebookPost(input: PostInput): FacebookPost {
   const specs = specsLine(input);
   const tag = cityHashtag(input.city);
   const link = withUtm(input.url, 'facebook');
+  // Description goes in verbatim — PO directive 2026-05-16: agents want
+  // the FULL listing copy in the FB post, not a 1-line auto-summary.
+  // Empty/null description → omit the block entirely (no awkward blank
+  // paragraph). The FB_MAX_CHARS clamp at the bottom catches the rare
+  // case where title + 4000-char description blows the cap.
+  const description = input.description?.trim() ?? '';
+  const descBlock = description ? [description, ''] : [];
+  const viewLabel = contentLocale === 'es' ? '👉 Ver en AHO:' : '👉 View on AHO:';
 
   const lines = contentLocale === 'es'
     ? [
         input.title,
         '',
+        ...descBlock,
         `📍 ${input.city}, ${input.countryDisplay}`,
         `💰 ${price}`,
         ...(specs ? [specs] : []),
+        '',
+        viewLabel,
+        link,
         '',
         `#inmuebles #aho${tag ? ` #${tag}` : ''}`,
       ]
     : [
         input.title,
         '',
+        ...descBlock,
         `📍 ${input.city}, ${input.countryDisplay}`,
         `💰 ${price}`,
         ...(specs ? [specs] : []),
+        '',
+        viewLabel,
+        link,
         '',
         `#realestate #aho${tag ? ` #${tag}` : ''}`,
       ];

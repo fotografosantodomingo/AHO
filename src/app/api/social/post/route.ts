@@ -186,7 +186,7 @@ export async function POST(req: NextRequest) {
   const { data: property, error: propErr } = await supabase
     .from('properties')
     .select(
-      'id, org_id, title_en, title_es, slug_en, slug_es, short_id, city, country_code, price_cents, currency, bedrooms, bathrooms, area_sqm, status, published_at',
+      'id, org_id, title_en, title_es, description_en, description_es, slug_en, slug_es, short_id, city, country_code, price_cents, currency, bedrooms, bathrooms, area_sqm, status, published_at',
     )
     .eq('id', body.propertyId)
     .maybeSingle();
@@ -223,6 +223,13 @@ export async function POST(req: NextRequest) {
   const title = wantEs
     ? property.title_es ?? property.title_en
     : property.title_en ?? property.title_es;
+  // Description for the post body. Prefer the active-locale variant,
+  // fall back to the other locale when only one is written (matches the
+  // public listing page's fallback chain). Null when both are empty —
+  // formatter handles that cleanly.
+  const description = wantEs
+    ? (property.description_es as string | null) ?? (property.description_en as string | null)
+    : (property.description_en as string | null) ?? (property.description_es as string | null);
   if (!slug || !title) {
     return NextResponse.json(
       { ok: false, errorCode: 'listing_missing_translation' },
@@ -264,6 +271,7 @@ export async function POST(req: NextRequest) {
 
   const postInput: PostInput = {
     title,
+    description,
     city: property.city,
     countryDisplay: getCountryName(property.country_code, contentLocale),
     priceCents: Number(property.price_cents),
