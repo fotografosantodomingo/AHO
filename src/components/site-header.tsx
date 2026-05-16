@@ -70,13 +70,45 @@ export async function SiteHeader({ locale }: Props) {
   const searchPath = localePath(locale, '/search');
   const pricingPath = localePath(locale, '/pricing');
   const countriesPath = localePath(locale, '/countries');
+  const dashboardPath = localePath(locale, '/dashboard');
+  const savedPropertiesPath = localePath(locale, '/saved-properties');
+  const savedSearchesPath = localePath(locale, '/saved-searches');
 
-  const navItems: { href: string; label: string }[] = [
-    { href: `${searchPath}?transaction=sale`, label: t('buy') },
-    { href: `${searchPath}?transaction=rent`, label: t('rent') },
-    { href: pricingPath, label: t('sell') },
-    { href: countriesPath, label: t('findAgent') },
-  ];
+  // Two shapes per the 2026-05-16 PO menu redesign:
+  // - Anonymous keeps the prior 4-item flat marketing nav.
+  // - Authed gets dropdown groups so "Real estate agent" wraps the
+  //   user's Dashboard (room to grow with future agent-area pages)
+  //   and "Save" wraps both buyer-side saved-* surfaces. The flat
+  //   email-chip + duplicate links on the right move into this nav.
+  type NavItem =
+    | { kind: 'link'; href: string; label: string }
+    | { kind: 'dropdown'; label: string; items: { href: string; label: string }[] };
+
+  const navItems: NavItem[] = isAuthed
+    ? [
+        {
+          kind: 'dropdown',
+          label: t('realEstateAgent'),
+          items: [{ href: dashboardPath, label: t('dashboard') }],
+        },
+        { kind: 'link', href: `${searchPath}?transaction=sale`, label: t('buy') },
+        { kind: 'link', href: `${searchPath}?transaction=rent`, label: t('rent') },
+        { kind: 'link', href: countriesPath, label: t('findAgent') },
+        {
+          kind: 'dropdown',
+          label: t('save'),
+          items: [
+            { href: savedPropertiesPath, label: t('savedProperties') },
+            { href: savedSearchesPath, label: t('savedSearches') },
+          ],
+        },
+      ]
+    : [
+        { kind: 'link', href: `${searchPath}?transaction=sale`, label: t('buy') },
+        { kind: 'link', href: `${searchPath}?transaction=rent`, label: t('rent') },
+        { kind: 'link', href: pricingPath, label: t('sell') },
+        { kind: 'link', href: countriesPath, label: t('findAgent') },
+      ];
 
   return (
     <header className="sticky top-0 z-30 border-b border-border-strong/40 bg-surface/95 backdrop-blur-sm dark:bg-surface-deep/95">
@@ -104,20 +136,65 @@ export async function SiteHeader({ locale }: Props) {
           <LocaleToggle />
         </div>
 
-        {/* Center: primary nav (desktop only). */}
+        {/* Center: primary nav (desktop only). Dropdowns are CSS-only
+            (group-hover + group-focus-within) so the header stays a
+            server component. The py-2 on the trigger and the absent
+            mt-* on the panel keep the hover path contiguous so the
+            cursor doesn't slip into a dead gap and dismiss the menu. */}
         <nav
           aria-label="Primary"
           className="hidden flex-1 items-center justify-center gap-5 text-sm md:flex"
         >
-          {navItems.map((item) => (
-            <a
-              key={item.href + item.label}
-              href={item.href}
-              className="text-helper transition-colors hover:text-action dark:hover:text-action-dark"
-            >
-              {item.label}
-            </a>
-          ))}
+          {navItems.map((item) =>
+            item.kind === 'link' ? (
+              <a
+                key={item.href + item.label}
+                href={item.href}
+                className="text-helper transition-colors hover:text-action dark:hover:text-action-dark"
+              >
+                {item.label}
+              </a>
+            ) : (
+              <div key={`group-${item.label}`} className="group relative">
+                <button
+                  type="button"
+                  aria-haspopup="menu"
+                  className="inline-flex items-center gap-1 py-2 text-helper transition-colors hover:text-action dark:hover:text-action-dark"
+                >
+                  {item.label}
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 12 12"
+                    className="h-3 w-3"
+                  >
+                    <path
+                      d="M3 4.5L6 7.5L9 4.5"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      fill="none"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+                <div
+                  role="menu"
+                  className="invisible absolute left-1/2 top-full z-50 min-w-[200px] -translate-x-1/2 rounded-card border border-border bg-surface p-1 opacity-0 shadow-lift transition group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 dark:bg-surface-deep"
+                >
+                  {item.items.map((sub) => (
+                    <a
+                      key={sub.href}
+                      href={sub.href}
+                      role="menuitem"
+                      className="block rounded-md px-3 py-2 text-sm text-helper transition-colors hover:bg-black/5 hover:text-action dark:hover:bg-white/5 dark:hover:text-action-dark"
+                    >
+                      {sub.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ),
+          )}
         </nav>
 
         {/* Right cluster (desktop only): currency + auth. */}

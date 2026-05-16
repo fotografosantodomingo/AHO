@@ -7,11 +7,11 @@ import { useTranslations } from 'next-intl';
 import type { Locale } from '@/i18n/config';
 import { localePath } from '@/i18n/routing';
 import { CurrencyPicker } from '@/components/currency-picker';
+import { SignOutButton } from '@/components/auth/sign-out-button';
 
-interface NavItem {
-  href: string;
-  label: string;
-}
+type NavItem =
+  | { kind: 'link'; href: string; label: string }
+  | { kind: 'dropdown'; label: string; items: { href: string; label: string }[] };
 
 interface Props {
   locale: Locale;
@@ -91,9 +91,6 @@ export function MegaMenuClient({
 
   const signInHref = localePath(locale, '/signin');
   const signUpHref = localePath(locale, '/signup');
-  const dashboardHref = localePath(locale, '/dashboard');
-  const savedSearchesHref = localePath(locale, '/saved-searches');
-  const savedPropertiesHref = localePath(locale, '/saved-properties');
 
   const overlay = (
     <div
@@ -137,52 +134,59 @@ export function MegaMenuClient({
         </button>
       </div>
 
-      {/* Nav links — large + tappable. Each row 56px (h-14). */}
+      {/* Nav links — large + tappable. Each row 56px (h-14). Dropdown
+          groups render as an uppercase label + nested rows below it,
+          since a full-screen vertical menu has plenty of room and a
+          collapsing accordion just adds taps for no benefit. */}
       <nav
         aria-label="Primary mobile"
         className="flex-1 overflow-y-auto px-6 py-6"
       >
         <ul className="flex flex-col gap-1">
-          {navItems.map((item) => (
-            <li key={item.href + item.label}>
-              <a
-                href={item.href}
-                onClick={() => setOpen(false)}
-                className="flex h-14 items-center justify-between rounded-xl px-4 text-lg font-medium text-ink transition-colors hover:bg-surface-warm/60 active:bg-surface-warm dark:text-ink-inverse dark:hover:bg-surface-dark/60 dark:active:bg-surface-dark"
-              >
-                <span>{item.label}</span>
-                <span aria-hidden="true" className="text-helper">→</span>
-              </a>
-            </li>
-          ))}
+          {navItems.map((item, idx) =>
+            item.kind === 'link' ? (
+              <li key={item.href + item.label}>
+                <a
+                  href={item.href}
+                  onClick={() => setOpen(false)}
+                  className="flex h-14 items-center justify-between rounded-xl px-4 text-lg font-medium text-ink transition-colors hover:bg-surface-warm/60 active:bg-surface-warm dark:text-ink-inverse dark:hover:bg-surface-dark/60 dark:active:bg-surface-dark"
+                >
+                  <span>{item.label}</span>
+                  <span aria-hidden="true" className="text-helper">→</span>
+                </a>
+              </li>
+            ) : (
+              <li key={`group-${item.label}-${idx}`} className="mt-2">
+                <p className="px-4 pt-2 text-xs font-semibold uppercase tracking-[0.13em] text-helper">
+                  {item.label}
+                </p>
+                <ul className="mt-1 flex flex-col gap-1">
+                  {item.items.map((sub) => (
+                    <li key={sub.href}>
+                      <a
+                        href={sub.href}
+                        onClick={() => setOpen(false)}
+                        className="flex h-14 items-center justify-between rounded-xl px-4 text-lg font-medium text-ink transition-colors hover:bg-surface-warm/60 active:bg-surface-warm dark:text-ink-inverse dark:hover:bg-surface-dark/60 dark:active:bg-surface-dark"
+                      >
+                        <span>{sub.label}</span>
+                        <span aria-hidden="true" className="text-helper">→</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ),
+          )}
         </ul>
 
-        {/* Auth section — divider + prominent CTAs. */}
+        {/* Auth section — anon: sign-up / sign-in. Authed: sign-out
+            link only (dashboard + saved-* now live in the main nav
+            above, no need to duplicate them as bottom CTAs). */}
         <div className="mt-6 flex flex-col gap-3 border-t border-border pt-6">
           {isAuthed ? (
-            <>
-              <a
-                href={dashboardHref}
-                onClick={() => setOpen(false)}
-                className="btn-primary h-14 w-full text-base"
-              >
-                {t('dashboard')}
-              </a>
-              <a
-                href={savedPropertiesHref}
-                onClick={() => setOpen(false)}
-                className="btn-secondary h-12 w-full"
-              >
-                {t('savedProperties')}
-              </a>
-              <a
-                href={savedSearchesHref}
-                onClick={() => setOpen(false)}
-                className="btn-secondary h-12 w-full"
-              >
-                {t('savedSearches')}
-              </a>
-            </>
+            <div className="flex justify-center">
+              <SignOutButton />
+            </div>
           ) : (
             <>
               <a

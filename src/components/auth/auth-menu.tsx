@@ -5,24 +5,18 @@ import type { Locale } from '@/i18n/config';
 import { localePath } from '@/i18n/routing';
 
 /**
- * Server Component header menu — renders sign-in / sign-up links when the
- * user is signed out, or the dashboard / account links + sign-out when
- * signed in.
+ * Server Component header menu — sign-in / sign-up CTAs for anon
+ * visitors, or a bare Sign Out button for signed-in users.
  *
- * Reads the session from the server-side Supabase client. Pages that wrap
- * this in their layout get a free session refresh on every render (the
- * middleware also refreshes session cookies on every request, so the UI
- * stays accurate even on long-lived tabs).
- *
- * The `Dashboard` link always shows for signed-in users, regardless of
- * subscription state. The dashboard layout routes appropriately:
- *   - has org → see their listings
- *   - no org → bounce to /pricing (correct upgrade funnel)
+ * Per PO 2026-05-16: the right-hand cluster on the header is just
+ * the sign-out affordance; the email-address chip + the inline
+ * Dashboard / Saved-properties / Saved-searches links have moved
+ * into the main nav (under "Real estate agent" and "Save"
+ * dropdowns) so the header reads as one coherent menu rather than
+ * two competing clusters.
  */
 export async function AuthMenu({ locale }: { locale: Locale }) {
   const t = await getTranslations({ locale, namespace: 'auth' });
-  const tNav = await getTranslations({ locale, namespace: 'nav' });
-  const tDashboard = await getTranslations({ locale, namespace: 'dashboard' });
   const supabase = await createServerSupabaseClient();
   const { data } = await supabase.auth.getUser();
   const user = data.user;
@@ -46,32 +40,5 @@ export async function AuthMenu({ locale }: { locale: Locale }) {
     );
   }
 
-  const dashboardHref = localePath(locale, '/dashboard');
-  const savedSearchesHref = localePath(locale, '/saved-searches');
-  const savedPropertiesHref = localePath(locale, '/saved-properties');
-
-  return (
-    <div className="flex items-center gap-3 text-sm">
-      {/* Always-visible Dashboard link. The dashboard layout itself routes
-          non-subscribers to /pricing — no need to gate the link by org
-          membership. Saved-searches and saved-properties are parallel
-          buyer-side links. */}
-      <a className="hover:underline" href={dashboardHref}>
-        {tNav('dashboard')}
-      </a>
-      <a className="hidden hover:underline lg:inline" href={savedPropertiesHref}>
-        {tNav('savedProperties')}
-      </a>
-      <a className="hidden hover:underline lg:inline" href={savedSearchesHref}>
-        {tDashboard('navSavedSearches')}
-      </a>
-      <span
-        className="hidden max-w-[16ch] truncate text-helper sm:inline"
-        title={user.email ?? ''}
-      >
-        {user.email}
-      </span>
-      <SignOutButton />
-    </div>
-  );
+  return <SignOutButton />;
 }
