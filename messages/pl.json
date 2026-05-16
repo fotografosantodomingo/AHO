@@ -1157,6 +1157,7 @@
     "reconnectButton": "Połącz ponownie / odśwież uprawnienia",
     "publishPendingBanner": "Publikacja na LinkedIn czeka na zatwierdzenie produktu \"Share on LinkedIn\" (typowo 1–2 tyg. po stronie LinkedIn). Aktualne połączenie daje tylko identyfikację; po odblokowaniu publikacji poprosimy o ponowne połączenie.",
     "flashConnected": "Połączono jako {name}. Możesz teraz publikować ogłoszenia na LinkedIn z przycisku Udostępnij na każdym aktywnym ogłoszeniu.",
+    "flashConnectedIdentityOnly": "Połączono jako {name}.",
     "flashDenied": "Odmówiłeś uprawnień na ekranie zgody LinkedIn. Spróbuj ponownie, gdy będziesz gotowy.",
     "flashScopeNotAuthorized": "LinkedIn odrzucił żądanie, bo wymagane uprawnienie nie jest jeszcze zatwierdzone na aplikacji AHO. Najczęściej oznacza to, że produkt \"Sign In with LinkedIn\" lub \"Share on LinkedIn\" wciąż czeka na review. Szczegóły: {reason}",
     "flashError": "Coś poszło nie tak podczas łączenia ({reason}). Spróbuj ponownie lub skontaktuj się z pomocą, jeśli problem się powtarza."

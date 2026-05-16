@@ -1194,6 +1194,7 @@
     "reconnectButton": "Reconectar / refrescar permisos",
     "publishPendingBanner": "La publicación en LinkedIn está pendiente de la aprobación del producto \"Share on LinkedIn\" (típico: 1–2 semanas en LinkedIn). La conexión actual solo concede identidad; te pediremos reconectar cuando se desbloquee la publicación.",
     "flashConnected": "Conectado como {name}. Ya puedes publicar tus anuncios en LinkedIn desde el botón Compartir en cualquier anuncio activo.",
+    "flashConnectedIdentityOnly": "Conectado como {name}.",
     "flashDenied": "Rechazaste los permisos en la pantalla de consentimiento de LinkedIn. Vuelve a intentarlo cuando estés listo.",
     "flashScopeNotAuthorized": "LinkedIn rechazó la solicitud porque un permiso requerido aún no está aprobado en la app de AHO. Normalmente significa que el producto \"Sign In with LinkedIn\" o \"Share on LinkedIn\" sigue en revisión. Detalles: {reason}",
     "flashError": "Algo salió mal al conectar ({reason}). Inténtalo de nuevo, o contacta soporte si persiste."

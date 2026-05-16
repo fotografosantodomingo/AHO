@@ -96,7 +96,9 @@ export async function ConnectLinkedInSection({ locale, flash, publishEnabled }: 
           role="status"
           className="rounded-card border border-emerald-500/30 bg-emerald-500/5 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-200"
         >
-          {t('flashConnected', { name: flash.name ?? '—' })}
+          {publishEnabled
+            ? t('flashConnected', { name: flash.name ?? '—' })
+            : t('flashConnectedIdentityOnly', { name: flash.name ?? '—' })}
         </p>
       )}
       {flash?.status === 'denied' && (
@@ -125,13 +127,11 @@ export async function ConnectLinkedInSection({ locale, flash, publishEnabled }: 
           </p>
         )}
 
-      {!publishEnabled && (
-        <p
-          className="rounded-card border border-blue-500/30 bg-blue-500/5 px-4 py-3 text-xs text-blue-800 dark:text-blue-200"
-        >
-          {t('publishPendingBanner')}
-        </p>
-      )}
+      {/* publishPendingBanner removed 2026-05-16 — PO finds it noisy
+          on repeat visits. The state is still conveyed via the
+          flashConnectedIdentityOnly message + explainerNotConnectedIdentityOnly
+          before connection. Re-add if onboarding tests show agents
+          don't understand the publish vs identity distinction. */}
 
       {!connected ? (
         <div className="space-y-3">
