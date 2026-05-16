@@ -283,6 +283,14 @@ export function buildListingJsonLd({ property: p, locale, contact, reviewSummary
     value: true,
   }));
 
+  // VideoObject schema — not emitted today because we don't yet store
+  // video tours on properties. When that lands (Phase: scope TBD), the
+  // schema slot is: listingNode.video = { '@type': 'VideoObject',
+  // name, description, thumbnailUrl, contentUrl, uploadDate, duration
+  // (ISO 8601 PT3M5S) }. Add as an array when multi-video. Google
+  // surfaces these in "Property videos" rich card for high-quality
+  // listings — Zillow heavily uses this on agent video walkthroughs.
+
   // image[] — explicit ImageObject array (with width/height) is more
   // valuable than a flat URL list. Google's "Image rich results" needs
   // dimensions to qualify.

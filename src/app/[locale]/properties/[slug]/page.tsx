@@ -11,23 +11,41 @@ import {
 import { buildSeoMeta, buildListingJsonLd, listingUrls } from '@/lib/listings/seo';
 import { buildWhatsAppLink } from '@/lib/leads/whatsapp';
 import { ContactForm } from '@/components/listings/contact-form';
+import nextDynamic from 'next/dynamic';
 import { PropertyGallery } from '@/components/listings/property-gallery';
 import { buildImageUrl } from '@/lib/listings/image-url';
-import { PriceHistory } from '@/components/listings/price-history';
 import { FactsAndFeatures } from '@/components/listings/facts-and-features';
-import { SimilarHomes } from '@/components/listings/similar-homes';
 import { PriceTile } from '@/components/listings/price-tile';
 import { getCountryName } from '@/lib/i18n/countries';
 import { fetchPriceHistory } from '@/lib/listings/price-history';
 import { findSimilarListings } from '@/lib/listings/similar';
+import { fetchAgentReviewSummaryForListing } from '@/lib/reviews/agent-summary';
 import { publicEnv } from '@/lib/env';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getUserFavoriteIds } from '@/lib/listings/favorites';
 import { FavoriteButton } from '@/components/listings/favorite-button';
 import { TrackPropertyView } from '@/components/listings/track-property-view';
-import { RecentlyViewed } from '@/components/listings/recently-viewed';
 import { TrackedLink } from '@/components/listings/tracked-link';
 import { TrackGalleryOpen } from '@/components/listings/track-gallery-open';
+
+// Below-fold components — dynamic-imported to keep them off the initial
+// JS payload. They render plenty far down the page that hydrating them
+// in the first batch hurts LCP/TBT without payoff. next/dynamic with
+// loading=null emits an empty placeholder; layout doesn't shift because
+// each component has a wrapping <section> that holds height as content
+// streams in.
+const PriceHistory = nextDynamic(
+  () => import('@/components/listings/price-history').then((m) => ({ default: m.PriceHistory })),
+  { loading: () => null },
+);
+const SimilarHomes = nextDynamic(
+  () => import('@/components/listings/similar-homes').then((m) => ({ default: m.SimilarHomes })),
+  { loading: () => null },
+);
+const RecentlyViewed = nextDynamic(
+  () => import('@/components/listings/recently-viewed').then((m) => ({ default: m.RecentlyViewed })),
+  { loading: () => null },
+);
 
 export const runtime = 'edge';
 // Force dynamic rendering on every request. Without this, Cloudflare
@@ -158,10 +176,22 @@ export default async function PropertyDetailPage({
   // if the agent's phone passes the digit-count sanity check.
   const contact = await fetchListingContact(property.id);
 
-  // JSON-LD built after `contact` is loaded so we can wire the agent as
-  // `seller` + emit a separate RealEstateAgent @graph node (boosts rich-
-  // snippet eligibility vs an anonymous offer).
-  const jsonLd = buildListingJsonLd({ property, locale: typedLocale, contact });
+  // Agent review aggregate — when the listing's creator has published
+  // reviews on AHO, wire them into the RealEstateAgent JSON-LD node as
+  // an AggregateRating block. Google uses this to render the gold-stars
+  // rich snippet on the SERP card. Null when no reviews → JSON-LD just
+  // omits the block (a fake/zero rating actively hurts rich results).
+  const reviewSummary = await fetchAgentReviewSummaryForListing(property.id);
+
+  // JSON-LD built after `contact` + review summary are loaded so we can
+  // wire the agent as `seller` AND attach an AggregateRating to that
+  // RealEstateAgent @graph node when reviews exist.
+  const jsonLd = buildListingJsonLd({
+    property,
+    locale: typedLocale,
+    contact,
+    reviewSummary,
+  });
 
   // Price-history timeline. Reads audit_log via the public-read policy
   // added in 0014 — only event kinds (price_changed, sold, rented) on

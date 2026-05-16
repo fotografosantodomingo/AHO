@@ -179,22 +179,39 @@ export function PropertyGallery({
     variant: 'public',
   });
   /**
-   * Mobile-sized variant for the primary image. On phones (~414 CSS px
-   * → ~828 device px on a 2× DPI screen) the `public` 1366×768 variant
-   * is ~2.5× the size we actually paint, costing ~150 KiB of bandwidth
-   * for nothing. The 600×400 `card` variant matches the painted area
-   * almost exactly, knocking ~100 KiB off LCP. Browsers pick between
-   * srcset entries using the `sizes` hint.
+   * Multi-variant srcset for the LCP hero:
+   *   - card (600×400)   → phones (~414 CSS px @ 2× DPI = ~828 device px)
+   *   - hero (900×600)   → tablets + typical desktop (~800-900 display)
+   *                         CREATED 2026-05-16 specifically to plug the
+   *                         Lighthouse "image is larger than displayed
+   *                         dimensions" finding — the `public` 1366×768
+   *                         was being pulled for an 800px display slot,
+   *                         wasting ~70 KiB on LCP.
+   *   - public (1366×768) → wide desktops / retina
+   * The browser picks the smallest source ≥ the rendered size,
+   * guided by the `sizes` hint set on the <img>.
    */
   const primaryUrlMobile = buildImageUrl({
     cfImageId: primary.cfImageId,
     r2Key: primary.r2Key,
     variant: 'card',
   });
-  const primarySrcSet =
-    primaryUrlMobile && primaryUrlMobile !== primaryUrl
-      ? `${primaryUrlMobile} 600w, ${primaryUrl} 1366w`
-      : undefined;
+  const primaryUrlMid = buildImageUrl({
+    cfImageId: primary.cfImageId,
+    r2Key: primary.r2Key,
+    variant: 'hero',
+  });
+  const srcsetParts: string[] = [];
+  if (primaryUrlMobile && primaryUrlMobile !== primaryUrl) {
+    srcsetParts.push(`${primaryUrlMobile} 600w`);
+  }
+  if (primaryUrlMid && primaryUrlMid !== primaryUrl && primaryUrlMid !== primaryUrlMobile) {
+    srcsetParts.push(`${primaryUrlMid} 900w`);
+  }
+  if (primaryUrl) {
+    srcsetParts.push(`${primaryUrl} 1366w`);
+  }
+  const primarySrcSet = srcsetParts.length > 1 ? srcsetParts.join(', ') : undefined;
   if (!primaryUrl) {
     return (
       <div

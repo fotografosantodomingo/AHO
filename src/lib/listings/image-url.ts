@@ -21,8 +21,18 @@
 interface ImageUrlArgs {
   cfImageId: string | null;
   r2Key: string | null;
-  /** Cloudflare Images variant name (card | public | thumbnail | …). */
-  variant: 'card' | 'public' | 'thumbnail';
+  /** Cloudflare Images variant name. Defined in the CF Images dashboard /
+   *  API. Current set (2026-05-16):
+   *   - thumbnail (200×200 cover)
+   *   - card (600×400 cover)
+   *   - hero (900×600 scale-down) — added 2026-05-16 to plug the LCP
+   *     waste at ~800px-displayed slots that were pulling 1366×768
+   *   - public (1366×768 scale-down)
+   *   - og (1200×630 cover) — OpenGraph social card
+   *   - igsquare (1080×1080 cover) — Instagram
+   *   - fbfeed (1200×630 cover) — Facebook feed
+   */
+  variant: 'thumbnail' | 'card' | 'hero' | 'public' | 'og' | 'igsquare' | 'fbfeed';
 }
 
 export function buildImageUrl(args: ImageUrlArgs): string | null {
