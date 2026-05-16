@@ -96,6 +96,14 @@ const securityHeaders = [
 const config: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Production source maps — Lighthouse 2026-05-16 flagged
+  // "Missing source maps for large first-party JavaScript" on the
+  // 206 KiB chunks/3c6892b9-*.js, costing 1pt on Best Practices and
+  // making it impossible to identify what's in that chunk (we can't
+  // pick the right code-split target without seeing what's there).
+  // Source maps are 30-100% the size of the JS but served separately
+  // and only fetched when DevTools opens them — zero runtime cost.
+  productionBrowserSourceMaps: true,
   experimental: {
     typedRoutes: false, // re-enable once next-intl typed routes settle
     // Tree-shake barrel-file imports for these packages. Lighthouse
