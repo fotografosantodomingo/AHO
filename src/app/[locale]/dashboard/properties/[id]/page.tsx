@@ -15,8 +15,18 @@ import {
   getCurrentUserOrgPlan,
   isOrgOnProAutomation,
 } from '@/lib/billing/plan-gating';
+import nextDynamic from 'next/dynamic';
 import { LockedSocialModule } from '@/components/social/locked-social-module';
-import { ShareToSocials, type ConnectedAccount, type SharePlatform } from '@/components/listings/share-to-socials';
+import type { ConnectedAccount, SharePlatform } from '@/components/listings/share-to-socials';
+
+// Lazy-load ShareToSocials — only Pro Automation tier sees it, and it
+// drags ~62 KiB of state-machine logic + per-platform UI branches.
+// Deferring lets the rest of the edit page hydrate fast for the
+// non-Pro tier path (which never renders this anyway).
+const ShareToSocials = nextDynamic(
+  () => import('@/components/listings/share-to-socials').then((m) => ({ default: m.ShareToSocials })),
+  { loading: () => null },
+);
 
 export const runtime = 'edge';
 

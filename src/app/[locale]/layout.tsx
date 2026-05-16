@@ -118,8 +118,11 @@ export default async function LocaleLayout({
             real-world mobile networks where TLS setup is the long pole. */}
         <link rel="preconnect" href="https://imagedelivery.net" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://imagedelivery.net" />
-        <link rel="preconnect" href="https://js.stripe.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://js.stripe.com" />
+        {/* Stripe preconnect removed from root layout 2026-05-16 —
+            Lighthouse flagged it as "Unused preconnect" on every page
+            that isn't /pricing or /onboarding. Pages that actually
+            load Stripe.js (checkout, billing portal redirects) handle
+            their own preconnect just-in-time. */}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="min-h-screen antialiased">

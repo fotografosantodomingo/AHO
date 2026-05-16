@@ -98,6 +98,20 @@ const config: NextConfig = {
   poweredByHeader: false,
   experimental: {
     typedRoutes: false, // re-enable once next-intl typed routes settle
+    // Tree-shake barrel-file imports for these packages. Lighthouse
+    // audit 2026-05-16 flagged ~30-50 KiB unused JS from full-bundle
+    // imports of lucide-react, Supabase, react-hook-form helpers.
+    // Next.js 15 rewrites `import { X } from 'pkg'` to per-module
+    // imports at build time when the package is listed here.
+    optimizePackageImports: [
+      'lucide-react',
+      '@supabase/supabase-js',
+      '@supabase/ssr',
+      '@hookform/resolvers',
+      'leaflet',
+      'react-leaflet',
+      'date-fns',
+    ],
     // Server Actions: explicitly allow the production + Pages preview
     // origins. Behind Cloudflare Pages the X-Forwarded-Host detection
     // sometimes drops the public hostname, and Next.js 15 default-

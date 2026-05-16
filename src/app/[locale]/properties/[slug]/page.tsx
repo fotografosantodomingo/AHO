@@ -10,7 +10,10 @@ import {
 } from '@/lib/listings/queries';
 import { buildSeoMeta, buildListingJsonLd, listingUrls } from '@/lib/listings/seo';
 import { buildWhatsAppLink } from '@/lib/leads/whatsapp';
-import { ContactForm } from '@/components/listings/contact-form';
+// ContactForm lazy-loaded below — it's below the fold + bundles ~50 KiB
+// of zod + react-hook-form + Turnstile widget. Keeping it out of the
+// initial JS payload helps LCP/TBT on the public listing page.
+// (see const ContactForm = nextDynamic(...) further down.)
 import nextDynamic from 'next/dynamic';
 import { PropertyGallery } from '@/components/listings/property-gallery';
 import { buildImageUrl } from '@/lib/listings/image-url';
@@ -36,6 +39,10 @@ import { TrackGalleryOpen } from '@/components/listings/track-gallery-open';
 // streams in.
 const PriceHistory = nextDynamic(
   () => import('@/components/listings/price-history').then((m) => ({ default: m.PriceHistory })),
+  { loading: () => null },
+);
+const ContactForm = nextDynamic(
+  () => import('@/components/listings/contact-form').then((m) => ({ default: m.ContactForm })),
   { loading: () => null },
 );
 const SimilarHomes = nextDynamic(
