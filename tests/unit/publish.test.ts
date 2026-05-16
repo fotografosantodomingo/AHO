@@ -603,24 +603,165 @@ describe('publish · publishToInstagramBusiness (carousel)', () => {
 });
 
 // ============================================================
-// publishToLinkedIn (stub)
+// publishToLinkedIn — real /rest/posts (DECISIONS.md 2026-05-15)
 // ============================================================
 
-describe('publish · publishToLinkedIn (stub)', () => {
-  it('always returns oauth_not_implemented (permanent until partner approval lands)', async () => {
+describe('publish · publishToLinkedIn', () => {
+  it('returns invalid_input when authorUrn is empty', async () => {
     const fetchMock = vi.fn();
     global.fetch = fetchMock as unknown as typeof fetch;
 
     const result = await publishToLinkedIn({
-      authorUrn: 'urn:li:person:fixture',
+      authorUrn: '',
       accessToken: 'tok',
       post: LI_POST,
     });
 
     expect(result.ok).toBe(false);
-    expect(result.errorCode).toBe('oauth_not_implemented');
-    expect(isRetryable(result.errorCode)).toBe(false);
-    expect(result.errorMessage).toContain('LinkedIn');
+    expect(result.errorCode).toBe('invalid_input');
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('returns invalid_input when commentary is blank', async () => {
+    const fetchMock = vi.fn();
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    const result = await publishToLinkedIn({
+      authorUrn: 'urn:li:person:abc',
+      accessToken: 'tok',
+      post: { ...LI_POST, commentary: '   ' },
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.errorCode).toBe('invalid_input');
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('dryRun returns ok with synthetic urn without calling LinkedIn', async () => {
+    const fetchMock = vi.fn();
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    const result = await publishToLinkedIn({
+      authorUrn: 'urn:li:person:abc',
+      accessToken: 'tok',
+      post: LI_POST,
+      dryRun: true,
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.externalPostId).toMatch(/^urn:li:share:dryrun-/);
+    expect(result.externalPostUrl).toContain('linkedin.com/feed/update/');
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('success: 201 with x-restli-id header → ok with externalPostId+Url', async () => {
+    const headers = new Headers();
+    headers.set('x-restli-id', 'urn:li:share:7193245678901234567');
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(null, { status: 201, headers }),
+    );
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    const result = await publishToLinkedIn({
+      authorUrn: 'urn:li:person:abc',
+      accessToken: 'tok',
+      post: LI_POST,
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.externalPostId).toBe('urn:li:share:7193245678901234567');
+    expect(result.externalPostUrl).toBe(
+      'https://www.linkedin.com/feed/update/urn:li:share:7193245678901234567/',
+    );
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe('https://api.linkedin.com/rest/posts');
+    expect((init.headers as Record<string, string>)['linkedin-version']).toMatch(
+      /^\d{6}$/,
+    );
+    expect((init.headers as Record<string, string>)['x-restli-protocol-version']).toBe(
+      '2.0.0',
+    );
+    const body = JSON.parse(init.body as string);
+    expect(body.author).toBe('urn:li:person:abc');
+    expect(body.lifecycleState).toBe('PUBLISHED');
+    expect(body.content.article.source).toBe(LI_POST.contentUrl);
+  });
+
+  it('401 → token_invalid (permanent)', async () => {
+    global.fetch = vi
+      .fn()
+      .mockResolvedValue(new Response('expired', { status: 401 })) as unknown as typeof fetch;
+
+    const result = await publishToLinkedIn({
+      authorUrn: 'urn:li:person:abc',
+      accessToken: 'tok',
+      post: LI_POST,
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.errorCode).toBe('token_invalid');
+    expect(isRetryable(result.errorCode)).toBe(false);
+  });
+
+  it('403 → permission_denied (permanent)', async () => {
+    global.fetch = vi
+      .fn()
+      .mockResolvedValue(new Response('no scope', { status: 403 })) as unknown as typeof fetch;
+
+    const result = await publishToLinkedIn({
+      authorUrn: 'urn:li:person:abc',
+      accessToken: 'tok',
+      post: LI_POST,
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.errorCode).toBe('permission_denied');
+  });
+
+  it('429 → rate_limited (retryable)', async () => {
+    global.fetch = vi
+      .fn()
+      .mockResolvedValue(new Response('throttled', { status: 429 })) as unknown as typeof fetch;
+
+    const result = await publishToLinkedIn({
+      authorUrn: 'urn:li:person:abc',
+      accessToken: 'tok',
+      post: LI_POST,
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.errorCode).toBe('rate_limited');
+    expect(isRetryable(result.errorCode)).toBe(true);
+  });
+
+  it('500 → transient_5xx (retryable)', async () => {
+    global.fetch = vi
+      .fn()
+      .mockResolvedValue(new Response('boom', { status: 500 })) as unknown as typeof fetch;
+
+    const result = await publishToLinkedIn({
+      authorUrn: 'urn:li:person:abc',
+      accessToken: 'tok',
+      post: LI_POST,
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.errorCode).toBe('transient_5xx');
+    expect(isRetryable(result.errorCode)).toBe(true);
+  });
+
+  it('network error → network_timeout (retryable)', async () => {
+    global.fetch = vi.fn().mockRejectedValue(new Error('fetch failed')) as unknown as typeof fetch;
+
+    const result = await publishToLinkedIn({
+      authorUrn: 'urn:li:person:abc',
+      accessToken: 'tok',
+      post: LI_POST,
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.errorCode).toBe('network_timeout');
+    expect(isRetryable(result.errorCode)).toBe(true);
   });
 });

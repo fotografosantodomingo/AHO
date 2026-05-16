@@ -112,6 +112,23 @@ const serverSchema = z.object({
   // a new month's API. Optional in env so unit tests don't need it;
   // the cron route fails closed at runtime when missing.
   LINKEDIN_API_VERSION: z.string().regex(/^\d{6}$/, 'YYYYMM').optional(),
+  // LinkedIn OAuth 2.0 client credentials. Created in the LinkedIn
+  // Developer Portal app at https://www.linkedin.com/developers/apps,
+  // products: "Sign In with LinkedIn using OpenID Connect" + "Share
+  // on LinkedIn". Personal-profile posting only (w_member_social);
+  // company-page posting requires Marketing Developer Platform
+  // approval and stays v1.1. See DECISIONS.md 2026-05-15 +
+  // PO_ACTIONS §2b for the approval path.
+  LINKEDIN_CLIENT_ID: z.string().optional(),
+  LINKEDIN_CLIENT_SECRET: z.string().optional(),
+  // When true, publishToLinkedIn() returns a synthetic ok=true result
+  // without actually calling /rest/posts. Used during the App Tester
+  // smoke phase before the "Share on LinkedIn" product is verified by
+  // LinkedIn — the route + UI exercise the full code path against the
+  // real OAuth-issued token without risking a real post on the
+  // tester's profile. Flip to absent/false after the first successful
+  // real post and a DECISIONS.md entry per CLAUDE.md hard rule #9.
+  LINKEDIN_DRY_RUN: z.enum(['true', 'false']).optional(),
   // Shared bearer secret for ALL cron-triggered API routes (LinkedIn /
   // Meta insights writers, hourly photo-import retry, future cron jobs).
   // The external scheduler — GitHub Actions cron, cron-job.org, or a

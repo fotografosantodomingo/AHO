@@ -518,38 +518,186 @@ async function publishIgContainer(
 }
 
 // ============================================================
-// LinkedIn publish — stub until OAuth + partner approval
+// LinkedIn publish — POST /rest/posts (versioned API, 2024+)
 // ============================================================
 
 /**
- * Publish to LinkedIn — STUB.
- *
- * Per docs/SOCIAL_AUTOMATION_PLAN.md Phase D + Phase H: the LinkedIn
- * Marketing Developer Platform partner approval has NOT been granted.
- * Even with this code wired, real publishing requires:
- *   1. LinkedIn OAuth scaffold (start + callback) — not built yet
- *   2. Partner approval for `w_member_social` / `w_organization_social`
- *
- * Until both land, this returns `oauth_not_implemented` and the route
- * handler marks the attempt `skipped` so it doesn't pollute the
- * failure metric.
- *
- * The signature is stable so Phase E can route to it without branching
- * on platform — when LinkedIn is real, just swap the body.
+ * Default LinkedIn API version. Bumped manually after smoke-testing
+ * against a new month's API. The Posts endpoint is part of LinkedIn's
+ * versioned API surface — every call MUST pin a YYYYMM `LinkedIn-Version`
+ * header. Per env: `LINKEDIN_API_VERSION` overrides this default.
  */
-export async function publishToLinkedIn(_args: {
-  /** Member URN ('urn:li:person:{id}') or org URN ('urn:li:organization:{id}'). */
+const LINKEDIN_DEFAULT_VERSION = '202504';
+
+/**
+ * Publish to LinkedIn — personal-profile post via /rest/posts.
+ *
+ * Per DECISIONS.md 2026-05-15: scope is `w_member_social` only (member
+ * posting to their own feed). Company-page posting (org URN +
+ * `w_organization_social`) requires Marketing Developer Platform
+ * approval and stays v1.1 — `authorUrn` is typed permissively but the
+ * caller currently always passes `urn:li:person:{sub}`.
+ *
+ * Body shape per https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api:
+ *   - author: URN
+ *   - commentary: string (the prose body)
+ *   - visibility: PUBLIC | CONNECTIONS
+ *   - distribution: feedDistribution=MAIN_FEED, no targeting, no third-party
+ *   - content.article: external URL renders as a link card with title +
+ *     description (LinkedIn fetches OG tags but our post-formatter
+ *     supplies them explicitly so the card never falls back to "no
+ *     preview available")
+ *   - lifecycleState: PUBLISHED (vs DRAFT — we don't draft)
+ *
+ * Required headers:
+ *   - Authorization: Bearer <token>
+ *   - Content-Type: application/json
+ *   - LinkedIn-Version: YYYYMM
+ *   - X-Restli-Protocol-Version: 2.0.0
+ *
+ * Success: 201 Created with the post URN in the `x-restli-id` response
+ * header (e.g. `urn:li:share:7193245678901234567`). The web URL for an
+ * agent to click + verify is composed from the URN suffix.
+ *
+ * Dry-run mode (env LINKEDIN_DRY_RUN=true): returns ok=true with a
+ * synthetic id without calling LinkedIn. Used during the App Tester
+ * smoke phase before the Share-on-LinkedIn product is verified by
+ * LinkedIn — exercises the full route path against the real
+ * OAuth-issued token without risking a real post.
+ */
+export async function publishToLinkedIn(args: {
+  /** Member URN ('urn:li:person:{sub}') from the OAuth userinfo flow. */
   authorUrn: string;
-  /** OAuth 2.0 access token. */
+  /** OAuth 2.0 access token (decrypted at the route layer). */
   accessToken: string;
   post: LinkedInPost;
+  /** Optional API version override per env LINKEDIN_API_VERSION. */
+  apiVersion?: string;
+  /** When true, returns a synthetic ok result without calling LinkedIn. */
+  dryRun?: boolean;
 }): Promise<PublishResult> {
+  if (!args.authorUrn || !args.accessToken) {
+    return {
+      ok: false,
+      errorCode: 'invalid_input',
+      errorMessage: 'authorUrn and accessToken are required',
+    };
+  }
+  if (!args.post.commentary?.trim()) {
+    return {
+      ok: false,
+      errorCode: 'invalid_input',
+      errorMessage: 'LinkedInPost.commentary must be non-empty',
+    };
+  }
+  if (!args.post.contentUrl) {
+    return {
+      ok: false,
+      errorCode: 'invalid_input',
+      errorMessage: 'LinkedInPost.contentUrl must be non-empty',
+    };
+  }
+
+  if (args.dryRun) {
+    const fakeId = `urn:li:share:dryrun-${Date.now()}`;
+    return {
+      ok: true,
+      externalPostId: fakeId,
+      externalPostUrl: `https://www.linkedin.com/feed/update/${fakeId}/`,
+    };
+  }
+
+  const apiVersion = args.apiVersion ?? LINKEDIN_DEFAULT_VERSION;
+
+  const body: Record<string, unknown> = {
+    author: args.authorUrn,
+    commentary: args.post.commentary,
+    visibility: 'PUBLIC',
+    distribution: {
+      feedDistribution: 'MAIN_FEED',
+      targetEntities: [],
+      thirdPartyDistributionChannels: [],
+    },
+    content: {
+      article: {
+        source: args.post.contentUrl,
+        title: args.post.contentTitle,
+        description: args.post.contentDescription,
+        ...(args.post.contentThumbnailUrl
+          ? { thumbnail: args.post.contentThumbnailUrl }
+          : {}),
+      },
+    },
+    lifecycleState: 'PUBLISHED',
+    isReshareDisabledByAuthor: false,
+  };
+
+  let res: Response;
+  try {
+    res = await fetch('https://api.linkedin.com/rest/posts', {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${args.accessToken}`,
+        'content-type': 'application/json',
+        'linkedin-version': apiVersion,
+        'x-restli-protocol-version': '2.0.0',
+      },
+      body: JSON.stringify(body),
+    });
+  } catch (e) {
+    return {
+      ok: false,
+      errorCode: 'network_timeout',
+      errorMessage: e instanceof Error ? e.message : String(e),
+    };
+  }
+
+  if (res.status === 201) {
+    const urn = res.headers.get('x-restli-id') ?? res.headers.get('x-linkedin-id') ?? '';
+    return {
+      ok: true,
+      externalPostId: urn,
+      externalPostUrl: urn
+        ? `https://www.linkedin.com/feed/update/${urn}/`
+        : 'https://www.linkedin.com/in/me/recent-activity/all/',
+    };
+  }
+
+  const errorText = await res.text().catch(() => '');
+  // LinkedIn surfaces structured errors via x-li-error-* headers AND
+  // a JSON body { code?, message?, serviceErrorCode? }. We map the
+  // outer status code first since it's most reliable.
+  if (res.status === 401) {
+    return {
+      ok: false,
+      errorCode: 'token_invalid',
+      errorMessage: `LinkedIn 401: ${errorText.slice(0, 200)}`,
+    };
+  }
+  if (res.status === 403) {
+    return {
+      ok: false,
+      errorCode: 'permission_denied',
+      errorMessage: `LinkedIn 403: ${errorText.slice(0, 200)}`,
+    };
+  }
+  if (res.status === 429) {
+    return {
+      ok: false,
+      errorCode: 'rate_limited',
+      errorMessage: `LinkedIn 429: ${errorText.slice(0, 200)}`,
+    };
+  }
+  if (res.status >= 500 && res.status < 600) {
+    return {
+      ok: false,
+      errorCode: 'transient_5xx',
+      errorMessage: `LinkedIn ${res.status}: ${errorText.slice(0, 200)}`,
+    };
+  }
   return {
     ok: false,
-    errorCode: 'oauth_not_implemented',
-    errorMessage:
-      'LinkedIn publish is gated on Marketing Developer Platform partner approval ' +
-      '(docs/SOCIAL_AUTOMATION_PLAN.md Phase D + Phase H). Wire OAuth + flip this ' +
-      'stub once approved.',
+    errorCode: 'unknown',
+    errorMessage: `LinkedIn ${res.status}: ${errorText.slice(0, 200)}`,
   };
 }

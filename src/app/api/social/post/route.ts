@@ -461,11 +461,19 @@ export async function POST(req: NextRequest) {
             });
           }
         } else {
-          // LinkedIn — Phase D stub returns oauth_not_implemented.
+          // LinkedIn — real /rest/posts call (DECISIONS.md 2026-05-15
+          // pulled this in from v1.1). external_account_id is the OIDC
+          // sub from /v2/userinfo; we compose the author URN here so
+          // the publish primitive doesn't have to know the URN scheme.
+          const authorUrn = t.externalAccountId.startsWith('urn:')
+            ? t.externalAccountId
+            : `urn:li:person:${t.externalAccountId}`;
           result = await publishToLinkedIn({
-            authorUrn: t.externalAccountId,
+            authorUrn,
             accessToken: tokenPlain as string,
             post: pickLinkedInPost(postInput, body.overrides?.linkedin),
+            apiVersion: env.LINKEDIN_API_VERSION,
+            dryRun: env.LINKEDIN_DRY_RUN === 'true',
           });
         }
       } catch (err) {
