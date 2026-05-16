@@ -73,6 +73,25 @@ jobs:
           echo "Trimmed worker bundle:"
           du -sh .vercel/output/static/_worker.js || true
 
+      # next-on-pages copies most public/* files to the output but
+      # `_headers` + `_redirects` are Cloudflare-Pages-specific config
+      # files that the next-on-pages build pipeline doesn't always
+      # forward (depends on the version + the Vercel output spec
+      # interpretation). Explicit copy guarantees they land at the
+      # deploy-output root where Pages reads them.
+      # Symptom that surfaced 2026-05-16: Lighthouse Best Practices
+      # dropped 96 → 73 because the CSP / HSTS / COOP / XFO headers
+      # never reached production — public/_headers was in the commit
+      # but missing from the deployed dir.
+      - name: Copy _headers + _redirects into deploy root
+        run: |
+          for f in _headers _redirects; do
+            if [ -f "public/$f" ] && [ ! -f ".vercel/output/static/$f" ]; then
+              cp "public/$f" ".vercel/output/static/$f"
+              echo "Copied public/$f → .vercel/output/static/$f"
+            fi
+          done
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
