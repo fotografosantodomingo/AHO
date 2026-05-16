@@ -91,7 +91,7 @@ export async function SiteHeader({ locale }: Props) {
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/logo.png"
+              src="/logo.png?v=3"
               alt="AHO — Advertise Homes Online"
               width={40}
               height={40}

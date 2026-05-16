@@ -619,13 +619,18 @@ export function EditListingForm({ initial }: Props) {
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  // div + h3 rather than fieldset + legend: native <legend> floats onto
+  // the parent's top border, which clipped through `rounded-card` and
+  // made the heading look like it had escaped the frame. Each Field's
+  // <label> + form-element pairing keeps the form accessible without
+  // the fieldset grouping (which we weren't using semantically anyway).
   return (
-    <fieldset className="space-y-3 rounded-card border border-border bg-surface p-5 shadow-whisper dark:bg-surface-deep">
-      <legend className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
+    <section className="space-y-3 rounded-card border border-border bg-surface p-5 shadow-whisper dark:bg-surface-deep">
+      <h3 className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper">
         {title}
-      </legend>
-      <div className="space-y-3 pt-1">{children}</div>
-    </fieldset>
+      </h3>
+      <div className="space-y-3">{children}</div>
+    </section>
   );
 }
 

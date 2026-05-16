@@ -130,9 +130,9 @@ export default async function EditListingPage({
 
   return (
     <main className="space-y-6">
-      <header className="flex items-center justify-between">
-        <div>
-          <h1 className="font-brand text-2xl font-semibold tracking-tight md:text-[26px] md:leading-[1.19]">
+      <header className="space-y-4">
+        <div className="min-w-0">
+          <h1 className="break-words font-brand text-2xl font-semibold tracking-tight md:text-[26px] md:leading-[1.19]">
             {title}
           </h1>
           <p className="mt-1 text-sm text-helper">
@@ -140,7 +140,7 @@ export default async function EditListingPage({
             {tStatus(listing.status)}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {publicPath && (
             <a
               href={publicPath}
