@@ -116,7 +116,7 @@ export function UpgradeConfirmCard({
 
       {welcomeBonusLabel && (
         <p className="mt-3 text-xs text-helper">
-          You're still inside the 3-day window from your first payment. The
+          You&apos;re still inside the 3-day window from your first payment. The
           WELCOME5 coupon (5% off) is applied automatically when you confirm.
         </p>
       )}
