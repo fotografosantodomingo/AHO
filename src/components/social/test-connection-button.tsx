@@ -91,9 +91,14 @@ export function TestConnectionButton({
     return (
       <span
         title={`${state.errorCode}: ${state.errorMessage}`}
-        className="inline-flex items-center gap-1 rounded-md border border-red-500/30 bg-red-500/10 px-1.5 py-0.5 text-xs font-medium text-red-700 dark:text-red-300"
+        className="inline-flex max-w-full items-center gap-1 rounded-md border border-red-500/30 bg-red-500/10 px-1.5 py-0.5 text-xs font-medium text-red-700 dark:text-red-300"
       >
-        ✗ {state.errorCode}
+        <span className="shrink-0">✗ {state.errorCode}</span>
+        {state.errorMessage && state.errorMessage !== state.errorCode && (
+          <span className="truncate text-red-600/80 dark:text-red-300/80">
+            — {state.errorMessage}
+          </span>
+        )}
       </span>
     );
   }
