@@ -101,7 +101,7 @@ export function ImportPanel({ successRedirectBase }: Props) {
       : null;
     return (
       <div className="space-y-4">
-        <div className="rounded-card border border-emerald-500/30 bg-emerald-500/5 p-4 text-sm text-emerald-800 dark:text-emerald-300">
+        <div className="rounded-card border border-emerald-500/30 bg-emerald-500/5 p-4 text-sm text-emerald-900 dark:text-emerald-200">
           <p className="font-semibold">{bannerHeading}</p>
           <p className="mt-1">
             {t('bannerReview')}

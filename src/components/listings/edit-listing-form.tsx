@@ -102,6 +102,9 @@ export function EditListingForm({ initial }: Props) {
   // Amenities (chips)
   const [amenities, setAmenities] = useState<string[]>(initial.amenities ?? []);
   const [amenityDraft, setAmenityDraft] = useState('');
+  const [amenityHint, setAmenityHint] = useState<
+    'empty' | 'too_long' | 'duplicate' | null
+  >(null);
 
   // Features — typed
   const [features, setFeatures] = useState<PropertyFeatures>(initialFeatures);
@@ -188,10 +191,26 @@ export function EditListingForm({ initial }: Props) {
 
   function addAmenity() {
     const v = amenityDraft.trim();
-    if (v.length === 0 || v.length > 60) return;
-    if (amenities.includes(v)) return;
+    if (v.length === 0) {
+      setAmenityHint('empty');
+      return;
+    }
+    if (v.length > 60) {
+      setAmenityHint('too_long');
+      return;
+    }
+    // Case-insensitive dedup. Imported amenities sometimes arrive as
+    // lowercase ('pool') while user might re-type 'Pool' — silently
+    // rejecting both with no feedback was the previous bug.
+    if (amenities.some((a) => a.toLowerCase() === v.toLowerCase())) {
+      setAmenityHint('duplicate');
+      // Still clear the input so user sees something happen.
+      setAmenityDraft('');
+      return;
+    }
     setAmenities([...amenities, v]);
     setAmenityDraft('');
+    setAmenityHint(null);
   }
 
   return (
@@ -392,7 +411,10 @@ export function EditListingForm({ initial }: Props) {
             <input
               type="text"
               value={amenityDraft}
-              onChange={(e) => setAmenityDraft(e.target.value)}
+              onChange={(e) => {
+                setAmenityDraft(e.target.value);
+                if (amenityHint) setAmenityHint(null);
+              }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
@@ -411,6 +433,15 @@ export function EditListingForm({ initial }: Props) {
               {t('amenitiesAdd')}
             </button>
           </div>
+          {amenityHint && (
+            <p className="mt-1 text-xs text-amber-700 dark:text-amber-300" role="status">
+              {amenityHint === 'duplicate'
+                ? t('amenitiesHintDuplicate')
+                : amenityHint === 'empty'
+                ? t('amenitiesHintEmpty')
+                : t('amenitiesHintTooLong')}
+            </p>
+          )}
         </Field>
       </Section>
 
