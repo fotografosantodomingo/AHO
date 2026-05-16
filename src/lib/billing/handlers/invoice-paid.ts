@@ -4,6 +4,8 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getStripeClient } from '../stripe';
 import { sendEmail } from '@/lib/email/brevo';
 import { renderAdminPaymentReceivedEmail } from '@/lib/email/templates/admin-payment-received';
+import { renderPaymentReceiptEmail } from '@/lib/email/templates/payment-receipt';
+import { publicEnv } from '@/lib/env';
 import { formatPrice } from '@/lib/listings/format';
 import {
   findSubscriptionRowId,
@@ -133,5 +135,111 @@ export async function handleInvoicePaid(event: Stripe.Event): Promise<void> {
       console.error('[invoice.paid] admin notification threw', e);
     }
   }
+
+  // ----- Customer-facing receipt (always, on every successful invoice) -----
+  // Separate try/catch so admin notification + customer receipt are
+  // independent failure domains. Either can fail without blocking the
+  // other or the webhook ack.
+  if (wasFreshInsert) {
+    try {
+      const customerEmail =
+        (invoice.customer_email as string | null) ??
+        ((invoice.customer as { email?: string | null } | null)?.email ?? null);
+      if (!customerEmail) {
+        console.warn('[invoice.paid] no customer email on invoice; skip receipt');
+      } else {
+        const customerName =
+          (invoice.customer_name as string | null) ??
+          ((invoice.customer as { name?: string | null } | null)?.name ?? null);
+        const amountLabel = formatPrice(
+          invoice.amount_paid ?? 0,
+          invoice.currency.toUpperCase(),
+          'en',
+        );
+        // Resolve plan label + isOnMonthly from the subscription's plan_id.
+        // Subscription fresh-fetched above; we just need the price metadata.
+        const priceItem = sub.items.data[0];
+        const recurring = priceItem?.price?.recurring;
+        const isOnMonthly = recurring?.interval === 'month';
+        const planLabel = resolvePlanLabel(sub);
+
+        // Next renewal — sub.current_period_end is a unix timestamp.
+        const nextRenewalDate = new Date(
+          (sub.current_period_end ?? Date.now() / 1000) * 1000,
+        ).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        });
+
+        // Welcome window — 3 days from the FIRST paid invoice on this
+        // subscription. We approximate with `sub.created` (creation time)
+        // since the first invoice's `created` matches sub.created
+        // closely enough for the cutoff.
+        const createdMs = (sub.created ?? Date.now() / 1000) * 1000;
+        const inWelcomeWindow = Date.now() - createdMs < 3 * 24 * 60 * 60 * 1000;
+
+        const { NEXT_PUBLIC_SITE_URL } = publicEnv();
+        // Upgrade URL — points at the billing portal's "switch plan"
+        // surface with a query hint that the API can use to apply the
+        // WELCOME5 coupon when the user is still in-window. The coupon
+        // itself is a server-side guard, not a client-trustable hint;
+        // see /api/billing/checkout-session for the verification logic.
+        const upgradeUrl = `${NEXT_PUBLIC_SITE_URL}/en/dashboard/billing?upgrade=annual${
+          inWelcomeWindow ? '&welcome=1' : ''
+        }`;
+        const billingPortalUrl = `${NEXT_PUBLIC_SITE_URL}/en/dashboard/billing`;
+        const hostedInvoiceUrl =
+          (invoice.hosted_invoice_url as string | null) ?? null;
+
+        const email = renderPaymentReceiptEmail({
+          customerName,
+          amountLabel,
+          planLabel,
+          nextRenewalDate,
+          hostedInvoiceUrl,
+          billingPortalUrl,
+          isOnMonthly,
+          upgradeUrl,
+          inWelcomeWindow,
+        });
+        const sendResult = await sendEmail({
+          to: customerEmail,
+          subject: email.subject,
+          html: email.html,
+        });
+        if (!sendResult.sent) {
+          console.warn(
+            '[invoice.paid] customer receipt not sent',
+            sendResult.error,
+          );
+        }
+      }
+    } catch (e) {
+      console.error('[invoice.paid] customer receipt threw', e);
+    }
+  }
+}
+
+/**
+ * Resolve a human-friendly plan label from a Stripe subscription. Order:
+ *   1. price.nickname (set in dashboard when we created the product)
+ *   2. product.name from the expanded item (if loaded)
+ *   3. Fallback to interval-based label
+ *
+ * Keeps the receipt readable even when Stripe metadata is incomplete.
+ */
+function resolvePlanLabel(sub: Stripe.Subscription): string {
+  const item = sub.items.data[0];
+  if (!item) return 'AHO subscription';
+  const price = item.price;
+  if (price.nickname) return price.nickname;
+  const product = price.product;
+  if (typeof product === 'object' && product != null && 'name' in product) {
+    const name = (product as { name?: string }).name;
+    if (name) return name;
+  }
+  const interval = price.recurring?.interval;
+  return interval === 'year' ? 'AHO annual subscription' : 'AHO monthly subscription';
 }
 
