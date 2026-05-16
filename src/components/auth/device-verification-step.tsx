@@ -236,7 +236,7 @@ export function DeviceVerificationStep({
             onKeyDown={(e) => onKeyDown(i, e)}
             onPaste={onPaste}
             onFocus={(e) => e.target.select()}
-            className="h-14 w-12 rounded-lg border border-border-strong bg-surface text-center font-mono text-2xl shadow-whisper outline-hidden focus:ring-3 focus:ring-action disabled:opacity-50 dark:bg-surface-deep dark:focus:ring-action-dark"
+            className="h-11 w-10 rounded-lg border border-border-strong bg-surface text-center font-mono text-xl shadow-whisper outline-hidden focus:ring-3 focus:ring-action disabled:opacity-50 dark:bg-surface-deep dark:focus:ring-action-dark"
           />
         ))}
       </div>
