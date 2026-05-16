@@ -1210,7 +1210,12 @@
     "share": {
       "heading": "Comparte en tus redes",
       "body": "Publica esta propiedad en tus Páginas de Facebook y cuentas de Instagram Business conectadas con un clic.",
-      "willPost": "{count, plural, =1 {Se publicará en 1 cuenta} other {Se publicará en # cuentas}}.",
+      "willPost": "{count, plural, =0 {Ninguna cuenta seleccionada} =1 {Se publicará en 1 cuenta} other {Se publicará en # cuentas}}.",
+      "accountSelectionLegend": "Elige a qué cuentas conectadas publicar",
+      "accountSelectionHint": "Desmarca cualquier cuenta a la que no quieras publicar esta vez.",
+      "accountSelectAll": "Seleccionar todo",
+      "accountSelectNone": "Quitar todo",
+      "selectAtLeastOne": "Selecciona al menos una cuenta primero.",
       "shareNow": "Publicar ahora",
       "posting": "Publicando…",
       "retryFailed": "Reintentar fallidos",

@@ -70,6 +70,12 @@ const BodySchema = z.object({
   platforms: z
     .array(z.enum(['facebook', 'instagram', 'linkedin']))
     .optional(),
+  /** Optional per-account selection — when present, only the listed
+   *  external_account_id values get a publish attempt. Agents toggle
+   *  this from the pre-flight list (e.g. 7 FB Pages connected, agent
+   *  only wants to post to 2). When omitted, behaviour is "all
+   *  connected accounts" — same as before this was added. */
+  accountIds: z.array(z.string().min(1)).optional(),
   /** Phase J — agent-edited caption overrides. Per platform; when
    *  present we bypass the deterministic formatter for that platform's
    *  prose. Plumbing (UTM-tagged link, imageUrl, LinkedIn title +
@@ -308,9 +314,13 @@ export async function POST(req: NextRequest) {
 
   // Optional platform filter.
   const requestedSet = body.platforms ? new Set(body.platforms) : null;
-  const filteredTargets = requestedSet
-    ? targets.filter((t) => requestedSet.has(t.platform))
-    : targets;
+  // Optional per-account filter (subset of external_account_id values).
+  const accountIdSet = body.accountIds ? new Set(body.accountIds) : null;
+  const filteredTargets = targets.filter((t) => {
+    if (requestedSet && !requestedSet.has(t.platform)) return false;
+    if (accountIdSet && !accountIdSet.has(t.externalAccountId)) return false;
+    return true;
+  });
 
   if (filteredTargets.length === 0) {
     return NextResponse.json(

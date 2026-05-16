@@ -1210,7 +1210,12 @@
     "share": {
       "heading": "Share to my socials",
       "body": "Publish this listing to your connected Facebook Pages and Instagram Business accounts in one click.",
-      "willPost": "{count, plural, =1 {Will post to 1 account} other {Will post to # accounts}}.",
+      "willPost": "{count, plural, =0 {No accounts selected} =1 {Will post to 1 account} other {Will post to # accounts}}.",
+      "accountSelectionLegend": "Choose which connected accounts to post to",
+      "accountSelectionHint": "Uncheck any account you don't want to post to this time.",
+      "accountSelectAll": "Select all",
+      "accountSelectNone": "Clear all",
+      "selectAtLeastOne": "Select at least one account first.",
       "shareNow": "Share now",
       "posting": "Posting…",
       "retryFailed": "Retry failed",

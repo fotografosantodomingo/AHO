@@ -107,6 +107,25 @@ export function ShareToSocials({
   const [drafting, setDrafting] = useState(false);
   const [drafts, setDrafts] = useState<DraftResponse['drafts'] | null>(null);
   const [edits, setEdits] = useState<Partial<Record<SharePlatform, string>>>({});
+
+  // Per-account selection. Default = all checked (current behaviour).
+  // Agent unchecks accounts they don't want to post to (e.g. has 7 FB
+  // Pages but only wants to share to the AHO Page + their personal page).
+  const [selectedAccountIds, setSelectedAccountIds] = useState<Set<string>>(
+    () => new Set(connectedAccounts.map((a) => a.externalAccountId)),
+  );
+  const toggleAccount = (id: string) =>
+    setSelectedAccountIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  const selectAll = () =>
+    setSelectedAccountIds(
+      new Set(connectedAccounts.map((a) => a.externalAccountId)),
+    );
+  const selectNone = () => setSelectedAccountIds(new Set());
   const [aiUnavailable, setAiUnavailable] = useState(false);
 
   const platformsInScope = distinctPlatforms(connectedAccounts);
@@ -203,6 +222,12 @@ export function ShareToSocials({
       }
       const hasOverrides = Object.keys(overrides).length > 0;
 
+      // Only send accountIds when the user has narrowed selection
+      // below the full set (avoid sending a redundant filter that says
+      // "all accounts" — both forms are equivalent server-side, but
+      // omitting the field keeps the network payload + audit logs cleaner).
+      const isFullSelection =
+        selectedAccountIds.size === connectedAccounts.length;
       const res = await fetch('/api/social/post', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -210,6 +235,9 @@ export function ShareToSocials({
           propertyId,
           locale,
           ...(platformsToInclude ? { platforms: platformsToInclude } : {}),
+          ...(isFullSelection
+            ? {}
+            : { accountIds: [...selectedAccountIds] }),
           ...(hasOverrides ? { overrides } : {}),
         }),
       });
@@ -286,7 +314,7 @@ export function ShareToSocials({
             {t('body')}
           </p>
           <p className="mt-1 text-xs text-helper">
-            {t('willPost', { count: connectedAccounts.length })}
+            {t('willPost', { count: selectedAccountIds.size })}
           </p>
         </div>
         {isPublished ? (
@@ -306,8 +334,11 @@ export function ShareToSocials({
             <button
               type="button"
               onClick={() => submit()}
-              disabled={posting || drafting}
+              disabled={posting || drafting || selectedAccountIds.size === 0}
               className="btn-primary inline-flex h-10 items-center px-5 disabled:opacity-50"
+              title={
+                selectedAccountIds.size === 0 ? t('selectAtLeastOne') : undefined
+              }
             >
               {posting ? t('posting') : t('shareNow')}
             </button>
@@ -315,20 +346,64 @@ export function ShareToSocials({
         ) : null}
       </header>
 
-      {/* Pre-flight account list */}
-      <ul className="mt-4 space-y-1.5">
-        {connectedAccounts.map((a) => (
-          <li
-            key={`${a.platform}:${a.externalAccountId}`}
-            className="flex items-center gap-2 text-sm text-ink-muted dark:text-ink-inverse-muted"
-          >
-            <span aria-hidden="true">{PLATFORM_EMOJI[a.platform]}</span>
-            <span className="font-medium text-ink dark:text-ink-inverse">
-              {a.displayName ?? a.externalAccountId}
-            </span>
-          </li>
-        ))}
-      </ul>
+      {/* Pre-flight account list — checkboxes let the agent narrow
+          the post to a subset (e.g. 7 FB Pages connected, only 2 are
+          on-brand for this listing). Default = all checked. */}
+      <fieldset className="mt-4">
+        <legend className="sr-only">{t('accountSelectionLegend')}</legend>
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-xs text-helper">
+          <span>{t('accountSelectionHint')}</span>
+          <span className="inline-flex gap-2">
+            <button
+              type="button"
+              onClick={selectAll}
+              className="underline-offset-2 hover:underline disabled:opacity-50"
+              disabled={selectedAccountIds.size === connectedAccounts.length}
+            >
+              {t('accountSelectAll')}
+            </button>
+            <span aria-hidden="true">·</span>
+            <button
+              type="button"
+              onClick={selectNone}
+              className="underline-offset-2 hover:underline disabled:opacity-50"
+              disabled={selectedAccountIds.size === 0}
+            >
+              {t('accountSelectNone')}
+            </button>
+          </span>
+        </div>
+        <ul className="space-y-1.5">
+          {connectedAccounts.map((a) => {
+            const checked = selectedAccountIds.has(a.externalAccountId);
+            return (
+              <li
+                key={`${a.platform}:${a.externalAccountId}`}
+                className="flex items-center gap-2 text-sm"
+              >
+                <label className="inline-flex flex-1 cursor-pointer items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => toggleAccount(a.externalAccountId)}
+                    className="h-4 w-4 rounded-sm border-border-strong text-action focus:ring-action"
+                  />
+                  <span aria-hidden="true">{PLATFORM_EMOJI[a.platform]}</span>
+                  <span
+                    className={
+                      checked
+                        ? 'font-medium text-ink dark:text-ink-inverse'
+                        : 'text-ink-muted line-through opacity-60 dark:text-ink-inverse-muted'
+                    }
+                  >
+                    {a.displayName ?? a.externalAccountId}
+                  </span>
+                </label>
+              </li>
+            );
+          })}
+        </ul>
+      </fieldset>
 
       {!isPublished && (
         <p
