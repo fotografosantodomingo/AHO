@@ -151,13 +151,17 @@ export default async function PropertyDetailPage({
   const transactionLabel = t(`transactionType.${property.transactionType}`);
   const periodLabel = property.pricePeriod ? t(`pricePeriod.${property.pricePeriod}`) : '';
 
-  const jsonLd = buildListingJsonLd({ property, locale: typedLocale });
   const urls = listingUrls(property);
 
   // Public-safe contact info — only present when listing is active+published
   // (the SECURITY DEFINER function filters that). WhatsApp link is built only
   // if the agent's phone passes the digit-count sanity check.
   const contact = await fetchListingContact(property.id);
+
+  // JSON-LD built after `contact` is loaded so we can wire the agent as
+  // `seller` + emit a separate RealEstateAgent @graph node (boosts rich-
+  // snippet eligibility vs an anonymous offer).
+  const jsonLd = buildListingJsonLd({ property, locale: typedLocale, contact });
 
   // Price-history timeline. Reads audit_log via the public-read policy
   // added in 0014 — only event kinds (price_changed, sold, rented) on

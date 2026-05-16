@@ -1,5 +1,5 @@
 import 'server-only';
-import type { PropertyDetail } from './queries';
+import type { PropertyDetail, ListingContact } from './queries';
 import type { Locale } from '@/i18n/config';
 import { formatPrice } from './format';
 import { getCountryName } from '@/lib/i18n/countries';
@@ -8,6 +8,7 @@ import { getCountryName } from '@/lib/i18n/countries';
 export { formatPrice };
 
 const SITE_ORIGIN = 'https://advertisehomes.online';
+const PUBLISHER_NAME = 'Advertise Homes Online';
 
 /**
  * Resolve the canonical EN/ES URLs for a property. Returns `null` for either
@@ -34,6 +35,13 @@ interface SeoMeta {
   alternates: { en?: string; es?: string; xDefault?: string };
   ogImage: string | null;
   imageUrls: string[];
+  /** Per-image objects (width / height / caption) for richer JSON-LD. */
+  imageObjects: Array<{
+    url: string;
+    width: number | null;
+    height: number | null;
+    caption: string | null;
+  }>;
 }
 
 /** Build the SEO metadata block from a property + locale. */
@@ -54,7 +62,19 @@ export function buildSeoMeta({ property: p, locale }: BuildMetaArgs): SeoMeta {
   const cityCountry = `${p.city}, ${getCountryName(p.countryCode, locale)}`;
   const seoTitle = `${price} · ${title}${bedSegment} · ${cityCountry}`;
 
-  const seoDescription = truncated || `${title} — ${cityCountry}. ${price}.`;
+  // Description fallback chain — ensures the <meta name="description"> tag
+  // ALWAYS has content, even on listings with empty descriptions (Lighthouse
+  // SEO audit 2026-05-16 flagged "Document does not have a meta description"
+  // on a real listing that lacked descriptionEn/Es). The fallback synthesizes
+  // a one-liner from facts we always have.
+  const bbSegment =
+    p.bedrooms != null && p.bathrooms != null
+      ? ` ${p.bedrooms} bed, ${p.bathrooms} bath.`
+      : '';
+  const areaSegment = p.areaSqm != null ? ` ${p.areaSqm} m².` : '';
+  const synthDescription =
+    `${title} in ${cityCountry}. ${price}${p.pricePeriod === 'monthly' ? '/mo' : ''}.${bbSegment}${areaSegment} See full details, photos, and contact the agent on AHO.`.trim();
+  const seoDescription = truncated || synthDescription;
 
   const urls = listingUrls(p);
   const canonical = (locale === 'es' ? urls.es : urls.en) ?? urls.en ?? urls.es ?? `${SITE_ORIGIN}`;
@@ -84,57 +104,331 @@ export function buildSeoMeta({ property: p, locale }: BuildMetaArgs): SeoMeta {
             `https://imagedelivery.net/${cfImagesHash}/${i.cfImageId}/full`,
         )
     : [];
+  const imageObjects: SeoMeta['imageObjects'] = cfImagesHash
+    ? p.images
+        .filter((i) => i.cfImageId)
+        .map((i) => ({
+          url: `https://imagedelivery.net/${cfImagesHash}/${i.cfImageId}/full`,
+          width: i.width,
+          height: i.height,
+          caption: (locale === 'es' ? i.altTextEs : i.altTextEn) ?? null,
+        }))
+    : [];
 
-  return { title: seoTitle, description: seoDescription, canonical, alternates, ogImage, imageUrls };
+  return { title: seoTitle, description: seoDescription, canonical, alternates, ogImage, imageUrls, imageObjects };
 }
 
 /**
- * Build a `RealEstateListing` JSON-LD object for the property. Per HANDOFF
- * §16.3 / spec §16.3 — `address` directly as `PostalAddress`, `offers` as
- * `Offer`, `floorSize` as `QuantitativeValue` with `MTK` (m²). Geo block
- * (lat/lng) is intentionally omitted in v1 — generated columns or an RPC
- * for parsed PostGIS coordinates will land alongside the map view.
+ * Map `properties.property_type` to the closest Schema.org Accommodation
+ * subtype. Falls back to the generic RealEstateListing wrapper's @type when
+ * we don't have a confident mapping — better to be conservative than to
+ * misclassify (a "land" listing as "House" would mislead search bots).
  */
-export function buildListingJsonLd({ property: p, locale }: BuildMetaArgs) {
-  const meta = buildSeoMeta({ property: p, locale });
+function accommodationTypeFor(propertyType: string): string | null {
+  const t = propertyType.toLowerCase();
+  if (t === 'house' || t === 'villa' || t === 'townhouse' || t === 'bungalow') {
+    return t === 'house' ? 'House' : 'SingleFamilyResidence';
+  }
+  if (t === 'apartment' || t === 'studio' || t === 'condo' || t === 'penthouse') return 'Apartment';
+  if (t === 'land' || t === 'plot') return 'Place';
+  if (t === 'commercial' || t === 'office' || t === 'retail') return 'CommercialProperty';
+  return null;
+}
 
-  const node: Record<string, unknown> = {
-    '@context': 'https://schema.org',
-    '@type': 'RealEstateListing',
-    '@id': meta.canonical,
-    url: meta.canonical,
-    name: meta.title,
-    description: meta.description,
+interface BuildJsonLdArgs extends BuildMetaArgs {
+  /** Optional agent contact — when present, embedded as the listing's
+   *  `seller` + `broker` (a RealEstateAgent). Improves search rich-snippet
+   *  eligibility because Google likes seeing a real human linked to the
+   *  property. */
+  contact?: ListingContact | null;
+  /** Optional aggregate-rating block when the agent has reviews on AHO.
+   *  Reviews are agent-scoped, not listing-scoped — but Google's rich
+   *  results spec allows attaching the agent's aggregateRating to each
+   *  of their listings as long as we make the relationship clear via
+   *  `itemReviewed`. */
+  reviewSummary?: { count: number; avg: number } | null;
+}
+
+/**
+ * Build a comprehensive `RealEstateListing` JSON-LD object. State-of-the-art
+ * for 2026 — covers every field Schema.org defines that we have data for,
+ * plus the AHO publisher attribution + agent-as-seller wiring search engines
+ * use for rich snippets.
+ *
+ * Returns an array of @graph nodes so the consumer can render one
+ * `<script type="application/ld+json">` block per page that contains:
+ *   1. WebSite (publisher context, sitelinks search box eligibility)
+ *   2. Organization (AHO as the publisher / brand)
+ *   3. RealEstateListing (the listing itself, with nested accommodation,
+ *      offer, address, geo when available, image array, amenityFeature[],
+ *      additionalProperty[] for non-canonical attributes like yearBuilt,
+ *      lotSize, parking, heating)
+ *   4. RealEstateAgent (the seller, when contact info is available)
+ *   5. BreadcrumbList (Home → Properties in {Country} → {City} → listing)
+ *
+ * The @graph form is preferred over multiple separate <script> blocks per
+ * Google's documentation — single fetch, single parse, explicit relationships
+ * between nodes.
+ */
+export function buildListingJsonLd({ property: p, locale, contact, reviewSummary }: BuildJsonLdArgs) {
+  const meta = buildSeoMeta({ property: p, locale });
+  const canonical = meta.canonical;
+  const accommodationType = accommodationTypeFor(p.propertyType);
+
+  // -------- 1. WebSite (publisher) --------
+  const websiteNode: Record<string, unknown> = {
+    '@type': 'WebSite',
+    '@id': `${SITE_ORIGIN}/#website`,
+    url: SITE_ORIGIN,
+    name: PUBLISHER_NAME,
+    publisher: { '@id': `${SITE_ORIGIN}/#organization` },
     inLanguage: locale,
-    datePosted: p.publishedAt ?? p.createdAt,
-    dateModified: p.updatedAt,
-    address: {
-      '@type': 'PostalAddress',
-      addressLocality: p.city,
-      addressRegion: p.stateRegion ?? undefined,
-      addressCountry: p.countryCode,
-      postalCode: p.postalCode ?? undefined,
-      // Street line is shown only when the agent opted in.
-      streetAddress: p.displayAddress ? (p.addressLine ?? undefined) : undefined,
-    },
-    offers: {
-      '@type': 'Offer',
-      price: (p.priceCents / 100).toFixed(0),
-      priceCurrency: p.currency,
-      availability: 'https://schema.org/InStock',
-    },
   };
 
-  if (p.bedrooms != null) node.numberOfBedrooms = p.bedrooms;
-  if (p.bathrooms != null) node.numberOfBathroomsTotal = p.bathrooms;
+  // -------- 2. Organization (AHO) --------
+  const orgNode: Record<string, unknown> = {
+    '@type': 'Organization',
+    '@id': `${SITE_ORIGIN}/#organization`,
+    name: PUBLISHER_NAME,
+    url: SITE_ORIGIN,
+    logo: `${SITE_ORIGIN}/icon.png`,
+    sameAs: [
+      'https://www.facebook.com/profile.php?id=61580170197960',
+      'https://www.linkedin.com/company/advertise-homes-online',
+    ],
+  };
+
+  // -------- 3. RealEstateListing (main) --------
+  const offerNode: Record<string, unknown> = {
+    '@type': 'Offer',
+    price: (p.priceCents / 100).toFixed(0),
+    priceCurrency: p.currency,
+    availability: p.status === 'active' ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+    url: canonical,
+    seller: contact?.agentFullName
+      ? { '@id': `${canonical}#agent` }
+      : { '@id': `${SITE_ORIGIN}/#organization` },
+    ...(p.publishedAt ? { validFrom: p.publishedAt } : {}),
+  };
+
+  // For rentals, attach a UnitPriceSpecification so search engines know
+  // the price is /period rather than total. Sale listings use the plain
+  // Offer.price.
+  if (p.transactionType !== 'sale' && p.pricePeriod) {
+    const referenceQuantity: Record<string, unknown> = {
+      '@type': 'QuantitativeValue',
+      value: 1,
+      unitCode:
+        p.pricePeriod === 'monthly'
+          ? 'MON'
+          : p.pricePeriod === 'weekly'
+            ? 'WEE'
+            : p.pricePeriod === 'nightly'
+              ? 'DAY'
+              : 'ANN',
+    };
+    offerNode.priceSpecification = {
+      '@type': 'UnitPriceSpecification',
+      price: (p.priceCents / 100).toFixed(0),
+      priceCurrency: p.currency,
+      referenceQuantity,
+    };
+  }
+
+  const addressNode: Record<string, unknown> = {
+    '@type': 'PostalAddress',
+    addressLocality: p.city,
+    addressCountry: p.countryCode,
+    ...(p.stateRegion ? { addressRegion: p.stateRegion } : {}),
+    ...(p.postalCode ? { postalCode: p.postalCode } : {}),
+    ...(p.displayAddress && p.addressLine ? { streetAddress: p.addressLine } : {}),
+  };
+
+  // additionalProperty[] — surface non-canonical facts (yearBuilt, lotSize,
+  // parking, heating, etc.) without polluting the top-level node. Google
+  // reads these for the "Property details" card in rich results.
+  const additionalProperty: Array<Record<string, unknown>> = [];
+  if (p.yearBuilt != null) {
+    additionalProperty.push({
+      '@type': 'PropertyValue',
+      name: 'yearBuilt',
+      value: p.yearBuilt,
+    });
+  }
+  if (p.lotSizeSqm != null) {
+    additionalProperty.push({
+      '@type': 'PropertyValue',
+      name: 'lotSize',
+      value: p.lotSizeSqm,
+      unitCode: 'MTK',
+    });
+  }
+  additionalProperty.push({
+    '@type': 'PropertyValue',
+    name: 'transactionType',
+    value: p.transactionType,
+  });
+  additionalProperty.push({
+    '@type': 'PropertyValue',
+    name: 'propertyType',
+    value: p.propertyType,
+  });
+
+  // amenityFeature[] — one LocationFeatureSpecification per unit amenity.
+  // Free-text amenities map to `name`; we set `value: true` because Schema.org's
+  // LocationFeatureSpecification.value is a boolean for binary features.
+  const amenityFeature = (p.amenities ?? []).map((a) => ({
+    '@type': 'LocationFeatureSpecification',
+    name: a,
+    value: true,
+  }));
+
+  // image[] — explicit ImageObject array (with width/height) is more
+  // valuable than a flat URL list. Google's "Image rich results" needs
+  // dimensions to qualify.
+  const imageNodes = meta.imageObjects.length > 0
+    ? meta.imageObjects.map((img) => ({
+        '@type': 'ImageObject',
+        url: img.url,
+        ...(img.width ? { width: img.width } : {}),
+        ...(img.height ? { height: img.height } : {}),
+        ...(img.caption ? { caption: img.caption } : {}),
+      }))
+    : meta.imageUrls;
+
+  const listingNode: Record<string, unknown> = {
+    '@type': 'RealEstateListing',
+    '@id': canonical,
+    mainEntityOfPage: canonical,
+    url: canonical,
+    name: meta.title,
+    headline: meta.title,
+    description: meta.description,
+    inLanguage: locale,
+    isAccessibleForFree: true,
+    datePosted: p.publishedAt ?? p.createdAt,
+    dateModified: p.updatedAt,
+    address: addressNode,
+    offers: offerNode,
+    publisher: { '@id': `${SITE_ORIGIN}/#organization` },
+    isPartOf: { '@id': `${SITE_ORIGIN}/#website` },
+    ...(imageNodes.length > 0 ? { image: imageNodes } : {}),
+    ...(amenityFeature.length > 0 ? { amenityFeature } : {}),
+    ...(additionalProperty.length > 0 ? { additionalProperty } : {}),
+  };
+
+  // Numerical accommodation attributes — Schema.org puts these on the listing
+  // directly OR on a nested Accommodation node. Putting them on the listing
+  // is simpler and Google accepts it (as does Zillow).
+  if (p.bedrooms != null) listingNode.numberOfBedrooms = p.bedrooms;
+  if (p.bathrooms != null) listingNode.numberOfBathroomsTotal = p.bathrooms;
+  if (p.bedrooms != null && p.bathrooms != null) {
+    listingNode.numberOfRooms = p.bedrooms + p.bathrooms;
+  }
   if (p.areaSqm != null) {
-    node.floorSize = {
+    listingNode.floorSize = {
       '@type': 'QuantitativeValue',
       value: p.areaSqm,
       unitCode: 'MTK',
     };
   }
-  if (meta.imageUrls.length > 0) node.image = meta.imageUrls;
 
-  return node;
+  // Nested Accommodation typed by propertyType when we can map it. Adds
+  // a second-level @type (House / Apartment / etc.) so search engines have
+  // both the "this is a listing" signal and the "this is a villa" signal.
+  if (accommodationType) {
+    const accomNode: Record<string, unknown> = {
+      '@type': accommodationType,
+      name: meta.title,
+      ...(p.areaSqm != null
+        ? {
+            floorSize: {
+              '@type': 'QuantitativeValue',
+              value: p.areaSqm,
+              unitCode: 'MTK',
+            },
+          }
+        : {}),
+      ...(p.bedrooms != null ? { numberOfBedrooms: p.bedrooms } : {}),
+      ...(p.bathrooms != null ? { numberOfBathroomsTotal: p.bathrooms } : {}),
+      ...(p.yearBuilt != null ? { yearBuilt: p.yearBuilt } : {}),
+    };
+    listingNode.accommodation = accomNode;
+  }
+
+  // -------- 4. RealEstateAgent (seller, when present) --------
+  const nodes: Array<Record<string, unknown>> = [websiteNode, orgNode, listingNode];
+
+  if (contact?.agentFullName) {
+    const sameAs: string[] = [];
+    if (contact.agentWebsiteUrl) sameAs.push(contact.agentWebsiteUrl);
+    if (contact.agentFacebookUrl) sameAs.push(contact.agentFacebookUrl);
+    if (contact.agentInstagramUrl) sameAs.push(contact.agentInstagramUrl);
+    if (contact.agentLinkedinUrl) sameAs.push(contact.agentLinkedinUrl);
+
+    const agentNode: Record<string, unknown> = {
+      '@type': 'RealEstateAgent',
+      '@id': `${canonical}#agent`,
+      name: contact.agentFullName,
+      worksFor: { '@id': `${SITE_ORIGIN}/#organization` },
+      ...(contact.agentBio ? { description: contact.agentBio } : {}),
+      ...(contact.agentAvatarUrl ? { image: contact.agentAvatarUrl } : {}),
+      ...(contact.agentPhone ? { telephone: contact.agentPhone } : {}),
+      ...(contact.agentSpecialties?.length
+        ? { knowsAbout: contact.agentSpecialties }
+        : {}),
+      ...(sameAs.length > 0 ? { sameAs } : {}),
+      ...(reviewSummary && reviewSummary.count > 0
+        ? {
+            aggregateRating: {
+              '@type': 'AggregateRating',
+              ratingValue: reviewSummary.avg.toFixed(1),
+              reviewCount: reviewSummary.count,
+              bestRating: '5',
+              worstRating: '1',
+            },
+          }
+        : {}),
+    };
+    nodes.push(agentNode);
+  }
+
+  // -------- 5. BreadcrumbList --------
+  const countryName = getCountryName(p.countryCode, locale);
+  const propertiesPath = locale === 'es' ? '/es/propiedades' : '/en/properties';
+  const breadcrumbNode: Record<string, unknown> = {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: locale === 'es' ? 'Inicio' : 'Home',
+        item: `${SITE_ORIGIN}/${locale}`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: locale === 'es' ? 'Propiedades' : 'Properties',
+        item: `${SITE_ORIGIN}${propertiesPath}`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: `${p.city}, ${countryName}`,
+        item: `${SITE_ORIGIN}/${locale}/properties-in/${p.countryCode.toLowerCase()}/${encodeURIComponent(p.city.toLowerCase())}`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 4,
+        name: meta.title,
+        item: canonical,
+      },
+    ],
+  };
+  nodes.push(breadcrumbNode);
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': nodes,
+  };
 }
