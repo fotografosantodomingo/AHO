@@ -93,9 +93,9 @@ export async function SiteHeader({ locale }: Props) {
             <img
               src="/logo.png?v=4"
               alt="AHO — Advertise Homes Online"
-              width={40}
-              height={40}
-              className="h-10 w-10 object-contain"
+              width={52}
+              height={52}
+              className="h-[52px] w-[52px] object-contain"
               loading="eager"
               fetchPriority="high"
             />

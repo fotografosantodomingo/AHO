@@ -122,9 +122,9 @@ export function MegaMenuClient({
           <img
             src="/logo.png?v=4"
             alt="AHO — Advertise Homes Online"
-            width={36}
-            height={36}
-            className="h-9 w-9 object-contain"
+            width={48}
+            height={48}
+            className="h-12 w-12 object-contain"
           />
         </p>
         <button
