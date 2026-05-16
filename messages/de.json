@@ -304,7 +304,8 @@
       "submitting": "Aktualisierung…",
       "success": "Passwort aktualisiert. Sie sind angemeldet.",
       "noSession": "Dieser Reset-Link ist abgelaufen oder wurde bereits verwendet. Fordern Sie einen neuen an.",
-      "requestNewLink": "Neuen Link anfordern"
+      "requestNewLink": "Neuen Link anfordern",
+      "mfaRequired": "Sie haben die Zwei-Faktor-Authentifizierung aktiviert. Geben Sie den 6-stelligen Code aus Ihrer Authenticator-App ein, um fortzufahren."
     },
     "magic": {
       "heading": "Mit Magic Link anmelden",

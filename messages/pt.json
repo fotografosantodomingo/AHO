@@ -1050,7 +1050,8 @@
       "submitting": "Atualizando…",
       "success": "Senha atualizada. Você está conectado.",
       "noSession": "Este link de redefinição expirou ou já foi usado. Solicite um novo.",
-      "requestNewLink": "Solicitar um novo link"
+      "requestNewLink": "Solicitar um novo link",
+      "mfaRequired": "Você tem a autenticação de dois fatores ativada. Digite o código de 6 dígitos do seu aplicativo autenticador para continuar."
     },
     "magic": {
       "heading": "Entrar com um link mágico",

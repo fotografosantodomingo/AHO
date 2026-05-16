@@ -1013,7 +1013,8 @@
       "submitting": "Aktualizacja…",
       "success": "Hasło zaktualizowane. Jesteś zalogowany.",
       "noSession": "Ten link resetujący wygasł lub został użyty. Poproś o nowy.",
-      "requestNewLink": "Poproś o nowy link"
+      "requestNewLink": "Poproś o nowy link",
+      "mfaRequired": "Masz włączone uwierzytelnianie dwuskładnikowe. Wpisz 6-cyfrowy kod z aplikacji uwierzytelniającej, aby kontynuować."
     },
     "magic": {
       "heading": "Zaloguj się magicznym linkiem",

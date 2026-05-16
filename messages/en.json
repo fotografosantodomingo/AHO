@@ -1047,7 +1047,8 @@
       "submitting": "Updating…",
       "success": "Password updated. You're signed in.",
       "noSession": "This reset link has expired or been used. Request a new one.",
-      "requestNewLink": "Request a new link"
+      "requestNewLink": "Request a new link",
+      "mfaRequired": "You have two-factor authentication enabled. Enter your 6-digit authenticator code to continue."
     },
     "magic": {
       "heading": "Sign in with a magic link",

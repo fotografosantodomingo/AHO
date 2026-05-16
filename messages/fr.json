@@ -304,7 +304,8 @@
       "submitting": "Mise à jour…",
       "success": "Mot de passe mis à jour. Vous êtes connecté.",
       "noSession": "Ce lien de réinitialisation a expiré ou a déjà été utilisé. Demandez-en un nouveau.",
-      "requestNewLink": "Demander un nouveau lien"
+      "requestNewLink": "Demander un nouveau lien",
+      "mfaRequired": "L'authentification à deux facteurs est activée sur votre compte. Saisissez le code à 6 chiffres de votre application d'authentification pour continuer."
     },
     "magic": {
       "heading": "Se connecter avec un lien magique",

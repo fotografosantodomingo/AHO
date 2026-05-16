@@ -1047,7 +1047,8 @@
       "submitting": "Actualizando…",
       "success": "Contraseña actualizada. Sesión iniciada.",
       "noSession": "Este enlace ha expirado o ya fue usado. Solicita uno nuevo.",
-      "requestNewLink": "Solicitar uno nuevo"
+      "requestNewLink": "Solicitar uno nuevo",
+      "mfaRequired": "Tienes la verificación en dos pasos activada. Introduce el código de 6 dígitos de tu app autenticadora para continuar."
     },
     "magic": {
       "heading": "Iniciar sesión con un enlace mágico",
