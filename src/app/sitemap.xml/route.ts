@@ -97,6 +97,13 @@ export async function GET(): Promise<Response> {
   if (listingRow) {
     children.push(
       { loc: `${site}/sitemap-properties.xml`, lastmod: listingsLastmod },
+      // Recent (last 7 days) — priority=1.0, changefreq=daily.
+      // Freshness layer ON TOP of the full /sitemap-properties.xml.
+      // Replaces the Google-News-sitemap reflex (News sitemap is
+      // news-publisher-only — real estate listings don't qualify).
+      // lastmod = now because the file contents change whenever any
+      // listing publishes OR ages out of the 7-day window.
+      { loc: `${site}/sitemap-properties-recent.xml`, lastmod: now },
       { loc: `${site}/sitemap-agents.xml`, lastmod: agentsLastmod },
       { loc: `${site}/sitemap-locations.xml`, lastmod: listingsLastmod },
       // Image sitemap re-fetches on every Google visit; per-request lastmod

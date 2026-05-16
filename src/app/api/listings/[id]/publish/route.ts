@@ -6,6 +6,7 @@ import { sendEmail } from '@/lib/email/brevo';
 import { renderAdminPropertyPublishedEmail } from '@/lib/email/templates/admin-property-published';
 import { formatPrice } from '@/lib/listings/format';
 import { publicEnv } from '@/lib/env';
+import { pingIndexNow } from '@/lib/seo/indexnow';
 
 export const runtime = 'edge';
 
@@ -168,6 +169,45 @@ export async function POST(
     } catch (e) {
       console.error('[publish] admin notification threw', e);
     }
+  }
+
+  // IndexNow ping — tell Bing / Yandex / etc. about the new public
+  // URL(s). EN + ES if both slugs exist. Best-effort; failures log but
+  // don't unwind the publish. Re-fetch the row to grab the slugs (the
+  // earlier admin-notification block already SELECTed them but we want
+  // independence in case that block didn't run for any reason).
+  try {
+    const { data: slugRow } = await supabase
+      .from('properties')
+      .select('short_id, slug_en, slug_es')
+      .eq('id', id)
+      .maybeSingle();
+    if (slugRow) {
+      const pub = publicEnv();
+      const urls: string[] = [];
+      if (slugRow.slug_en) {
+        urls.push(
+          `${pub.NEXT_PUBLIC_SITE_URL}/en/properties/${slugRow.slug_en}-${slugRow.short_id}`,
+        );
+      }
+      if (slugRow.slug_es) {
+        urls.push(
+          `${pub.NEXT_PUBLIC_SITE_URL}/es/propiedades/${slugRow.slug_es}-${slugRow.short_id}`,
+        );
+      }
+      // Also ping the listing's city page + the recent-listings sitemap
+      // since both gain a row from this publish. Crawlers re-fetching
+      // these earlier means the new listing surfaces in city + sitemap
+      // crawls without waiting for the next scheduled crawl cycle.
+      urls.push(`${pub.NEXT_PUBLIC_SITE_URL}/sitemap-properties-recent.xml`);
+      if (urls.length > 0) {
+        // Fire-and-forget — the publish response shouldn't wait on
+        // IndexNow's ~200ms latency.
+        void pingIndexNow(urls);
+      }
+    }
+  } catch (e) {
+    console.warn('[publish] indexnow ping prep failed', e);
   }
 
   revalidatePath('/[locale]/dashboard/properties', 'page');
