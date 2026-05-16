@@ -1016,6 +1016,8 @@
     "signingUp": "Creating account…",
     "googleContinue": "Continue with Google",
     "googleRedirecting": "Redirecting…",
+    "linkedinContinue": "Continue with LinkedIn",
+    "linkedinRedirecting": "Redirecting…",
     "orContinueWithEmail": "or continue with email",
     "signOut": "Sign out",
     "noAccountQuestion": "No account yet?",

@@ -16,6 +16,7 @@ import {
   type TurnstileWidgetHandle,
 } from './turnstile-widget';
 import { GoogleSignInButton } from './google-signin-button';
+import { LinkedInSignInButton } from './linkedin-signin-button';
 
 const inputClass =
   'mt-1 block w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm shadow-whisper outline-hidden focus:ring-3 focus:ring-action dark:bg-surface-deep dark:focus:ring-action-dark';
@@ -119,6 +120,7 @@ export function SignUpForm() {
   return (
     <div className="space-y-4">
       <GoogleSignInButton />
+      <LinkedInSignInButton />
       <div className="relative flex items-center gap-3 text-xs uppercase tracking-[0.13em] text-helper">
         <span className="h-px flex-1 bg-border-strong/40" aria-hidden="true" />
         <span>{t('orContinueWithEmail')}</span>
