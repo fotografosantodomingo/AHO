@@ -1,6 +1,18 @@
 import { z } from 'zod';
-import { TRANSACTION_TYPES, PRICE_PERIODS } from '@/db/schema';
 import { AMENITY_KEYS } from '@/lib/listings/amenities';
+
+// Inline literals — must stay in lockstep with `TRANSACTION_TYPES` +
+// `PRICE_PERIODS` in src/db/schema.ts (single source of truth lives
+// there for the DB layer; here we duplicate for browser-bundle reasons).
+//
+// Bug 2026-05-16: importing these from '@/db/schema' dragged the
+// entire Drizzle pg-core dep (pgTable, char, text, …) into the client
+// bundle for <ListingForm>. Drizzle's column-type helpers have module-
+// level side effects that don't tree-shake; minification then emitted
+// `ReferenceError: char is not defined` the moment the listing-form
+// chunk hydrated on /dashboard/properties/new.
+const TRANSACTION_TYPES = ['sale', 'rent', 'short_term'] as const;
+const PRICE_PERIODS = ['total', 'monthly', 'weekly', 'nightly'] as const;
 
 /**
  * Listing form Zod schemas + inferred types. Lives in a NON-server module

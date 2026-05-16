@@ -3,7 +3,13 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { LEAD_STATUSES, type LeadStatus } from '@/db/schema';
+import type { LeadStatus } from '@/db/schema';
+
+// Inline literal — must stay in lockstep with LEAD_STATUSES in schema.ts.
+// Importing the VALUE from '@/db/schema' would drag Drizzle pg-core into
+// this client bundle and crash with "ReferenceError: char is not defined"
+// at hydrate (same root cause as the listing-schema 2026-05-16 fix).
+const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'won', 'lost'] as const;
 import { updateLeadStatus } from '@/lib/leads/actions';
 
 interface Props {
