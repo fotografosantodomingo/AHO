@@ -83,7 +83,7 @@ export async function LockedSocialModule({ locale, size = 'full' }: Props) {
           <span
             key={platform}
             aria-disabled="true"
-            className="inline-flex h-9 cursor-not-allowed items-center gap-2 rounded-full border border-border-strong/40 bg-surface-muted/60 px-3 text-sm font-medium text-helper opacity-70"
+            className="inline-flex h-9 cursor-not-allowed items-center gap-2 rounded-full border border-border-strong/40 bg-surface-muted/60 px-3 text-sm font-medium text-ink-muted"
           >
             <svg
               aria-hidden="true"

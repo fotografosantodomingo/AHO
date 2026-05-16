@@ -46,8 +46,8 @@
 
   /* TEXT */
   --color-ink: #1a1612;                /* primary text (warm near-black on cream) */
-  --color-ink-muted: #3a342c;          /* secondary text */
-  --color-helper: #5e574d;             /* tertiary text (form helpers, captions) */
+  --color-ink-muted: #2c2620;          /* secondary text — darkened 2026-05-16 for better contrast on cream surfaces */
+  --color-helper: #4a4239;             /* tertiary text (form helpers, captions) — darkened 2026-05-16 from #5e574d for AA headroom on cream + when used with /70 opacity */
   --color-ink-inverse: #f4ede1;        /* always-cream — text on always-dark surfaces */
   --color-ink-inverse-muted: #cabd9f;  /* always-cream — secondary on dark */
 
