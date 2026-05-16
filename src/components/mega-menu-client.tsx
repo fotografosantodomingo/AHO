@@ -120,7 +120,7 @@ export function MegaMenuClient({
         <p className="inline-flex items-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/logo.png?v=3"
+            src="/logo.png?v=4"
             alt="AHO — Advertise Homes Online"
             width={36}
             height={36}

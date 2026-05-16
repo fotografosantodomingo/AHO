@@ -100,7 +100,7 @@ export default async function HomePage({
     alternateName: tSite('tagline'),
     url: homeUrl,
     description: tSite('description'),
-    logo: `${site}/icon.svg`,
+    logo: `${site}/icon.png`,
   });
   const websiteLd = buildWebSite({
     name: tSite('name'),
