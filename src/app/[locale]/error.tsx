@@ -49,6 +49,22 @@ export default function LocalizedError({
           {t('details', { digest: error.digest })}
         </p>
       )}
+      {/* Temporary diagnostic — show the actual error message so users
+          can quote it in support. Server errors expose only the digest
+          (full stack stays server-side per Next.js security model); a
+          client-side throw shows its message here. Remove once we wire
+          a real error tracker (Sentry). */}
+      {error.message && (
+        <details className="mt-3 max-w-md text-left">
+          <summary className="cursor-pointer text-xs text-helper underline-offset-2 hover:underline">
+            Technical details
+          </summary>
+          <pre className="mt-2 max-h-40 overflow-auto rounded-md bg-black/5 p-2 font-mono text-[11px] leading-snug text-ink-muted dark:bg-white/5 dark:text-ink-inverse-muted">
+            {error.message}
+            {error.stack ? `\n\n${error.stack}` : ''}
+          </pre>
+        </details>
+      )}
       <div className="mt-8 flex flex-col gap-2 sm:flex-row">
         <button
           type="button"
