@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 
 /**
@@ -20,6 +20,12 @@ import { useLocale, useTranslations } from 'next-intl';
 export function NewsletterForm() {
   const t = useTranslations('footer.newsletter');
   const locale = useLocale();
+  // useId() avoids the duplicate-id a11y violation Lighthouse caught
+  // (2026-05-16) when the page included two NewsletterForm instances
+  // — could happen in a mobile-drawer + footer pattern OR via a 3rd-
+  // party extension cloning DOM. A unique id-per-instance closes
+  // both edges without behavioural change.
+  const inputId = useId();
   const [email, setEmail] = useState('');
   const [state, setState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle');
 
@@ -52,12 +58,12 @@ export function NewsletterForm() {
 
   return (
     <form onSubmit={onSubmit} className="space-y-2">
-      <label htmlFor="footer-newsletter-email" className="sr-only">
+      <label htmlFor={inputId} className="sr-only">
         {t('label')}
       </label>
       <div className="flex gap-2">
         <input
-          id="footer-newsletter-email"
+          id={inputId}
           type="email"
           name="email"
           required

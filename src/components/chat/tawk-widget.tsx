@@ -50,7 +50,13 @@ export function TawkWidget({ userName, userEmail }: Props) {
 
   // Same-origin path-based skip list. Locale prefix already stripped
   // by the time pathname renders (e.g. /en/dashboard/*).
-  const skipPrefixes = ['/dashboard', '/admin', '/signin', '/signup', '/reset-password', '/forgot-password', '/setup-mfa'];
+  //
+  // /properties/* (listing detail) added 2026-05-16 — Tawk shipped
+  // ~331 KiB of JS on every property page render and pushed LCP +
+  // TBT over budget per Lighthouse audit. Listing detail is the
+  // highest-conversion surface; the chat widget can wait for the
+  // user to navigate to /agents/* or the homepage to engage.
+  const skipPrefixes = ['/dashboard', '/admin', '/signin', '/signup', '/reset-password', '/forgot-password', '/setup-mfa', '/properties'];
   const shouldSkip = skipPrefixes.some((p) =>
     pathname.split('/').slice(2).join('/').startsWith(p.slice(1)),
   );

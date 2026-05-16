@@ -1,0 +1,32 @@
+# Production targets — modern evergreen browsers only.
+#
+# AHO ships to Cloudflare Pages with Next.js. The default Next.js
+# browserslist resolves to includes IE 11-era polyfills which Lighthouse
+# (2026-05-16 audit) flagged as Legacy JavaScript wasting ~11 KiB on the
+# first-party chunk + bloating eval time.
+#
+# Targets here cover Chrome 109+ (2023-01), Firefox 102+ (2022-06),
+# Safari 16+ (2022-09), Edge 109+ (2023-01) — covers >97% of the
+# real-estate traffic we expect (agent + buyer market segments are
+# typically on current mobile + recent desktop).
+#
+# Bump these when Lighthouse audits show further savings AND telemetry
+# (when PostHog is wired) confirms no real users on older targets.
+#
+# `[production]` scopes these to `next build`; dev keeps the broader
+# default so HMR / SWC don't get surprised by polyfill differences.
+
+[production]
+last 2 Chrome versions
+last 2 Firefox versions
+last 2 Safari versions
+last 2 Edge versions
+last 2 ChromeAndroid versions
+last 2 FirefoxAndroid versions
+last 2 iOS versions
+not dead
+
+[development]
+last 1 Chrome version
+last 1 Firefox version
+last 1 Safari version

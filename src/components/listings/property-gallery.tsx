@@ -239,10 +239,13 @@ export function PropertyGallery({
             {...(primarySrcSet
               ? {
                   srcSet: primarySrcSet,
-                  // Mobile fills the viewport; on md+ the image caps at
-                  // 600 px tall (max-h-[600px] below); 1366 is the
-                  // largest variant we serve.
-                  sizes: '(max-width: 768px) 100vw, 1366px',
+                  // Mobile fills the viewport. On md+ the image caps at
+                  // max-h-[600px] with auto width, so for typical 16:9
+                  // hero aspect the rendered width sits ~1067 px tall-
+                  // bound. Tightened 2026-05-16 from a flat 1366px (the
+                  // largest variant) after Lighthouse showed the browser
+                  // pulling that variant for an 800px-wide display slot.
+                  sizes: '(max-width: 768px) 100vw, (max-width: 1024px) 800px, 1067px',
                 }
               : {})}
             alt={altOf(primary, 1)}
