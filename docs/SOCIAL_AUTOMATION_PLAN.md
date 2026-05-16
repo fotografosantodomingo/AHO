@@ -37,7 +37,7 @@ If any of these eight is "best-effort" instead of "guaranteed", we don't ship to
 | Post formatter (FB / IG / LinkedIn, pure, deterministic) — Phase C | ✅ Live | [src/lib/social/post-formatter.ts](src/lib/social/post-formatter.ts) |
 | Picker helpers — Phase J part 2 (override-aware) | ✅ Live | same file |
 | Meta publish primitives (FB Page + IG single + IG carousel 3-step) — Phase D + K | ✅ Live | [src/lib/social/publish.ts](src/lib/social/publish.ts) |
-| LinkedIn publish stub — Phase D | ⚠️ Returns `oauth_not_implemented` until partner approval | same file |
+| LinkedIn publish stub — Phase D | ⚠️ Returns `oauth_not_implemented` — pulled into Stage 1 by `DECISIONS.md` 2026-05-15; OAuth scaffold + stub flip ship once `Share on LinkedIn` product approved (PO_ACTIONS §2b, 1-2 wks LinkedIn turnaround) | same file |
 | `PublishErrorCode` taxonomy + `buildSupportRef` — error UX | ✅ Live | same file |
 | `/api/social/post` real handler — Phase E + Phase J overrides | ✅ Live | [src/app/api/social/post/route.ts](src/app/api/social/post/route.ts) |
 | AI drafter lib + `/api/social/ai-draft` route — Phase J part 1 | ✅ Live | [src/lib/social/ai-drafter.ts](src/lib/social/ai-drafter.ts), [src/app/api/social/ai-draft/route.ts](src/app/api/social/ai-draft/route.ts) |
@@ -60,7 +60,7 @@ If any of these eight is "best-effort" instead of "guaranteed", we don't ship to
 | **Meta OAuth dialog returns 502** ("Sorry, something went wrong") for the PO's Configuration | OPEN since 2026-05-07 | `scripts/import-meta-token.ts` to manually encrypt-upsert a Graph-API-Explorer token | Deep-debug App Mode + App Roles + Configuration redirect URI in the Meta dashboard. PO action |
 | **Meta App Review pending** (no `pages_manage_posts` / `instagram_content_publish` for non-tester users) | Submission package never went out (Day 3 of EXECUTION_PLAN deferred 2026-05-07) | Only Page admins added as App Testers can OAuth and publish in dev mode | Submit App Review package (Privacy + Terms URLs + screencast + business justification). PO + dev action |
 | **App Mode = Development** | Same | Tester-only access | App Mode → Live (requires App Review approved) |
-| **No LinkedIn OAuth yet** | OPEN | Manual share template existed in OLD method (being removed) | LinkedIn Marketing Developer Platform partner approval (weeks). Defer to v1.1 per `DECISIONS.md` 2026-04-29 |
+| **No LinkedIn OAuth yet** | OPEN — pulled into Stage 1 (`DECISIONS.md` 2026-05-15) | Agent UI shows "Connect LinkedIn coming soon" until app approved | LinkedIn dev app + "Share on LinkedIn" + "Sign In with LinkedIn using OpenID Connect" products — self-serve approval (1-2 wks LinkedIn turnaround), **not** the slow MDP path. Tracked in PO_ACTIONS §2b. |
 
 ---
 

@@ -53,6 +53,31 @@ Google Cloud OAuth 2.0 Client created (Web application, project "AHO google"), a
 
 ---
 
+## 2b. LinkedIn dev app + product approvals (1-2 wks LinkedIn turnaround)
+
+**Why it matters:** Per `DECISIONS.md` 2026-05-15 (LinkedIn pulled into Stage 1), the publish stub at `src/lib/social/publish.ts:540` becomes real once we have a LinkedIn dev app with approved products. Personal-profile posting only — `w_member_social` scope. Company-page posting (`w_organization_social`, requires Marketing Developer Platform) stays v1.1.
+
+**One-time setup (~20 min PO time + LinkedIn-side review wait):**
+
+1. **LinkedIn Developer Portal** — https://www.linkedin.com/developers/apps → **Create app**
+   - App name: `Advertise Homes Online`
+   - LinkedIn Page: requires you to associate with a LinkedIn Page. If AHO doesn't have one yet, create a free Company Page first at https://www.linkedin.com/company/setup/new (this is the page LinkedIn shows on the OAuth consent screen — separate from posting target). Use `info@advertisehomes.online` as the page admin.
+   - Privacy policy URL: `https://advertisehomes.online/privacy`
+   - App logo: 100×100 minimum, the AHO mark
+2. **Add products** (Products tab):
+   - **Sign In with LinkedIn using OpenID Connect** — usually instant approval (unlocks `openid`, `profile`, `email` scopes for sign-in)
+   - **Share on LinkedIn** — typically 1-2 wks LinkedIn review (unlocks `w_member_social` for posting to a member's own feed)
+3. **Auth tab → OAuth 2.0 settings → Authorized redirect URLs**:
+   - `https://advertisehomes.online/api/oauth/linkedin/callback` (publish flow — our own OAuth)
+   - `https://lqujtquofsdsxtujvjtl.supabase.co/auth/v1/callback` (sign-in flow via Supabase Auth — analogous to how Google was wired today)
+4. **Auth tab → Application credentials**: copy **Client ID** + **Client Secret**, paste here in chat. Goes into Cloudflare Pages env (`LINKEDIN_CLIENT_ID` + `LINKEDIN_CLIENT_SECRET`) and Supabase Auth provider config (Management API push, same shape as today's Google enable).
+
+**Done when:** the "Share on LinkedIn" product status reads "Verified" / "Approved" in the Products tab. (Sign-In product is usually instant.)
+
+**Parallel dev work while LinkedIn reviews:** Claude builds the OAuth scaffold (`/api/oauth/linkedin/{start,callback}/route.ts`) + flips the publish stub against `/rest/posts` (LinkedIn versioned API, 2024+) with a `LINKEDIN_DRY_RUN=true` env so we test the flow with App Tester accounts before real publish. Sign-In side flips on via Supabase Management API the moment Client ID + Secret arrive.
+
+---
+
 ## 1. ~~Apply migrations 0043 + 0044 to Supabase~~ — **DONE 2026-05-10**
 
 Applied via `pnpm tsx scripts/migrate.ts` after fixing a pre-existing IMMUTABLE-expression bug in 0038 that had been blocking the queue. Verified live: `property_events_event_type_check` now includes `favorite_remove`; both `admin_user_membership_counts()` and `admin_org_counts()` RPCs are deployed. The previously-stuck migrations 0038, 0039, 0040, 0041, 0042 also applied in the same run.
