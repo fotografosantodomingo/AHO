@@ -84,8 +84,10 @@ export async function SiteHeader({ locale }: Props) {
     | { kind: 'link'; href: string; label: string }
     | { kind: 'dropdown'; label: string; items: { href: string; label: string }[] };
 
+  const homePath = `/${locale}`;
   const navItems: NavItem[] = isAuthed
     ? [
+        { kind: 'link', href: homePath, label: t('home') },
         {
           kind: 'dropdown',
           label: t('realEstateAgent'),
@@ -104,6 +106,7 @@ export async function SiteHeader({ locale }: Props) {
         },
       ]
     : [
+        { kind: 'link', href: homePath, label: t('home') },
         { kind: 'link', href: `${searchPath}?transaction=sale`, label: t('buy') },
         { kind: 'link', href: `${searchPath}?transaction=rent`, label: t('rent') },
         { kind: 'link', href: pricingPath, label: t('sell') },
