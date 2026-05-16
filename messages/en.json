@@ -929,6 +929,16 @@
     "statusError": "Failed",
     "r2NotConfigured": "Image storage isn't enabled on the account yet. The upload API endpoints exist; we'll start accepting uploads once Cloudflare R2 is wired up."
   },
+  "imageEditor": {
+    "heading": "Photo SEO + accessibility",
+    "hint": "Write a short, descriptive alt text per photo (e.g. \"Master bedroom with floor-to-ceiling windows facing the ocean\"). Strong alt text helps the listing appear in Google Image Search and makes the gallery usable for screen readers.",
+    "altEnLabel": "English alt text",
+    "altEsLabel": "Spanish alt text",
+    "altEnPlaceholder": "Describe what's in this photo",
+    "altEsPlaceholder": "Describe en español lo que aparece",
+    "primaryBadge": "Primary",
+    "saveFailed": "save failed"
+  },
   "listingForm": {
     "sectionBasics": "Basics",
     "sectionLocation": "Location",

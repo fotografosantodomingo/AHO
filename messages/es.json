@@ -929,6 +929,16 @@
     "statusError": "Falló",
     "r2NotConfigured": "El almacenamiento de imágenes aún no está activo en la cuenta. Los endpoints existen; empezaremos a aceptar fotos cuando Cloudflare R2 esté configurado."
   },
+  "imageEditor": {
+    "heading": "SEO + accesibilidad de fotos",
+    "hint": "Escribe un texto alternativo corto y descriptivo por foto (ej. \"Dormitorio principal con ventanales del suelo al techo orientados al océano\"). Un buen alt text ayuda a posicionar la propiedad en Google Imágenes y hace la galería accesible para lectores de pantalla.",
+    "altEnLabel": "Alt en inglés",
+    "altEsLabel": "Alt en español",
+    "altEnPlaceholder": "Describe what's in this photo",
+    "altEsPlaceholder": "Describe lo que aparece en la foto",
+    "primaryBadge": "Principal",
+    "saveFailed": "fallo al guardar"
+  },
   "listingForm": {
     "sectionBasics": "Información básica",
     "sectionLocation": "Ubicación",

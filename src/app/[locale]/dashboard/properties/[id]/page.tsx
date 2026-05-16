@@ -5,6 +5,7 @@ import { localePath } from '@/i18n/routing';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { PublishButton } from '@/components/listings/publish-button';
 import { ImageUploader } from '@/components/listings/image-uploader';
+import { ExistingImagesEditor } from '@/components/listings/existing-images-editor';
 import { MarkAsSoldButton } from '@/components/listings/mark-as-sold-button';
 import { ArchiveListingButton } from '@/components/listings/archive-listing-button';
 import { EditListingForm } from '@/components/listings/edit-listing-form';
@@ -41,6 +42,17 @@ export default async function EditListingPage({
     .maybeSingle();
 
   if (error || !listing) notFound();
+
+  // Fetch confirmed images for the alt-text editor. Small (≤30 rows),
+  // gated by the property_images org-member RLS policy. Reading any
+  // unconfirmed (status='pending') rows would surface uploads that
+  // failed bytes-PUT; skip them.
+  const { data: existingImages } = await supabase
+    .from('property_images')
+    .select('id, cf_image_id, r2_key, alt_text_en, alt_text_es, position, is_primary, upload_status')
+    .eq('property_id', listing.id)
+    .eq('upload_status', 'confirmed')
+    .order('position', { ascending: true });
 
   const tStatus = await getTranslations({ locale, namespace: 'dashboard.status' });
 
@@ -191,6 +203,26 @@ export default async function EditListingPage({
         city={listing.city}
         initialCount={listing.image_count}
       />
+
+      {/* Per-photo alt-text editor — server-rendered with the confirmed
+          images so the agent can write descriptive captions per photo.
+          Strong image SEO depends on agents writing meaningful alt text
+          (e.g. "Master bedroom with ocean view at sunset") — generic
+          auto-generated alt ("Villa — Sosúa — 5") doesn't compete in
+          Google Image Search. */}
+      <ExistingImagesEditor
+        propertyId={listing.id}
+        images={(existingImages ?? []).map((row) => ({
+          id: row.id as string,
+          cfImageId: (row.cf_image_id as string | null) ?? null,
+          r2Key: row.r2_key as string,
+          altTextEn: (row.alt_text_en as string | null) ?? null,
+          altTextEs: (row.alt_text_es as string | null) ?? null,
+          position: row.position as number,
+          isPrimary: row.is_primary as boolean,
+        }))}
+      />
+
 
       {/* Social Media Automation — visible to all paid agents, interactive
           only on Pro Automation. Lower tiers see the locked upsell + the

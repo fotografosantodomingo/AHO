@@ -895,6 +895,16 @@
     "statusError": "Błąd",
     "r2NotConfigured": "Magazyn obrazów nie jest jeszcze włączony na koncie. Endpointy API już istnieją; zaczniemy przyjmować pliki, gdy uruchomione zostanie Cloudflare R2."
   },
+  "imageEditor": {
+    "heading": "SEO + dostępność zdjęć",
+    "hint": "Wpisz krótki, opisowy alt text dla każdego zdjęcia (np. \"Sypialnia główna z oknami od podłogi do sufitu z widokiem na ocean\"). Dobry alt pomaga ogłoszeniu pojawić się w Grafika Google i czyni galerię dostępną dla czytników ekranu.",
+    "altEnLabel": "Alt po angielsku",
+    "altEsLabel": "Alt po hiszpańsku",
+    "altEnPlaceholder": "Opisz po angielsku co widać na zdjęciu",
+    "altEsPlaceholder": "Describe en español lo que aparece",
+    "primaryBadge": "Główne",
+    "saveFailed": "błąd zapisu"
+  },
   "listingForm": {
     "sectionBasics": "Podstawy",
     "sectionLocation": "Lokalizacja",
