@@ -7,6 +7,7 @@ import {
 } from '@/lib/billing/plan-gating';
 import { LockedSocialModule } from '@/components/social/locked-social-module';
 import { ConnectMetaSection } from '@/components/social/connect-meta-section';
+import { ConnectLinkedInSection } from '@/components/social/connect-linkedin-section';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -21,6 +22,16 @@ const KNOWN_FLASH_STATUSES = [
   'fetch_failed',
 ] as const;
 type FlashStatus = (typeof KNOWN_FLASH_STATUSES)[number];
+
+const KNOWN_LINKEDIN_FLASH_STATUSES = [
+  'connected',
+  'denied',
+  'invalid',
+  'state_mismatch',
+  'exchange_failed',
+  'fetch_failed',
+] as const;
+type LinkedInFlashStatus = (typeof KNOWN_LINKEDIN_FLASH_STATUSES)[number];
 
 /**
  * /{locale}/dashboard/social
@@ -75,6 +86,24 @@ export default async function SocialDashboardPage({
       }
     : undefined;
 
+  // Same parsing for ?linkedin_oauth=… — keep the two flash channels
+  // separate so a Meta callback doesn't clobber a LinkedIn connect
+  // toast (or vice versa).
+  const rawLiStatus =
+    typeof sp.linkedin_oauth === 'string' ? sp.linkedin_oauth : null;
+  const liFlashStatus: LinkedInFlashStatus | null =
+    rawLiStatus &&
+    (KNOWN_LINKEDIN_FLASH_STATUSES as readonly string[]).includes(rawLiStatus)
+      ? (rawLiStatus as LinkedInFlashStatus)
+      : null;
+  const liFlash = liFlashStatus
+    ? {
+        status: liFlashStatus,
+        name: typeof sp.name === 'string' ? sp.name : undefined,
+        reason: typeof sp.reason === 'string' ? sp.reason : undefined,
+      }
+    : undefined;
+
   return (
     <main className="space-y-6">
       <header>
@@ -88,7 +117,10 @@ export default async function SocialDashboardPage({
       </header>
 
       {unlocked ? (
-        <ConnectMetaSection locale={typedLocale} flash={flash} />
+        <div className="space-y-6">
+          <ConnectMetaSection locale={typedLocale} flash={flash} />
+          <ConnectLinkedInSection locale={typedLocale} flash={liFlash} />
+        </div>
       ) : (
         <LockedSocialModule locale={typedLocale} size="full" />
       )}

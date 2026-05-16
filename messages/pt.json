@@ -1163,6 +1163,19 @@
     "flashDenied": "Você recusou as permissões. O AHO precisa delas para publicar em seu nome — tente novamente quando estiver pronto.",
     "flashError": "Algo deu errado ao conectar ({reason}). Tente novamente, ou contate o suporte se persistir."
   },
+  "linkedinConnect": {
+    "eyebrow": "LinkedIn",
+    "heading": "Conecte seu perfil do LinkedIn",
+    "statusConnected": "Conectado",
+    "explainerNotConnected": "Conecte seu LinkedIn pessoal para que o AHO possa publicar seus anúncios no seu feed. Você mantém o controle — cada publicação é gerada primeiro como prévia; nada vai ao ar sem sua aprovação.",
+    "explainerConnected": "Conectado como {name}. Podemos publicar no seu feed do LinkedIn em seu nome.",
+    "scopesNote": "Solicitamos: ler seu nome + e-mail (login), publicar no seu próprio feed (w_member_social). Apenas perfil pessoal — publicação em páginas de empresa virá depois.",
+    "connectButton": "Conectar LinkedIn",
+    "reconnectButton": "Reconectar / atualizar permissões",
+    "flashConnected": "Conectado como {name}. Agora você pode publicar seus anúncios no LinkedIn pelo botão Compartilhar em qualquer anúncio ativo.",
+    "flashDenied": "Você recusou as permissões. O AHO precisa delas para publicar em seu nome — tente novamente quando estiver pronto.",
+    "flashError": "Algo deu errado ao conectar ({reason}). Tente novamente, ou contate o suporte se persistir."
+  },
   "social": {
     "pageHeading": "Automação de Redes Sociais",
     "pageSubheading": "Publique seus anúncios no Facebook, Instagram e LinkedIn automaticamente.",

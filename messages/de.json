@@ -1472,6 +1472,19 @@
     "flashDenied": "Sie haben die Berechtigungen abgelehnt. AHO benötigt sie, um in Ihrem Namen zu veröffentlichen — versuchen Sie es erneut, wenn Sie bereit sind.",
     "flashError": "Beim Verbinden ist ein Fehler aufgetreten ({reason}). Erneut versuchen oder den Support kontaktieren, falls es weiter besteht."
   },
+  "linkedinConnect": {
+    "eyebrow": "LinkedIn",
+    "heading": "LinkedIn-Profil verbinden",
+    "statusConnected": "Verbunden",
+    "explainerNotConnected": "Verbinden Sie Ihr persönliches LinkedIn, damit AHO Ihre Inserate in Ihrem Feed veröffentlichen kann. Sie behalten die Kontrolle — jeder Beitrag wird zuerst als Vorschau erstellt; nichts geht ohne Ihre Freigabe live.",
+    "explainerConnected": "Verbunden als {name}. Wir können in Ihrem Namen in Ihrem LinkedIn-Feed posten.",
+    "scopesNote": "Wir benötigen: Name + E-Mail lesen (Anmeldung), in Ihrem eigenen Feed posten (w_member_social). Nur persönliches Profil — Veröffentlichung auf Unternehmensseiten folgt später.",
+    "connectButton": "LinkedIn verbinden",
+    "reconnectButton": "Erneut verbinden / Berechtigungen aktualisieren",
+    "flashConnected": "Verbunden als {name}. Sie können Ihre Inserate ab jetzt aus dem Teilen-Button jedes aktiven Inserats auf LinkedIn veröffentlichen.",
+    "flashDenied": "Sie haben die Berechtigungen abgelehnt. AHO benötigt sie, um in Ihrem Namen zu veröffentlichen — versuchen Sie es erneut, wenn Sie bereit sind.",
+    "flashError": "Beim Verbinden ist ein Fehler aufgetreten ({reason}). Erneut versuchen oder den Support kontaktieren, falls es weiter besteht."
+  },
   "social": {
     "pageHeading": "Social-Media-Automatisierung",
     "pageSubheading": "Posten Sie Ihre Inserate automatisch auf Facebook, Instagram und LinkedIn.",

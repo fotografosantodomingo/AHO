@@ -1166,6 +1166,19 @@
     "testing": "Probando…",
     "testOk": "OK"
   },
+  "linkedinConnect": {
+    "eyebrow": "LinkedIn",
+    "heading": "Conecta tu perfil de LinkedIn",
+    "statusConnected": "Conectado",
+    "explainerNotConnected": "Conecta tu LinkedIn personal para que AHO pueda publicar tus anuncios en tu feed. Tú mantienes el control — cada publicación se genera primero como vista previa; nada se publica sin tu aprobación.",
+    "explainerConnected": "Conectado como {name}. Podemos publicar en tu feed de LinkedIn en tu nombre.",
+    "scopesNote": "Solicitamos: leer tu nombre + correo (inicio de sesión), publicar en tu propio feed (w_member_social). Solo perfil personal — la publicación en páginas de empresa llegará más adelante.",
+    "connectButton": "Conectar LinkedIn",
+    "reconnectButton": "Reconectar / refrescar permisos",
+    "flashConnected": "Conectado como {name}. Ya puedes publicar tus anuncios en LinkedIn desde el botón Compartir en cualquier anuncio activo.",
+    "flashDenied": "Rechazaste los permisos. AHO los necesita para publicar en tu nombre — vuelve a intentarlo cuando estés listo.",
+    "flashError": "Algo salió mal al conectar ({reason}). Inténtalo de nuevo, o contacta soporte si persiste."
+  },
   "social": {
     "pageHeading": "Automatización de Redes Sociales",
     "pageSubheading": "Publica tus anuncios automáticamente en Facebook, Instagram y LinkedIn.",

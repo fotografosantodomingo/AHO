@@ -1166,6 +1166,19 @@
     "testing": "Testing…",
     "testOk": "OK"
   },
+  "linkedinConnect": {
+    "eyebrow": "LinkedIn",
+    "heading": "Connect your LinkedIn profile",
+    "statusConnected": "Connected",
+    "explainerNotConnected": "Connect your personal LinkedIn so AHO can post your listings to your feed. You stay in control — every post is generated as a preview first; nothing goes live without your approval.",
+    "explainerConnected": "Connected as {name}. We can publish to your LinkedIn feed on your behalf.",
+    "scopesNote": "We request: read your name + email (sign-in), publish to your own feed (w_member_social). Personal profile only — company-page publishing comes later.",
+    "connectButton": "Connect LinkedIn",
+    "reconnectButton": "Reconnect / refresh permissions",
+    "flashConnected": "Connected as {name}. You can now publish your listings to LinkedIn from the Share button on any active listing.",
+    "flashDenied": "You declined the permissions. AHO needs them to publish on your behalf — try again when you're ready.",
+    "flashError": "Something went wrong while connecting ({reason}). Try again, or contact support if it persists."
+  },
   "social": {
     "pageHeading": "Social Media Automation",
     "pageSubheading": "Post your listings to Facebook, Instagram and LinkedIn automatically.",

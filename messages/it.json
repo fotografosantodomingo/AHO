@@ -1163,6 +1163,19 @@
     "flashDenied": "Hai rifiutato i permessi. AHO ne ha bisogno per pubblicare per tuo conto — riprova quando sei pronto.",
     "flashError": "Qualcosa è andato storto durante il collegamento ({reason}). Riprova o contatta il supporto se persiste."
   },
+  "linkedinConnect": {
+    "eyebrow": "LinkedIn",
+    "heading": "Collega il tuo profilo LinkedIn",
+    "statusConnected": "Collegato",
+    "explainerNotConnected": "Collega il tuo LinkedIn personale così AHO può pubblicare i tuoi annunci sul tuo feed. Mantieni il controllo — ogni post viene prima generato come anteprima; nulla va in pubblicazione senza la tua approvazione.",
+    "explainerConnected": "Collegato come {name}. Possiamo pubblicare sul tuo feed LinkedIn per tuo conto.",
+    "scopesNote": "Richiediamo: lettura nome + e-mail (accesso), pubblicazione sul tuo feed (w_member_social). Solo profilo personale — la pubblicazione su pagine aziendali arriverà più avanti.",
+    "connectButton": "Collega LinkedIn",
+    "reconnectButton": "Ricollega / aggiorna i permessi",
+    "flashConnected": "Collegato come {name}. Ora puoi pubblicare i tuoi annunci su LinkedIn dal pulsante Condividi su qualsiasi annuncio attivo.",
+    "flashDenied": "Hai rifiutato i permessi. AHO ne ha bisogno per pubblicare per tuo conto — riprova quando sei pronto.",
+    "flashError": "Qualcosa è andato storto durante il collegamento ({reason}). Riprova o contatta il supporto se persiste."
+  },
   "social": {
     "pageHeading": "Automazione Social Media",
     "pageSubheading": "Pubblica i tuoi annunci su Facebook, Instagram e LinkedIn automaticamente.",
