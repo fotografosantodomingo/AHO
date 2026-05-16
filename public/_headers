@@ -36,7 +36,14 @@
   Cross-Origin-Resource-Policy: same-site
   X-DNS-Prefetch-Control: on
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://js.stripe.com https://embed.tawk.to https://*.tawk.to https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://*.tawk.to https://*.tawkcdn.com; img-src 'self' data: blob: https: https://*.tawk.to https://*.tawkcdn.com; font-src 'self' data: https://*.tawk.to https://*.tawkcdn.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://lqujtquofsdsxtujvjtl.supabase.co https://api.stripe.com https://challenges.cloudflare.com https://*.tawk.to wss://*.tawk.to https://static.cloudflareinsights.com https://imagedelivery.net; frame-src 'self' https://js.stripe.com https://challenges.cloudflare.com https://*.tawk.to; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://api.stripe.com; upgrade-insecure-requests
-  Content-Security-Policy-Report-Only: require-trusted-types-for 'script'; trusted-types default
+  # Content-Security-Policy-Report-Only: require-trusted-types-for 'script'; trusted-types default
+  # ^ Removed 2026-05-16. The Report-Only Trusted Types directive was firing console noise from
+  # embedded 3rd-party widgets (Cloudflare Turnstile, Google safevalues lib) that create their
+  # own internal policies (e.g. 'goog#html') we don't control. Even Report-Only logged them as
+  # "blocked" in DevTools console, scaring agents. Trusted Types as a real defense requires our
+  # OWN inline scripts to use TrustedHTML — Next.js's runtime emits raw inline bootstraps that
+  # don't comply yet. Re-add as enforced (not Report-Only) once we wire a Trusted-Types-aware
+  # nonce shim into the Document layer.
 
 # Long-cache static asset families. Next.js builds emit hashed filenames
 # under /_next/static/*, so immutable + 1y is safe.
