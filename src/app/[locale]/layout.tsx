@@ -106,6 +106,13 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} className={inter.variable} suppressHydrationWarning>
       <head>
+        {/* Facebook / Meta domain verification token. Required for Meta
+            Business Verification (sole-prop domain-verify path) so that
+            instagram_content_publish can be added to the Login for
+            Business Configuration. Must live in <head> of the document
+            and not in a dynamically-injected script. Meta's scraper
+            re-reads on demand via the Sharing Debugger if needed. */}
+        <meta name="facebook-domain-verification" content="ztd23gv75ztx1kqizjykrk30oeiinn" />
         {/* Theme color — drives Safari iOS / Chrome address-bar tint
             so the chrome matches the AHO surface band. Light + dark
             variants picked up by the browser via prefers-color-scheme. */}
