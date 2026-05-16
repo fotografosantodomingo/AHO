@@ -140,31 +140,60 @@ export const TurnstileWidget = forwardRef<
   useEffect(() => {
     if (!siteKey || !containerRef.current) return;
     let cancelled = false;
-    loadTurnstileScript()
-      .then(() => {
-        if (cancelled || !containerRef.current || !window.turnstile) return;
-        widgetIdRef.current = window.turnstile.render(containerRef.current, {
-          sitekey: siteKey,
-          callback: onToken,
-          'error-callback': (code) => {
-            // Turnstile passes an error code string (e.g. '110200' = domain
-            // not allowed, '300xxx' = challenge failed, '600010' = bad
-            // sitekey). Log + surface so we can actually diagnose vs. a
-            // generic "try again".
-            console.warn('[turnstile] error-callback', code);
-            setError(code || 'challenge_failed');
-            onError?.();
-          },
-          'expired-callback': onExpire,
-          theme,
-          appearance,
+
+    // Defer the Turnstile script load past the initial render-critical
+    // window. The script itself is ~50 KB + executes 200-500 ms on the
+    // main thread during widget initialization — blocking INP on listing
+    // pages where the form is below the fold. requestIdleCallback runs
+    // when the browser is idle (typically post-LCP); setTimeout(0)
+    // fallback for browsers without rIC (Safari <16.4). Either way the
+    // load happens off the initial-paint critical path.
+    const start = () => {
+      if (cancelled) return;
+      loadTurnstileScript()
+        .then(() => {
+          if (cancelled || !containerRef.current || !window.turnstile) return;
+          widgetIdRef.current = window.turnstile.render(containerRef.current, {
+            sitekey: siteKey,
+            callback: onToken,
+            'error-callback': (code) => {
+              // Turnstile passes an error code string (e.g. '110200' = domain
+              // not allowed, '300xxx' = challenge failed, '600010' = bad
+              // sitekey). Log + surface so we can actually diagnose vs. a
+              // generic "try again".
+              console.warn('[turnstile] error-callback', code);
+              setError(code || 'challenge_failed');
+              onError?.();
+            },
+            'expired-callback': onExpire,
+            theme,
+            appearance,
+          });
+        })
+        .catch(() => {
+          if (!cancelled) setError('challenge_load_failed');
         });
-      })
-      .catch(() => {
-        if (!cancelled) setError('challenge_load_failed');
-      });
+    };
+
+    type IdleWindow = Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+    const idleWin = window as IdleWindow;
+    let idleHandle: number | undefined;
+    let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
+    if (typeof idleWin.requestIdleCallback === 'function') {
+      idleHandle = idleWin.requestIdleCallback(start, { timeout: 3000 });
+    } else {
+      timeoutHandle = setTimeout(start, 1500);
+    }
+
     return () => {
       cancelled = true;
+      if (idleHandle != null && typeof idleWin.cancelIdleCallback === 'function') {
+        idleWin.cancelIdleCallback(idleHandle);
+      }
+      if (timeoutHandle) clearTimeout(timeoutHandle);
       if (widgetIdRef.current && window.turnstile) {
         try {
           window.turnstile.remove(widgetIdRef.current);

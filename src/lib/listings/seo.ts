@@ -57,10 +57,29 @@ export function buildSeoMeta({ property: p, locale }: BuildMetaArgs): SeoMeta {
   // sentence boundary if possible.
   const truncated = description.length > 155 ? description.slice(0, 155).replace(/\s+\S*$/, '…') : description;
 
-  const price = formatPrice(p.priceCents, p.currency, locale);
-  const bedSegment = p.bedrooms != null ? ` · ${p.bedrooms}bd` : '';
   const cityCountry = `${p.city}, ${getCountryName(p.countryCode, locale)}`;
-  const seoTitle = `${price} · ${title}${bedSegment} · ${cityCountry}`;
+  // Title shape (changed 2026-05-16 — was "{price} · {title} · {bedSegment} ·
+  // {cityCountry}", typically 100+ chars and price-first which the 2026-05-16
+  // SEO audit flagged as truncated + unhelpful when the price is the lowest-
+  // intent signal). New format puts the human-readable title FIRST (highest
+  // CTR signal), then key facts, then city+country, then brand. Caps at ~70
+  // chars to dodge Google's 580-pixel truncation. Price stays in the meta
+  // description + JSON-LD Offer where it's still indexable but not eating
+  // SERP-title real estate.
+  const factSegments: string[] = [];
+  if (p.bedrooms != null) factSegments.push(`${p.bedrooms}bd`);
+  if (p.areaSqm != null) factSegments.push(`${p.areaSqm} m²`);
+  const facts = factSegments.length > 0 ? ` · ${factSegments.join(' · ')}` : '';
+  // Truncate title body if combined output would exceed 65 chars (leaves
+  // headroom for ' | AHO' suffix).
+  const tail = `${facts} · ${cityCountry} | AHO`;
+  const titleBudget = Math.max(20, 70 - tail.length);
+  const trimmedTitle =
+    title.length > titleBudget ? title.slice(0, titleBudget - 1).replace(/\s+\S*$/, '') + '…' : title;
+  const seoTitle = `${trimmedTitle}${tail}`;
+
+  // Keep price available for description fallback below.
+  const price = formatPrice(p.priceCents, p.currency, locale);
 
   // Description fallback chain — ensures the <meta name="description"> tag
   // ALWAYS has content, even on listings with empty descriptions (Lighthouse
@@ -333,6 +352,19 @@ export function buildListingJsonLd({ property: p, locale, contact, reviewSummary
   if (p.bedrooms != null && p.bathrooms != null) {
     listingNode.numberOfRooms = p.bedrooms + p.bathrooms;
   }
+
+  // GeoCoordinates — when the listing has precise lat/lng (migration
+  // 0007 maintains these via trigger from PostGIS `location`).
+  // Powers Google Maps rich results + the "View on map" feature in
+  // SERPs for property listings. Address-only listings (no coords)
+  // skip this block; Google falls back to geocoding the address.
+  if (p.latitude != null && p.longitude != null) {
+    listingNode.geo = {
+      '@type': 'GeoCoordinates',
+      latitude: p.latitude,
+      longitude: p.longitude,
+    };
+  }
   if (p.areaSqm != null) {
     listingNode.floorSize = {
       '@type': 'QuantitativeValue',
@@ -401,7 +433,77 @@ export function buildListingJsonLd({ property: p, locale, contact, reviewSummary
     nodes.push(agentNode);
   }
 
-  // -------- 5. BreadcrumbList --------
+  // -------- 5. FAQPage (auto-generated from property facts) --------
+  // Google rewards FAQPage schema with the "People also ask" rich
+  // result — accordion of Q&A directly in the SERP card. The questions
+  // map to common buyer queries on real-estate listings; answers come
+  // straight from the property's structured data so they're always
+  // accurate (no hallucination risk). Only emit Q&As whose answer is
+  // non-null — questions about missing facts would be honest but
+  // worthless for SERP impact.
+  const faqEntries: Array<{ q: string; a: string }> = [];
+  const faqPrice = formatPrice(p.priceCents, p.currency, locale);
+  if (p.priceCents > 0) {
+    faqEntries.push({
+      q: locale === 'es' ? `¿Cuál es el precio?` : `What is the price?`,
+      a:
+        locale === 'es'
+          ? `El precio es ${faqPrice}${p.transactionType === 'rent' && p.pricePeriod === 'monthly' ? ' al mes' : ''}.`
+          : `The price is ${faqPrice}${p.transactionType === 'rent' && p.pricePeriod === 'monthly' ? ' per month' : ''}.`,
+    });
+  }
+  if (p.bedrooms != null && p.bathrooms != null) {
+    faqEntries.push({
+      q:
+        locale === 'es'
+          ? `¿Cuántos dormitorios y baños tiene?`
+          : `How many bedrooms and bathrooms does it have?`,
+      a:
+        locale === 'es'
+          ? `Tiene ${p.bedrooms} dormitorios y ${p.bathrooms} baños.`
+          : `It has ${p.bedrooms} bedrooms and ${p.bathrooms} bathrooms.`,
+    });
+  }
+  if (p.areaSqm != null) {
+    faqEntries.push({
+      q: locale === 'es' ? `¿Cuál es la superficie?` : `What is the size?`,
+      a:
+        locale === 'es'
+          ? `La superficie es de ${p.areaSqm} m².`
+          : `The total floor area is ${p.areaSqm} m².`,
+    });
+  }
+  if (p.city) {
+    faqEntries.push({
+      q: locale === 'es' ? `¿Dónde se encuentra?` : `Where is it located?`,
+      a: `${p.city}, ${getCountryName(p.countryCode, locale)}.`,
+    });
+  }
+  if ((p.amenities ?? []).length > 0) {
+    faqEntries.push({
+      q:
+        locale === 'es'
+          ? `¿Qué amenidades incluye?`
+          : `What amenities does it include?`,
+      a: p.amenities.join(', ') + '.',
+    });
+  }
+  if (faqEntries.length >= 2) {
+    nodes.push({
+      '@type': 'FAQPage',
+      '@id': `${canonical}#faq`,
+      mainEntity: faqEntries.map((entry) => ({
+        '@type': 'Question',
+        name: entry.q,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: entry.a,
+        },
+      })),
+    });
+  }
+
+  // -------- 6. BreadcrumbList --------
   const countryName = getCountryName(p.countryCode, locale);
   const propertiesPath = locale === 'es' ? '/es/propiedades' : '/en/properties';
   const breadcrumbNode: Record<string, unknown> = {

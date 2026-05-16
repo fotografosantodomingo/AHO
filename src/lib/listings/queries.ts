@@ -27,6 +27,12 @@ export interface PropertyDetail {
   lotSizeSqm: number | null;
   /** Year built — used by Property + Construction sections. */
   yearBuilt: number | null;
+  /** Latitude / longitude in WGS 84. Maintained by trigger from the
+   *  PostGIS `location` column (migration 0007). Used for GeoCoordinates
+   *  in JSON-LD + the property map. NULL when the listing has no
+   *  precise coordinates (per migration 0011 — coords are optional). */
+  latitude: number | null;
+  longitude: number | null;
   addressLine: string | null;
   neighborhood: string | null;
   city: string;
@@ -157,6 +163,7 @@ export async function fetchPropertyByShortId(
         transaction_type, property_type,
         price_cents, currency, price_period,
         bedrooms, bathrooms, area_sqm, lot_size_sqm, year_built,
+        latitude, longitude,
         amenities, features,
         address_line, neighborhood, city, state_region, country_code, postal_code, display_address,
         org_id, created_at, updated_at,
@@ -215,6 +222,8 @@ export async function fetchPropertyByShortId(
     areaSqm: data.area_sqm != null ? Number(data.area_sqm) : null,
     lotSizeSqm: data.lot_size_sqm != null ? Number(data.lot_size_sqm) : null,
     yearBuilt: data.year_built,
+    latitude: data.latitude as number | null,
+    longitude: data.longitude as number | null,
     amenities: (data.amenities as string[] | null) ?? [],
     features: data.features ?? {},
     addressLine: data.address_line,
