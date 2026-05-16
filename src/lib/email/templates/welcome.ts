@@ -26,8 +26,8 @@ export function renderWelcomeEmail(args: WelcomeArgs): RenderedEmail {
       )}) is ready. You can save favorite listings, get email alerts, and contact agents with one click.`;
 
   const agentNudge = isEs
-    ? '¿Eres agente inmobiliario? Suscríbete al plan Agente para publicar propiedades en AHO y compartirlas en Facebook + Instagram con un solo clic.'
-    : 'Are you a real estate agent? Subscribe to the Agent plan to publish listings on AHO and share them on Facebook + Instagram with a single click.';
+    ? '¿Eres agente inmobiliario? Suscríbete al plan Agente para publicar propiedades en AHO y compartirlas en Facebook + Instagram + LinkedIn con un solo clic.'
+    : 'Are you a real estate agent? Subscribe to the Agent plan to publish listings on AHO and share them on Facebook + Instagram + LinkedIn with a single click.';
 
   const ctaPrimary = isEs ? 'Explorar anuncios' : 'Browse listings';
   const ctaSecondary = isEs ? 'Convertirse en agente' : 'Become an agent';
