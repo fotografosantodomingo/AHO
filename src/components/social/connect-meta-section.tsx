@@ -188,6 +188,12 @@ export async function ConnectMetaSection({ locale, flash }: Props) {
             </p>
           )}
 
+          {pageTokens.length > 0 && igTokens.length === 0 && (
+            <p className="rounded-card border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm text-amber-800 dark:text-amber-200">
+              {t('igNotDetectedHint')}
+            </p>
+          )}
+
           <div className="flex flex-wrap gap-2 pt-2">
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a

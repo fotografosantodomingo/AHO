@@ -1474,6 +1474,7 @@
     "facebookPagesHeading": "{count, plural, =1 {1 Facebook-Seite} other {# Facebook-Seiten}}",
     "instagramAccountsHeading": "{count, plural, =1 {1 Instagram-Business-Konto} other {# Instagram-Business-Konten}}",
     "noPagesHint": "Wir haben Ihr Facebook-Profil verbunden, aber keine Seiten gefunden, die Sie verwalten. Erstellen oder beanspruchen Sie zuerst eine Facebook-Seite und klicken Sie dann auf Neu verbinden.",
+    "igNotDetectedHint": "Facebook verbunden — aber keine Instagram-Business-Konten erkannt. Verknüpfen Sie in der Meta Business Suite Ihr Instagram-Business-Konto mit einer Ihrer Facebook-Seiten und klicken Sie dann auf Neu verbinden, um die Berechtigungen zu aktualisieren. (Persönliche Instagram-Profile qualifizieren sich nicht — wechseln Sie zuerst zu einem Business- oder Creator-Konto.)",
     "flashConnected": "Verbunden. Wir sehen {pages, plural, =0 {keine Seiten} =1 {1 Seite} other {# Seiten}} und {ig, plural, =0 {keine Instagram-Business-Konten} =1 {1 Instagram-Business-Konto} other {# Instagram-Business-Konten}} in Ihrem Konto.",
     "flashDenied": "Sie haben die Berechtigungen abgelehnt. AHO benötigt sie, um in Ihrem Namen zu veröffentlichen — versuchen Sie es erneut, wenn Sie bereit sind.",
     "flashError": "Beim Verbinden ist ein Fehler aufgetreten ({reason}). Erneut versuchen oder den Support kontaktieren, falls es weiter besteht."

@@ -1165,6 +1165,7 @@
     "facebookPagesHeading": "{count, plural, =1 {1 Página do Facebook} other {# Páginas do Facebook}}",
     "instagramAccountsHeading": "{count, plural, =1 {1 conta Instagram Business} other {# contas Instagram Business}}",
     "noPagesHint": "Conectamos seu perfil do Facebook mas não vimos Páginas que você administra. Crie ou reivindique uma Página do Facebook primeiro, depois clique em Reconectar.",
+    "igNotDetectedHint": "Facebook conectado — mas nenhuma conta Instagram Business foi detectada. No Meta Business Suite, vincule sua conta Instagram Business a uma das suas Páginas do Facebook, depois clique em Reconectar para atualizar as permissões. (Perfis pessoais do Instagram não se qualificam — mude primeiro para uma conta Business ou Creator.)",
     "flashConnected": "Conectado. Vemos {pages, plural, =0 {nenhuma Página} =1 {1 Página} other {# Páginas}} e {ig, plural, =0 {nenhuma conta Instagram Business} =1 {1 conta Instagram Business} other {# contas Instagram Business}} na sua conta.",
     "flashDenied": "Você recusou as permissões. O AHO precisa delas para publicar em seu nome — tente novamente quando estiver pronto.",
     "flashError": "Algo deu errado ao conectar ({reason}). Tente novamente, ou contate o suporte se persistir."

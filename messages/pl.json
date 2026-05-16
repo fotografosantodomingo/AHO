@@ -1141,6 +1141,7 @@
     "facebookPagesHeading": "{count, plural, =1 {1 Strona Facebook} few {# Strony Facebook} many {# Stron Facebook} other {# Stron Facebook}}",
     "instagramAccountsHeading": "{count, plural, =1 {1 konto Instagram Business} few {# konta Instagram Business} many {# kont Instagram Business} other {# kont Instagram Business}}",
     "noPagesHint": "Połączyliśmy Twój profil Facebook, ale nie znaleźliśmy Stron, którymi zarządzasz. Najpierw utwórz lub przejmij Stronę Facebook, potem kliknij Połącz ponownie.",
+    "igNotDetectedHint": "Facebook połączony — ale nie wykryliśmy żadnych kont Instagram Business. W Meta Business Suite połącz swoje konto Instagram Business z jedną ze swoich Stron Facebook, a następnie kliknij Połącz ponownie, aby odświeżyć uprawnienia. (Osobiste profile Instagram się nie kwalifikują — najpierw przełącz na konto Business lub Creator.)",
     "flashConnected": "Połączono. Widzimy {pages, plural, =0 {0 Stron} =1 {1 Stronę} few {# Strony} many {# Stron} other {# Stron}} oraz {ig, plural, =0 {0 kont Instagram Business} =1 {1 konto Instagram Business} few {# konta Instagram Business} many {# kont Instagram Business} other {# kont Instagram Business}} na Twoim koncie.",
     "flashDenied": "Odmówiłeś uprawnień. AHO ich potrzebuje, by publikować w Twoim imieniu — spróbuj ponownie, gdy będziesz gotowy.",
     "flashError": "Coś poszło nie tak podczas łączenia ({reason}). Spróbuj ponownie lub skontaktuj się z pomocą, jeśli problem się powtarza."
