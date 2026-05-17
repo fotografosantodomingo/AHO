@@ -20,9 +20,9 @@ Effort: S = same-session, M = 1-3 days, L = ≥4 days. Owner: who's blocking.
 |---|---|---|---|---|
 | 1 | **Soft-beta recruitment + first end-to-end test** of the Free Audit → Approval Grid → Publish loop on your own account. | The wedge is BUILT but UN-VALIDATED. Nothing else matters until we know it works for one real agent. | S | **You** |
 | 2 | **Phase 4 — Auto-video Reels/TikTok engine.** Super Pro tier paywall feature. | $199-249/mo tier needs this differentiator before pricing change makes sense. | L | Me (waiting on PO decision in `PO_DECISIONS.md` #1) |
-| 3 | **AI Customer Service Agent MVP** — knowledge ingestion (19a) → web chat replaces Tawk (19b) → confidence gating (19f). | ~7-day shippable slice; not blocked on Meta. Replaces Tawk + becomes the on-site sales engine. | L | Me |
+| 3 | **AI Customer Service Agent MVP** — knowledge ingestion (19a) → web chat replaces Tawk (19b) → confidence gating (19f). | ~7-day shippable slice; not blocked on Meta. Replaces Tawk + becomes the on-site sales engine. | L | Me (waiting on PO greenlight to commit to the 7-day window) |
 | 4 | **Phase 2.5 — Per-locale visual treatment on Creative Factory.** US bright sans / DE technical mono / IT serif + warm cream / PL bold accent in `route.tsx`. | Today all 7 locales render with one neutral template; per-market visual matches the per-market caption tone shipped in Phase 5. | M | Me |
-| 5 | **AI Customer Service Agent MVP** — knowledge ingestion (19a) → web chat replaces Tawk (19b) → confidence gating (19f). | 7-day shippable slice; not blocked on Meta. Replaces Tawk + becomes the on-site sales engine. | L | Me (waiting on PO greenlight to commit to the 7-day window) |
+| 5 | **`ai_generation_log` migration + per-audit cost tracking.** Per the SUPER_PRO_STAGE_1_PLAN.md §5 + §7 unit-economics target (≤$0.30/audit). Today token usage lands on `ai_audits` columns; this normalizes into a per-call log + adds a daily cost rollup. | First soft-beta cohort generates ≥50 audits/day; we need cost observability before we get a surprise Anthropic invoice. | S | Me |
 
 ---
 
