@@ -145,11 +145,56 @@ const config: NextConfig = {
     },
   },
   async headers() {
+    // X-Robots-Tag for every authed surface — defense-in-depth on top
+    // of the 307→/signin auth gate. Crawlers shouldn't ever see the
+    // dashboard HTML body (the gate redirects them), but if a session
+    // cookie ever leaks (shared device, cached intermediary) the
+    // header still tells the indexer "don't store this, don't show
+    // snippets, don't cache." Covers EN slugs (/dashboard, /admin) and
+    // ES alternates (/panel) plus the onboarding bounces.
+    const noIndexHeader = [
+      {
+        key: 'X-Robots-Tag',
+        value: 'noindex, nofollow, noarchive, nosnippet',
+      },
+    ];
+    const authedPathGlobs = [
+      '/dashboard/:path*',
+      '/dashboard',
+      '/panel/:path*',
+      '/panel',
+      '/admin/:path*',
+      '/admin',
+      '/setup-mfa',
+      '/onboarding/:path*',
+      '/inicio/:path*',
+      '/preview/:path*',
+      '/vista-previa/:path*',
+      // next-intl prefixes every URL with /:locale — duplicate the
+      // globs with a leading locale segment so /en/dashboard,
+      // /pl/dashboard, etc. all pick up the header. The catch-all
+      // `:locale(en|es|pl|pt|de|fr|it)` keeps non-locale URLs out.
+      '/:locale(en|es|pl|pt|de|fr|it)/dashboard/:path*',
+      '/:locale(en|es|pl|pt|de|fr|it)/dashboard',
+      '/:locale(en|es|pl|pt|de|fr|it)/panel/:path*',
+      '/:locale(en|es|pl|pt|de|fr|it)/panel',
+      '/:locale(en|es|pl|pt|de|fr|it)/admin/:path*',
+      '/:locale(en|es|pl|pt|de|fr|it)/admin',
+      '/:locale(en|es|pl|pt|de|fr|it)/setup-mfa',
+      '/:locale(en|es|pl|pt|de|fr|it)/onboarding/:path*',
+      '/:locale(en|es|pl|pt|de|fr|it)/inicio/:path*',
+      '/:locale(en|es|pl|pt|de|fr|it)/preview/:path*',
+      '/:locale(en|es|pl|pt|de|fr|it)/vista-previa/:path*',
+    ];
     return [
       {
         source: '/:path*',
         headers: securityHeaders,
       },
+      ...authedPathGlobs.map((source) => ({
+        source,
+        headers: noIndexHeader,
+      })),
     ];
   },
 };
