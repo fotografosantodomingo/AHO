@@ -168,6 +168,11 @@ export const PATHNAMES = {
     es: '/vista-previa/[auditId]',
     ...en5('/preview/[auditId]'),
   },
+  '/instagram-setup': {
+    en: '/instagram-setup',
+    es: '/configurar-instagram',
+    ...en5('/instagram-setup'),
+  },
   '/saved-properties': {
     en: '/saved-properties',
     es: '/inmuebles-guardados',

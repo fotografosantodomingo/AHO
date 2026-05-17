@@ -189,9 +189,17 @@ export async function ConnectMetaSection({ locale, flash }: Props) {
           )}
 
           {pageTokens.length > 0 && igTokens.length === 0 && (
-            <p className="rounded-card border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm text-amber-800 dark:text-amber-200">
-              {t('igNotDetectedHint')}
-            </p>
+            <div className="rounded-card border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm text-amber-800 dark:text-amber-200">
+              <p>{t('igNotDetectedHint')}</p>
+              <p className="mt-2">
+                <a
+                  href={`/${locale}/instagram-setup`}
+                  className="font-medium underline-offset-2 hover:underline"
+                >
+                  {t('igNotDetectedGuideLink')} →
+                </a>
+              </p>
+            </div>
           )}
 
           <div className="flex flex-wrap gap-2 pt-2">

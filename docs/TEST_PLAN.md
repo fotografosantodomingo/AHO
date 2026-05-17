@@ -31,6 +31,12 @@
 - **Expect:** Domain `advertisehomes.online` flips to "Verified" within seconds. Confirms the `<meta name="facebook-domain-verification" content="ztd23gv75ztx1kqizjykrk30oeiinn"/>` tag in our `<head>` is live and Meta reads it correctly.
 - **If wrong:** Meta will say "could not find tag" — if so, try the Sharing Debugger (https://developers.facebook.com/tools/debug/) and paste me the result.
 
+### `instagram-setup-guide` — Phase 2 IG plan (just shipped)
+- **Do:** Visit https://advertisehomes.online/en/instagram-setup. Also try `/pl/instagram-setup`, `/es/configurar-instagram`, `/de/instagram-setup`.
+- **Expect:** Full guide page renders in the right language: 4 numbered steps (switch to Business → link to FB Page → reconnect on AHO → verify) + troubleshooting panel with 3 common failures + final CTA to /dashboard/social. Hreflang alternates present in HTML head. Page is statically generated (fast).
+- **AND:** Visit /en/dashboard/social as `info@advertisehomes.online`. The amber "Instagram not detected" callout should now have a **"Full setup guide (5 minutes) →"** link below the body. Click it → lands on /en/instagram-setup.
+- **If wrong:** Paste the URL you tried + screenshot. Most likely failure: missing translation falls back to key name (e.g. you see literal "instagramSetup.step1A").
+
 ### `ig-not-detected-nudge` — Phase 1 IG plan (shipped `5124240`)
 - **Do:** Go to https://advertisehomes.online/en/dashboard/social as `info@advertisehomes.online`.
 - **Expect:** Below the Facebook Pages list (3 Pages), an amber callout: *"Facebook connected — but no Instagram Business accounts were detected. In Meta Business Suite, link your Instagram Business account..."*

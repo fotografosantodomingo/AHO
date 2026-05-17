@@ -22,7 +22,7 @@ Effort: S = same-session, M = 1-3 days, L = ≥4 days. Owner: who's blocking.
 | 2 | **Phase 4 — Auto-video Reels/TikTok engine.** Super Pro tier paywall feature. | $199-249/mo tier needs this differentiator before pricing change makes sense. | L | Me (waiting on PO decision in `PO_DECISIONS.md` #1) |
 | 3 | **AI Customer Service Agent MVP** — knowledge ingestion (19a) → web chat replaces Tawk (19b) → confidence gating (19f). | ~7-day shippable slice; not blocked on Meta. Replaces Tawk + becomes the on-site sales engine. | L | Me |
 | 4 | **Phase 5 — Multilingual Context Engine.** Per-market system prompts (US lifestyle / DE technical / IT emotion / PL practical) in `ai-drafter`. | Today all 7 locales fall back to EN content via `narrowContentLocale`. PL drafts == EN drafts; that's the visible quality gap. | M | Me |
-| 5 | **`/docs/instagram-setup` self-serve guide in 7 locales.** | Once Meta BV lands and the first agent tries to enable IG, they'll need this. Cheap insurance. | S | Me |
+| 5 | **Per-locale visual treatment on Free Audit creatives** (Phase 2.5). Currently one neutral template for all 7 locales — US bright sans / DE technical mono / IT serif + warm cream / PL bold accent. | Removes the "all the captions are in English even on PL" objection from soft-beta cohort. | M | Me |
 
 ---
 
@@ -41,7 +41,7 @@ Effort: S = same-session, M = 1-3 days, L = ≥4 days. Owner: who's blocking.
 
 ## ✅ Shipped this week (2026-05-11 → 2026-05-17)
 
-**Today (2026-05-17)** — `c385f93` Phase 3 approval grid + atomic publish · `8ed3d61` Phase 2 Creative Factory · `2602016` Phase 1 Free Audit widget · `c44d6e7` bright theme · `7108266` X-Robots-Tag noindex on authed surfaces · `16f73e4` devIndicators off · `0a62c41` source maps off · header redesign (Real estate agent / Save dropdowns + Home) · garlic logo iterations → wordmark only · IG-not-detected nudge on /dashboard/social · Meta domain verification meta tag · property edit page layout fixes · dashboard security audit (4 layers all green)
+**Today (2026-05-17)** — `c385f93` Phase 3 approval grid + atomic publish · `8ed3d61` Phase 2 Creative Factory · `2602016` Phase 1 Free Audit widget · `c44d6e7` bright theme · `7108266` X-Robots-Tag noindex on authed surfaces · `16f73e4` devIndicators off · `0a62c41` source maps off · `5d138d7` super-structure (STATUS / PO_DECISIONS / TEST_PLAN docs + operating protocol) · **`<this-commit>` IG self-serve setup guide at /instagram-setup in 7 locales + link from the IG-not-detected nudge** · header redesign (Real estate agent / Save dropdowns + Home) · garlic logo iterations → wordmark only · IG-not-detected nudge on /dashboard/social · Meta domain verification meta tag · property edit page layout fixes · dashboard security audit (4 layers all green)
 
 **Earlier this week** (per `docs/PROGRESS.md` 2026-05-15 entry) — Google OAuth full stack · LinkedIn personal-profile publishing pulled from v1.1 to Stage 1 · MFA QR bug fix · reset-password AAL2 flow · 21st.dev removal · admin comp seat for `info@advertisehomes.online` · Super Pro Stage 1 plan doc (282 lines)
 
