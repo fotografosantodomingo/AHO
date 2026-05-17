@@ -2184,6 +2184,19 @@
     "factBedrooms": "Quartos",
     "factBathrooms": "Banheiros",
     "factArea": "Área",
+    "creativesHeading": "3 gráficos com marca — prontos para baixar",
+    "creativesSub": "Gerados na hora a partir da foto do seu anúncio com o rodapé AHO. Use como estão ou baixe para editar.",
+    "creativeAlt": {
+      "fb": "Gráfico para Facebook — 1200×630",
+      "ig": "Gráfico quadrado para Instagram — 1080×1080",
+      "pin": "Pin do Pinterest — 1000×1500"
+    },
+    "creativeLabel": {
+      "fb": "Facebook • 1200×630",
+      "ig": "Instagram • 1080×1080",
+      "pin": "Pinterest • 1000×1500"
+    },
+    "downloadCreative": "Baixar",
     "captionsHeading": "9 legendas prontas",
     "localeEn": "Inglês",
     "localeEs": "Espanhol",

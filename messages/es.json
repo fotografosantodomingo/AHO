@@ -2245,6 +2245,19 @@
     "factBedrooms": "Habitaciones",
     "factBathrooms": "Baños",
     "factArea": "Superficie",
+    "creativesHeading": "3 gráficos con marca — listos para descargar",
+    "creativesSub": "Generados al instante desde tu foto del anuncio con el pie de página AHO. Úsalos tal cual o descárgalos para editar.",
+    "creativeAlt": {
+      "fb": "Gráfico para Facebook — 1200×630",
+      "ig": "Gráfico cuadrado para Instagram — 1080×1080",
+      "pin": "Pin de Pinterest — 1000×1500"
+    },
+    "creativeLabel": {
+      "fb": "Facebook • 1200×630",
+      "ig": "Instagram • 1080×1080",
+      "pin": "Pinterest • 1000×1500"
+    },
+    "downloadCreative": "Descargar",
     "captionsHeading": "9 captions listos",
     "localeEn": "Inglés",
     "localeEs": "Español",

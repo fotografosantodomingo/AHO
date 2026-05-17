@@ -2245,6 +2245,19 @@
     "factBedrooms": "Bedrooms",
     "factBathrooms": "Bathrooms",
     "factArea": "Area",
+    "creativesHeading": "3 branded graphics — ready to download",
+    "creativesSub": "Render-on-demand from your listing photo with the AHO footer. Use them as-is or download for further editing.",
+    "creativeAlt": {
+      "fb": "Facebook feed graphic — 1200×630",
+      "ig": "Instagram square graphic — 1080×1080",
+      "pin": "Pinterest pin — 1000×1500"
+    },
+    "creativeLabel": {
+      "fb": "Facebook • 1200×630",
+      "ig": "Instagram • 1080×1080",
+      "pin": "Pinterest • 1000×1500"
+    },
+    "downloadCreative": "Download",
     "captionsHeading": "9 captions ready",
     "localeEn": "English",
     "localeEs": "Spanish",

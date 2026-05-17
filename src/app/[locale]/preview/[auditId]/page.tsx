@@ -183,6 +183,52 @@ export default async function PreviewPage({
         )}
       </section>
 
+      {/* Creative Factory v1 (Phase 2 of SUPER_PRO_STAGE_1_PLAN.md):
+          three branded graphic formats rendered on-demand by
+          /api/audit/[id]/creative/[format]. Each <img> hits that
+          edge route which composes the listing photo + title + price
+          + "Powered by AHO" footer via next/og. The browser pays
+          ~one network hit per format; the route caches 1h at the
+          edge so a second visitor on the same audit is instant. */}
+      <section
+        aria-labelledby="audit-creatives-heading"
+        className="mt-10 space-y-4"
+      >
+        <h2
+          id="audit-creatives-heading"
+          className="font-brand text-2xl font-semibold tracking-tight md:text-[32px]"
+        >
+          {t('creativesHeading')}
+        </h2>
+        <p className="text-sm text-helper">{t('creativesSub')}</p>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {(['fb', 'ig', 'pin'] as const).map((fmt) => (
+            <figure
+              key={fmt}
+              className="overflow-hidden rounded-card border border-border bg-surface shadow-whisper dark:bg-surface-deep"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`/api/audit/${auditId}/creative/${fmt}`}
+                alt={t(`creativeAlt.${fmt}` as 'creativeAlt.fb')}
+                loading="lazy"
+                className="block w-full bg-surface-muted dark:bg-surface-dark"
+              />
+              <figcaption className="flex items-center justify-between px-3 py-2 text-xs text-helper">
+                <span>{t(`creativeLabel.${fmt}` as 'creativeLabel.fb')}</span>
+                <a
+                  href={`/api/audit/${auditId}/creative/${fmt}`}
+                  download={`aho-${fmt}.png`}
+                  className="font-medium text-action underline-offset-2 hover:underline dark:text-action-dark"
+                >
+                  {t('downloadCreative')} ↓
+                </a>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </section>
+
       {/* Captions grid — locales as rows, platforms as columns */}
       <section
         aria-labelledby="audit-captions-heading"

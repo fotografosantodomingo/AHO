@@ -2184,6 +2184,19 @@
     "factBedrooms": "Camere",
     "factBathrooms": "Bagni",
     "factArea": "Superficie",
+    "creativesHeading": "3 grafiche brandizzate — pronte da scaricare",
+    "creativesSub": "Generate al volo dalla foto del tuo annuncio con il footer AHO. Usale così o scaricale per modificarle.",
+    "creativeAlt": {
+      "fb": "Grafica Facebook feed — 1200×630",
+      "ig": "Grafica quadrata Instagram — 1080×1080",
+      "pin": "Pin Pinterest — 1000×1500"
+    },
+    "creativeLabel": {
+      "fb": "Facebook • 1200×630",
+      "ig": "Instagram • 1080×1080",
+      "pin": "Pinterest • 1000×1500"
+    },
+    "downloadCreative": "Scarica",
     "captionsHeading": "9 didascalie pronte",
     "localeEn": "Inglese",
     "localeEs": "Spagnolo",

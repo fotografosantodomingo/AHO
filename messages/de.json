@@ -2184,6 +2184,19 @@
     "factBedrooms": "Schlafzimmer",
     "factBathrooms": "Badezimmer",
     "factArea": "Fläche",
+    "creativesHeading": "3 Markengrafiken — bereit zum Download",
+    "creativesSub": "Live gerendert aus Ihrem Inseratbild mit der AHO-Fußleiste. Direkt verwenden oder herunterladen zur weiteren Bearbeitung.",
+    "creativeAlt": {
+      "fb": "Facebook-Feed-Grafik — 1200×630",
+      "ig": "Instagram-Quadratgrafik — 1080×1080",
+      "pin": "Pinterest-Pin — 1000×1500"
+    },
+    "creativeLabel": {
+      "fb": "Facebook • 1200×630",
+      "ig": "Instagram • 1080×1080",
+      "pin": "Pinterest • 1000×1500"
+    },
+    "downloadCreative": "Herunterladen",
     "captionsHeading": "9 Captions bereit",
     "localeEn": "Englisch",
     "localeEs": "Spanisch",

@@ -2184,6 +2184,19 @@
     "factBedrooms": "Chambres",
     "factBathrooms": "Salles de bain",
     "factArea": "Surface",
+    "creativesHeading": "3 visuels brandés — prêts à télécharger",
+    "creativesSub": "Générés à la volée depuis votre photo d'annonce avec le bas de page AHO. Utilisez-les tels quels ou téléchargez pour modifier.",
+    "creativeAlt": {
+      "fb": "Visuel Facebook feed — 1200×630",
+      "ig": "Visuel carré Instagram — 1080×1080",
+      "pin": "Épingle Pinterest — 1000×1500"
+    },
+    "creativeLabel": {
+      "fb": "Facebook • 1200×630",
+      "ig": "Instagram • 1080×1080",
+      "pin": "Pinterest • 1000×1500"
+    },
+    "downloadCreative": "Télécharger",
     "captionsHeading": "9 légendes prêtes",
     "localeEn": "Anglais",
     "localeEs": "Espagnol",

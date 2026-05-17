@@ -2221,6 +2221,19 @@
     "factBedrooms": "Sypialnie",
     "factBathrooms": "Łazienki",
     "factArea": "Powierzchnia",
+    "creativesHeading": "3 grafiki z brandingiem — gotowe do pobrania",
+    "creativesSub": "Generowane na żywo z Twojego zdjęcia ogłoszenia ze stopką AHO. Użyj od razu lub pobierz do dalszej edycji.",
+    "creativeAlt": {
+      "fb": "Grafika na Facebook — 1200×630",
+      "ig": "Kwadratowa grafika na Instagram — 1080×1080",
+      "pin": "Pin Pinterest — 1000×1500"
+    },
+    "creativeLabel": {
+      "fb": "Facebook • 1200×630",
+      "ig": "Instagram • 1080×1080",
+      "pin": "Pinterest • 1000×1500"
+    },
+    "downloadCreative": "Pobierz",
     "captionsHeading": "9 postów gotowych",
     "localeEn": "Angielski",
     "localeEs": "Hiszpański",
