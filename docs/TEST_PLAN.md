@@ -31,6 +31,15 @@
 - **Expect:** Domain `advertisehomes.online` flips to "Verified" within seconds. Confirms the `<meta name="facebook-domain-verification" content="ztd23gv75ztx1kqizjykrk30oeiinn"/>` tag in our `<head>` is live and Meta reads it correctly.
 - **If wrong:** Meta will say "could not find tag" — if so, try the Sharing Debugger (https://developers.facebook.com/tools/debug/) and paste me the result.
 
+### `multilingual-context-engine` — Phase 5 (just shipped)
+- **Do:** Open https://advertisehomes.online/en/for-agents in **incognito**. Paste a real listing URL — ideally a **Polish** one from otodom.pl (so the source is in Polish too). Click "Get my campaign." Wait ~30s. On the preview page, scroll to the captions grid.
+- **Expect:**
+  - The **English** row of 3 captions is in English (same as before).
+  - The **Spanish** row of 3 captions is in Spanish (same as before).
+  - **The Polish row is now ACTUALLY in Polish** — including the "Link in bio" line (becomes "Link w bio"), the "Full details" line (becomes "Pełne szczegóły i zdjęcia:"), and any CTAs (becomes "Umów oglądanie" / similar). NOT English text masquerading as Polish like before.
+- **Optional deeper test:** Open Cloudflare Pages logs or the Anthropic console — confirm the system prompt sent for the PL audit contains "Write EVERY word of EVERY caption in Polish."
+- **If wrong:** Paste the preview URL + screenshot of the Polish caption row. The most likely failure mode is the model ignoring the instruction and writing in English anyway — if so, paste the captions text so I can adjust the prompt strength.
+
 ### `instagram-setup-guide` — Phase 2 IG plan (just shipped)
 - **Do:** Visit https://advertisehomes.online/en/instagram-setup. Also try `/pl/instagram-setup`, `/es/configurar-instagram`, `/de/instagram-setup`.
 - **Expect:** Full guide page renders in the right language: 4 numbered steps (switch to Business → link to FB Page → reconnect on AHO → verify) + troubleshooting panel with 3 common failures + final CTA to /dashboard/social. Hreflang alternates present in HTML head. Page is statically generated (fast).

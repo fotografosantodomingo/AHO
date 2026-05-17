@@ -2,6 +2,11 @@ import 'server-only';
 
 import type { PostInput } from '@/lib/social/post-formatter';
 import { narrowContentLocale, type Locale } from '@/i18n/config';
+import {
+  buildSystemPrompt,
+  localeToMarket,
+  type Market,
+} from '@/lib/social/market-prompts';
 
 /**
  * AI caption drafter — Phase J of docs/SOCIAL_AUTOMATION_PLAN.md.
@@ -18,8 +23,13 @@ import { narrowContentLocale, type Locale } from '@/i18n/config';
  *     agents are licensed and language carries liability.
  *   - Output JSON matching the tool schema. No prose outside it.
  *
- * Locale rule: listings are EN or ES content (Locale narrowed via
- * narrowContentLocale). PL/PT/DE/FR/IT marketing locales fall back to EN.
+ * Locale rule (Phase 5 onward): each locale maps to a Market via
+ * `localeToMarket` in `market-prompts.ts`. Captions are written in
+ * the target language — PL drafts in Polish, DE in German, IT in
+ * Italian, etc. — using per-market jargon and CTAs. The previous
+ * en/es-only fallback (where PL drafts came out in English) is gone.
+ * Callers can override the market via DrafterInput.market when the
+ * source has extra context (e.g., EN listing in Berlin → market='de').
  *
  * On any error (timeout, 429, malformed JSON, refusal) → return null
  * for each platform. The route handler maps that into a per-platform
@@ -53,6 +63,13 @@ export interface DrafterInput
   /** Pre-formatted price string (e.g. "$225,000") so the model doesn't
    *  have to render currency itself. Built by the route via formatPrice. */
   priceFormatted: string;
+  /** Per-market system prompt selector — Phase 5 of
+   *  docs/SUPER_PRO_STAGE_1_PLAN.md. When omitted, derived from
+   *  `locale` via localeToMarket (en → us, es → es, pl → pl, …).
+   *  Callers can override when the source has more context than the
+   *  locale alone (e.g., an EN listing in Berlin uses market='de'
+   *  for tone but keeps locale='en' for language). */
+  market?: Market;
 }
 
 export interface DrafterDrafts {
@@ -85,22 +102,12 @@ export interface DrafterResult {
   errorMessage?: string;
 }
 
-const SYSTEM_PROMPT = `You are AHO's listing copy assistant. AHO is a real estate marketplace at advertisehomes.online. You write social-media drafts that licensed agents review and edit before posting. You never publish directly.
-
-HARD RULES — non-negotiable:
-- Use ONLY facts in the listing JSON. Do not invent amenities, views, schools, walkability, neighborhood character, HOA fees, taxes, year built. If a field is null, omit it from the post.
-- Do not use absolute superlatives: no "luxury", "stunning", "must-see", "won't last", "a steal", "below market". Agents are licensed and superlatives carry liability.
-- Write in the listing's content language only: "en" → English; "es" → Spanish. Never mix.
-- Output STRICT JSON matching the tool schema. No prose outside it.
-
-PER-PLATFORM SHAPES:
-- facebook.message: 2-3 short paragraphs, ~280-500 chars. Conversational third-person. End with a soft CTA ("Full details and photos:" then the URL on its own line). 1-2 hashtags max at the end.
-- instagram.caption: punchy 1st line. Blank line. 2-3 evocative lines about location/space — only what the listing JSON supports. Blank line. "Link in bio" (en) or "Enlace en bio" (es) then the URL on its own line. Blank line. 8-12 hashtags ending with #aho and a city hashtag derived from the listing city.
-- linkedin.commentary: 1 paragraph ~300-450 chars. Professional, no emoji except maybe a leading one. Frame as "new on market" or "now available". End with "Full details:" and the URL. 1-2 tags like #realestate or #property.
-- linkedin.contentTitle: max 200 chars, the listing title trimmed if needed.
-- linkedin.contentDescription: max 256 chars, compact line: "{city}, {country} · {price} · {specs}".
-
-If a platform is not in the user's "platforms" list, omit that key from the output.`;
+// The per-call system prompt is built by `buildSystemPrompt(market)`
+// from `@/lib/social/market-prompts`. Phase 5 of
+// docs/SUPER_PRO_STAGE_1_PLAN.md replaces the prior global
+// SYSTEM_PROMPT (en/es only, with PL/PT/DE/FR/IT silently falling back
+// to English) with seven market-specific prompts so each locale gets
+// captions in its actual language + local jargon + local CTAs.
 
 interface AnthropicToolUseBlock {
   type: 'tool_use';
@@ -198,7 +205,12 @@ export async function generateDrafts(
   if (platforms.length === 0) {
     return { drafts: {}, anySuccess: false };
   }
-  const contentLocale = narrowContentLocale(input.locale);
+  // Phase 5: derive market from locale (en→us, pl→pl, de→de, …)
+  // unless caller explicitly overrode. The per-market system prompt
+  // enforces "write EVERY word in {target language}" so PL/DE/FR/IT/PT
+  // drafts come out in the actual target language — not in English as
+  // they did under the old narrowContentLocale fallback.
+  const market = input.market ?? localeToMarket(input.locale);
 
   const userPrompt = JSON.stringify({
     listing: {
@@ -211,7 +223,8 @@ export async function generateDrafts(
       bathrooms: input.bathrooms,
       areaSqm: input.areaSqm,
       url: input.url,
-      locale: contentLocale,
+      locale: input.locale,
+      market,
     },
     platforms,
   });
@@ -220,7 +233,7 @@ export async function generateDrafts(
     model: ANTHROPIC_MODEL,
     max_tokens: ANTHROPIC_MAX_TOKENS,
     temperature: ANTHROPIC_TEMPERATURE,
-    system: SYSTEM_PROMPT,
+    system: buildSystemPrompt(market),
     tools: [
       {
         name: 'emit_drafts',
