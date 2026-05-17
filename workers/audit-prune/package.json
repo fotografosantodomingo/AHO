@@ -1,0 +1,18 @@
+{
+  "name": "aho-audit-prune",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AHO scheduled worker — daily proxy to /api/cron/audit-prune on the Pages app. Deletes unclaimed Free Audit rows past their 7-day TTL. See ../../docs/SUPER_PRO_STAGE_1_PLAN.md Phase 5.5.",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "deploy:dry-run": "wrangler deploy --dry-run",
+    "dev": "wrangler dev",
+    "trigger": "wrangler dev --test-scheduled",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240620.0",
+    "typescript": "^5.5.4",
+    "wrangler": "^4.88.0"
+  }
+}

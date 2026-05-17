@@ -1,0 +1,31 @@
+name = "aho-audit-prune"
+main = "src/index.ts"
+compatibility_date = "2025-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Cron Trigger — runs once a day at 03:30 UTC.
+# Coverage: 23:30 ET / 20:30 PT / 04:30 Madrid / 05:30 Warsaw.
+# 30-minute offset from `aho-meta-token-refresh` (04:00 UTC) so the
+# two cron jobs don't pile up on Anthropic / Meta concurrent fetch
+# headroom. The audit prune is a single DB DELETE — cheap and fast —
+# so it goes first.
+#
+# Why daily: ai_audits has expires_at default now() + 7 days. Daily
+# pruning keeps the table size bounded. At <100 audits/day during
+# soft-beta the table would still stay <1k rows for a long time;
+# daily is just operational hygiene + cost-tracking accuracy
+# (orphaned ai_generation_log rows get audit_id nulled via the
+# ON DELETE SET NULL FK).
+[triggers]
+crons = ["30 3 * * *"]
+
+# Secrets — set via `wrangler secret put` per environment, never
+# committed:
+#   - CRON_SECRET    (matches the Pages env CRON_SECRET; the Pages route
+#                     validates via the shared checkCronAuth helper)
+#   - AHO_PAGES_URL  (production: https://advertisehomes.online; preview:
+#                     the *.aho-web.pages.dev subdomain). Easier to set
+#                     per env than to hardcode here.
+
+[vars]
+LOG_LEVEL = "info"

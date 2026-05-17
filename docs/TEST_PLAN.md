@@ -31,6 +31,23 @@
 - **Expect:** Domain `advertisehomes.online` flips to "Verified" within seconds. Confirms the `<meta name="facebook-domain-verification" content="ztd23gv75ztx1kqizjykrk30oeiinn"/>` tag in our `<head>` is live and Meta reads it correctly.
 - **If wrong:** Meta will say "could not find tag" — if so, try the Sharing Debugger (https://developers.facebook.com/tools/debug/) and paste me the result.
 
+### `audit-prune-cron` — Phase 5.5 follow-on (just shipped — needs deployment)
+- **Code is committed** but the standalone Worker at `workers/audit-prune/` needs to be deployed once via wrangler. Same one-time setup as `workers/meta-token-refresh/`:
+  ```bash
+  cd workers/audit-prune
+  set -a && source ../../.env.local && set +a
+  npx wrangler@4 secret put CRON_SECRET            # paste the same value as Pages env CRON_SECRET
+  npx wrangler@4 secret put AHO_PAGES_URL          # https://advertisehomes.online
+  npx wrangler@4 deploy
+  ```
+- **Smoke test after deploy** (manual trigger):
+  ```bash
+  curl -sL "https://aho-audit-prune.<your-cf-subdomain>.workers.dev/run?secret=<CRON_SECRET>"
+  ```
+  **Expect:** `{ "ok": true, "deleted": 0 }` — zero on first run since no audits are past expires_at yet. After a week of soft-beta, this number will be > 0 daily.
+- **Scheduled run**: 03:30 UTC daily (30 min offset from the meta-token-refresh cron at 04:00 UTC).
+- **Hands-off check after the first ~10 days**: `select count(*) from ai_audits where expires_at < now() and claimed_by_user_id is null` should stay at 0 between runs (rows get deleted before they accumulate).
+
 ### `ai-generation-log` — Phase 5.5 cost observability (just shipped)
 - **Do:** Trigger a new Free Audit (paste any portal URL on `/en/for-agents`). Wait for the preview to render. Then in psql / Supabase SQL editor:
   ```sql
