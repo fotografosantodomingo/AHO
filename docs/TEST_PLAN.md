@@ -31,6 +31,32 @@
 - **Expect:** Domain `advertisehomes.online` flips to "Verified" within seconds. Confirms the `<meta name="facebook-domain-verification" content="ztd23gv75ztx1kqizjykrk30oeiinn"/>` tag in our `<head>` is live and Meta reads it correctly.
 - **If wrong:** Meta will say "could not find tag" — if so, try the Sharing Debugger (https://developers.facebook.com/tools/debug/) and paste me the result.
 
+### `video-scaffold` — Phase 4 slice 4a scaffold (just shipped; no UI yet)
+- **Scope of this slice:** the rails for video render. No actual video gets rendered until slice 4a-container ships (next multi-day session, gated on PO setting up CF Containers + R2 + Queue per `workers/video-render/README.md` pre-reqs).
+- **What you can verify today:**
+  - Migration 0064 applied — table exists:
+    ```sql
+    \d audit_videos
+    ```
+    Should show columns id / audit_id / market / status / r2_key / duration_s / error_code / render_ms / created_at / rendered_at.
+  - POST endpoint accepts a request:
+    ```bash
+    # signed-in as owner of <auditId>; cookies in your browser
+    fetch('/api/audit/<auditId>/video', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({locale:'en'})})
+    ```
+    Expected: `{ ok: true, jobId, status: 'queued', pending: true, hint: 'Render container deploys in slice 4b...' }`.
+  - The row lands in `audit_videos`:
+    ```sql
+    select * from audit_videos where audit_id='<auditId>' order by created_at desc limit 1;
+    ```
+    Status stays 'queued' forever until slice 4b's container starts consuming the queue.
+  - GET endpoint reports it:
+    ```bash
+    fetch('/api/audit/<auditId>/video?locale=en').then(r=>r.json())
+    ```
+    Expected: `{ ok: true, jobId, status: 'queued', market: 'us', ... }`.
+- **What's NOT testable yet:** the actual MP4 render. That's slice 4a-container; see `workers/video-render/README.md` for the pre-reqs PO needs to complete before that session.
+
 ### `publish-streaming` — Phase 3.5 NDJSON streaming (just shipped)
 - **Do:** From `/preview/<uuid>`, tick MULTIPLE cells across platforms (e.g. EN×FB + EN×IG + EN×LinkedIn) → click Publish 3. Watch the grid as it processes.
 - **Expect:** Cells flip from selected → ✓ Posted (or ✗ error) **one at a time** as each publish lands, not all together after a 10-second wait. FB typically lands first (~1s), IG in ~3-4s (carousel build), LinkedIn last (~4-5s). On a slow LinkedIn, the FB cell shows ✓ while LinkedIn still shows the loading state.

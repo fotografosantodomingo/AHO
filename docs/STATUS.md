@@ -8,14 +8,15 @@
 
 ## 🟢 Now — actively in flight
 
-**Phase 4 — Auto-video Reels/TikTok engine.** Render path locked 2026-05-17: **A = Remotion in Cloudflare Containers**. PO greenlit + asked for OAuth UX simplification alongside. Slicing into 4 shippable units:
+**Phase 4 — Auto-video Reels/TikTok engine.** Render path locked 2026-05-17: **A = Remotion in Cloudflare Containers**. Sliced into 4 units; 4d + the 4a-scaffold shipped today.
 
 | Slice | What ships | Effort | Status |
 |---|---|---|---|
-| **4d** — Inline connection state on the preview's approval grid + "Connect X →" buttons per row when token is missing | OAuth simplification benefits the EXISTING flow too, not just Phase 4. Ships first because S effort + immediate value. | S | **Building now** |
-| **4a** — Remotion composition + Cloudflare Containers worker | The video render itself: photos → Ken Burns → title card + price card → music bed → 15-30s 9:16 MP4 stored in R2 | L | Queued |
-| **4b** — IG Reels + FB Reels publish primitives in `lib/social/publish.ts` (extends today's IG Feed / FB Page primitives — same tokens, different Graph endpoints) | New publish targets enabled for the approval grid | M | Queued |
-| **4c** — Approval grid expansion: 3×3 → 3×5 with IG Reel + FB Reel rows | UI tie-together: agent picks which cells → atomic publish with video too | S | Queued |
+| **4d** — Inline connection state on the preview's approval grid + "Connect X →" buttons | ✅ Shipped `9dbea57` |
+| **4a-scaffold** — Migration 0064 audit_videos + buildVideoScript() pure function + /api/audit/[id]/video POST/GET route + workers/video-render/README documenting what 4b plugs in | ✅ Shipped today |
+| **4a-container** — Dockerfile + Remotion composition (`reel-real-estate-v1`) + container HTTP server + queue consumer wiring | L (3-5 days) | Queued — pre-req: PO opens CF Containers + creates R2 bucket + Queue |
+| **4b** — IG Reels + FB Reels publish primitives in `lib/social/publish.ts` (extends today's IG Feed / FB Page primitives — same tokens, different Graph endpoints) | M | Queued — depends on 4a-container ready |
+| **4c** — Approval grid expansion: 3×3 → 3×5 with IG Reel + FB Reel rows | S | Queued — depends on 4b |
 
 ---
 
@@ -29,7 +30,7 @@ Effort: S = same-session, M = 1-3 days, L = ≥4 days. Owner: who's blocking.
 | 2 | **PO_DECISIONS #2-4 batch** — Super Pro price ($199/$249/$299) + paywall structure + music library. Needed before Phase 4 fully lands but not before slice 4a starts. | Unblocks the pricing page + the marketing positioning around Phase 4. | S (PO action) | **You** |
 | 3 | **AI Customer Service Agent MVP** — knowledge ingestion (19a) → web chat replaces Tawk (19b) → confidence gating (19f). | ~7-day shippable slice; not blocked on Meta. Replaces Tawk + becomes the on-site sales engine. | L | Me (waiting on PO greenlight to commit to the 7-day window) |
 | 4 | **Dashboard Lighthouse re-test in incognito** (the 30/100 score was contaminated by Chrome extensions + IndexedDB per Lighthouse's own warning; expected real score 75-85). | Validates the perf wins from devIndicators off + source maps off + chunk audit work. | S | **You** (quick test) |
-| 5 | **Phase 4 slice 4a kickoff — Remotion + Cloudflare Containers worker scaffold.** Render the 15-30s vertical 9:16 video. Multi-session L effort but the FIRST slice (container scaffold + hello-world MP4) is S. | Once 4a-scaffold lands the rest of Phase 4 has somewhere to plug in. | L | Me |
+| 5 | **AI Customer Service Agent MVP** (still gated on PO greenlight for the 7-day commitment). | Once Phase 4 needs PO action to proceed (CF Containers + R2 + Queue setup), the AI agent is the largest unblocked dev pipeline. | L | Me (waiting on PO greenlight) |
 
 ---
 
