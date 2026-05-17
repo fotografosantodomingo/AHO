@@ -2265,6 +2265,21 @@
     "draftUnavailable": "La IA no pudo redactar este — vuelve a generar tras el registro.",
     "ctaHeading": "Publica todo esto con un clic — $99/mes",
     "ctaSub": "Regístrate para conectar tu Facebook + Instagram. Guardaremos esta auditoría en tu cuenta para publicar o editar cualquiera de los 9 captions.",
-    "ctaButton": "Regístrate — publica en 1 clic"
+    "ctaButton": "Regístrate — publica en 1 clic",
+    "approvalHeading": "Publicar",
+    "approvalSub": "Marca los captions que quieres publicar — los enviamos a tus cuentas conectadas de una vez.",
+    "approvalLocaleCol": "Idioma",
+    "approvalNoDraft": "sin borrador",
+    "approvalPosted": "Publicado",
+    "approvalSelectedCount": "{count, plural, =0 {Nada seleccionado} =1 {1 seleccionado} other {# seleccionados}}",
+    "approvalPublishCta": "{count, plural, =0 {Publicar aprobados} =1 {Publicar 1} other {Publicar #}}",
+    "approvalPublishing": "Publicando…",
+    "publishError": {
+      "unauthenticated": "Tienes que iniciar sesión para publicar.",
+      "not_owner": "Esta auditoría pertenece a otro agente.",
+      "audit_not_found": "Auditoría no encontrada.",
+      "invalid_input": "Selección inválida. Recarga e inténtalo de nuevo.",
+      "token_key_not_configured": "La encriptación de tokens no está configurada."
+    }
   }
 }

@@ -2241,6 +2241,21 @@
     "draftUnavailable": "AI nie napisała tego — wygeneruj ponownie po rejestracji.",
     "ctaHeading": "Opublikuj to wszystko jednym kliknięciem — $99/mc",
     "ctaSub": "Zarejestruj się, by połączyć Facebook + Instagram. Audyt zachowamy na koncie — opublikuj lub edytuj dowolny z 9 postów.",
-    "ctaButton": "Zarejestruj się — publikuj 1 klikiem"
+    "ctaButton": "Zarejestruj się — publikuj 1 klikiem",
+    "approvalHeading": "Publikuj",
+    "approvalSub": "Zaznacz posty, które chcesz opublikować — wyślemy je na Twoje połączone konta za jednym kliknięciem.",
+    "approvalLocaleCol": "Język",
+    "approvalNoDraft": "brak wersji",
+    "approvalPosted": "Opublikowano",
+    "approvalSelectedCount": "{count, plural, =0 {Nic nie zaznaczono} =1 {1 zaznaczony} few {# zaznaczone} many {# zaznaczonych} other {# zaznaczonych}}",
+    "approvalPublishCta": "{count, plural, =0 {Opublikuj zatwierdzone} =1 {Opublikuj 1} few {Opublikuj #} many {Opublikuj #} other {Opublikuj #}}",
+    "approvalPublishing": "Publikuję…",
+    "publishError": {
+      "unauthenticated": "Musisz się zalogować, by publikować.",
+      "not_owner": "Ten audyt należy do innego agenta.",
+      "audit_not_found": "Nie znaleziono audytu.",
+      "invalid_input": "Nieprawidłowy wybór. Odśwież i spróbuj ponownie.",
+      "token_key_not_configured": "Szyfrowanie tokenów nie jest skonfigurowane."
+    }
   }
 }

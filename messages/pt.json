@@ -2204,6 +2204,21 @@
     "draftUnavailable": "A IA não conseguiu redigir essa — gere novamente após o cadastro.",
     "ctaHeading": "Publique tudo isso com um clique — $99/mês",
     "ctaSub": "Cadastre-se para conectar seu Facebook + Instagram. Guardaremos esta auditoria na sua conta para publicar ou editar qualquer das 9 legendas.",
-    "ctaButton": "Cadastre-se — publique em 1 clique"
+    "ctaButton": "Cadastre-se — publique em 1 clique",
+    "approvalHeading": "Publicar",
+    "approvalSub": "Marque as legendas que quer publicar — enviamos para suas contas conectadas de uma só vez.",
+    "approvalLocaleCol": "Idioma",
+    "approvalNoDraft": "sem rascunho",
+    "approvalPosted": "Publicado",
+    "approvalSelectedCount": "{count, plural, =0 {Nada selecionado} =1 {1 selecionado} other {# selecionados}}",
+    "approvalPublishCta": "{count, plural, =0 {Publicar aprovados} =1 {Publicar 1} other {Publicar #}}",
+    "approvalPublishing": "Publicando…",
+    "publishError": {
+      "unauthenticated": "Você precisa entrar para publicar.",
+      "not_owner": "Esta auditoria pertence a outro corretor.",
+      "audit_not_found": "Auditoria não encontrada.",
+      "invalid_input": "Seleção inválida. Recarregue e tente novamente.",
+      "token_key_not_configured": "A criptografia de tokens não está configurada."
+    }
   }
 }

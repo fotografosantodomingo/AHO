@@ -2204,6 +2204,21 @@
     "draftUnavailable": "Die KI konnte diese nicht verfassen — nach Anmeldung erneut generieren.",
     "ctaHeading": "Alles davon mit einem Klick veröffentlichen — $99/Monat",
     "ctaSub": "Melden Sie sich an, um Ihr Facebook + Instagram zu verbinden. Wir speichern diese Analyse in Ihrem Konto — veröffentlichen oder bearbeiten Sie beliebige der 9 Captions.",
-    "ctaButton": "Anmelden — in 1 Klick veröffentlichen"
+    "ctaButton": "Anmelden — in 1 Klick veröffentlichen",
+    "approvalHeading": "Veröffentlichen",
+    "approvalSub": "Wählen Sie die Captions, die Sie veröffentlichen möchten — wir senden sie in einem Schritt an Ihre verbundenen Konten.",
+    "approvalLocaleCol": "Sprache",
+    "approvalNoDraft": "kein Entwurf",
+    "approvalPosted": "Veröffentlicht",
+    "approvalSelectedCount": "{count, plural, =0 {Nichts ausgewählt} =1 {1 ausgewählt} other {# ausgewählt}}",
+    "approvalPublishCta": "{count, plural, =0 {Genehmigte veröffentlichen} =1 {1 veröffentlichen} other {# veröffentlichen}}",
+    "approvalPublishing": "Veröffentliche…",
+    "publishError": {
+      "unauthenticated": "Sie müssen sich anmelden, um zu veröffentlichen.",
+      "not_owner": "Diese Analyse gehört einem anderen Makler.",
+      "audit_not_found": "Analyse nicht gefunden.",
+      "invalid_input": "Ungültige Auswahl. Bitte neu laden und erneut versuchen.",
+      "token_key_not_configured": "Token-Verschlüsselung ist nicht konfiguriert."
+    }
   }
 }

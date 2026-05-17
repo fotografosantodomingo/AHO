@@ -2204,6 +2204,21 @@
     "draftUnavailable": "L'IA non è riuscita a scrivere questa — rigenera dopo la registrazione.",
     "ctaHeading": "Pubblica tutto questo con un clic — $99/mese",
     "ctaSub": "Registrati per collegare Facebook + Instagram. Conserveremo questo audit sul tuo account per pubblicare o modificare qualsiasi delle 9 didascalie.",
-    "ctaButton": "Registrati — pubblica in 1 clic"
+    "ctaButton": "Registrati — pubblica in 1 clic",
+    "approvalHeading": "Pubblica",
+    "approvalSub": "Seleziona le didascalie da pubblicare — le inviamo ai tuoi account collegati in un colpo solo.",
+    "approvalLocaleCol": "Lingua",
+    "approvalNoDraft": "nessuna bozza",
+    "approvalPosted": "Pubblicato",
+    "approvalSelectedCount": "{count, plural, =0 {Nulla selezionato} =1 {1 selezionato} other {# selezionati}}",
+    "approvalPublishCta": "{count, plural, =0 {Pubblica approvati} =1 {Pubblica 1} other {Pubblica #}}",
+    "approvalPublishing": "Pubblicazione…",
+    "publishError": {
+      "unauthenticated": "Devi accedere per pubblicare.",
+      "not_owner": "Questo audit appartiene a un altro agente.",
+      "audit_not_found": "Audit non trovato.",
+      "invalid_input": "Selezione non valida. Ricarica e riprova.",
+      "token_key_not_configured": "La crittografia dei token non è configurata."
+    }
   }
 }

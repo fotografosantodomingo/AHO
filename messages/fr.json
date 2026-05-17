@@ -2204,6 +2204,21 @@
     "draftUnavailable": "L'IA n'a pas pu rédiger celle-ci — regénérez après inscription.",
     "ctaHeading": "Publiez tout cela en un clic — 99 $/mois",
     "ctaSub": "Inscrivez-vous pour connecter votre Facebook + Instagram. Nous garderons cet audit sur votre compte pour publier ou éditer n'importe laquelle des 9 légendes.",
-    "ctaButton": "S'inscrire — publier en 1 clic"
+    "ctaButton": "S'inscrire — publier en 1 clic",
+    "approvalHeading": "Publier",
+    "approvalSub": "Cochez les légendes à publier — nous les envoyons d'un coup sur vos comptes connectés.",
+    "approvalLocaleCol": "Langue",
+    "approvalNoDraft": "pas de brouillon",
+    "approvalPosted": "Publié",
+    "approvalSelectedCount": "{count, plural, =0 {Rien de sélectionné} =1 {1 sélectionné} other {# sélectionnés}}",
+    "approvalPublishCta": "{count, plural, =0 {Publier les approuvés} =1 {Publier 1} other {Publier #}}",
+    "approvalPublishing": "Publication…",
+    "publishError": {
+      "unauthenticated": "Vous devez vous connecter pour publier.",
+      "not_owner": "Cet audit appartient à un autre agent.",
+      "audit_not_found": "Audit introuvable.",
+      "invalid_input": "Sélection invalide. Rechargez et réessayez.",
+      "token_key_not_configured": "Le chiffrement des jetons n'est pas configuré."
+    }
   }
 }

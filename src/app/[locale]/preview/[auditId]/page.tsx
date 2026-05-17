@@ -3,10 +3,23 @@ import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { localePath } from '@/i18n/routing';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import type { ImportedFacts } from '@/lib/listings/import-from-url';
 import type { DrafterResult } from '@/lib/social/ai-drafter';
 import { formatPrice } from '@/lib/listings/format';
+import { ApprovalGrid } from '@/components/preview/approval-grid';
+
+interface PublishedResult {
+  locale: 'en' | 'es' | 'pl';
+  platform: 'facebook' | 'instagram' | 'linkedin';
+  ok: boolean;
+  external_post_id?: string;
+  external_post_url?: string;
+  error_code?: string;
+  error_message?: string;
+  attempted_at: string;
+}
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -55,14 +68,38 @@ export default async function PreviewPage({
   const admin = createAdminClient();
   const { data: audit } = await admin
     .from('ai_audits')
-    .select('id, source_url, facts, drafts, created_at, expires_at, claimed_by_user_id')
+    .select('id, source_url, facts, drafts, created_at, expires_at, claimed_by_user_id, published_results')
     .eq('id', auditId)
     .maybeSingle();
 
   if (!audit) notFound();
 
+  // Auth context. Two outcomes matter:
+  //   - signed-in user with `claimed_by_user_id === self`: render the
+  //     ApprovalGrid (Phase 3 publish UI)
+  //   - signed-in user with audit unclaimed: claim it now (the audit
+  //     belongs to whichever signed-in user converts first), then render
+  //     the grid as the owner
+  //   - signed-in user with audit claimed by SOMEONE ELSE: still render
+  //     captions + creatives (the URL is public), but no publish UI —
+  //     this happens if an audit URL is shared to another agent
+  //   - anonymous user: render the signup CTA (status quo)
+  const userSupabase = await createServerSupabaseClient();
+  const { data: userResult } = await userSupabase.auth.getUser();
+  const viewerId = userResult.user?.id ?? null;
+  let claimedBy = (audit.claimed_by_user_id as string | null) ?? null;
+  if (viewerId && !claimedBy) {
+    await admin
+      .from('ai_audits')
+      .update({ claimed_by_user_id: viewerId, claimed_at: new Date().toISOString() })
+      .eq('id', auditId);
+    claimedBy = viewerId;
+  }
+  const isOwner = !!viewerId && claimedBy === viewerId;
+
   const facts = audit.facts as ImportedFacts;
   const drafts = audit.drafts as Record<'en' | 'es' | 'pl', DrafterResult>;
+  const publishedResults = (audit.published_results as PublishedResult[] | null) ?? [];
 
   const t = await getTranslations({ locale, namespace: 'freeAudit' });
   const signupHref = localePath(typedLocale, '/signup');
@@ -286,23 +323,35 @@ export default async function PreviewPage({
         })}
       </section>
 
-      {/* Conversion CTA */}
-      <aside className="mt-12 rounded-card border border-action/30 bg-action/5 p-6 text-center md:p-10">
-        <h2 className="font-brand text-2xl font-semibold tracking-tight md:text-[32px]">
-          {t('ctaHeading')}
-        </h2>
-        <p className="mx-auto mt-3 max-w-xl text-base text-ink-muted">
-          {t('ctaSub')}
-        </p>
-        <div className="mt-6">
-          <a
-            href={`${signupHref}?from=audit&audit=${auditId}`}
-            className="btn-primary inline-flex h-12 items-center px-8 text-base font-semibold"
-          >
-            {t('ctaButton')} →
-          </a>
-        </div>
-      </aside>
+      {/* Owner → publish flow (Phase 3): inline approval grid with
+          per-cell checkboxes + one "Publish approved" button that
+          fans out to the existing FB / IG / LinkedIn publish
+          primitives via /api/audit/[id]/publish. Anon / non-owner →
+          conversion CTA toward signup, same as before. */}
+      {isOwner ? (
+        <ApprovalGrid
+          auditId={auditId}
+          drafts={drafts}
+          publishedResults={publishedResults}
+        />
+      ) : (
+        <aside className="mt-12 rounded-card border border-action/30 bg-action/5 p-6 text-center md:p-10">
+          <h2 className="font-brand text-2xl font-semibold tracking-tight md:text-[32px]">
+            {t('ctaHeading')}
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl text-base text-ink-muted">
+            {t('ctaSub')}
+          </p>
+          <div className="mt-6">
+            <a
+              href={`${signupHref}?from=audit&audit=${auditId}`}
+              className="btn-primary inline-flex h-12 items-center px-8 text-base font-semibold"
+            >
+              {t('ctaButton')} →
+            </a>
+          </div>
+        </aside>
+      )}
     </main>
     </div>
   );
