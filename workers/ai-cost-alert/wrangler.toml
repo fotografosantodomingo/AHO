@@ -1,0 +1,26 @@
+name = "aho-ai-cost-alert"
+main = "src/index.ts"
+compatibility_date = "2025-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Cron Trigger — runs once a day at 05:00 UTC.
+# Coverage: 01:00 ET / 22:00 PT (prev day) / 06:00 Madrid / 07:00 Warsaw.
+# 30-min offset after `aho-instagram-drift` (04:30 UTC) which itself
+# is 30 min after `aho-meta-token-refresh` (04:00 UTC). Pipeline:
+#   04:00 token refresh → 04:30 IG drift detect → 05:00 cost alert
+# (all 3 reading from a quiescent ai_generation_log + ad_platform_
+# tokens snapshot).
+#
+# Quiet by default — only emails when yesterday's spend crossed
+# $50 OR avg per audit crossed $1. On a normal day this is a no-op
+# that returns alerted=false.
+[triggers]
+crons = ["0 5 * * *"]
+
+# Secrets — set via `wrangler secret put` per environment, never
+# committed:
+#   - CRON_SECRET    (matches the Pages env CRON_SECRET)
+#   - AHO_PAGES_URL  (production: https://advertisehomes.online)
+
+[vars]
+LOG_LEVEL = "info"

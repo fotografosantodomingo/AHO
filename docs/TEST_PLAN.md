@@ -31,6 +31,20 @@
 - **Expect:** Domain `advertisehomes.online` flips to "Verified" within seconds. Confirms the `<meta name="facebook-domain-verification" content="ztd23gv75ztx1kqizjykrk30oeiinn"/>` tag in our `<head>` is live and Meta reads it correctly.
 - **If wrong:** Meta will say "could not find tag" — if so, try the Sharing Debugger (https://developers.facebook.com/tools/debug/) and paste me the result.
 
+### `ai-cost-alert-cron` — Phase 5.5 alerting (just shipped — needs deployment)
+- **Code is committed**; one-time Worker deploy:
+  ```bash
+  cd workers/ai-cost-alert
+  set -a && source ../../.env.local && set +a
+  npx wrangler@4 secret put CRON_SECRET
+  npx wrangler@4 secret put AHO_PAGES_URL
+  npx wrangler@4 deploy
+  ```
+- **Smoke test**: `curl -sL "https://aho-ai-cost-alert.<your-cf-subdomain>.workers.dev/run?secret=<CRON_SECRET>"`
+- **Expect on first run today**: `{ "ok": true, "alerted": false, "totalCostUsd": 0, "totalAudits": 0, "totalCalls": 0 }` (yesterday had no AI activity yet). Quiet day = no email.
+- **To force an alert email** (verify the template renders correctly): temporarily lower the threshold in `/api/cron/ai-cost-alert/route.ts` (e.g. `DAILY_TOTAL_CENTS_THRESHOLD = 1`), hit /run, confirm the email arrives at info@advertisehomes.online with subject "[AHO] AI cost alert — YYYY-MM-DD · $X.XX". Then revert.
+- **Scheduled run**: 05:00 UTC daily (completes the cron pipeline: 04:00 token-refresh → 04:30 IG drift → 05:00 cost alert).
+
 ### `instagram-drift-cron` — Phase 3 of IG plan (just shipped — needs deployment)
 - **Code is committed** but the standalone Worker at `workers/instagram-drift/` needs the same one-time wrangler deploy as the other crons:
   ```bash
