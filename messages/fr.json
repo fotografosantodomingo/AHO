@@ -2154,5 +2154,43 @@
     "ctaHeading": "Modifiez votre profil maintenant",
     "ctaSub": "Vous serez sur /dashboard/profile. Enregistrez les changements — Google réindexe en heures ; les améliorations de classement visibles arrivent généralement en 1-2 semaines.",
     "ctaButton": "Ouvrir l'éditeur de profil"
+  },
+  "freeAudit": {
+    "eyebrow": "Audit gratuit",
+    "widgetHeading": "Collez n'importe quelle URL d'annonce — une campagne complète en 60 secondes.",
+    "widgetSub": "Mettez un lien depuis Leboncoin, SeLoger, Idealista, Zillow, Rightmove, ImmoScout — ou tout portail. Nous générons 9 légendes prêtes à publier pour Facebook, Instagram et LinkedIn dans trois langues. Sans inscription.",
+    "inputLabel": "URL de l'annonce",
+    "inputPlaceholder": "https://www.leboncoin.fr/ad/...",
+    "submitButton": "Obtenir ma campagne",
+    "submitLoading": "En cours",
+    "progressHint": "Lecture de l'annonce… rédaction des légendes… habituellement ~30 secondes.",
+    "trustNote": "Sans inscription, sans spam. Nous traitons la page publique comme un robot Google. Résultats conservés 7 jours.",
+    "error": {
+      "invalid_input": "Cette URL ne semble pas valide. Essayez un lien https:// complet.",
+      "invalid_url": "Cette URL ne semble pas valide. Essayez un lien https:// complet.",
+      "rate_limited": "Trop d'audits depuis votre réseau. Réessayez dans environ {minutes} minutes.",
+      "bot_blocked": "Ce portail bloque les scrapers. Essayez une autre URL.",
+      "no_facts": "Impossible d'extraire les détails de l'annonce de cette page.",
+      "ai_unavailable": "Notre IA est hors ligne un instant. Réessayez.",
+      "db_error": "Quelque chose s'est mal passé lors de l'enregistrement de votre audit. Réessayez.",
+      "internal_error": "Quelque chose s'est mal passé. Réessayez ou collez une autre URL."
+    },
+    "heading": "Votre campagne IA — prête à publier",
+    "subheading": "Voici les 9 légendes que nous avons rédigées de votre annonce — 3 plateformes × 3 langues. Inscrivez-vous pour les publier sur Facebook + Instagram en un clic.",
+    "sourceLink": "Ouvrir l'annonce source",
+    "previewListing": "Votre annonce",
+    "factPrice": "Prix",
+    "factCity": "Ville",
+    "factBedrooms": "Chambres",
+    "factBathrooms": "Salles de bain",
+    "factArea": "Surface",
+    "captionsHeading": "9 légendes prêtes",
+    "localeEn": "Anglais",
+    "localeEs": "Espagnol",
+    "localePl": "Polonais",
+    "draftUnavailable": "L'IA n'a pas pu rédiger celle-ci — regénérez après inscription.",
+    "ctaHeading": "Publiez tout cela en un clic — 99 $/mois",
+    "ctaSub": "Inscrivez-vous pour connecter votre Facebook + Instagram. Nous garderons cet audit sur votre compte pour publier ou éditer n'importe laquelle des 9 légendes.",
+    "ctaButton": "S'inscrire — publier en 1 clic"
   }
 }

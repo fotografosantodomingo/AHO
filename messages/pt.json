@@ -2154,5 +2154,43 @@
     "ctaHeading": "Edite o seu perfil agora",
     "ctaSub": "Vai para /dashboard/profile. Grave as alterações — o Google reindexa em horas; melhorias de posicionamento visíveis normalmente aparecem em 1-2 semanas.",
     "ctaButton": "Abrir editor de perfil"
+  },
+  "freeAudit": {
+    "eyebrow": "Auditoria grátis",
+    "widgetHeading": "Cole qualquer URL de anúncio — receba uma campanha completa em 60 segundos.",
+    "widgetSub": "Coloque um link de OLX Imóveis, idealista, Zillow, Rightmove, ImmoScout, Leboncoin — ou qualquer portal. Geraremos 9 legendas prontas para Facebook, Instagram e LinkedIn em três idiomas. Sem cadastro.",
+    "inputLabel": "URL do anúncio",
+    "inputPlaceholder": "https://www.idealista.pt/imovel/...",
+    "submitButton": "Gerar minha campanha",
+    "submitLoading": "Trabalhando",
+    "progressHint": "Lendo o anúncio… redigindo legendas… normalmente ~30 segundos.",
+    "trustNote": "Sem cadastro, sem spam. Processamos a página pública como um bot do Google. Resultados salvos por 7 dias.",
+    "error": {
+      "invalid_input": "Essa URL não parece válida. Use um link https:// completo.",
+      "invalid_url": "Essa URL não parece válida. Use um link https:// completo.",
+      "rate_limited": "Muitas auditorias da sua rede. Tente novamente em cerca de {minutes} minutos.",
+      "bot_blocked": "Esse portal bloqueia scrapers. Tente outra URL.",
+      "no_facts": "Não conseguimos extrair detalhes do anúncio dessa página.",
+      "ai_unavailable": "Nossa IA está offline por um momento. Tente novamente.",
+      "db_error": "Algo deu errado ao salvar sua auditoria. Tente novamente.",
+      "internal_error": "Algo deu errado. Tente novamente ou cole outra URL."
+    },
+    "heading": "Sua campanha IA — pronta para publicar",
+    "subheading": "Abaixo estão as 9 legendas que escrevemos do seu anúncio — 3 plataformas × 3 idiomas. Cadastre-se para publicá-las no Facebook + Instagram com um clique.",
+    "sourceLink": "Abrir anúncio fonte",
+    "previewListing": "Seu anúncio",
+    "factPrice": "Preço",
+    "factCity": "Cidade",
+    "factBedrooms": "Quartos",
+    "factBathrooms": "Banheiros",
+    "factArea": "Área",
+    "captionsHeading": "9 legendas prontas",
+    "localeEn": "Inglês",
+    "localeEs": "Espanhol",
+    "localePl": "Polonês",
+    "draftUnavailable": "A IA não conseguiu redigir essa — gere novamente após o cadastro.",
+    "ctaHeading": "Publique tudo isso com um clique — $99/mês",
+    "ctaSub": "Cadastre-se para conectar seu Facebook + Instagram. Guardaremos esta auditoria na sua conta para publicar ou editar qualquer das 9 legendas.",
+    "ctaButton": "Cadastre-se — publique em 1 clique"
   }
 }

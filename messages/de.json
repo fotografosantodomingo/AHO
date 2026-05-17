@@ -2154,5 +2154,43 @@
     "ctaHeading": "Profil jetzt bearbeiten",
     "ctaSub": "Du landest auf /dashboard/profile. Änderungen speichern — Google reindiziert binnen Stunden; sichtbare Rang-Verbesserungen erscheinen typischerweise in 1-2 Wochen.",
     "ctaButton": "Profil-Editor öffnen"
+  },
+  "freeAudit": {
+    "eyebrow": "Kostenlose Analyse",
+    "widgetHeading": "Beliebige Inserat-URL einfügen — komplette Kampagne in 60 Sekunden.",
+    "widgetSub": "Link aus ImmoScout24, Idealista, Zillow, Rightmove, Otodom, Leboncoin — oder einem beliebigen Portal. Wir erstellen 9 publikationsbereite Captions für Facebook, Instagram und LinkedIn in drei Sprachen. Keine Anmeldung.",
+    "inputLabel": "Inserat-URL",
+    "inputPlaceholder": "https://www.immobilienscout24.de/expose/...",
+    "submitButton": "Meine Kampagne erhalten",
+    "submitLoading": "Bearbeite",
+    "progressHint": "Lese das Inserat… verfasse Captions… meist ~30 Sekunden.",
+    "trustNote": "Keine Anmeldung, kein Spam. Wir verarbeiten die öffentliche Inseratseite wie ein Google-Bot. Ergebnisse 7 Tage gespeichert.",
+    "error": {
+      "invalid_input": "Diese URL sieht nicht richtig aus. Verwenden Sie einen vollständigen https://-Link.",
+      "invalid_url": "Diese URL sieht nicht richtig aus. Verwenden Sie einen vollständigen https://-Link.",
+      "rate_limited": "Zu viele Analysen aus Ihrem Netzwerk. Versuchen Sie es in etwa {minutes} Minuten erneut.",
+      "bot_blocked": "Dieses Portal blockiert Scraper. Probieren Sie eine andere URL.",
+      "no_facts": "Konnten die Inserat-Details von dieser Seite nicht extrahieren.",
+      "ai_unavailable": "Unsere KI ist kurz offline. Bitte erneut versuchen.",
+      "db_error": "Beim Speichern Ihrer Analyse ist etwas schiefgelaufen. Bitte erneut versuchen.",
+      "internal_error": "Etwas ist schiefgelaufen. Erneut versuchen oder andere URL einfügen."
+    },
+    "heading": "Ihre KI-Kampagne — bereit zur Veröffentlichung",
+    "subheading": "Unten sind die 9 Captions, die wir aus Ihrem Inserat verfasst haben — 3 Plattformen × 3 Sprachen. Melden Sie sich an, um sie mit einem Klick auf Facebook + Instagram zu veröffentlichen.",
+    "sourceLink": "Quellinserat öffnen",
+    "previewListing": "Ihr Inserat",
+    "factPrice": "Preis",
+    "factCity": "Stadt",
+    "factBedrooms": "Schlafzimmer",
+    "factBathrooms": "Badezimmer",
+    "factArea": "Fläche",
+    "captionsHeading": "9 Captions bereit",
+    "localeEn": "Englisch",
+    "localeEs": "Spanisch",
+    "localePl": "Polnisch",
+    "draftUnavailable": "Die KI konnte diese nicht verfassen — nach Anmeldung erneut generieren.",
+    "ctaHeading": "Alles davon mit einem Klick veröffentlichen — $99/Monat",
+    "ctaSub": "Melden Sie sich an, um Ihr Facebook + Instagram zu verbinden. Wir speichern diese Analyse in Ihrem Konto — veröffentlichen oder bearbeiten Sie beliebige der 9 Captions.",
+    "ctaButton": "Anmelden — in 1 Klick veröffentlichen"
   }
 }

@@ -4,6 +4,7 @@ import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { localePath } from '@/i18n/routing';
 import { LandingPage, type LandingCopy } from '@/components/marketing/landing-page';
+import { FreeAuditWidget } from '@/components/marketing/free-audit-widget';
 import { buildLandingAlternates } from '@/lib/seo/landing-alternates';
 import { publicEnv } from '@/lib/env';
 
@@ -213,6 +214,13 @@ export default async function ForAgentsPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
+      {/* Free Audit widget — Phase 1 wedge of
+          docs/SUPER_PRO_STAGE_1_PLAN.md. Renders ABOVE the static
+          landing page so the cold visitor sees "paste your URL" as
+          the first interactive element, not after scrolling past
+          the marketing hero. The widget is interactive (client),
+          everything below stays server-rendered. */}
+      <FreeAuditWidget />
       <LandingPage
         copy={copy}
         primaryCtaHref={signupHref}

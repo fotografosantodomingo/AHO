@@ -2191,5 +2191,43 @@
     "ctaHeading": "Edytuj profil teraz",
     "ctaSub": "Trafisz na /dashboard/profile. Zapisz zmiany — Google reindeksuje w godzinach; widoczna poprawa pozycji zwykle pojawia się w 1-2 tygodnie.",
     "ctaButton": "Otwórz edytor profilu"
+  },
+  "freeAudit": {
+    "eyebrow": "Bezpłatny audyt",
+    "widgetHeading": "Wklej dowolny URL ogłoszenia — odbierz pełną kampanię w 60 sekund.",
+    "widgetSub": "Wrzuć link z Otodom, Idealisty, Zillow, Rightmove, ImmoScout, Leboncoin — lub dowolnego portalu. Wygenerujemy 9 gotowych postów na Facebook, Instagram i LinkedIn w trzech językach. Bez rejestracji.",
+    "inputLabel": "URL ogłoszenia",
+    "inputPlaceholder": "https://www.otodom.pl/pl/oferta/...",
+    "submitButton": "Wygeneruj kampanię",
+    "submitLoading": "Pracuję",
+    "progressHint": "Czytam ogłoszenie… piszę posty… zwykle ~30 sekund.",
+    "trustNote": "Bez rejestracji, bez spamu. Przetwarzamy publiczną stronę jak bot Google. Wyniki zapisywane na 7 dni.",
+    "error": {
+      "invalid_input": "Ten URL nie wygląda poprawnie. Spróbuj pełnego linku https://.",
+      "invalid_url": "Ten URL nie wygląda poprawnie. Spróbuj pełnego linku https://.",
+      "rate_limited": "Za dużo audytów z Twojej sieci. Spróbuj za około {minutes} minut.",
+      "bot_blocked": "Ten portal blokuje scrapery. Spróbuj inny URL.",
+      "no_facts": "Nie udało się odczytać szczegółów ogłoszenia ze strony.",
+      "ai_unavailable": "Nasza AI chwilowo niedostępna. Spróbuj ponownie.",
+      "db_error": "Coś poszło nie tak przy zapisie audytu. Spróbuj ponownie.",
+      "internal_error": "Coś poszło nie tak. Spróbuj ponownie lub wklej inny URL."
+    },
+    "heading": "Twoja kampania AI — gotowa do publikacji",
+    "subheading": "Poniżej 9 postów napisanych z Twojego ogłoszenia — 3 platformy × 3 języki. Zarejestruj się, by opublikować je na Facebook + Instagram jednym kliknięciem.",
+    "sourceLink": "Otwórz źródłowe ogłoszenie",
+    "previewListing": "Twoje ogłoszenie",
+    "factPrice": "Cena",
+    "factCity": "Miasto",
+    "factBedrooms": "Sypialnie",
+    "factBathrooms": "Łazienki",
+    "factArea": "Powierzchnia",
+    "captionsHeading": "9 postów gotowych",
+    "localeEn": "Angielski",
+    "localeEs": "Hiszpański",
+    "localePl": "Polski",
+    "draftUnavailable": "AI nie napisała tego — wygeneruj ponownie po rejestracji.",
+    "ctaHeading": "Opublikuj to wszystko jednym kliknięciem — $99/mc",
+    "ctaSub": "Zarejestruj się, by połączyć Facebook + Instagram. Audyt zachowamy na koncie — opublikuj lub edytuj dowolny z 9 postów.",
+    "ctaButton": "Zarejestruj się — publikuj 1 klikiem"
   }
 }

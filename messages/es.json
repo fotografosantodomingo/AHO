@@ -2215,5 +2215,43 @@
     "ctaHeading": "Edita tu perfil ahora",
     "ctaSub": "Estarás en /dashboard/profile. Guarda cambios — Google reindexa en horas; las mejoras de posicionamiento visibles suelen aterrizar en 1-2 semanas.",
     "ctaButton": "Abrir editor de perfil"
+  },
+  "freeAudit": {
+    "eyebrow": "Auditoría gratuita",
+    "widgetHeading": "Pega cualquier URL de anuncio — recibe una campaña completa en 60 segundos.",
+    "widgetSub": "Pon un enlace de idealista, otodom, Zillow, Rightmove, ImmoScout, Leboncoin — o cualquier portal. Generaremos 9 captions listos para publicar en Facebook, Instagram y LinkedIn en tres idiomas. Sin registro.",
+    "inputLabel": "URL del anuncio",
+    "inputPlaceholder": "https://www.idealista.com/inmueble/...",
+    "submitButton": "Generar mi campaña",
+    "submitLoading": "Trabajando",
+    "progressHint": "Leyendo el anuncio… redactando captions… normalmente ~30 segundos.",
+    "trustNote": "Sin registro, sin spam. Procesamos la página pública como un bot de Google. Resultados guardados 7 días.",
+    "error": {
+      "invalid_input": "Esa URL no es válida. Prueba con un enlace https:// completo.",
+      "invalid_url": "Esa URL no es válida. Prueba con un enlace https:// completo.",
+      "rate_limited": "Demasiadas auditorías desde tu red. Vuelve a intentarlo en aproximadamente {minutes} minutos.",
+      "bot_blocked": "Ese portal bloquea scrapers. Prueba con otra URL.",
+      "no_facts": "No pudimos extraer detalles del anuncio de esa página.",
+      "ai_unavailable": "Nuestra IA está fuera de servicio un momento. Vuelve a intentarlo.",
+      "db_error": "Algo salió mal al guardar tu auditoría. Vuelve a intentarlo.",
+      "internal_error": "Algo salió mal. Vuelve a intentarlo o prueba con otra URL."
+    },
+    "heading": "Tu campaña IA — lista para publicar",
+    "subheading": "Abajo están los 9 captions que redactamos de tu anuncio — 3 plataformas × 3 idiomas. Regístrate para publicarlos en Facebook + Instagram con un clic.",
+    "sourceLink": "Abrir anuncio fuente",
+    "previewListing": "Tu anuncio",
+    "factPrice": "Precio",
+    "factCity": "Ciudad",
+    "factBedrooms": "Habitaciones",
+    "factBathrooms": "Baños",
+    "factArea": "Superficie",
+    "captionsHeading": "9 captions listos",
+    "localeEn": "Inglés",
+    "localeEs": "Español",
+    "localePl": "Polaco",
+    "draftUnavailable": "La IA no pudo redactar este — vuelve a generar tras el registro.",
+    "ctaHeading": "Publica todo esto con un clic — $99/mes",
+    "ctaSub": "Regístrate para conectar tu Facebook + Instagram. Guardaremos esta auditoría en tu cuenta para publicar o editar cualquiera de los 9 captions.",
+    "ctaButton": "Regístrate — publica en 1 clic"
   }
 }

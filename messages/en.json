@@ -2215,5 +2215,43 @@
     "ctaHeading": "Edit your profile now",
     "ctaSub": "You'll be on /dashboard/profile. Save changes — Google re-indexes within hours; visible rank improvements typically land within 1-2 weeks.",
     "ctaButton": "Open profile editor"
+  },
+  "freeAudit": {
+    "eyebrow": "Free audit",
+    "widgetHeading": "Paste any listing URL — get a full campaign in 60 seconds.",
+    "widgetSub": "Drop a link from otodom, idealista, Zillow, Rightmove, ImmoScout, Leboncoin — or any portal. We'll generate 9 ready-to-publish captions for Facebook, Instagram and LinkedIn in three languages. No signup.",
+    "inputLabel": "Listing URL",
+    "inputPlaceholder": "https://www.otodom.pl/pl/oferta/...",
+    "submitButton": "Get my campaign",
+    "submitLoading": "Working",
+    "progressHint": "Reading the listing… drafting captions… usually ~30 seconds.",
+    "trustNote": "No signup, no spam. We process the public listing page like a Google bot. Results saved for 7 days.",
+    "error": {
+      "invalid_input": "That URL doesn't look right. Try a full https:// link.",
+      "invalid_url": "That URL doesn't look right. Try a full https:// link.",
+      "rate_limited": "Too many audits from your network. Try again in about {minutes} minutes.",
+      "bot_blocked": "That portal blocks scrapers. Try a different listing URL.",
+      "no_facts": "Couldn't extract listing details from that page.",
+      "ai_unavailable": "Our AI is offline for a moment. Try again.",
+      "db_error": "Something went wrong saving your audit. Try again.",
+      "internal_error": "Something went wrong. Try again, or try a different URL."
+    },
+    "heading": "Your AI campaign — ready to publish",
+    "subheading": "Below are 9 captions we drafted from your listing — 3 platforms × 3 languages. Sign up to publish them on Facebook + Instagram in one click.",
+    "sourceLink": "Open source listing",
+    "previewListing": "Your listing",
+    "factPrice": "Price",
+    "factCity": "City",
+    "factBedrooms": "Bedrooms",
+    "factBathrooms": "Bathrooms",
+    "factArea": "Area",
+    "captionsHeading": "9 captions ready",
+    "localeEn": "English",
+    "localeEs": "Spanish",
+    "localePl": "Polish",
+    "draftUnavailable": "AI couldn't draft this one — try regenerating after signup.",
+    "ctaHeading": "Publish all of this in one click — $99/mo",
+    "ctaSub": "Sign up to connect your Facebook + Instagram. We'll keep this audit on your account so you can publish or edit any of the 9 captions.",
+    "ctaButton": "Sign up — publish in 1 click"
   }
 }

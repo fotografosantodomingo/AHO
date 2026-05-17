@@ -2154,5 +2154,43 @@
     "ctaHeading": "Modifica il profilo ora",
     "ctaSub": "Atterrerai su /dashboard/profile. Salva le modifiche — Google reindicizza in ore; i miglioramenti di posizionamento visibili arrivano tipicamente in 1-2 settimane.",
     "ctaButton": "Apri editor profilo"
+  },
+  "freeAudit": {
+    "eyebrow": "Audit gratuito",
+    "widgetHeading": "Incolla qualsiasi URL di annuncio — campagna completa in 60 secondi.",
+    "widgetSub": "Metti un link da Immobiliare.it, idealista, Zillow, Rightmove, ImmoScout, Leboncoin — o qualsiasi portale. Genereremo 9 didascalie pronte per Facebook, Instagram e LinkedIn in tre lingue. Senza registrazione.",
+    "inputLabel": "URL dell'annuncio",
+    "inputPlaceholder": "https://www.immobiliare.it/annunci/...",
+    "submitButton": "Ottieni la mia campagna",
+    "submitLoading": "Elaborazione",
+    "progressHint": "Lettura dell'annuncio… stesura delle didascalie… di solito ~30 secondi.",
+    "trustNote": "Senza registrazione, senza spam. Elaboriamo la pagina pubblica come un bot di Google. Risultati conservati per 7 giorni.",
+    "error": {
+      "invalid_input": "Questo URL non sembra valido. Prova con un link https:// completo.",
+      "invalid_url": "Questo URL non sembra valido. Prova con un link https:// completo.",
+      "rate_limited": "Troppi audit dalla tua rete. Riprova fra circa {minutes} minuti.",
+      "bot_blocked": "Questo portale blocca gli scraper. Prova un altro URL.",
+      "no_facts": "Impossibile estrarre i dettagli dell'annuncio da quella pagina.",
+      "ai_unavailable": "La nostra IA è offline per un momento. Riprova.",
+      "db_error": "Qualcosa è andato storto nel salvare il tuo audit. Riprova.",
+      "internal_error": "Qualcosa è andato storto. Riprova o incolla un altro URL."
+    },
+    "heading": "La tua campagna IA — pronta da pubblicare",
+    "subheading": "Qui sotto le 9 didascalie che abbiamo scritto dal tuo annuncio — 3 piattaforme × 3 lingue. Registrati per pubblicarle su Facebook + Instagram con un clic.",
+    "sourceLink": "Apri annuncio sorgente",
+    "previewListing": "Il tuo annuncio",
+    "factPrice": "Prezzo",
+    "factCity": "Città",
+    "factBedrooms": "Camere",
+    "factBathrooms": "Bagni",
+    "factArea": "Superficie",
+    "captionsHeading": "9 didascalie pronte",
+    "localeEn": "Inglese",
+    "localeEs": "Spagnolo",
+    "localePl": "Polacco",
+    "draftUnavailable": "L'IA non è riuscita a scrivere questa — rigenera dopo la registrazione.",
+    "ctaHeading": "Pubblica tutto questo con un clic — $99/mese",
+    "ctaSub": "Registrati per collegare Facebook + Instagram. Conserveremo questo audit sul tuo account per pubblicare o modificare qualsiasi delle 9 didascalie.",
+    "ctaButton": "Registrati — pubblica in 1 clic"
   }
 }

@@ -163,6 +163,11 @@ export const PATHNAMES = {
     es: '/busquedas-guardadas',
     ...en5('/saved-searches'),
   },
+  '/preview/[auditId]': {
+    en: '/preview/[auditId]',
+    es: '/vista-previa/[auditId]',
+    ...en5('/preview/[auditId]'),
+  },
   '/saved-properties': {
     en: '/saved-properties',
     es: '/inmuebles-guardados',
