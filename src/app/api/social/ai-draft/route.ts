@@ -161,7 +161,8 @@ export async function POST(req: NextRequest) {
   // Per-call cost + usage log — Phase 5.5. NULL audit_id because this
   // route serves real-listing drafts, not Free Audit. The market is
   // derived from the listing's content locale (en→us / es→es).
-  void logAiCall({
+  // AWAITed — Edge runtime kills unawaited promises (QA 2026-05-17).
+  await logAiCall({
     auditId: null,
     purpose: 'listing_draft',
     model: 'claude-haiku-4-5-20251001',

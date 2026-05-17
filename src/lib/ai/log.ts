@@ -6,9 +6,11 @@ import { estimateCostUsdCents } from '@/lib/ai/cost';
  * Per-call AI usage logger — writes one row into `ai_generation_log`
  * for every Anthropic API request the server makes.
  *
- * Fire-and-forget by default (`waitFor: false`): the logger awaits the
- * write but we don't want a logging failure to break a successful audit
- * for the user. Caller can `void logAiCall(...)` and continue.
+ * **Always await** the call. Cloudflare Edge runtime kills unawaited
+ * promises when the request handler returns, which produced 0 rows
+ * in production during the 2026-05-17 QA pass. The helper has its
+ * own try/catch so the await won't propagate a logging failure to
+ * the caller — it just keeps the promise alive long enough to land.
  *
  * Why an explicit helper instead of inline supabase.from(...).insert(...):
  *   - Cost is computed here from the price table in `cost.ts`, so the

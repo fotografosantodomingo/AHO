@@ -111,27 +111,35 @@ export default async function PreviewPage({
   }
   const isOwner = !!viewerId && claimedBy === viewerId;
 
-  // Fire-and-forget funnel writes. Don't await — a logging failure
-  // never blocks the page render. View event is always logged; claim
-  // event only on the request that flipped the audit from unclaimed
-  // → claimed (one per audit lifetime).
-  void admin.from('audit_funnel_events').insert({
-    audit_id: auditId,
-    event: 'preview_view',
-    ip_hash: ipHash,
-    user_id: viewerId,
-    locale,
-    user_agent: userAgent,
-  });
-  if (justClaimed) {
-    void admin.from('audit_funnel_events').insert({
+  // Funnel writes. We AWAIT these even though they're per-request
+  // side-effects — Cloudflare Edge runtime kills unawaited promises
+  // when the response is sent (QA finding 2026-05-17 reproduced this
+  // as 0 rows in audit_funnel_events despite real audit traffic).
+  // The cost is one extra DB round-trip per page render (~30-50ms);
+  // the alternative (using ctx.waitUntil) requires reaching into
+  // next-on-pages internals which is fragile. Try/catch keeps a
+  // logging-write failure from breaking the page render.
+  try {
+    await admin.from('audit_funnel_events').insert({
       audit_id: auditId,
-      event: 'preview_claim',
+      event: 'preview_view',
       ip_hash: ipHash,
       user_id: viewerId,
       locale,
       user_agent: userAgent,
     });
+    if (justClaimed) {
+      await admin.from('audit_funnel_events').insert({
+        audit_id: auditId,
+        event: 'preview_claim',
+        ip_hash: ipHash,
+        user_id: viewerId,
+        locale,
+        user_agent: userAgent,
+      });
+    }
+  } catch (err) {
+    console.error('[preview] funnel insert failed', err);
   }
 
   const facts = audit.facts as ImportedFacts;

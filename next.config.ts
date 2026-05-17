@@ -96,14 +96,15 @@ const securityHeaders = [
 const config: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
-  // Disable Next.js 15's DevTools indicator on production. The
-  // dev-overlay chunk (`src/next-devtools/dev-overlay` + `compiled/anser`
-  // + `compiled/strip-ansi` + ANSI-to-HTML helpers) was shipping ~600 KiB
-  // of unused JS to every page; Lighthouse audit 2026-05-17 flagged
-  // 7.8 MiB total unused JS on /dashboard/properties with TBT 7.8s.
-  // The indicator is a dev-loop nicety we don't need in prod — disable
-  // outright and the bundler skips the whole chunk.
-  devIndicators: false,
+  // REVERTED 2026-05-17 — `devIndicators: false` (commit 16f73e4) was
+  // tree-shaking shared internals that `next/og` ImageResponse needs.
+  // Symptom: every ImageResponse route (homepage OG, property OG,
+  // /api/audit/[id]/creative/*) returned HTTP 200 + image/png + 0 bytes
+  // in production. Reverting restores ImageResponse renders. The 600
+  // KiB dev-overlay chunk comes back too — acceptable cost; the
+  // creatives + OG pictures are user-facing, the dev overlay isn't.
+  // Re-test bundle slimming via a different lever (e.g. modularize
+  // imports, lazy-load) next time.
   // Production source maps OFF — re-disabled 2026-05-17 after the
   // dev-overlay investigation completed. Source maps shouldn't impact
   // runtime cost (only fetched when DevTools opens them) but Lighthouse

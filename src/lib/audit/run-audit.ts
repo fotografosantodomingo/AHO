@@ -64,9 +64,12 @@ export async function runAudit(args: {
   const facts = importResult.facts;
   // Phase 5.5: log the importFromUrl Sonnet call so daily cost
   // rollups reflect TOTAL audit cost (import + drafters), not just
-  // the drafter portion. Fire-and-forget; logging failure never
-  // cascades into a user-facing failure.
-  void logAiCall({
+  // the drafter portion. AWAITed — Cloudflare Edge runtime kills
+  // unawaited promises when the request handler returns (QA
+  // 2026-05-17: void logAiCall produced 0 rows in production).
+  // logAiCall has its own try/catch so a write failure won't throw
+  // here — the await just keeps the promise alive past the response.
+  await logAiCall({
     auditId: args.auditId ?? null,
     purpose: 'audit_import',
     model: importResult.model,
@@ -130,9 +133,11 @@ export async function runAudit(args: {
       outputTokens += result.usage.outputTokens;
     }
     // Per-call cost + usage log — Phase 5.5 unit-economics observability.
-    // Fire-and-forget; helper swallows its own errors so a logging
-    // failure never propagates into the user-facing audit response.
-    void logAiCall({
+    // AWAITed (not void) — Cloudflare Edge runtime kills unawaited
+    // promises when the response is sent. Adds ~50ms per call =
+    // ~150ms per audit. logAiCall has its own try/catch so a logging
+    // failure won't bubble.
+    await logAiCall({
       auditId: args.auditId ?? null,
       purpose: 'audit_draft',
       model: HAIKU_MODEL,

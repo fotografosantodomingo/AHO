@@ -57,7 +57,8 @@ export async function POST(req: NextRequest) {
     const result = await importFromUrl({ url: parsed.data.url });
     // Phase 5.5: log this Sonnet call too. auditId=null because this
     // route is the manual listing-import surface, not a Free Audit.
-    void logAiCall({
+    // AWAITed — Edge runtime kills unawaited promises (QA 2026-05-17).
+    await logAiCall({
       auditId: null,
       purpose: 'audit_import',
       model: result.model,
