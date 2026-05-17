@@ -1,0 +1,32 @@
+name = "aho-instagram-drift"
+main = "src/index.ts"
+compatibility_date = "2025-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Cron Trigger — runs once a day at 04:30 UTC.
+# Coverage: 00:30 ET / 21:30 PT (prev day) / 05:30 Madrid / 06:30 Warsaw.
+# 30-min offset after `aho-meta-token-refresh` (04:00 UTC) so this
+# cron sees freshly-refreshed user tokens when it calls /me/accounts.
+# That ordering matters: if drift detection ran first, it might hit
+# an expiring token and skip a real drift event.
+#
+# Schedule: daily. Each call iterates every agent with a Meta user-
+# level token (small set during soft-beta; scales linearly), hits
+# /me/accounts on Meta Graph with their decrypted token, detects
+# newly-linked Instagram Business accounts that AHO hasn't seen
+# yet, emails the agent once per (user, ig_id) prompting Reconnect.
+#
+# IMPORTANT: the first live run sends real emails. Per CLAUDE.md
+# hard rule #9, don't deploy this worker until at least one
+# soft-beta agent has connected Meta. Until then the run scans 0
+# users and returns scanned: 0.
+[triggers]
+crons = ["30 4 * * *"]
+
+# Secrets — set via `wrangler secret put` per environment, never
+# committed:
+#   - CRON_SECRET    (matches the Pages env CRON_SECRET)
+#   - AHO_PAGES_URL  (production: https://advertisehomes.online)
+
+[vars]
+LOG_LEVEL = "info"

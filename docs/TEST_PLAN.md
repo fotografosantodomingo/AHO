@@ -31,6 +31,25 @@
 - **Expect:** Domain `advertisehomes.online` flips to "Verified" within seconds. Confirms the `<meta name="facebook-domain-verification" content="ztd23gv75ztx1kqizjykrk30oeiinn"/>` tag in our `<head>` is live and Meta reads it correctly.
 - **If wrong:** Meta will say "could not find tag" — if so, try the Sharing Debugger (https://developers.facebook.com/tools/debug/) and paste me the result.
 
+### `instagram-drift-cron` — Phase 3 of IG plan (just shipped — needs deployment)
+- **Code is committed** but the standalone Worker at `workers/instagram-drift/` needs the same one-time wrangler deploy as the other crons:
+  ```bash
+  cd workers/instagram-drift
+  set -a && source ../../.env.local && set +a
+  npx wrangler@4 secret put CRON_SECRET           # same value as Pages CRON_SECRET
+  npx wrangler@4 secret put AHO_PAGES_URL         # https://advertisehomes.online
+  npx wrangler@4 deploy
+  ```
+- **Smoke test after deploy** (manual trigger; runs the same logic the daily cron will):
+  ```bash
+  curl -sL "https://aho-instagram-drift.<your-cf-subdomain>.workers.dev/run?secret=<CRON_SECRET>"
+  ```
+- **Expect on first run today**: `{ "ok": true, "scanned": 1, "detected": 0, "emailed": 0, "skipped": 0, "summaries": [...] }`. Scanned = 1 because info@advertisehomes.online has a user-level Meta token. Detected = 0 because PO has no IG Business linked to any Page yet (per earlier audit). Emailed = 0.
+- **Expect once PO links an IG Business** in Meta Business Suite (and DOESN'T click Reconnect on AHO yet) → next cron run: `detected: 1, emailed: 1`. The email lands at info@advertisehomes.online with subject "Instagram (@yourhandle) is ready to publish on AHO" and a "Open Social dashboard" button.
+- **Re-trigger same day**: `skipped: 1` (UNIQUE on meta_drift_notifications prevents re-emailing).
+- **Scheduled run**: 04:30 UTC daily (30 min after meta-token-refresh @ 04:00 UTC, so tokens are fresh).
+- **If wrong**: paste the JSON from /run + any error in the `summaries` array per-user `errors`.
+
 ### `admin-audit-costs` — AI cost dashboard (just shipped)
 - **Do:** Sign in as `info@advertisehomes.online` (admin). Visit https://advertisehomes.online/en/admin/audit-costs.
 - **Expect:**
