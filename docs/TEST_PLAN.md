@@ -31,6 +31,12 @@
 - **Expect:** Domain `advertisehomes.online` flips to "Verified" within seconds. Confirms the `<meta name="facebook-domain-verification" content="ztd23gv75ztx1kqizjykrk30oeiinn"/>` tag in our `<head>` is live and Meta reads it correctly.
 - **If wrong:** Meta will say "could not find tag" — if so, try the Sharing Debugger (https://developers.facebook.com/tools/debug/) and paste me the result.
 
+### `publish-streaming` — Phase 3.5 NDJSON streaming (just shipped)
+- **Do:** From `/preview/<uuid>`, tick MULTIPLE cells across platforms (e.g. EN×FB + EN×IG + EN×LinkedIn) → click Publish 3. Watch the grid as it processes.
+- **Expect:** Cells flip from selected → ✓ Posted (or ✗ error) **one at a time** as each publish lands, not all together after a 10-second wait. FB typically lands first (~1s), IG in ~3-4s (carousel build), LinkedIn last (~4-5s). On a slow LinkedIn, the FB cell shows ✓ while LinkedIn still shows the loading state.
+- **AND:** After all cells have landed, refresh the page → the persisted state from `ai_audits.published_results` shows the same ✓/✗ marks. The streamed state and the persisted state match.
+- **If wrong:** Most likely failure modes: (a) all cells flip together = streaming isn't working, client is buffering. Paste the network tab's `/publish` response headers — should be `content-type: application/x-ndjson`. (b) Cells flip live but refresh shows none = DB write failed at end of stream; check server logs.
+
 ### `multi-account-publish-picker` — Phase 3.5 (just shipped)
 - **Setup**: visit `/dashboard/social` as `info@advertisehomes.online`. You should already have 3 FB Pages connected (Advertise Homes Online, Babula Foto Video, Babula Shots) — the multi-account picker will show on Facebook because count > 1.
 - **Do:** Create a Free Audit + visit `/preview/<uuid>`. Scroll to the approval grid section.

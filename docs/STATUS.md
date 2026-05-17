@@ -28,8 +28,8 @@ Effort: S = same-session, M = 1-3 days, L = ≥4 days. Owner: who's blocking.
 | 1 | **Soft-beta recruitment + first end-to-end test** of the Free Audit → Approval Grid → Publish loop on your own account. | The wedge is BUILT but UN-VALIDATED. Nothing else matters until we know it works for one real agent. | S | **You** |
 | 2 | **PO_DECISIONS #2-4 batch** — Super Pro price ($199/$249/$299) + paywall structure + music library. Needed before Phase 4 fully lands but not before slice 4a starts. | Unblocks the pricing page + the marketing positioning around Phase 4. | S (PO action) | **You** |
 | 3 | **AI Customer Service Agent MVP** — knowledge ingestion (19a) → web chat replaces Tawk (19b) → confidence gating (19f). | ~7-day shippable slice; not blocked on Meta. Replaces Tawk + becomes the on-site sales engine. | L | Me (waiting on PO greenlight to commit to the 7-day window) |
-| 4 | **Phase 3.5 — Real-time publish progress polling.** Current UX: button shows "Publishing…" for ~5-10s then results land in one shot. Polling would show per-cell progress as it lands. | Improves perceived speed of the wedge demo for investor / agent screen-shares. | S | Me |
-| 5 | **Dashboard Lighthouse re-test in incognito** (the 30/100 score was contaminated by Chrome extensions + IndexedDB per Lighthouse's own warning; expected real score 75-85). | Validates the perf wins from devIndicators off + source maps off + chunk audit work. | S | **You** (quick test) |
+| 4 | **Dashboard Lighthouse re-test in incognito** (the 30/100 score was contaminated by Chrome extensions + IndexedDB per Lighthouse's own warning; expected real score 75-85). | Validates the perf wins from devIndicators off + source maps off + chunk audit work. | S | **You** (quick test) |
+| 5 | **Phase 4 slice 4a kickoff — Remotion + Cloudflare Containers worker scaffold.** Render the 15-30s vertical 9:16 video. Multi-session L effort but the FIRST slice (container scaffold + hello-world MP4) is S. | Once 4a-scaffold lands the rest of Phase 4 has somewhere to plug in. | L | Me |
 
 ---
 
@@ -60,8 +60,7 @@ Pull from here when there's slack between bigger items. Each is genuine ≤1-2 h
 
 - Turnstile on Free Audit submit (current defense is IP rate-limit 5/hour; add Turnstile after first bot abuse signal)
 - LinkedIn `DRY_RUN=false` flip — already publishes real; verify first real post lands then write the DECISIONS.md entry
-- Phase 3.5 real-time publish progress polling — current UX: button shows "Publishing…" for ~5-10s then results land
-- Real-time `published_results` updates without page refresh
+- Real-time `published_results` updates without page refresh (today the streamed cells flip in real time but a PAGE refresh would re-render from the persisted JSONB — already correct, just hasn't been verified end-to-end)
 - Dashboard Lighthouse re-test in incognito (the 30/100 score was contaminated by Chrome extensions + IndexedDB per Lighthouse's own warning; expected real score 75-85)
 
 ---

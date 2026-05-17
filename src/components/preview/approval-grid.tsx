@@ -185,26 +185,74 @@ export function ApprovalGrid({
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ selections, accountIds }),
       });
-      const json = (await res.json()) as
-        | { ok: true; results: PublishedResult[] }
-        | { ok: false; error: string; hint?: string };
-      if (!res.ok || !('ok' in json) || !json.ok) {
+
+      // Error responses are still JSON (the route returns NextResponse.json
+      // for unauthenticated / invalid_input / db_error). Success is NDJSON.
+      const contentType = res.headers.get('content-type') ?? '';
+      if (!res.ok || !contentType.includes('ndjson')) {
+        let payload: { error?: string } = {};
+        try {
+          payload = (await res.json()) as { error?: string };
+        } catch {
+          // non-JSON error — fall through to the generic branch
+        }
         setTopError(
-          'error' in json
-            ? t.has(`publishError.${json.error}` as 'publishError.unauthenticated')
-              ? t(`publishError.${json.error}` as 'publishError.unauthenticated')
-              : json.error
+          payload.error
+            ? t.has(`publishError.${payload.error}` as 'publishError.unauthenticated')
+              ? t(`publishError.${payload.error}` as 'publishError.unauthenticated')
+              : payload.error
             : 'unknown',
         );
         return;
       }
-      // Merge per-cell results — append; latestByCell picks the newest.
-      setResults((prev) => [...prev, ...json.results]);
+
+      // Phase 3.5 streaming: read NDJSON chunks as each per-cell publish
+      // completes. Each cell flips ✓/✗ as it lands instead of all-at-
+      // once after the slowest call. Significantly faster perceived
+      // speed when LinkedIn (slow) is paired with FB (fast).
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      const streamed: PublishedResult[] = [];
+      if (reader) {
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() ?? '';
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed) continue;
+            try {
+              const parsed = JSON.parse(trimmed) as PublishedResult;
+              streamed.push(parsed);
+              setResults((prev) => [...prev, parsed]);
+            } catch {
+              // Malformed line — skip; the persisted state will still
+              // catch up on next page-load.
+            }
+          }
+        }
+        // Flush any remaining bytes in the buffer.
+        const tail = buffer.trim();
+        if (tail) {
+          try {
+            const parsed = JSON.parse(tail) as PublishedResult;
+            streamed.push(parsed);
+            setResults((prev) => [...prev, parsed]);
+          } catch {
+            /* noop */
+          }
+        }
+      }
+
       // Clear successful selections; keep failed ones checked so the
       // user can immediately re-publish after fixing the root cause
       // (eg connecting IG).
       const successKeys = new Set(
-        json.results.filter((r) => r.ok).map((r) => cellKey(r.locale, r.platform)),
+        streamed.filter((r) => r.ok).map((r) => cellKey(r.locale, r.platform)),
       );
       setSelected((prev) => {
         const next = new Set(prev);

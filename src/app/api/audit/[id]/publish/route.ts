@@ -308,17 +308,61 @@ export async function POST(
     return fromPublishResult(r);
   });
 
-  const results = await Promise.all(tasks.map((t) => t()));
-
-  // Append to ai_audits.published_results. JSONB array concat — we
-  // never overwrite prior attempts, so a re-publish of the same cell
-  // adds a second entry. The preview UI shows the latest per cell.
+  // Phase 3.5 streaming response. Instead of awaiting Promise.all
+  // and returning all results at once, stream each result as it
+  // completes via NDJSON (one JSON object per line). The client
+  // (ApprovalGrid) reads chunks and updates each cell's ✓/✗ state
+  // as the per-platform publish lands — perceived speed improvement
+  // for a wedge demo where the LinkedIn call routinely takes 4s
+  // while FB lands in 1s.
+  //
+  // Wire format: each line is `JSON.stringify(PublishedResult) + '\n'`.
+  // Trailing whitespace OK; client splits on '\n' + filters empties.
+  // After all promises resolve, we ALSO write the full merged array
+  // back to ai_audits.published_results so the next page-load sees
+  // the persisted state. Stream closes after that write completes.
+  const encoder = new TextEncoder();
   const existing = (audit.published_results as PublishedResult[] | null) ?? [];
-  const merged = [...existing, ...results];
-  await admin
-    .from('ai_audits')
-    .update({ published_results: merged })
-    .eq('id', auditId);
+  const stream = new ReadableStream({
+    async start(controller) {
+      const completed: PublishedResult[] = [];
+      // Fire all per-cell tasks; race them via Promise.race in a loop
+      // would be more complex. Instead each task pushes-on-resolve
+      // directly through the shared encoder + controller. Promise.all
+      // then awaits the full set so we can write the final state +
+      // close the stream.
+      await Promise.all(
+        tasks.map(async (t) => {
+          const r = await t();
+          completed.push(r);
+          try {
+            controller.enqueue(encoder.encode(JSON.stringify(r) + '\n'));
+          } catch {
+            // Controller may already be closed if the client aborted.
+            // Persist anyway via the outer write below.
+          }
+        }),
+      );
+      try {
+        await admin
+          .from('ai_audits')
+          .update({ published_results: [...existing, ...completed] })
+          .eq('id', auditId);
+      } catch (err) {
+        console.error('[audit.publish] persist failed', err);
+      }
+      try {
+        controller.close();
+      } catch {
+        // Already closed — ignore.
+      }
+    },
+  });
 
-  return NextResponse.json({ ok: true, results });
+  return new Response(stream, {
+    headers: {
+      'content-type': 'application/x-ndjson; charset=utf-8',
+      'cache-control': 'no-store',
+    },
+  });
 }
