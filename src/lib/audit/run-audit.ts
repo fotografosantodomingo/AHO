@@ -3,6 +3,10 @@ import { importFromUrl, type ImportedFacts } from '@/lib/listings/import-from-ur
 import { generateDrafts, type DrafterResult } from '@/lib/social/ai-drafter';
 import { formatPrice } from '@/lib/listings/format';
 import type { Locale } from '@/i18n/config';
+import { localeToMarket } from '@/lib/social/market-prompts';
+import { logAiCall } from '@/lib/ai/log';
+
+const HAIKU_MODEL = 'claude-haiku-4-5-20251001';
 
 /**
  * Free Audit orchestrator — Phase 1 of docs/SUPER_PRO_STAGE_1_PLAN.md.
@@ -49,6 +53,12 @@ export interface AuditResult {
 export async function runAudit(args: {
   url: string;
   apiKey: string;
+  /** Pre-generated audit UUID — pass in so per-call logging in
+   *  `ai_generation_log` can attribute each Anthropic call to the
+   *  audit row that will be inserted with this same id by the route
+   *  handler after runAudit returns. Optional for backward compat;
+   *  when omitted the logs land with audit_id=NULL. */
+  auditId?: string;
 }): Promise<AuditResult> {
   const facts = await importFromUrl({ url: args.url });
 
@@ -77,6 +87,7 @@ export async function runAudit(args: {
     // city + countryDisplay are required strings on PostInput/DrafterInput
     // even though the source might be missing them; pass empty so the
     // drafter prompt's "omit null fields" rule kicks in cleanly.
+    const startedAt = Date.now();
     const result = await generateDrafts(
       {
         title: titleFor(locale),
@@ -94,11 +105,25 @@ export async function runAudit(args: {
       ['facebook', 'instagram', 'linkedin'],
       args.apiKey,
     );
+    const latencyMs = Date.now() - startedAt;
     drafts[locale] = result;
     if (result.usage) {
       inputTokens += result.usage.inputTokens;
       outputTokens += result.usage.outputTokens;
     }
+    // Per-call cost + usage log — Phase 5.5 unit-economics observability.
+    // Fire-and-forget; helper swallows its own errors so a logging
+    // failure never propagates into the user-facing audit response.
+    void logAiCall({
+      auditId: args.auditId ?? null,
+      purpose: 'audit_draft',
+      model: HAIKU_MODEL,
+      market: localeToMarket(locale),
+      inputTokens: result.usage?.inputTokens ?? 0,
+      outputTokens: result.usage?.outputTokens ?? 0,
+      latencyMs,
+      errorCode: result.errorCode ?? null,
+    });
   }
 
   return {

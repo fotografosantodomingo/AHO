@@ -14,6 +14,7 @@ import {
   generateDrafts,
   type DrafterPlatform,
 } from '@/lib/social/ai-drafter';
+import { logAiCall } from '@/lib/ai/log';
 
 export const runtime = 'edge';
 
@@ -139,6 +140,7 @@ export async function POST(req: NextRequest) {
   );
 
   const env = serverEnv();
+  const draftStartedAt = Date.now();
   const result = await generateDrafts(
     {
       title,
@@ -156,6 +158,19 @@ export async function POST(req: NextRequest) {
     body.platforms as DrafterPlatform[],
     env.ANTHROPIC_API_KEY,
   );
+  // Per-call cost + usage log — Phase 5.5. NULL audit_id because this
+  // route serves real-listing drafts, not Free Audit. The market is
+  // derived from the listing's content locale (en→us / es→es).
+  void logAiCall({
+    auditId: null,
+    purpose: 'listing_draft',
+    model: 'claude-haiku-4-5-20251001',
+    market: contentLocale === 'es' ? 'es' : 'us',
+    inputTokens: result.usage?.inputTokens ?? 0,
+    outputTokens: result.usage?.outputTokens ?? 0,
+    latencyMs: Date.now() - draftStartedAt,
+    errorCode: result.errorCode ?? null,
+  });
 
   // Always 200 — failure is signaled via empty drafts + errorCode in
   // the body. Lets the UI render a graceful fallback without HTTP-status

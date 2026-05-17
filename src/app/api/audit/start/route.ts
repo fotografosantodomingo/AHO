@@ -98,9 +98,20 @@ export async function POST(req: NextRequest) {
     return fail(503, 'ai_unavailable', 'AI provider not configured');
   }
 
+  // Pre-generate the audit's UUID so the per-call AI logging in
+  // runAudit can attribute every Anthropic request to this audit's
+  // id BEFORE the row exists. Postgres accepts an explicit id on
+  // insert when the column has DEFAULT gen_random_uuid(); we just
+  // override the default with our pre-gen.
+  const auditId = crypto.randomUUID();
+
   let auditResult;
   try {
-    auditResult = await runAudit({ url: body.url, apiKey: env.ANTHROPIC_API_KEY });
+    auditResult = await runAudit({
+      url: body.url,
+      apiKey: env.ANTHROPIC_API_KEY,
+      auditId,
+    });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     // Map known importFromUrl failure messages to user-friendly codes.
@@ -123,9 +134,10 @@ export async function POST(req: NextRequest) {
   // JSON column so the preview page can render whatever's there.
   const admin = createAdminClient();
   const ipHash = ip === 'unknown' ? null : await sha256Hex(ip);
-  const { data: inserted, error: insertErr } = await admin
+  const { error: insertErr } = await admin
     .from('ai_audits')
     .insert({
+      id: auditId,
       source_url: body.url,
       source_locale: auditResult.facts.detectedLanguage,
       facts: auditResult.facts,
@@ -133,14 +145,12 @@ export async function POST(req: NextRequest) {
       input_tokens: auditResult.usage.inputTokens,
       output_tokens: auditResult.usage.outputTokens,
       client_ip_hash: ipHash,
-    })
-    .select('id')
-    .single();
+    });
 
-  if (insertErr || !inserted) {
+  if (insertErr) {
     console.error('[audit.start] insert failed', insertErr);
-    return fail(500, 'db_error', insertErr?.message ?? 'insert returned null');
+    return fail(500, 'db_error', insertErr.message);
   }
 
-  return NextResponse.json({ ok: true, auditId: inserted.id as string });
+  return NextResponse.json({ ok: true, auditId });
 }

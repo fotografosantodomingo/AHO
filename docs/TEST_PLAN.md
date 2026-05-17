@@ -31,6 +31,27 @@
 - **Expect:** Domain `advertisehomes.online` flips to "Verified" within seconds. Confirms the `<meta name="facebook-domain-verification" content="ztd23gv75ztx1kqizjykrk30oeiinn"/>` tag in our `<head>` is live and Meta reads it correctly.
 - **If wrong:** Meta will say "could not find tag" — if so, try the Sharing Debugger (https://developers.facebook.com/tools/debug/) and paste me the result.
 
+### `ai-generation-log` — Phase 5.5 cost observability (just shipped)
+- **Do:** Trigger a new Free Audit (paste any portal URL on `/en/for-agents`). Wait for the preview to render. Then in psql / Supabase SQL editor:
+  ```sql
+  select purpose, model, market, input_tokens, output_tokens,
+         estimated_cost_usd_cents, latency_ms, error_code, created_at
+  from ai_generation_log
+  where audit_id = '<the-audit-uuid-from-the-preview-url>'
+  order by created_at;
+  ```
+- **Expect:** 3 rows (one per locale en/es/pl), all `purpose='audit_draft'`, model `claude-haiku-4-5-20251001`, with sensible token counts (typically 500-1500 input, 200-600 output per call), market values matching localeToMarket (us/es/pl), latency 1000-4000 ms each, error_code NULL.
+- **AND:** Daily aggregate sanity check:
+  ```sql
+  select sum(estimated_cost_usd_cents)::float / 100 as usd_today,
+         count(*) as calls_today,
+         count(distinct audit_id) as audits_today
+  from ai_generation_log
+  where created_at > current_date;
+  ```
+  Should match your audit count × 3 calls per audit; sum should be small (a few cents during testing).
+- **If wrong:** Most likely failure mode: zero rows. That means the audit pre-generated UUID flow broke; the route handler in `/api/audit/start` now inserts with an explicit `id` field — if INSERT failed silently, the log rows orphan with that audit_id. Paste me the audit UUID + the SQL output you got.
+
 ### `approval-grid-connection-state` — Phase 4 slice 4d (just shipped)
 - **Do:** Sign in as `info@advertisehomes.online`. Create a Free Audit. On the resulting `/preview/<uuid>`:
 - **Expect:**
