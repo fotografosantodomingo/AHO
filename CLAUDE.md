@@ -63,6 +63,7 @@ wrangler.toml              — name=aho-web, compatibility_flags=["nodejs_compat
 - **Stripe is in TEST mode.** Live products were archived 2026-04-29 after a process gap (see `DECISIONS.md` "Stripe live → test"); current `.env.local` keys are `sk_test_…`. `scripts/setup-stripe-products.ts` has a guardrail that refuses live keys. Live promotion requires an explicit DECISIONS.md entry per CLAUDE.md hard rule #9.
 - **RLS test fixtures share the production Supabase project.** Public-facing surfaces (sitemap, city landing, agent profiles, by-bbox API) ALL filter `aho-test-org-%` org slugs + `aho-fixture-%` listing slugs. See `RISKS.md` R11. Pattern recap: PostgREST inner-join `.not('organizations.slug', 'like', 'aho-test-org-%')` + a defensive in-loop slug check.
 - **No `pnpm dev`.** Per-machine memory `aho_no_local_runtime`: dev/preview/prod all happen on Cloudflare Pages via `git push` → GH Actions → `wrangler pages deploy`. ~2 min from push to live. Do NOT start `next dev`.
+- **Pre-push hook runs `pnpm test:unit` automatically.** Versioned at `.githooks/pre-push`; activate per-machine once via `bash scripts/setup-git-hooks.sh` (sets `core.hooksPath`). Closes the 2026-05-17 gap where a Phase 5 commit broke a test assertion and every subsequent push silently failed CI. Bypass with `git push --no-verify` for docs-only emergencies. Anything that touches `src/` should NOT bypass.
 
 ## Hard rules (must hold throughout the build)
 1. **Never commit secrets.** Use `.env.local` locally and Cloudflare/Supabase/Stripe-managed secrets in deployed envs.

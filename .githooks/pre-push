@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# AHO pre-push hook — runs the unit test suite before any push reaches
+# GitHub. Closes the gap where a broken test could ship to main and
+# fail CI silently for hours (which happened 2026-05-17 when the Phase
+# 5 multilingual context engine commit broke an ai-drafter test
+# assertion and every subsequent commit pushed through with red CI).
+#
+# Tests run in ~3 seconds on this codebase. The overhead per push is
+# negligible compared to "discover CI failed two hours later via email."
+#
+# Activate once on each developer machine with:
+#   git config core.hooksPath .githooks
+# (the README-style command above is also run by ./scripts/setup-git-hooks.sh)
+#
+# Escape hatch: standard --no-verify on git push skips this hook.
+# Use sparingly; the only legitimate case is hotfixing a non-code
+# change (docs typo, .env-template edit) when CI infrastructure
+# itself is wedged. Anything that touches src/ should not skip.
+
+set -euo pipefail
+
+# Allow `git push --no-verify` to bypass (git auto-skips hooks then).
+# Also honor an explicit AHO_SKIP_PRE_PUSH=1 for advanced cases like
+# emergency main rollbacks where running tests against a known-bad
+# state is pointless.
+if [[ "${AHO_SKIP_PRE_PUSH:-0}" == "1" ]]; then
+  echo "[pre-push] AHO_SKIP_PRE_PUSH=1 set — skipping unit tests."
+  exit 0
+fi
+
+# pnpm is invoked via corepack here so the version in package.json's
+# packageManager field is the one used — matches the CI workflow's
+# pnpm version exactly. Avoids the "passes locally with one pnpm,
+# fails in CI with another" trap.
+if ! command -v corepack >/dev/null 2>&1; then
+  echo "[pre-push] corepack not found on PATH — skipping unit tests."
+  echo "[pre-push] (install Node ≥16.13 which bundles corepack, or run the suite manually before pushing.)"
+  exit 0
+fi
+
+echo "[pre-push] running pnpm test:unit (skip with --no-verify if you must)…"
+if ! corepack pnpm@9.12.3 test:unit; then
+  echo ""
+  echo "[pre-push] ✗ unit tests FAILED. Push aborted."
+  echo "[pre-push] Fix the failures or bypass with: git push --no-verify"
+  exit 1
+fi
+echo "[pre-push] ✓ unit tests passed."

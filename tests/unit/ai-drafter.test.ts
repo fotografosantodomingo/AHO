@@ -171,7 +171,13 @@ describe('ai-drafter · generateDrafts', () => {
     expect(body.messages[0].content).toContain('"locale":"es"');
   });
 
-  it('marketing locale (pl) narrows to en before sending', async () => {
+  it('marketing locale (pl) passes through + market=pl (Phase 5)', async () => {
+    // Phase 5 multilingual context engine (commit 9f39da2) changed this
+    // from "narrow PL → EN content" to "pass PL through + market=pl,
+    // write actual Polish via per-market system prompt". The prior
+    // narrowContentLocale fallback that emitted English drafts under
+    // PL/PT/DE/FR/IT marketing locales was the visible quality gap
+    // Phase 5 closed.
     const fetchMock = vi.fn(async () =>
       mockAnthropicResponse(200, {
         id: 'msg_4',
@@ -179,7 +185,7 @@ describe('ai-drafter · generateDrafts', () => {
           {
             type: 'tool_use',
             name: 'emit_drafts',
-            input: { facebook: { message: 'English text.' } },
+            input: { facebook: { message: 'Polski tekst.' } },
           },
         ],
         stop_reason: 'tool_use',
@@ -190,8 +196,13 @@ describe('ai-drafter · generateDrafts', () => {
     await generateDrafts({ ...BASE, locale: 'pl' }, ['facebook'], 'sk-ant-test');
     const call = fetchMock.mock.calls[0]! as unknown as [string, RequestInit];
     const body = JSON.parse(call[1].body as string);
-    expect(body.messages[0].content).toContain('"locale":"en"');
-    expect(body.messages[0].content).not.toContain('"locale":"pl"');
+    // locale passes through as 'pl' (not silently narrowed to 'en')
+    expect(body.messages[0].content).toContain('"locale":"pl"');
+    // market is derived from locale via localeToMarket; pl → pl
+    expect(body.messages[0].content).toContain('"market":"pl"');
+    // System prompt is now per-market and explicitly tells the model
+    // to write in Polish — verify the language rule is in the system.
+    expect(body.system).toContain('Polish');
   });
 
   it('HTTP 429 → rate_limited (no drafts)', async () => {
