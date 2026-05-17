@@ -96,6 +96,14 @@ const securityHeaders = [
 const config: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Disable Next.js 15's DevTools indicator on production. The
+  // dev-overlay chunk (`src/next-devtools/dev-overlay` + `compiled/anser`
+  // + `compiled/strip-ansi` + ANSI-to-HTML helpers) was shipping ~600 KiB
+  // of unused JS to every page; Lighthouse audit 2026-05-17 flagged
+  // 7.8 MiB total unused JS on /dashboard/properties with TBT 7.8s.
+  // The indicator is a dev-loop nicety we don't need in prod — disable
+  // outright and the bundler skips the whole chunk.
+  devIndicators: false,
   // Production source maps — Lighthouse 2026-05-16 flagged
   // "Missing source maps for large first-party JavaScript" on the
   // 206 KiB chunks/3c6892b9-*.js, costing 1pt on Best Practices and
