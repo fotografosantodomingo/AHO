@@ -112,6 +112,18 @@ interface AnthropicResponse {
   usage: { input_tokens: number; output_tokens: number };
 }
 
+/** Return shape — wraps the extracted listing facts with the
+ *  Anthropic call's token usage + wall-clock latency, so the caller
+ *  (runAudit / /api/listings/import) can write a row to
+ *  `ai_generation_log` for cost observability. The model id is fixed
+ *  by this module (`MODEL_ID`) so callers don't need to pass it back. */
+export interface ImportFromUrlResult {
+  facts: ImportedFacts;
+  usage: { inputTokens: number; outputTokens: number };
+  latencyMs: number;
+  model: string;
+}
+
 /**
  * Detect a bot-challenge / WAF response. Returns true when the
  * upstream gave us nothing useful even though the HTTP status was OK.
@@ -341,7 +353,7 @@ export async function importFromUrl(args: {
    *  return data in the source's language and let the agent translate
    *  on the form side. */
   callerLocale?: Locale;
-}): Promise<ImportedFacts> {
+}): Promise<ImportFromUrlResult> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     throw new Error('ANTHROPIC_API_KEY not configured');
@@ -370,6 +382,7 @@ export async function importFromUrl(args: {
     condensed,
   ].join('\n');
 
+  const callStartedAt = Date.now();
   const apiRes = await fetch(ANTHROPIC_API, {
     method: 'POST',
     headers: {
@@ -384,6 +397,7 @@ export async function importFromUrl(args: {
       messages: [{ role: 'user', content: userPrompt }],
     }),
   });
+  const latencyMs = Date.now() - callStartedAt;
   if (!apiRes.ok) {
     const detail = await apiRes.text();
     throw new Error(
@@ -409,7 +423,7 @@ export async function importFromUrl(args: {
     );
   }
 
-  return {
+  const facts: ImportedFacts = {
     detectedLanguage: extracted.detectedLanguage ?? null,
     titleEn: extracted.titleEn ?? null,
     titleEs: extracted.titleEs ?? null,
@@ -451,5 +465,14 @@ export async function importFromUrl(args: {
           .slice(0, 30)
       : [],
     sourceUrl: parsed.toString(),
+  };
+  return {
+    facts,
+    usage: {
+      inputTokens: response.usage?.input_tokens ?? 0,
+      outputTokens: response.usage?.output_tokens ?? 0,
+    },
+    latencyMs,
+    model: MODEL_ID,
   };
 }

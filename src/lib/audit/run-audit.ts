@@ -60,7 +60,27 @@ export async function runAudit(args: {
    *  when omitted the logs land with audit_id=NULL. */
   auditId?: string;
 }): Promise<AuditResult> {
-  const facts = await importFromUrl({ url: args.url });
+  const importResult = await importFromUrl({ url: args.url });
+  const facts = importResult.facts;
+  // Phase 5.5: log the importFromUrl Sonnet call so daily cost
+  // rollups reflect TOTAL audit cost (import + drafters), not just
+  // the drafter portion. Fire-and-forget; logging failure never
+  // cascades into a user-facing failure.
+  void logAiCall({
+    auditId: args.auditId ?? null,
+    purpose: 'audit_import',
+    model: importResult.model,
+    market: null,
+    inputTokens: importResult.usage.inputTokens,
+    outputTokens: importResult.usage.outputTokens,
+    latencyMs: importResult.latencyMs,
+    errorCode: null,
+  });
+  // Roll the import tokens into the aggregate the orchestrator writes
+  // to ai_audits.input_tokens / output_tokens so that legacy column
+  // reads also see total-cost not just drafter-cost.
+  let inputTokens = importResult.usage.inputTokens;
+  let outputTokens = importResult.usage.outputTokens;
 
   // Pick title per locale — facts.titleEn / titleEs come from the
   // import step (Claude already translated). For PL we fall back to EN
@@ -71,8 +91,6 @@ export async function runAudit(args: {
   }
 
   const drafts = {} as Record<AuditDraftLocale, DrafterResult>;
-  let inputTokens = 0;
-  let outputTokens = 0;
 
   // Sequential rather than parallel. Three locales × ~3-4 KB of JSON
   // payload per call would otherwise burst Anthropic's rate limiter

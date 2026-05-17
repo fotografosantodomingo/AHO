@@ -31,6 +31,21 @@
 - **Expect:** Domain `advertisehomes.online` flips to "Verified" within seconds. Confirms the `<meta name="facebook-domain-verification" content="ztd23gv75ztx1kqizjykrk30oeiinn"/>` tag in our `<head>` is live and Meta reads it correctly.
 - **If wrong:** Meta will say "could not find tag" — if so, try the Sharing Debugger (https://developers.facebook.com/tools/debug/) and paste me the result.
 
+### `audit-import-cost-logging` — Phase 5.5 follow-on (just shipped)
+- **Do:** Run a Free Audit. Wait for the preview to render. Then in psql:
+  ```sql
+  select purpose, model, market, input_tokens, output_tokens,
+         estimated_cost_usd_cents, latency_ms
+  from ai_generation_log
+  where audit_id = '<the-audit-uuid>'
+  order by created_at;
+  ```
+- **Expect:** Now **4 rows** instead of the previous 3:
+  - 1× `purpose='audit_import'`, `model='claude-sonnet-4-6'`, NULL market, high input_tokens (the scraped HTML), modest output_tokens (the JSON facts). Cost-per-call typically $0.02-0.10.
+  - 3× `purpose='audit_draft'`, `model='claude-haiku-4-5-...'`, per-market (us/es/pl), modest input_tokens, lower output_tokens.
+- **Total-cost sanity:** sum of all 4 rows is the actual per-audit cost. Compare against `ai_audits.input_tokens` / `output_tokens` (legacy aggregate columns) — they should now match the sum of all 4 log rows (previously they only matched the 3 drafter rows since `import` wasn't being counted).
+- **If wrong:** Most likely failure: only 3 rows show up (the import row is missing). That means the importFromUrl wire-up didn't fire — paste the audit UUID + the SQL output.
+
 ### `fundraise-toolkit` — investor brief + funnel analytics (just shipped)
 Three artifacts in one ship:
 

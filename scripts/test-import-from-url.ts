@@ -22,7 +22,7 @@ async function main(): Promise<void> {
     console.log(`\n========== ${url} ==========`);
     const start = Date.now();
     try {
-      const facts = await importFromUrl({ url });
+      const { facts } = await importFromUrl({ url });
       const ms = Date.now() - start;
       console.log(`(${ms}ms · detected: ${facts.detectedLanguage})`);
       console.log(`titleEn:  ${facts.titleEn}`);

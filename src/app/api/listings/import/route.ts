@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { importFromUrl } from '@/lib/listings/import-from-url';
+import { logAiCall } from '@/lib/ai/log';
 
 export const runtime = 'edge';
 
@@ -53,8 +54,20 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const facts = await importFromUrl({ url: parsed.data.url });
-    return NextResponse.json({ facts }, { status: 200 });
+    const result = await importFromUrl({ url: parsed.data.url });
+    // Phase 5.5: log this Sonnet call too. auditId=null because this
+    // route is the manual listing-import surface, not a Free Audit.
+    void logAiCall({
+      auditId: null,
+      purpose: 'audit_import',
+      model: result.model,
+      market: null,
+      inputTokens: result.usage.inputTokens,
+      outputTokens: result.usage.outputTokens,
+      latencyMs: result.latencyMs,
+      errorCode: null,
+    });
+    return NextResponse.json({ facts: result.facts }, { status: 200 });
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
     console.error('[listings/import]', message);
