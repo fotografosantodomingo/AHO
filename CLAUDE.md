@@ -76,11 +76,37 @@ wrangler.toml              — name=aho-web, compatibility_flags=["nodejs_compat
 9. **Any operation that creates billable resources or live-mode payment infrastructure requires explicit confirmation in chat before execution. The presence of a live API key is not implicit consent.** This applies to Stripe (live products / prices / customers / invoices), Cloudflare paid plans, paid-tier infra (Workers Paid, Supabase team plan), and any third-party API call that incurs cost. If the env has a live key but the user has not explicitly told me "create live X right now in this conversation," I default to test mode or ask. Logged after a process gap on 2026-04-29 where ambiguous "keep live" guidance was read as authorization to create live Stripe products; the policy in `docs/DECISIONS.md` is to default test, ask explicitly, and run with live only after a DECISIONS.md entry approves the specific operation.
 
 ## Read these before starting work
-1. `docs/HANDOFF.md` (and `HANDOFF_part2.md` while it exists) — full spec.
-2. `docs/DECISIONS.md` — architectural choices made and why.
-3. `docs/PROGRESS.md` — last session's "Next session should start with".
-4. `docs/OPEN_QUESTIONS.md` — items blocked on product owner.
-5. `docs/RISKS.md` — what might bite us and what we're doing about it.
+1. **`docs/STATUS.md`** — single source of truth for "where are we right now." Read this FIRST.
+2. **`docs/PO_DECISIONS.md`** — open decisions blocking active work; check before assuming what to build.
+3. **`docs/TEST_PLAN.md`** — features deployed but not yet validated by the PO clicking through them.
+4. `docs/HANDOFF.md` (+ `HANDOFF_part2.md`) — full spec.
+5. `docs/DECISIONS.md` — architectural choices made and why.
+6. `docs/PROGRESS.md` — last session's "Next session should start with".
+7. `docs/OPEN_QUESTIONS.md` — older open-questions doc; superseded by `PO_DECISIONS.md` for new items.
+8. `docs/RISKS.md` — what might bite us and what we're doing about it.
+
+## Operating protocol (PO 2026-05-17 — collaboration ritual)
+
+This is HOW we work, not just WHAT we work on. Treat these as defaults — only deviate when the user explicitly redirects.
+
+**The status ritual.** When the user types `status` (or "where are we" / "what's next"), I:
+1. Read `docs/STATUS.md` and `docs/PO_DECISIONS.md`.
+2. Summarize the top 3 things in flight + the top 3 things blocked.
+3. Propose where to start this session (highest-leverage unblocked item from `STATUS.md` 🟡 Next 5).
+4. Wait for sign-off or redirect before executing.
+
+**The shipping discipline.** A feature is NOT "done" until:
+1. It's committed + pushed + deployed (current bar).
+2. It has an entry in `docs/TEST_PLAN.md` with a 3-line manual verification.
+3. The user has typed `verified: <name>` confirming they clicked through it and it works.
+Until step 3, I refer to it as "deployed, not validated" — never "shipped."
+
+**Doc-maintenance is my job, not theirs.** I keep `STATUS.md`, `PO_DECISIONS.md`, `TEST_PLAN.md` current as I work. When a feature lands → it moves from `STATUS.md` 🟢/🟡 → ✅ AND gets a `TEST_PLAN.md` entry. When a decision blocks me → it lands in `PO_DECISIONS.md`, not as a mid-task chat interruption. When the user mentions a nice-to-have → it goes into the `STATUS.md` 📦 Punch list so it isn't lost.
+
+**Mid-task interruptions.** If I hit something that needs PO input, I do NOT pause to ask. I:
+- (a) Push the question into `PO_DECISIONS.md` with my recommended answer.
+- (b) Either pick the safe default and proceed, OR move to a different unblocked item.
+- Only block the chat with a question if the question is BOTH unanswerable by recommendation AND blocking ALL forward progress.
 
 ## Current focus
 Slice 2 surfaces all live; slice-3 polish in progress (live-bbox map shipped; loading skeletons shipped). The remaining slice-1 close-out items are all PO-action-blocked:
