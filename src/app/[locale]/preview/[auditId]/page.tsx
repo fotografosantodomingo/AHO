@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { headers } from 'next/headers';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { localePath } from '@/i18n/routing';
@@ -88,7 +89,20 @@ export default async function PreviewPage({
   const { data: userResult } = await userSupabase.auth.getUser();
   const viewerId = userResult.user?.id ?? null;
   let claimedBy = (audit.claimed_by_user_id as string | null) ?? null;
-  if (viewerId && !claimedBy) {
+  // Funnel-event side-effects — Phase 5.6 / pitch metric. Single
+  // `headers()` call powers both the claim row's missing IP-hash
+  // gap AND the funnel event rows. SHA-256 keeps us out of PII
+  // territory while letting us de-dup same-network reloads.
+  const reqHeaders = await headers();
+  const rawIp =
+    reqHeaders.get('cf-connecting-ip') ??
+    reqHeaders.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+    null;
+  const ipHash = rawIp ? await sha256Hex(rawIp) : null;
+  const userAgent = reqHeaders.get('user-agent')?.slice(0, 500) ?? null;
+
+  const justClaimed = viewerId && !claimedBy;
+  if (justClaimed && viewerId) {
     await admin
       .from('ai_audits')
       .update({ claimed_by_user_id: viewerId, claimed_at: new Date().toISOString() })
@@ -96,6 +110,29 @@ export default async function PreviewPage({
     claimedBy = viewerId;
   }
   const isOwner = !!viewerId && claimedBy === viewerId;
+
+  // Fire-and-forget funnel writes. Don't await — a logging failure
+  // never blocks the page render. View event is always logged; claim
+  // event only on the request that flipped the audit from unclaimed
+  // → claimed (one per audit lifetime).
+  void admin.from('audit_funnel_events').insert({
+    audit_id: auditId,
+    event: 'preview_view',
+    ip_hash: ipHash,
+    user_id: viewerId,
+    locale,
+    user_agent: userAgent,
+  });
+  if (justClaimed) {
+    void admin.from('audit_funnel_events').insert({
+      audit_id: auditId,
+      event: 'preview_claim',
+      ip_hash: ipHash,
+      user_id: viewerId,
+      locale,
+      user_agent: userAgent,
+    });
+  }
 
   const facts = audit.facts as ImportedFacts;
   const drafts = audit.drafts as Record<'en' | 'es' | 'pl', DrafterResult>;
@@ -396,6 +433,16 @@ export default async function PreviewPage({
     </main>
     </div>
   );
+}
+
+/** Hash a client IP for funnel-event de-duplication without storing
+ *  raw IPs (same pattern as /api/audit/start). Edge-compatible. */
+async function sha256Hex(input: string): Promise<string> {
+  const buf = new TextEncoder().encode(input);
+  const digest = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
 }
 
 /** Per-platform draft shape varies (FB.message / IG.caption / LinkedIn

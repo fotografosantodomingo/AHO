@@ -31,6 +31,43 @@
 - **Expect:** Domain `advertisehomes.online` flips to "Verified" within seconds. Confirms the `<meta name="facebook-domain-verification" content="ztd23gv75ztx1kqizjykrk30oeiinn"/>` tag in our `<head>` is live and Meta reads it correctly.
 - **If wrong:** Meta will say "could not find tag" — if so, try the Sharing Debugger (https://developers.facebook.com/tools/debug/) and paste me the result.
 
+### `fundraise-toolkit` — investor brief + funnel analytics (just shipped)
+Three artifacts in one ship:
+
+**a) Pitch outline doc** — `docs/PITCH_OUTLINE.md`
+- **Do:** Open the file. Skim. Customize: the `$___` ask amount, your calendar link, record the 60-second screencast.
+- **Expect:** A 1-page narrative scaffold you can convert to slides or paste into cold-outreach emails verbatim. Covers wedge / moat / why-now / 90-day plan / pricing / ask / honest disclosures.
+- **If wrong:** Tell me what's off and I'll iterate.
+
+**b) Investors landing page** — https://advertisehomes.online/en/investors
+- **Do:** Open in incognito.
+- **Expect:** Hero pitch → "Try the 60-second demo →" button (links to /for-agents) + "Email me — 15 min call" mailto link → sections for wedge / moat / why now / 90-day plan / pricing / ask / honest pre-revenue disclosures. Forced-light theme regardless of system mode. Page is noindex (intentional — you share the URL in cold outreach; you don't want it ranking).
+- **AND:** Verify the noindex header:
+  ```bash
+  curl -sI https://advertisehomes.online/en/investors | grep -i x-robots
+  # expected: x-robots-tag: noindex, nofollow, noarchive, nosnippet
+  ```
+- **If wrong:** Paste screenshot of what's off.
+
+**c) Funnel analytics — `audit_funnel_events` table** (migration 0062 + preview page instrumentation)
+- **Do:** Generate a new Free Audit. Visit the resulting `/preview/<uuid>` URL TWICE (once anonymous, once after signing in to claim it). Then in psql:
+  ```sql
+  select event, user_id, locale, created_at
+  from audit_funnel_events
+  where audit_id = '<the-audit-uuid>'
+  order by created_at;
+  ```
+- **Expect:** 3 rows — 2× `preview_view` (one per visit) + 1× `preview_claim` (only on the visit that flipped the audit from unclaimed to claimed).
+- **AND:** Funnel rate query for the investor pitch:
+  ```sql
+  with views as (select count(*) as n from audit_funnel_events where event = 'preview_view'),
+       claims as (select count(*) as n from audit_funnel_events where event = 'preview_claim')
+  select claims.n::float / nullif(views.n, 0) as conversion_rate, views.n as total_views, claims.n as total_claims
+  from views, claims;
+  ```
+  After a week of real audit traffic, this is the concrete "X% of preview viewers convert" number you cite in the deck.
+- **If wrong:** Most likely failure: 0 rows. Means the preview-page instrumentation didn't fire — paste the audit UUID + the SQL result.
+
 ### `audit-prune-cron` — Phase 5.5 follow-on (just shipped — needs deployment)
 - **Code is committed** but the standalone Worker at `workers/audit-prune/` needs to be deployed once via wrangler. Same one-time setup as `workers/meta-token-refresh/`:
   ```bash

@@ -173,6 +173,11 @@ export const PATHNAMES = {
     es: '/configurar-instagram',
     ...en5('/instagram-setup'),
   },
+  '/investors': {
+    en: '/investors',
+    es: '/investors',
+    ...en5('/investors'),
+  },
   '/saved-properties': {
     en: '/saved-properties',
     es: '/inmuebles-guardados',
