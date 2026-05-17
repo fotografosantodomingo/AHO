@@ -143,6 +143,14 @@ export const config = {
     //   - `.css` files anywhere — locale-prefixing a stylesheet has no
     //     legitimate use case and breaks every static-CSS asset that
     //     gets fetched outside `_next/static`.
-    '/((?!_next/static|_next/image|favicon\\.ico|icon|apple-icon|sitemap(?:-[a-z]+)?\\.xml|robots\\.txt|sw\\.js|manifest\\.webmanifest|leaflet/|.*\\.(?:css|svg|png|jpg|jpeg|gif|webp|avif|ico)$|api/|auth/callback).*)',
+    //   - `.woff` + `.woff2` font files — same logic as `.css`. Bug
+    //     2026-05-17: `/fonts/inter-700.woff2` was being 307'd to
+    //     `/en/fonts/inter-700.woff2` by next-intl, the OG-image font
+    //     loader's `fetch()` either failed or got an HTML 404 instead
+    //     of the woff2 bytes, satori crashed silently, and every
+    //     ImageResponse route returned 0 bytes. This was the REAL
+    //     cause of the "ImageResponse broken" QA finding — not the
+    //     `devIndicators: false` change I initially reverted.
+    '/((?!_next/static|_next/image|favicon\\.ico|icon|apple-icon|sitemap(?:-[a-z]+)?\\.xml|robots\\.txt|sw\\.js|manifest\\.webmanifest|leaflet/|fonts/|.*\\.(?:css|svg|png|jpg|jpeg|gif|webp|avif|ico|woff|woff2|ttf|otf)$|api/|auth/callback).*)',
   ],
 };
