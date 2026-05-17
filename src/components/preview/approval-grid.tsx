@@ -41,10 +41,25 @@ interface PublishedResult {
   attempted_at: string;
 }
 
+interface PlatformConnection {
+  platform: Platform;
+  connected: boolean;
+  displayName: string | null;
+}
+
 interface Props {
   auditId: string;
+  /** Page locale — used to build the OAuth returnTo and the
+   *  /dashboard/social fallback path so Connect → bounces back to
+   *  this exact preview after OAuth completes. */
+  locale: 'en' | 'es' | 'pl' | 'pt' | 'de' | 'fr' | 'it';
   drafts: Record<Locale, DrafterResult>;
   publishedResults: PublishedResult[];
+  /** Per-platform connection state (Phase 4 slice 4d / easier OAuth UX).
+   *  When a platform isn't connected, the grid surfaces an inline
+   *  "Connect →" link to the right OAuth start route — agent fixes
+   *  the missing connection where they hit it, no navigation needed. */
+  connections: PlatformConnection[];
 }
 
 const LOCALES: Locale[] = ['en', 'es', 'pl'];
@@ -59,7 +74,13 @@ function cellKey(locale: Locale, platform: Platform): string {
   return `${locale}::${platform}`;
 }
 
-export function ApprovalGrid({ auditId, drafts, publishedResults }: Props) {
+export function ApprovalGrid({
+  auditId,
+  locale,
+  drafts,
+  publishedResults,
+  connections,
+}: Props) {
   const t = useTranslations('freeAudit');
   // Latest result wins for any (locale, platform) — array order is
   // chronological since the server appends without dedup.
@@ -74,13 +95,38 @@ export function ApprovalGrid({ auditId, drafts, publishedResults }: Props) {
     return m;
   }, [results]);
 
-  function hasDraft(locale: Locale, platform: Platform): boolean {
-    const bundle = drafts[locale];
+  function hasDraft(loc: Locale, platform: Platform): boolean {
+    const bundle = drafts[loc];
     if (!bundle?.drafts) return false;
     if (platform === 'facebook') return !!bundle.drafts.facebook?.message;
     if (platform === 'instagram') return !!bundle.drafts.instagram?.caption;
     return !!bundle.drafts.linkedin?.commentary;
   }
+
+  const connectedMap = useMemo(() => {
+    const m = new Map<Platform, PlatformConnection>();
+    for (const c of connections) m.set(c.platform, c);
+    return m;
+  }, [connections]);
+
+  function isConnected(platform: Platform): boolean {
+    return connectedMap.get(platform)?.connected ?? false;
+  }
+
+  // OAuth start URLs preserve a `returnTo` so the callback bounces
+  // straight back to this audit preview after the agent finishes the
+  // platform's consent screen. No extra navigation.
+  const returnTo = `/${locale}/preview/${auditId}`;
+  const connectUrl = (platform: Platform): string => {
+    const rt = encodeURIComponent(returnTo);
+    if (platform === 'facebook' || platform === 'instagram') {
+      // Meta OAuth covers BOTH FB Page + IG Business in one flow
+      // (IG comes through if the agent has it linked to a Page in
+      // Meta Business Suite — see /instagram-setup if missing).
+      return `/api/oauth/meta/start?returnTo=${rt}`;
+    }
+    return `/api/oauth/linkedin/start?returnTo=${rt}`;
+  };
 
   function toggle(locale: Locale, platform: Platform) {
     const k = cellKey(locale, platform);
@@ -154,6 +200,48 @@ export function ApprovalGrid({ auditId, drafts, publishedResults }: Props) {
         <p className="text-sm text-ink-muted">{t('approvalSub')}</p>
       </header>
 
+      {/* Connection state strip — slice 4d / easier OAuth UX. One pill
+          per platform showing ✓ Connected as "{name}" or a "Connect →"
+          link straight to the OAuth start, with returnTo preserved so
+          the agent lands back here after consent. Removes the prior
+          friction of needing to navigate to /dashboard/social just to
+          enable a publish target. */}
+      <ul className="mt-4 flex flex-wrap items-center gap-2">
+        {PLATFORMS.map((p) => {
+          const conn = connectedMap.get(p);
+          const label =
+            p === 'facebook' ? '📘 Facebook' : p === 'instagram' ? '📷 Instagram' : '💼 LinkedIn';
+          return (
+            <li key={p}>
+              {conn?.connected ? (
+                <span
+                  className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800"
+                  title={conn.displayName ?? undefined}
+                >
+                  <span>{label}</span>
+                  <span aria-hidden="true">·</span>
+                  <span className="font-semibold">✓</span>
+                  {conn.displayName && (
+                    <span className="max-w-[14ch] truncate opacity-80">
+                      {conn.displayName}
+                    </span>
+                  )}
+                </span>
+              ) : (
+                <a
+                  href={connectUrl(p)}
+                  className="inline-flex items-center gap-1 rounded-full border border-action/40 bg-surface px-3 py-1 text-xs font-medium text-action transition hover:bg-action/5"
+                >
+                  <span>{label}</span>
+                  <span aria-hidden="true">·</span>
+                  <span>{t('approvalConnect')} →</span>
+                </a>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+
       <div className="mt-6 overflow-x-auto">
         <table className="w-full min-w-[520px] border-separate border-spacing-y-1 text-sm">
           <thead>
@@ -178,8 +266,10 @@ export function ApprovalGrid({ auditId, drafts, publishedResults }: Props) {
                   const ok = latest?.ok === true;
                   const failed = latest?.ok === false;
                   const draftExists = hasDraft(loc, plat);
+                  const platConnected = isConnected(plat);
                   const checked = selected.has(k);
-                  const disabled = ok || !draftExists || submitting;
+                  const disabled =
+                    ok || !draftExists || !platConnected || submitting;
                   return (
                     <td
                       key={plat}
@@ -196,7 +286,7 @@ export function ApprovalGrid({ auditId, drafts, publishedResults }: Props) {
                         <label className="inline-flex flex-col items-center gap-1">
                           <input
                             type="checkbox"
-                            checked={checked}
+                            checked={checked && !disabled}
                             disabled={disabled}
                             onChange={() => toggle(loc, plat)}
                             className="h-5 w-5 cursor-pointer rounded border-border-strong accent-action disabled:cursor-not-allowed disabled:opacity-40"
@@ -205,6 +295,11 @@ export function ApprovalGrid({ auditId, drafts, publishedResults }: Props) {
                           {!draftExists && (
                             <span className="text-[10px] text-helper">
                               {t('approvalNoDraft')}
+                            </span>
+                          )}
+                          {draftExists && !platConnected && (
+                            <span className="text-[10px] text-helper">
+                              {t('approvalNotConnected')}
                             </span>
                           )}
                           {failed && (

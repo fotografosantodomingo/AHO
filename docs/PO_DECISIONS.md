@@ -10,18 +10,7 @@
 
 ## 🔴 Blocking active work
 
-### 1. Auto-video render engine (blocks Stage 1 Phase 4)
-
-**Question:** Which engine renders the 15-30s vertical 9:16 Reels/TikTok video for the Super Pro tier?
-
-**Why I'm stuck:** Phase 4 is the Super Pro $199-249/mo differentiator. I can't start building without picking a render path because the worker / queue / cost model differs by 5-20× across options.
-
-**Options:**
-- **A — Remotion in Cloudflare Containers.** JSX-to-MP4. ~$0.05/video render cost. 30-60s latency. **My recommendation.** Cloudflare Containers went GA in 2026; pricing predictable; pipeline is clean.
-- **B — FFmpeg-WASM in a Worker.** Cheaper (no Containers fee), but CPU-bound; 15s render budget tight for 30s output. Likely needs Phase 4.5 to fall back to Remotion anyway when output goes over budget.
-- **C — External service (Creatomate or Bannerbear).** ~$0.50-1.00/video. Fastest to ship but 10-20× the per-video cost of (A). Acceptable if Stage 1 launch timing is urgent; can pull in-house in Phase 6.
-
-**Deadline:** Before Phase 4 starts — flexible, just whenever you're ready to greenlight Phase 4.
+*(Nothing right now — #1 answered 2026-05-17, see "Recently answered" below.)*
 
 ---
 
@@ -93,6 +82,7 @@
 
 | Date | Decision | You chose |
 |---|---|---|
+| 2026-05-17 | Auto-video render engine — Remotion (A) vs FFmpeg-WASM (B) vs Creatomate (C)? | **A — Remotion in Cloudflare Containers** (~$0.05/video, predictable infra). Phase 4 building now in slices 4a-4d. |
 | 2026-05-17 | Brand mark on every generated creative — bold footer vs subtle watermark vs per-agent toggle? | **Bold "Powered by AHO" footer bar** (recorded in `docs/DECISIONS.md`) |
 | 2026-05-17 | Path A (finish Stage 1 Phase 3 first) vs Path B (start AI agent now)? | **Path A** — Phase 3 shipped same day as `c385f93` |
 

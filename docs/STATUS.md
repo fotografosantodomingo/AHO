@@ -8,7 +8,14 @@
 
 ## 🟢 Now — actively in flight
 
-*(Nothing right now — Stage 1 Phases 1-3 just shipped. Ready to pick the next thing from the 🟡 queue.)*
+**Phase 4 — Auto-video Reels/TikTok engine.** Render path locked 2026-05-17: **A = Remotion in Cloudflare Containers**. PO greenlit + asked for OAuth UX simplification alongside. Slicing into 4 shippable units:
+
+| Slice | What ships | Effort | Status |
+|---|---|---|---|
+| **4d** — Inline connection state on the preview's approval grid + "Connect X →" buttons per row when token is missing | OAuth simplification benefits the EXISTING flow too, not just Phase 4. Ships first because S effort + immediate value. | S | **Building now** |
+| **4a** — Remotion composition + Cloudflare Containers worker | The video render itself: photos → Ken Burns → title card + price card → music bed → 15-30s 9:16 MP4 stored in R2 | L | Queued |
+| **4b** — IG Reels + FB Reels publish primitives in `lib/social/publish.ts` (extends today's IG Feed / FB Page primitives — same tokens, different Graph endpoints) | New publish targets enabled for the approval grid | M | Queued |
+| **4c** — Approval grid expansion: 3×3 → 3×5 with IG Reel + FB Reel rows | UI tie-together: agent picks which cells → atomic publish with video too | S | Queued |
 
 ---
 
@@ -19,7 +26,7 @@ Effort: S = same-session, M = 1-3 days, L = ≥4 days. Owner: who's blocking.
 | # | Item | Why now | Effort | Owner |
 |---|---|---|---|---|
 | 1 | **Soft-beta recruitment + first end-to-end test** of the Free Audit → Approval Grid → Publish loop on your own account. | The wedge is BUILT but UN-VALIDATED. Nothing else matters until we know it works for one real agent. | S | **You** |
-| 2 | **Phase 4 — Auto-video Reels/TikTok engine.** Super Pro tier paywall feature. | $199-249/mo tier needs this differentiator before pricing change makes sense. | L | Me (waiting on PO decision in `PO_DECISIONS.md` #1) |
+| 2 | **PO_DECISIONS #2-4 batch** — Super Pro price ($199/$249/$299) + paywall structure + music library. Needed before Phase 4 fully lands but not before slice 4a starts. | Unblocks the pricing page + the marketing positioning around Phase 4. | S (PO action) | **You** |
 | 3 | **AI Customer Service Agent MVP** — knowledge ingestion (19a) → web chat replaces Tawk (19b) → confidence gating (19f). | ~7-day shippable slice; not blocked on Meta. Replaces Tawk + becomes the on-site sales engine. | L | Me (waiting on PO greenlight to commit to the 7-day window) |
 | 4 | **`ai_generation_log` migration + per-audit cost tracking.** Per the SUPER_PRO_STAGE_1_PLAN.md §5 + §7 unit-economics target (≤$0.30/audit). Today token usage lands on `ai_audits` columns; this normalizes into a per-call log + adds a daily cost rollup. | First soft-beta cohort generates ≥50 audits/day; we need cost observability before we get a surprise Anthropic invoice. | S | Me |
 | 5 | **Cron to prune unclaimed audits past expires_at** (7-day TTL). Move from punch list since the audit table will start accumulating quickly once recruitment hits. | One-shot Workers cron + a small SQL delete; ~30 min. | S | Me |

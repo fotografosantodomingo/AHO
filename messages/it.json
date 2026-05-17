@@ -2210,6 +2210,8 @@
     "approvalSub": "Seleziona le didascalie da pubblicare — le inviamo ai tuoi account collegati in un colpo solo.",
     "approvalLocaleCol": "Lingua",
     "approvalNoDraft": "nessuna bozza",
+    "approvalNotConnected": "non collegato",
+    "approvalConnect": "Collega",
     "approvalPosted": "Pubblicato",
     "approvalSelectedCount": "{count, plural, =0 {Nulla selezionato} =1 {1 selezionato} other {# selezionati}}",
     "approvalPublishCta": "{count, plural, =0 {Pubblica approvati} =1 {Pubblica 1} other {Pubblica #}}",

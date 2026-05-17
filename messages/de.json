@@ -2210,6 +2210,8 @@
     "approvalSub": "Wählen Sie die Captions, die Sie veröffentlichen möchten — wir senden sie in einem Schritt an Ihre verbundenen Konten.",
     "approvalLocaleCol": "Sprache",
     "approvalNoDraft": "kein Entwurf",
+    "approvalNotConnected": "nicht verbunden",
+    "approvalConnect": "Verbinden",
     "approvalPosted": "Veröffentlicht",
     "approvalSelectedCount": "{count, plural, =0 {Nichts ausgewählt} =1 {1 ausgewählt} other {# ausgewählt}}",
     "approvalPublishCta": "{count, plural, =0 {Genehmigte veröffentlichen} =1 {1 veröffentlichen} other {# veröffentlichen}}",

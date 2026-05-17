@@ -2271,6 +2271,8 @@
     "approvalSub": "Marca los captions que quieres publicar — los enviamos a tus cuentas conectadas de una vez.",
     "approvalLocaleCol": "Idioma",
     "approvalNoDraft": "sin borrador",
+    "approvalNotConnected": "no conectado",
+    "approvalConnect": "Conectar",
     "approvalPosted": "Publicado",
     "approvalSelectedCount": "{count, plural, =0 {Nada seleccionado} =1 {1 seleccionado} other {# seleccionados}}",
     "approvalPublishCta": "{count, plural, =0 {Publicar aprobados} =1 {Publicar 1} other {Publicar #}}",

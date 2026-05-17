@@ -101,6 +101,45 @@ export default async function PreviewPage({
   const drafts = audit.drafts as Record<'en' | 'es' | 'pl', DrafterResult>;
   const publishedResults = (audit.published_results as PublishedResult[] | null) ?? [];
 
+  // Connection state for the approval grid (Phase 4 slice 4d /
+  // "easier OAuth UX"). When owner = self, pull their ad_platform_tokens
+  // and derive per-platform connection booleans + display names. The
+  // grid uses this to show ✓ Connected as "X" vs a "Connect →" button
+  // inline — so the agent fixes the missing connection where they hit
+  // the problem, not by navigating elsewhere.
+  type PlatformConnection = {
+    platform: 'facebook' | 'instagram' | 'linkedin';
+    connected: boolean;
+    displayName: string | null;
+  };
+  const connections: PlatformConnection[] = [
+    { platform: 'facebook', connected: false, displayName: null },
+    { platform: 'instagram', connected: false, displayName: null },
+    { platform: 'linkedin', connected: false, displayName: null },
+  ];
+  if (isOwner && viewerId) {
+    const { data: tokens } = await admin
+      .from('ad_platform_tokens')
+      .select('platform, external_account_id, display_name')
+      .eq('user_id', viewerId)
+      .is('revoked_at', null);
+    for (const t of tokens ?? []) {
+      if (t.platform === 'meta' && t.external_account_id?.startsWith('page:')) {
+        const fb = connections.find((c) => c.platform === 'facebook')!;
+        fb.connected = true;
+        fb.displayName = fb.displayName ?? t.display_name;
+      } else if (t.platform === 'meta' && t.external_account_id?.startsWith('ig:')) {
+        const ig = connections.find((c) => c.platform === 'instagram')!;
+        ig.connected = true;
+        ig.displayName = ig.displayName ?? t.display_name;
+      } else if (t.platform === 'linkedin') {
+        const li = connections.find((c) => c.platform === 'linkedin')!;
+        li.connected = true;
+        li.displayName = li.displayName ?? t.display_name;
+      }
+    }
+  }
+
   const t = await getTranslations({ locale, namespace: 'freeAudit' });
   const signupHref = localePath(typedLocale, '/signup');
 
@@ -331,8 +370,10 @@ export default async function PreviewPage({
       {isOwner ? (
         <ApprovalGrid
           auditId={auditId}
+          locale={typedLocale}
           drafts={drafts}
           publishedResults={publishedResults}
+          connections={connections}
         />
       ) : (
         <aside className="mt-12 rounded-card border border-action/30 bg-action/5 p-6 text-center md:p-10">

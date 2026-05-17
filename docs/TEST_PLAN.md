@@ -31,6 +31,14 @@
 - **Expect:** Domain `advertisehomes.online` flips to "Verified" within seconds. Confirms the `<meta name="facebook-domain-verification" content="ztd23gv75ztx1kqizjykrk30oeiinn"/>` tag in our `<head>` is live and Meta reads it correctly.
 - **If wrong:** Meta will say "could not find tag" — if so, try the Sharing Debugger (https://developers.facebook.com/tools/debug/) and paste me the result.
 
+### `approval-grid-connection-state` — Phase 4 slice 4d (just shipped)
+- **Do:** Sign in as `info@advertisehomes.online`. Create a Free Audit. On the resulting `/preview/<uuid>`:
+- **Expect:**
+  - Above the 3×3 checkbox grid: a row of **3 connection pills** — one each for Facebook / Instagram / LinkedIn. Connected platforms show **green ✓ + account display name**; unconnected ones show a **"Connect →" button** (links straight to `/api/oauth/{provider}/start?returnTo=/en/preview/<uuid>`).
+  - In the grid: checkboxes for unconnected platforms are **disabled with "not connected" hint** under them. You can't tick a cell that would definitely fail.
+  - Click a "Connect →" pill → bounces through Meta/LinkedIn OAuth → after consent → lands BACK on the SAME preview URL (not /dashboard/social). Connection pill flips to green ✓ + checkboxes in that column become enabled.
+- **If wrong:** Paste the preview URL + screenshot of the pills. Most likely failure: returnTo not preserved through OAuth callback → lands on /dashboard/social instead of /preview. If so, paste the URL you ended up on.
+
 ### `creative-per-locale-visuals` — Phase 2.5 (just shipped)
 - **Do:** Visit the same `/preview/<uuid>` URL but try multiple locales by changing the URL prefix: `/en/preview/<uuid>`, `/pl/preview/<uuid>`, `/de/preview/<uuid>`, `/it/preview/<uuid>`. Look at the 3 branded graphics (FB / IG / Pinterest) for each.
 - **Expect:** Color palette changes per locale:
