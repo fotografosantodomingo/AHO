@@ -48,7 +48,9 @@ const FORMATS = {
 type Format = keyof typeof FORMATS;
 
 const ACTION_GREEN = '#2c4d3a';
-const SCRIM = 'rgba(0,0,0,0.55)';
+const CREAM = '#fbf8f1';
+const INK = '#15181e';
+const INK_MUTED = '#71717a';
 
 export async function GET(
   _req: Request,
@@ -148,12 +150,12 @@ function Layout({
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        backgroundColor: '#15181e',
-        color: '#efeff1',
+        backgroundColor: CREAM,
+        color: INK,
         fontFamily: 'Inter, system-ui, sans-serif',
       }}
     >
-      {/* Body — photo + overlay text */}
+      {/* Body — photo + text panel side-by-side (FB) or stacked (IG/Pin) */}
       <div
         style={{
           flex: 1,
@@ -165,8 +167,8 @@ function Layout({
         <div
           style={{
             width: isLandscape ? '58%' : '100%',
-            height: isLandscape ? '100%' : (format === 'ig' ? '68%' : '60%'),
-            backgroundColor: '#0d1014',
+            height: isLandscape ? '100%' : (format === 'ig' ? '64%' : '58%'),
+            backgroundColor: '#e7e2d6',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -187,37 +189,26 @@ function Layout({
               }}
             />
           ) : (
-            <span style={{ fontSize: 64, opacity: 0.4 }}>🏠</span>
+            <span style={{ fontSize: 64, opacity: 0.3 }}>🏠</span>
           )}
         </div>
 
-        {/* Text half */}
+        {/* Text panel — bright surface with dark ink. Sits beside the
+            photo on FB and below the photo on IG/Pin. No scrim overlay;
+            text-on-photo readability problems disappear when text gets
+            its own dedicated bright panel. */}
         <div
           style={{
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            padding: isLandscape ? '64px 56px' : '40px 56px',
-            backgroundColor: isLandscape ? '#1a1f27' : 'transparent',
-            position: isLandscape ? 'static' : 'relative',
+            padding: isLandscape ? '56px 56px' : '40px 56px',
+            backgroundColor: CREAM,
           }}
         >
-          {/* Scrim for non-landscape: text sits over the bottom of the
-              photo, so we draw a dark gradient band before rendering text.
-              Simpler than CSS gradients in Satori: solid fill on the text panel. */}
-          {!isLandscape && (
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                backgroundColor: SCRIM,
-              }}
-            />
-          )}
           <div
             style={{
-              position: 'relative',
               display: 'flex',
               flexDirection: 'column',
               gap: 18,
@@ -229,7 +220,7 @@ function Layout({
                   fontSize: format === 'pin' ? 26 : 22,
                   textTransform: 'uppercase',
                   letterSpacing: '0.12em',
-                  color: '#9aa3af',
+                  color: INK_MUTED,
                   fontWeight: 700,
                 }}
               >
@@ -238,9 +229,10 @@ function Layout({
             )}
             <div
               style={{
-                fontSize: format === 'fb' ? 48 : format === 'ig' ? 56 : 60,
+                fontSize: format === 'fb' ? 46 : format === 'ig' ? 52 : 58,
                 fontWeight: 700,
                 lineHeight: 1.1,
+                color: INK,
                 display: 'block',
               }}
             >
@@ -327,8 +319,8 @@ function renderFallback(
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: '#15181e',
-          color: '#efeff1',
+          backgroundColor: CREAM,
+          color: INK,
           fontFamily: 'Inter, system-ui, sans-serif',
         }}
       >

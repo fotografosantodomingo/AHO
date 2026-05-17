@@ -101,15 +101,23 @@ export default async function PreviewPage({
   ];
 
   return (
+    // Force-light theme on the preview page — this is a marketing /
+    // conversion screen where the bright cream surface reads as
+    // welcoming + premium. Stripping every `dark:` modifier inside
+    // and wrapping in an explicit `bg-surface text-ink` block means
+    // a visitor with system dark mode still lands on the bright
+    // template the design was tuned for. Outer wrapper sets the
+    // background so the dark body bg never bleeds through.
+    <div className="bg-surface text-ink" style={{ colorScheme: 'light' }}>
     <main className="mx-auto max-w-6xl px-4 py-10 md:px-6 md:py-16">
       <header className="space-y-3">
-        <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-action dark:text-action-dark">
+        <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-action">
           {t('eyebrow')}
         </p>
         <h1 className="font-brand text-3xl font-semibold tracking-tight md:text-[40px] md:leading-[1.1]">
           {t('heading')}
         </h1>
-        <p className="max-w-2xl text-base text-ink-muted dark:text-ink-inverse-muted md:text-lg">
+        <p className="max-w-2xl text-base text-ink-muted md:text-lg">
           {t('subheading')}
         </p>
       </header>
@@ -117,7 +125,7 @@ export default async function PreviewPage({
       {/* Listing facts card */}
       <section
         aria-labelledby="audit-listing-heading"
-        className="mt-8 rounded-card border border-border bg-surface p-6 shadow-whisper dark:bg-surface-deep"
+        className="mt-8 rounded-card border border-border bg-surface p-6 shadow-whisper"
       >
         <h2
           id="audit-listing-heading"
@@ -168,7 +176,7 @@ export default async function PreviewPage({
             {photos.map((url, idx) => (
               <li
                 key={url}
-                className="aspect-[4/3] overflow-hidden rounded-card bg-surface-muted dark:bg-surface-dark"
+                className="aspect-[4/3] overflow-hidden rounded-card bg-surface-muted"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -205,21 +213,21 @@ export default async function PreviewPage({
           {(['fb', 'ig', 'pin'] as const).map((fmt) => (
             <figure
               key={fmt}
-              className="overflow-hidden rounded-card border border-border bg-surface shadow-whisper dark:bg-surface-deep"
+              className="overflow-hidden rounded-card border border-border bg-surface shadow-whisper"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={`/api/audit/${auditId}/creative/${fmt}`}
                 alt={t(`creativeAlt.${fmt}` as 'creativeAlt.fb')}
                 loading="lazy"
-                className="block w-full bg-surface-muted dark:bg-surface-dark"
+                className="block w-full bg-surface-muted"
               />
               <figcaption className="flex items-center justify-between px-3 py-2 text-xs text-helper">
                 <span>{t(`creativeLabel.${fmt}` as 'creativeLabel.fb')}</span>
                 <a
                   href={`/api/audit/${auditId}/creative/${fmt}`}
                   download={`aho-${fmt}.png`}
-                  className="font-medium text-action underline-offset-2 hover:underline dark:text-action-dark"
+                  className="font-medium text-action underline-offset-2 hover:underline"
                 >
                   {t('downloadCreative')} ↓
                 </a>
@@ -254,14 +262,14 @@ export default async function PreviewPage({
                   return (
                     <article
                       key={`${loc.key}-${plat.key}`}
-                      className="flex flex-col rounded-card border border-border bg-surface p-4 shadow-whisper dark:bg-surface-deep"
+                      className="flex flex-col rounded-card border border-border bg-surface p-4 shadow-whisper"
                     >
-                      <header className="mb-2 flex items-center gap-2 text-sm font-semibold text-ink dark:text-ink-inverse">
+                      <header className="mb-2 flex items-center gap-2 text-sm font-semibold text-ink">
                         <span aria-hidden="true">{plat.emoji}</span>
                         <span>{plat.label}</span>
                       </header>
                       {text ? (
-                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-ink-muted dark:text-ink-inverse-muted">
+                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-ink-muted">
                           {text}
                         </p>
                       ) : (
@@ -279,11 +287,11 @@ export default async function PreviewPage({
       </section>
 
       {/* Conversion CTA */}
-      <aside className="mt-12 rounded-card border border-action/30 bg-action/5 p-6 text-center md:p-10 dark:border-action-dark/30 dark:bg-action-dark/10">
+      <aside className="mt-12 rounded-card border border-action/30 bg-action/5 p-6 text-center md:p-10">
         <h2 className="font-brand text-2xl font-semibold tracking-tight md:text-[32px]">
           {t('ctaHeading')}
         </h2>
-        <p className="mx-auto mt-3 max-w-xl text-base text-ink-muted dark:text-ink-inverse-muted">
+        <p className="mx-auto mt-3 max-w-xl text-base text-ink-muted">
           {t('ctaSub')}
         </p>
         <div className="mt-6">
@@ -296,6 +304,7 @@ export default async function PreviewPage({
         </div>
       </aside>
     </main>
+    </div>
   );
 }
 
