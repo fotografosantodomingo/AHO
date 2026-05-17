@@ -1,0 +1,142 @@
+name: Post-deploy smoke
+
+# Runs AFTER the Deploy workflow completes successfully on main.
+# Hits a curated set of production endpoints + asserts the responses
+# look right. Fails the workflow run if anything's broken — gives us
+# the GitHub email + red badge we'd otherwise discover via QA hours
+# later (the way the 2026-05-17 ImageResponse breakage + missing
+# CRON_SECRET both went unnoticed for the full day).
+#
+# This catches the classes of bugs that the local pre-push hook
+# CAN'T catch:
+#   - Build / bundle regressions that only manifest in the Cloudflare
+#     Pages output (Edge runtime tree-shaking, satori loader breakage)
+#   - Missing env vars in the deployed environment
+#   - Cloudflare-side cache or routing issues
+#   - Third-party API rot (Meta, LinkedIn, Anthropic)
+
+on:
+  workflow_run:
+    workflows: ['Deploy to Cloudflare Pages']
+    types:
+      - completed
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: smoke prod
+    # Only run when the upstream Deploy actually succeeded; on failure
+    # there's nothing to smoke-test.
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    env:
+      BASE: https://advertisehomes.online
+      # CRON_SECRET is needed to assert the cron auth gate works.
+      # Stored as a GitHub Actions secret with the same value as the
+      # CF Pages env var of the same name.
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+
+    steps:
+      - name: Wait 30s for CDN propagation
+        # Cloudflare Pages reports success the instant the upload
+        # finishes; edge propagation lags ~10-20s. Sleep keeps us
+        # from racing the deploy.
+        run: sleep 30
+
+      - name: Assert homepage loads (HTTP 200 + brand mark)
+        run: |
+          set -euo pipefail
+          body=$(curl -sf "$BASE/en")
+          echo "$body" | grep -q 'AHO' || { echo "::error::homepage missing AHO wordmark"; exit 1; }
+          echo "✓ homepage loads + contains AHO"
+
+      - name: Assert /en/for-agents loads (Free Audit wedge)
+        run: |
+          set -euo pipefail
+          body=$(curl -sf "$BASE/en/for-agents")
+          # The widget label varies by copy revision — match a
+          # robust substring instead of the full button text.
+          echo "$body" | grep -qE 'audit|campaign|paste' || { echo "::error::/for-agents missing wedge widget content"; exit 1; }
+          echo "✓ /for-agents loads + has wedge widget"
+
+      - name: Assert /en/investors loads (fundraise toolkit)
+        run: |
+          set -euo pipefail
+          status=$(curl -s -o /dev/null -w "%{http_code}" "$BASE/en/investors")
+          [ "$status" = "200" ] || { echo "::error::/en/investors returned $status (expected 200)"; exit 1; }
+          echo "✓ /investors HTTP 200"
+
+      - name: Assert dashboard auth gate (anon → 307 to /signin)
+        run: |
+          set -euo pipefail
+          # No -L; we want to see the redirect itself
+          status=$(curl -s -o /dev/null -w "%{http_code}" "$BASE/en/dashboard")
+          loc=$(curl -sI "$BASE/en/dashboard" | grep -i '^location:' | tr -d '\r' | cut -c11- | xargs)
+          [ "$status" = "307" ] || { echo "::error::dashboard returned $status (expected 307)"; exit 1; }
+          echo "$loc" | grep -q '/en/signin' || { echo "::error::dashboard redirected to $loc (expected /en/signin)"; exit 1; }
+          echo "✓ /en/dashboard 307 → /en/signin (auth gate intact)"
+
+      - name: Assert ImageResponse renders non-empty bytes
+        # This is the big one — the 2026-05-17 devIndicators:false
+        # regression broke EVERY ImageResponse route to return 0
+        # bytes. A simple byte-size assertion catches it instantly.
+        run: |
+          set -euo pipefail
+          bytes=$(curl -sf "$BASE/en/opengraph-image" | wc -c)
+          if [ "$bytes" -lt 1000 ]; then
+            echo "::error::homepage opengraph-image is $bytes bytes (expected ≥ 1000) — ImageResponse likely broken"
+            exit 1
+          fi
+          echo "✓ /en/opengraph-image rendered $bytes bytes"
+
+      - name: Assert cron route auth gate (no bearer = 401)
+        run: |
+          set -euo pipefail
+          status=$(curl -s -o /dev/null -w "%{http_code}" "$BASE/api/cron/audit-prune")
+          # 503 = cron_secret_unconfigured (env var missing); 401 =
+          # auth check working. Either way it's NOT 200.
+          if [ "$status" = "503" ]; then
+            echo "::error::cron route returned 503 — CRON_SECRET missing from prod env"
+            exit 1
+          fi
+          [ "$status" = "401" ] || { echo "::error::cron route without auth returned $status (expected 401)"; exit 1; }
+          echo "✓ /api/cron/audit-prune without auth → 401"
+
+      - name: Assert cron route works with bearer
+        if: ${{ env.CRON_SECRET != '' }}
+        # Skip silently when the GH Actions secret hasn't been provisioned
+        # yet — we still want the previous step to assert auth works.
+        run: |
+          set -euo pipefail
+          resp=$(curl -s -H "Authorization: Bearer $CRON_SECRET" "$BASE/api/cron/audit-prune")
+          ok=$(echo "$resp" | python3 -c "import json,sys; print(json.load(sys.stdin).get('ok'))" 2>/dev/null || echo "parse-error")
+          if [ "$ok" != "True" ]; then
+            echo "::error::audit-prune with bearer returned non-ok: $resp"
+            exit 1
+          fi
+          echo "✓ /api/cron/audit-prune with bearer → ok"
+
+      - name: Assert robots.txt + sitemap.xml
+        run: |
+          set -euo pipefail
+          curl -sf "$BASE/robots.txt" | grep -q 'Disallow: /api/' || { echo "::error::robots.txt missing /api/ disallow"; exit 1; }
+          curl -sfL "$BASE/sitemap.xml" -o /tmp/sm.xml
+          [ -s /tmp/sm.xml ] || { echo "::error::sitemap.xml empty"; exit 1; }
+          head -c 100 /tmp/sm.xml | grep -q 'xml' || { echo "::error::sitemap.xml not XML"; exit 1; }
+          echo "✓ robots.txt + sitemap.xml healthy"
+
+      - name: Assert /api/audit/start rejects malformed input
+        run: |
+          set -euo pipefail
+          status=$(curl -s -o /dev/null -w "%{http_code}" -X POST -H 'content-type: application/json' --data '{}' "$BASE/api/audit/start")
+          [ "$status" = "400" ] || { echo "::error::audit start with empty body returned $status (expected 400)"; exit 1; }
+          echo "✓ /api/audit/start input validation intact"
+
+      - name: Summary
+        if: success()
+        run: echo "::notice::Post-deploy smoke green for ${{ github.event.workflow_run.head_sha }}"

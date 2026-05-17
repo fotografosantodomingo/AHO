@@ -58,28 +58,31 @@ afterEach(() => {
 });
 
 describe('GET /api/cron/linkedin-insights — auth guard', () => {
-  it('returns 503 cron_not_configured when CRON_SECRET is unset', async () => {
+  // 2026-05-17: normalized to use the shared checkCronAuth helper +
+  // emit `errorCode` matching the other 5 cron routes. Previously
+  // emitted `error: 'cron_not_configured' | 'unauthorized'`.
+  it('returns 503 cron_secret_unconfigured when CRON_SECRET is unset', async () => {
     const { GET } = await import('@/app/api/cron/linkedin-insights/route');
     const res = await GET(
       makeRequest({ authorization: `Bearer ${VALID_SECRET}` }),
     );
     expect(res.status).toBe(503);
-    const json = (await res.json()) as { error: string };
-    expect(json.error).toBe('cron_not_configured');
+    const json = (await res.json()) as { errorCode: string };
+    expect(json.errorCode).toBe('cron_secret_unconfigured');
   });
 
-  it('returns 401 unauthorized when Authorization header is absent', async () => {
+  it('returns 401 missing_bearer when Authorization header is absent', async () => {
     process.env.CRON_SECRET = VALID_SECRET;
     process.env.AHO_TOKEN_ENCRYPTION_KEY = HEX_KEY;
     process.env.LINKEDIN_API_VERSION = '202504';
     const { GET } = await import('@/app/api/cron/linkedin-insights/route');
     const res = await GET(makeRequest({}));
     expect(res.status).toBe(401);
-    const json = (await res.json()) as { error: string };
-    expect(json.error).toBe('unauthorized');
+    const json = (await res.json()) as { errorCode: string };
+    expect(json.errorCode).toBe('missing_bearer');
   });
 
-  it('returns 401 unauthorized when Bearer token does not match', async () => {
+  it('returns 401 bad_bearer when Bearer token does not match', async () => {
     process.env.CRON_SECRET = VALID_SECRET;
     process.env.AHO_TOKEN_ENCRYPTION_KEY = HEX_KEY;
     process.env.LINKEDIN_API_VERSION = '202504';
@@ -88,8 +91,8 @@ describe('GET /api/cron/linkedin-insights — auth guard', () => {
       makeRequest({ authorization: `Bearer ${'b'.repeat(48)}` }),
     );
     expect(res.status).toBe(401);
-    const json = (await res.json()) as { error: string };
-    expect(json.error).toBe('unauthorized');
+    const json = (await res.json()) as { errorCode: string };
+    expect(json.errorCode).toBe('bad_bearer');
   });
 
   it('returns 401 when Bearer prefix is missing (raw secret only)', async () => {

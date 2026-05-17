@@ -84,6 +84,30 @@ export async function middleware(req: NextRequest) {
   });
 
   await supabase.auth.getUser();
+
+  // X-Robots-Tag on every authed surface — including 307 redirects
+  // out of /dashboard, /admin, etc. The next.config.ts `headers()`
+  // config DOES emit this header, but Next.js's `redirect()` machinery
+  // (used by the dashboard layout's anon → /signin bounce) generates
+  // its 307 BEFORE the headers config is consulted, so the redirect
+  // response shipped without the header (QA 2026-05-17). Middleware
+  // runs first and on every request, so setting the header here
+  // applies to the redirect responses too.
+  //
+  // Only path-based — we don't look at auth state. A signed-in user
+  // viewing /dashboard sees the same noindex header as the anon
+  // 307; both are correct (the page should never be indexed regardless).
+  const pathname = req.nextUrl.pathname;
+  if (
+    /^\/(?:[a-z]{2}\/)?(?:dashboard|admin|panel|setup-mfa|onboarding|inicio|preview|vista-previa|investors)(?:\/|$)/.test(
+      pathname,
+    )
+  ) {
+    res.headers.set(
+      'x-robots-tag',
+      'noindex, nofollow, noarchive, nosnippet',
+    );
+  }
   return res;
 }
 

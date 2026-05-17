@@ -64,6 +64,17 @@ wrangler.toml              — name=aho-web, compatibility_flags=["nodejs_compat
 - **RLS test fixtures share the production Supabase project.** Public-facing surfaces (sitemap, city landing, agent profiles, by-bbox API) ALL filter `aho-test-org-%` org slugs + `aho-fixture-%` listing slugs. See `RISKS.md` R11. Pattern recap: PostgREST inner-join `.not('organizations.slug', 'like', 'aho-test-org-%')` + a defensive in-loop slug check.
 - **No `pnpm dev`.** Per-machine memory `aho_no_local_runtime`: dev/preview/prod all happen on Cloudflare Pages via `git push` → GH Actions → `wrangler pages deploy`. ~2 min from push to live. Do NOT start `next dev`.
 - **Pre-push hook runs `pnpm test:unit` automatically.** Versioned at `.githooks/pre-push`; activate per-machine once via `bash scripts/setup-git-hooks.sh` (sets `core.hooksPath`). Closes the 2026-05-17 gap where a Phase 5 commit broke a test assertion and every subsequent push silently failed CI. Bypass with `git push --no-verify` for docs-only emergencies. Anything that touches `src/` should NOT bypass.
+- **Post-deploy smoke runs after every Deploy.** `.github/workflows/post-deploy-smoke.yml` triggers on the Deploy workflow's completion; hits production endpoints (homepage, /for-agents, /investors, dashboard auth gate, OG image bytes, cron auth) + asserts shapes. Catches build-output regressions that survive typecheck + lint + tests (e.g., the 2026-05-17 `devIndicators: false` change that silently broke every ImageResponse route to 0 bytes). Failure surfaces as a red workflow run + the operator email PO already gets — but as an alert to fix, not as a mystery.
+- **Edge runtime kills unawaited promises.** Cloudflare Workers / Pages Edge runtime cancels any promise the request handler doesn't `await` once it returns the Response. Pattern that LOOKS like fire-and-forget but ISN'T:
+  ```ts
+  void admin.from('audit_funnel_events').insert({...});  // ✗ silently dropped on Edge
+  ```
+  Always `await` server-side writes that should happen inside the request lifecycle. `logAiCall`, funnel-event inserts, and any other side-effect-during-render need the await. The 2026-05-17 QA pass found 0 rows in `ai_generation_log` + `audit_funnel_events` after real prod traffic because of this exact gotcha. The proper Cloudflare-native primitive is `ctx.waitUntil(promise)` but next-on-pages doesn't expose `ctx` cleanly; await is the pragmatic fix.
+- **RLS-deny-all tables need explicit REVOKE.** Supabase's default grants give `anon` + `authenticated` SELECT on every newly-created table. For tables that should be service-role-only (RLS enabled, zero policies), the migration MUST end with:
+  ```sql
+  revoke all on public.<table_name> from anon, authenticated;
+  ```
+  RLS with no policies still blocks reads in practice, but defense-in-depth missing. See `src/db/migrations/0065_revoke_extra_grants.sql` for the precedent.
 
 ## Hard rules (must hold throughout the build)
 1. **Never commit secrets.** Use `.env.local` locally and Cloudflare/Supabase/Stripe-managed secrets in deployed envs.

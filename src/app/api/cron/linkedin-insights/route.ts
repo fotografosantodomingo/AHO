@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { serverEnv } from '@/lib/env';
+import { checkCronAuth } from '@/app/api/cron/meta-insights/route';
 import {
   fetchLinkedInShareStatistics,
   mapLinkedInResponseToMetric,
@@ -103,16 +104,19 @@ interface CronRunSummary {
 export async function GET(req: NextRequest): Promise<Response> {
   const env = serverEnv();
 
-  if (!env.CRON_SECRET) {
-    // Fail closed: the route is reachable on the public internet via
-    // Cloudflare Pages. No secret → no callers should be able to hit it.
-    return NextResponse.json({ ok: false, error: 'cron_not_configured' }, { status: 503 });
-  }
-
-  const auth = req.headers.get('authorization') ?? '';
-  const expected = `Bearer ${env.CRON_SECRET}`;
-  if (!safeEqual(auth, expected)) {
-    return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 });
+  // Normalized 2026-05-17 to use the shared checkCronAuth helper +
+  // emit `errorCode` (matching the other 5 cron routes) instead of
+  // the prior inline check that emitted `error`. QA flagged the
+  // shape inconsistency.
+  const authResult = checkCronAuth({
+    authorizationHeader: req.headers.get('authorization'),
+    expectedSecret: env.CRON_SECRET,
+  });
+  if (!authResult.ok) {
+    return NextResponse.json(
+      { ok: false, errorCode: authResult.errorCode },
+      { status: authResult.status },
+    );
   }
 
   if (!env.AHO_TOKEN_ENCRYPTION_KEY) {
@@ -240,17 +244,6 @@ export async function GET(req: NextRequest): Promise<Response> {
   return NextResponse.json(summary, { status: 200 });
 }
 
-/**
- * Constant-time-ish string compare to slow header brute-forcing.
- * Web Crypto's `crypto.subtle.timingSafeEqual` doesn't exist on the
- * Edge runtime; this is the standard polyfill — XOR every char,
- * accumulate, compare to zero. Length-leak is acceptable.
- */
-function safeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  let mismatch = 0;
-  for (let i = 0; i < a.length; i++) {
-    mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  }
-  return mismatch === 0;
-}
+// safeEqual() removed 2026-05-17 — auth now delegated to the shared
+// checkCronAuth helper imported from meta-insights/route.ts, which
+// uses the same constant-time compare internally.
