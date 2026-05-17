@@ -21,8 +21,8 @@ Effort: S = same-session, M = 1-3 days, L = ≥4 days. Owner: who's blocking.
 | 1 | **Soft-beta recruitment + first end-to-end test** of the Free Audit → Approval Grid → Publish loop on your own account. | The wedge is BUILT but UN-VALIDATED. Nothing else matters until we know it works for one real agent. | S | **You** |
 | 2 | **Phase 4 — Auto-video Reels/TikTok engine.** Super Pro tier paywall feature. | $199-249/mo tier needs this differentiator before pricing change makes sense. | L | Me (waiting on PO decision in `PO_DECISIONS.md` #1) |
 | 3 | **AI Customer Service Agent MVP** — knowledge ingestion (19a) → web chat replaces Tawk (19b) → confidence gating (19f). | ~7-day shippable slice; not blocked on Meta. Replaces Tawk + becomes the on-site sales engine. | L | Me (waiting on PO greenlight to commit to the 7-day window) |
-| 4 | **Phase 2.5 — Per-locale visual treatment on Creative Factory.** US bright sans / DE technical mono / IT serif + warm cream / PL bold accent in `route.tsx`. | Today all 7 locales render with one neutral template; per-market visual matches the per-market caption tone shipped in Phase 5. | M | Me |
-| 5 | **`ai_generation_log` migration + per-audit cost tracking.** Per the SUPER_PRO_STAGE_1_PLAN.md §5 + §7 unit-economics target (≤$0.30/audit). Today token usage lands on `ai_audits` columns; this normalizes into a per-call log + adds a daily cost rollup. | First soft-beta cohort generates ≥50 audits/day; we need cost observability before we get a surprise Anthropic invoice. | S | Me |
+| 4 | **`ai_generation_log` migration + per-audit cost tracking.** Per the SUPER_PRO_STAGE_1_PLAN.md §5 + §7 unit-economics target (≤$0.30/audit). Today token usage lands on `ai_audits` columns; this normalizes into a per-call log + adds a daily cost rollup. | First soft-beta cohort generates ≥50 audits/day; we need cost observability before we get a surprise Anthropic invoice. | S | Me |
+| 5 | **Cron to prune unclaimed audits past expires_at** (7-day TTL). Move from punch list since the audit table will start accumulating quickly once recruitment hits. | One-shot Workers cron + a small SQL delete; ~30 min. | S | Me |
 
 ---
 
@@ -41,7 +41,7 @@ Effort: S = same-session, M = 1-3 days, L = ≥4 days. Owner: who's blocking.
 
 ## ✅ Shipped this week (2026-05-11 → 2026-05-17)
 
-**Today (2026-05-17)** — `c385f93` Phase 3 approval grid + atomic publish · `8ed3d61` Phase 2 Creative Factory · `2602016` Phase 1 Free Audit widget · `c44d6e7` bright theme · `7108266` X-Robots-Tag noindex on authed surfaces · `16f73e4` devIndicators off · `0a62c41` source maps off · `5d138d7` super-structure (STATUS / PO_DECISIONS / TEST_PLAN docs + operating protocol) · **`c292539` IG self-serve setup guide at /instagram-setup in 7 locales + link from the IG-not-detected nudge** · **`9f39da2` Phase 5 Multilingual Context Engine — per-market system prompts (US/ES/PL/PT/DE/FR/IT) so PL/DE/FR/IT/PT drafts come out in the actual target language with local jargon + CTAs instead of English fallback** · header redesign (Real estate agent / Save dropdowns + Home) · garlic logo iterations → wordmark only · IG-not-detected nudge on /dashboard/social · Meta domain verification meta tag · property edit page layout fixes · dashboard security audit (4 layers all green)
+**Today (2026-05-17)** — `c385f93` Phase 3 approval grid + atomic publish · `8ed3d61` Phase 2 Creative Factory · `2602016` Phase 1 Free Audit widget · `c44d6e7` bright theme · `7108266` X-Robots-Tag noindex on authed surfaces · `16f73e4` devIndicators off · `0a62c41` source maps off · `5d138d7` super-structure (STATUS / PO_DECISIONS / TEST_PLAN docs + operating protocol) · **`c292539` IG self-serve setup guide at /instagram-setup in 7 locales + link from the IG-not-detected nudge** · **`9f39da2` Phase 5 Multilingual Context Engine — per-market system prompts (US/ES/PL/PT/DE/FR/IT) so PL/DE/FR/IT/PT drafts come out in the actual target language with local jargon + CTAs instead of English fallback** · **`<this-commit>` Phase 2.5 Per-locale visual treatment on Creative Factory — per-market color palettes (DE Bauhaus white+charcoal, IT Tuscan beige+terracotta, FR Parisian cream+navy, PL clean white+navy, PT cream+sage, ES warm sand+terracotta, US cream+green) so graphics match the per-market caption tone** · header redesign (Real estate agent / Save dropdowns + Home) · garlic logo iterations → wordmark only · IG-not-detected nudge on /dashboard/social · Meta domain verification meta tag · property edit page layout fixes · dashboard security audit (4 layers all green)
 
 **Earlier this week** (per `docs/PROGRESS.md` 2026-05-15 entry) — Google OAuth full stack · LinkedIn personal-profile publishing pulled from v1.1 to Stage 1 · MFA QR bug fix · reset-password AAL2 flow · 21st.dev removal · admin comp seat for `info@advertisehomes.online` · Super Pro Stage 1 plan doc (282 lines)
 
@@ -51,9 +51,7 @@ Effort: S = same-session, M = 1-3 days, L = ≥4 days. Owner: who's blocking.
 
 Pull from here when there's slack between bigger items. Each is genuine ≤1-2 hour work.
 
-- Per-locale visual treatment on Creative Factory (US bright sans, DE technical mono, IT serif + warm cream, PL bold accent) — currently one neutral template for all 7 locales
 - Cost alerting on `ai_audits` once we have ≥10 prod audits (target ≤$0.30/audit; token usage already columns logged)
-- Cron to prune unclaimed `ai_audits` past `expires_at` (7-day TTL — table will accumulate ~free for first few weeks)
 - Turnstile on Free Audit submit (current defense is IP rate-limit 5/hour; add Turnstile after first bot abuse signal)
 - LinkedIn `DRY_RUN=false` flip — already publishes real; verify first real post lands then write the DECISIONS.md entry
 - Phase 3.5 multi-account picker — if an agent has multiple FB Pages, currently we publish to the first one; let them pick

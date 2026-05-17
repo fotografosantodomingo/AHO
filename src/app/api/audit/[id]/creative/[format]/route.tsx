@@ -3,6 +3,8 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { interBoldFontEntry } from '@/lib/og/load-font';
 import { formatPrice } from '@/lib/listings/format';
 import type { ImportedFacts } from '@/lib/listings/import-from-url';
+import { LOCALES, type Locale } from '@/i18n/config';
+import { getStyleForLocale, type MarketStyle } from '@/lib/creative/styles';
 
 export const runtime = 'edge';
 
@@ -47,18 +49,24 @@ const FORMATS = {
 
 type Format = keyof typeof FORMATS;
 
-const ACTION_GREEN = '#2c4d3a';
-const CREAM = '#fbf8f1';
-const INK = '#15181e';
-const INK_MUTED = '#71717a';
-
 export async function GET(
-  _req: Request,
+  req: Request,
   ctx: { params: Promise<{ id: string; format: string }> },
 ) {
   const { id, format: formatRaw } = await ctx.params;
   const format = (FORMATS[formatRaw as Format] ? (formatRaw as Format) : 'fb');
   const size = FORMATS[format];
+
+  // Locale → market style (Phase 2.5). Caller passes ?locale=xx so
+  // the preview page can request 3 graphics in the user's locale.
+  // Unknown / missing → US default (cream + green) for backward
+  // compatibility with any caller not yet aware of the param.
+  const url = new URL(req.url);
+  const localeParam = url.searchParams.get('locale') ?? '';
+  const locale: Locale = LOCALES.includes(localeParam as Locale)
+    ? (localeParam as Locale)
+    : 'en';
+  const style = getStyleForLocale(locale);
 
   // Load audit row. Public SELECT is allowed by RLS anyway; admin
   // client just bypasses the policy on every render for consistency
@@ -73,15 +81,22 @@ export async function GET(
   const fonts = await interBoldFontEntry();
 
   if (!audit) {
-    return renderFallback(size, 'Audit not found', fonts);
+    return renderFallback(size, 'Audit not found', style, fonts);
   }
 
   const facts = audit.facts as ImportedFacts;
+  // Use the requested-locale title where possible — ES gets ES, anything
+  // else falls back to EN (which the importer also fills). Polish /
+  // German / etc. titles aren't a separate field on the importer today;
+  // future work could add them.
   const title =
-    facts.titleEn ?? facts.titleEs ?? 'Listing';
+    (locale === 'es' ? facts.titleEs : facts.titleEn) ??
+    facts.titleEn ??
+    facts.titleEs ??
+    'Listing';
   const priceLabel =
     facts.priceCents && facts.priceCents > 0 && facts.currency
-      ? formatPrice(facts.priceCents, facts.currency, 'en')
+      ? formatPrice(facts.priceCents, facts.currency, locale)
       : null;
   const cityLabel = [facts.city, facts.countryCode].filter(Boolean).join(', ');
   const photoUrl = pickHeroPhoto(facts.photoUrls ?? []);
@@ -96,6 +111,7 @@ export async function GET(
           priceLabel={priceLabel}
           cityLabel={cityLabel}
           photoUrl={photoUrl}
+          style={style}
         />
       ),
       {
@@ -108,7 +124,7 @@ export async function GET(
     );
   } catch (err) {
     console.error('[creative] render failed', err);
-    return renderFallback(size, title, fonts);
+    return renderFallback(size, title, style, fonts);
   }
 }
 
@@ -127,6 +143,7 @@ function Layout({
   priceLabel,
   cityLabel,
   photoUrl,
+  style,
 }: {
   size: { width: number; height: number };
   format: Format;
@@ -134,6 +151,7 @@ function Layout({
   priceLabel: string | null;
   cityLabel: string;
   photoUrl: string | null;
+  style: MarketStyle;
 }) {
   // Photo placement varies by aspect:
   //  - fb (landscape) → photo left 58%, text right 42%
@@ -150,8 +168,8 @@ function Layout({
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        backgroundColor: CREAM,
-        color: INK,
+        backgroundColor: style.bg,
+        color: style.ink,
         fontFamily: 'Inter, system-ui, sans-serif',
       }}
     >
@@ -168,7 +186,7 @@ function Layout({
           style={{
             width: isLandscape ? '58%' : '100%',
             height: isLandscape ? '100%' : (format === 'ig' ? '64%' : '58%'),
-            backgroundColor: '#e7e2d6',
+            backgroundColor: style.photoBg,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -204,7 +222,7 @@ function Layout({
             flexDirection: 'column',
             justifyContent: 'center',
             padding: isLandscape ? '56px 56px' : '40px 56px',
-            backgroundColor: CREAM,
+            backgroundColor: style.bg,
           }}
         >
           <div
@@ -220,7 +238,7 @@ function Layout({
                   fontSize: format === 'pin' ? 26 : 22,
                   textTransform: 'uppercase',
                   letterSpacing: '0.12em',
-                  color: INK_MUTED,
+                  color: style.inkMuted,
                   fontWeight: 700,
                 }}
               >
@@ -232,7 +250,7 @@ function Layout({
                 fontSize: format === 'fb' ? 46 : format === 'ig' ? 52 : 58,
                 fontWeight: 700,
                 lineHeight: 1.1,
-                color: INK,
+                color: style.ink,
                 display: 'block',
               }}
             >
@@ -246,8 +264,8 @@ function Layout({
                   alignItems: 'center',
                   alignSelf: 'flex-start',
                   padding: '12px 20px',
-                  backgroundColor: ACTION_GREEN,
-                  color: '#ffffff',
+                  backgroundColor: style.accent,
+                  color: style.accentInk,
                   fontSize: format === 'fb' ? 36 : 44,
                   fontWeight: 700,
                   borderRadius: 12,
@@ -268,8 +286,8 @@ function Layout({
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '0 48px',
-          backgroundColor: ACTION_GREEN,
-          color: '#ffffff',
+          backgroundColor: style.accent,
+          color: style.accentInk,
         }}
       >
         <div
@@ -307,6 +325,7 @@ function truncate(s: string, max: number): string {
 function renderFallback(
   size: { width: number; height: number },
   label: string,
+  style: MarketStyle,
   fonts: Awaited<ReturnType<typeof interBoldFontEntry>>,
 ): Response {
   return new ImageResponse(
@@ -319,8 +338,8 @@ function renderFallback(
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: CREAM,
-          color: INK,
+          backgroundColor: style.bg,
+          color: style.ink,
           fontFamily: 'Inter, system-ui, sans-serif',
         }}
       >

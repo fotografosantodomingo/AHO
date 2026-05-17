@@ -254,7 +254,7 @@ export default async function PreviewPage({
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={`/api/audit/${auditId}/creative/${fmt}`}
+                src={`/api/audit/${auditId}/creative/${fmt}?locale=${typedLocale}`}
                 alt={t(`creativeAlt.${fmt}` as 'creativeAlt.fb')}
                 loading="lazy"
                 className="block w-full bg-surface-muted"
@@ -262,7 +262,7 @@ export default async function PreviewPage({
               <figcaption className="flex items-center justify-between px-3 py-2 text-xs text-helper">
                 <span>{t(`creativeLabel.${fmt}` as 'creativeLabel.fb')}</span>
                 <a
-                  href={`/api/audit/${auditId}/creative/${fmt}`}
+                  href={`/api/audit/${auditId}/creative/${fmt}?locale=${typedLocale}`}
                   download={`aho-${fmt}.png`}
                   className="font-medium text-action underline-offset-2 hover:underline"
                 >

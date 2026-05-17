@@ -31,6 +31,20 @@
 - **Expect:** Domain `advertisehomes.online` flips to "Verified" within seconds. Confirms the `<meta name="facebook-domain-verification" content="ztd23gv75ztx1kqizjykrk30oeiinn"/>` tag in our `<head>` is live and Meta reads it correctly.
 - **If wrong:** Meta will say "could not find tag" — if so, try the Sharing Debugger (https://developers.facebook.com/tools/debug/) and paste me the result.
 
+### `creative-per-locale-visuals` — Phase 2.5 (just shipped)
+- **Do:** Visit the same `/preview/<uuid>` URL but try multiple locales by changing the URL prefix: `/en/preview/<uuid>`, `/pl/preview/<uuid>`, `/de/preview/<uuid>`, `/it/preview/<uuid>`. Look at the 3 branded graphics (FB / IG / Pinterest) for each.
+- **Expect:** Color palette changes per locale:
+  - **EN/US**: cream `#fbf8f1` background, dark ink, **green** `#2c4d3a` accent (status-quo)
+  - **DE**: pure **white** background, charcoal accent — Bauhaus-clean look
+  - **IT**: **warm beige** background, **brown** ink, **terracotta** `#c64f2a` accent — Tuscan villa look
+  - **FR**: cream background, **deep navy** `#0f3057` accent — Parisian elegant
+  - **PL**: near-white background, **deep navy** `#1e3a5f` accent — clean corporate
+  - **PT**: cream background, **sage green** `#3d6b4f` accent
+  - **ES**: warm sand background, **terracotta** `#b65a3c` accent
+- Title prefers the per-locale facts.title* (ES gets `titleEs`, others get `titleEn`).
+- Price label localized via `formatPrice(…, locale)`.
+- **If wrong:** Paste the preview URL + the locale prefix you tried + screenshot. Most likely failure: cached old version — append `&cb=1` to bust the 1h edge cache.
+
 ### `multilingual-context-engine` — Phase 5 (just shipped)
 - **Do:** Open https://advertisehomes.online/en/for-agents in **incognito**. Paste a real listing URL — ideally a **Polish** one from otodom.pl (so the source is in Polish too). Click "Get my campaign." Wait ~30s. On the preview page, scroll to the captions grid.
 - **Expect:**
