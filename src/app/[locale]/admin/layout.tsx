@@ -85,6 +85,7 @@ export default async function AdminLayout({
     { href: `/${locale}/admin/users`, label: 'Users' },
     { href: `/${locale}/admin/reviews`, label: 'Reviews' },
     { href: `/${locale}/admin/email`, label: 'Email' },
+    { href: `/${locale}/admin/audit-costs`, label: 'AI costs' },
   ];
 
   return (

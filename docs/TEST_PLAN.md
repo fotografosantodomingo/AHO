@@ -31,6 +31,16 @@
 - **Expect:** Domain `advertisehomes.online` flips to "Verified" within seconds. Confirms the `<meta name="facebook-domain-verification" content="ztd23gv75ztx1kqizjykrk30oeiinn"/>` tag in our `<head>` is live and Meta reads it correctly.
 - **If wrong:** Meta will say "could not find tag" — if so, try the Sharing Debugger (https://developers.facebook.com/tools/debug/) and paste me the result.
 
+### `admin-audit-costs` — AI cost dashboard (just shipped)
+- **Do:** Sign in as `info@advertisehomes.online` (admin). Visit https://advertisehomes.online/en/admin/audit-costs.
+- **Expect:**
+  - 4 top-line tiles at the top: Cost last 7 days / Cost last 30 days / Avg per audit (7d) / Avg per audit (30d). The avg-per-audit tiles show "target: $0.30" as a benchmark.
+  - **Daily rollup table** (last 30 days): one row per day with audits / calls / total cost / avg per audit.
+  - **Per-market table** (only draft calls have a market — import calls log with NULL): per-language cost picture (US / ES / PL / PT / DE / FR / IT).
+  - **Last 20 audits**: per-audit detail with source hostname, detected language, call count, total cost. Useful for "this specific audit cost $X".
+- **First-load gotcha:** if you have no audits yet, every table shows "No audits in the last 30 days." Generate a Free Audit first.
+- **If wrong:** screenshot + which table looks off. If "AI costs" tab is missing from the admin nav, your is_admin flag may have been lost.
+
 ### `audit-import-cost-logging` — Phase 5.5 follow-on (just shipped)
 - **Do:** Run a Free Audit. Wait for the preview to render. Then in psql:
   ```sql
