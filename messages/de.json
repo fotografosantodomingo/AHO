@@ -2212,6 +2212,7 @@
     "approvalNoDraft": "kein Entwurf",
     "approvalNotConnected": "nicht verbunden",
     "approvalConnect": "Verbinden",
+    "approvalAccountPicker": "Wählen Sie eines von {count} Konten zum Veröffentlichen",
     "approvalPosted": "Veröffentlicht",
     "approvalSelectedCount": "{count, plural, =0 {Nichts ausgewählt} =1 {1 ausgewählt} other {# ausgewählt}}",
     "approvalPublishCta": "{count, plural, =0 {Genehmigte veröffentlichen} =1 {1 veröffentlichen} other {# veröffentlichen}}",

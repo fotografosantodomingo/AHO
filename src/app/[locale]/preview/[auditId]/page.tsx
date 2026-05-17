@@ -144,15 +144,22 @@ export default async function PreviewPage({
   // grid uses this to show ✓ Connected as "X" vs a "Connect →" button
   // inline — so the agent fixes the missing connection where they hit
   // the problem, not by navigating elsewhere.
-  type PlatformConnection = {
-    platform: 'facebook' | 'instagram' | 'linkedin';
-    connected: boolean;
+  // Phase 3.5: connections now carry ALL accounts per platform, not
+  // just the first one. Agency users frequently have 2-6 FB Pages
+  // (one per agency brand) and the prior "first wins" pick was a
+  // silent constraint. Approval grid renders a picker when accounts.length > 1.
+  type PlatformAccount = {
+    externalAccountId: string;
     displayName: string | null;
   };
+  type PlatformConnection = {
+    platform: 'facebook' | 'instagram' | 'linkedin';
+    accounts: PlatformAccount[];
+  };
   const connections: PlatformConnection[] = [
-    { platform: 'facebook', connected: false, displayName: null },
-    { platform: 'instagram', connected: false, displayName: null },
-    { platform: 'linkedin', connected: false, displayName: null },
+    { platform: 'facebook', accounts: [] },
+    { platform: 'instagram', accounts: [] },
+    { platform: 'linkedin', accounts: [] },
   ];
   if (isOwner && viewerId) {
     const { data: tokens } = await admin
@@ -161,19 +168,18 @@ export default async function PreviewPage({
       .eq('user_id', viewerId)
       .is('revoked_at', null);
     for (const t of tokens ?? []) {
+      const accountEntry: PlatformAccount = {
+        externalAccountId: t.external_account_id as string,
+        displayName: (t.display_name as string | null) ?? null,
+      };
       if (t.platform === 'meta' && t.external_account_id?.startsWith('page:')) {
-        const fb = connections.find((c) => c.platform === 'facebook')!;
-        fb.connected = true;
-        fb.displayName = fb.displayName ?? t.display_name;
+        connections.find((c) => c.platform === 'facebook')!.accounts.push(accountEntry);
       } else if (t.platform === 'meta' && t.external_account_id?.startsWith('ig:')) {
-        const ig = connections.find((c) => c.platform === 'instagram')!;
-        ig.connected = true;
-        ig.displayName = ig.displayName ?? t.display_name;
+        connections.find((c) => c.platform === 'instagram')!.accounts.push(accountEntry);
       } else if (t.platform === 'linkedin') {
-        const li = connections.find((c) => c.platform === 'linkedin')!;
-        li.connected = true;
-        li.displayName = li.displayName ?? t.display_name;
+        connections.find((c) => c.platform === 'linkedin')!.accounts.push(accountEntry);
       }
+      // Skip the user-level Meta token — not a publish target.
     }
   }
 

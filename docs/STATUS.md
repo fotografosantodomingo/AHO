@@ -28,8 +28,8 @@ Effort: S = same-session, M = 1-3 days, L = ≥4 days. Owner: who's blocking.
 | 1 | **Soft-beta recruitment + first end-to-end test** of the Free Audit → Approval Grid → Publish loop on your own account. | The wedge is BUILT but UN-VALIDATED. Nothing else matters until we know it works for one real agent. | S | **You** |
 | 2 | **PO_DECISIONS #2-4 batch** — Super Pro price ($199/$249/$299) + paywall structure + music library. Needed before Phase 4 fully lands but not before slice 4a starts. | Unblocks the pricing page + the marketing positioning around Phase 4. | S (PO action) | **You** |
 | 3 | **AI Customer Service Agent MVP** — knowledge ingestion (19a) → web chat replaces Tawk (19b) → confidence gating (19f). | ~7-day shippable slice; not blocked on Meta. Replaces Tawk + becomes the on-site sales engine. | L | Me (waiting on PO greenlight to commit to the 7-day window) |
-| 4 | **Phase 3.5 — Multi-account publish picker on the approval grid.** Agents with multiple FB Pages today land on whichever one the OAuth callback ranked first; let them pick. | Onboarding friction for any agent with > 1 Page (most agency users); cheap to ship. | M | Me |
-| 5 | **Phase 3.5 — Real-time publish progress polling.** Current UX: button shows "Publishing…" for ~5-10s then results land in one shot. Polling would show per-cell progress as it lands. | Improves perceived speed of the wedge demo for investor / agent screen-shares. | S | Me |
+| 4 | **Phase 3.5 — Real-time publish progress polling.** Current UX: button shows "Publishing…" for ~5-10s then results land in one shot. Polling would show per-cell progress as it lands. | Improves perceived speed of the wedge demo for investor / agent screen-shares. | S | Me |
+| 5 | **Dashboard Lighthouse re-test in incognito** (the 30/100 score was contaminated by Chrome extensions + IndexedDB per Lighthouse's own warning; expected real score 75-85). | Validates the perf wins from devIndicators off + source maps off + chunk audit work. | S | **You** (quick test) |
 
 ---
 
@@ -60,7 +60,6 @@ Pull from here when there's slack between bigger items. Each is genuine ≤1-2 h
 
 - Turnstile on Free Audit submit (current defense is IP rate-limit 5/hour; add Turnstile after first bot abuse signal)
 - LinkedIn `DRY_RUN=false` flip — already publishes real; verify first real post lands then write the DECISIONS.md entry
-- Phase 3.5 multi-account picker — if an agent has multiple FB Pages, currently we publish to the first one; let them pick
 - Phase 3.5 real-time publish progress polling — current UX: button shows "Publishing…" for ~5-10s then results land
 - Real-time `published_results` updates without page refresh
 - Dashboard Lighthouse re-test in incognito (the 30/100 score was contaminated by Chrome extensions + IndexedDB per Lighthouse's own warning; expected real score 75-85)

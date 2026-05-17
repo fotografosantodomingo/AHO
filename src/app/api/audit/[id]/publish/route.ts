@@ -59,6 +59,19 @@ const BodySchema = z.object({
     )
     .min(1)
     .max(9),
+  /** Phase 3.5 multi-account picker — per-platform external_account_id
+   *  the agent chose from the grid's connection pills. Optional: when
+   *  omitted, server falls back to the first token on each platform
+   *  (status-quo behavior). Server validates the id belongs to the
+   *  agent before using it, so a tampered payload can't publish to
+   *  someone else's Page. */
+  accountIds: z
+    .object({
+      facebook: z.string().optional(),
+      instagram: z.string().optional(),
+      linkedin: z.string().optional(),
+    })
+    .optional(),
 });
 
 type Locale = 'en' | 'es' | 'pl';
@@ -147,9 +160,35 @@ export async function POST(
     .eq('user_id', userId)
     .is('revoked_at', null);
   const tokens = tokenRows ?? [];
-  const fbPageToken = tokens.find((t) => t.platform === 'meta' && t.external_account_id.startsWith('page:'));
-  const igToken = tokens.find((t) => t.platform === 'meta' && t.external_account_id.startsWith('ig:'));
-  const linkedInToken = tokens.find((t) => t.platform === 'linkedin');
+  // Phase 3.5: per-platform account picker. The client passes the
+  // chosen externalAccountId (from the connection-pill <select>);
+  // we validate it actually belongs to this user (the tokens list
+  // is already user_id-scoped above, so a match here = ownership)
+  // and fall back to the first token on each platform when the
+  // client didn't pick (single-account user, status-quo behavior).
+  function pickByPrefix(prefix: 'page:' | 'ig:', requested?: string) {
+    if (requested && requested.startsWith(prefix)) {
+      const m = tokens.find(
+        (t) => t.platform === 'meta' && t.external_account_id === requested,
+      );
+      if (m) return m;
+    }
+    return tokens.find(
+      (t) => t.platform === 'meta' && t.external_account_id.startsWith(prefix),
+    );
+  }
+  function pickLinkedIn(requested?: string) {
+    if (requested) {
+      const m = tokens.find(
+        (t) => t.platform === 'linkedin' && t.external_account_id === requested,
+      );
+      if (m) return m;
+    }
+    return tokens.find((t) => t.platform === 'linkedin');
+  }
+  const fbPageToken = pickByPrefix('page:', body.accountIds?.facebook);
+  const igToken = pickByPrefix('ig:', body.accountIds?.instagram);
+  const linkedInToken = pickLinkedIn(body.accountIds?.linkedin);
 
   async function decrypt(externalAccountId: string, platform: 'meta' | 'linkedin'): Promise<string | null> {
     const { data } = await admin.rpc('get_decrypted_access_token', {

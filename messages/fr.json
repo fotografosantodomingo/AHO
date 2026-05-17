@@ -2212,6 +2212,7 @@
     "approvalNoDraft": "pas de brouillon",
     "approvalNotConnected": "non connecté",
     "approvalConnect": "Connecter",
+    "approvalAccountPicker": "Choisissez un de vos {count} comptes",
     "approvalPosted": "Publié",
     "approvalSelectedCount": "{count, plural, =0 {Rien de sélectionné} =1 {1 sélectionné} other {# sélectionnés}}",
     "approvalPublishCta": "{count, plural, =0 {Publier les approuvés} =1 {Publier 1} other {Publier #}}",

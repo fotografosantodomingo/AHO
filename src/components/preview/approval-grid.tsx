@@ -41,10 +41,18 @@ interface PublishedResult {
   attempted_at: string;
 }
 
+interface PlatformAccount {
+  externalAccountId: string;
+  displayName: string | null;
+}
+
 interface PlatformConnection {
   platform: Platform;
-  connected: boolean;
-  displayName: string | null;
+  /** All accounts the user has for this platform. Empty array = not
+   *  connected. Length 1 = single account (no picker needed). Length
+   *  > 1 = multi-account; grid renders a selector so the agent picks
+   *  which one to publish to. */
+  accounts: PlatformAccount[];
 }
 
 interface Props {
@@ -89,6 +97,24 @@ export function ApprovalGrid({
   const [submitting, setSubmitting] = useState(false);
   const [topError, setTopError] = useState<string | null>(null);
 
+  // Phase 3.5: per-platform account selection. Defaults to the first
+  // account per platform (matches the prior single-account behavior);
+  // agency users with multiple FB Pages can override via the picker
+  // that the connection pill renders when accounts.length > 1.
+  const connectedMap = useMemo(() => {
+    const m = new Map<Platform, PlatformConnection>();
+    for (const c of connections) m.set(c.platform, c);
+    return m;
+  }, [connections]);
+
+  const [selectedAccount, setSelectedAccount] = useState<
+    Record<Platform, string | null>
+  >({
+    facebook: connectedMap.get('facebook')?.accounts[0]?.externalAccountId ?? null,
+    instagram: connectedMap.get('instagram')?.accounts[0]?.externalAccountId ?? null,
+    linkedin: connectedMap.get('linkedin')?.accounts[0]?.externalAccountId ?? null,
+  });
+
   const latestByCell = useMemo(() => {
     const m = new Map<string, PublishedResult>();
     for (const r of results) m.set(cellKey(r.locale, r.platform), r);
@@ -103,14 +129,12 @@ export function ApprovalGrid({
     return !!bundle.drafts.linkedin?.commentary;
   }
 
-  const connectedMap = useMemo(() => {
-    const m = new Map<Platform, PlatformConnection>();
-    for (const c of connections) m.set(c.platform, c);
-    return m;
-  }, [connections]);
-
   function isConnected(platform: Platform): boolean {
-    return connectedMap.get(platform)?.connected ?? false;
+    return (connectedMap.get(platform)?.accounts.length ?? 0) > 0;
+  }
+
+  function accountsFor(platform: Platform): PlatformAccount[] {
+    return connectedMap.get(platform)?.accounts ?? [];
   }
 
   // OAuth start URLs preserve a `returnTo` so the callback bounces
@@ -147,10 +171,19 @@ export function ApprovalGrid({
         const [locale, platform] = k.split('::') as [Locale, Platform];
         return { locale, platform };
       });
+      // accountIds = per-platform externalAccountId picked from the
+      // multi-account selector. Omitted entries fall back to "first
+      // account on the platform" server-side (status-quo behavior for
+      // single-account users).
+      const accountIds: Record<string, string> = {};
+      for (const p of ['facebook', 'instagram', 'linkedin'] as const) {
+        const chosen = selectedAccount[p];
+        if (chosen) accountIds[p] = chosen;
+      }
       const res = await fetch(`/api/audit/${auditId}/publish`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ selections }),
+        body: JSON.stringify({ selections, accountIds }),
       });
       const json = (await res.json()) as
         | { ok: true; results: PublishedResult[] }
@@ -208,26 +241,12 @@ export function ApprovalGrid({
           enable a publish target. */}
       <ul className="mt-4 flex flex-wrap items-center gap-2">
         {PLATFORMS.map((p) => {
-          const conn = connectedMap.get(p);
+          const accts = accountsFor(p);
           const label =
             p === 'facebook' ? '📘 Facebook' : p === 'instagram' ? '📷 Instagram' : '💼 LinkedIn';
-          return (
-            <li key={p}>
-              {conn?.connected ? (
-                <span
-                  className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800"
-                  title={conn.displayName ?? undefined}
-                >
-                  <span>{label}</span>
-                  <span aria-hidden="true">·</span>
-                  <span className="font-semibold">✓</span>
-                  {conn.displayName && (
-                    <span className="max-w-[14ch] truncate opacity-80">
-                      {conn.displayName}
-                    </span>
-                  )}
-                </span>
-              ) : (
+          if (accts.length === 0) {
+            return (
+              <li key={p}>
                 <a
                   href={connectUrl(p)}
                   className="inline-flex items-center gap-1 rounded-full border border-action/40 bg-surface px-3 py-1 text-xs font-medium text-action transition hover:bg-action/5"
@@ -236,7 +255,61 @@ export function ApprovalGrid({
                   <span aria-hidden="true">·</span>
                   <span>{t('approvalConnect')} →</span>
                 </a>
-              )}
+              </li>
+            );
+          }
+          // Connected. If exactly one account, render the pill as
+          // before (no picker). If multiple, render an inline <select>
+          // so agency users can pick which Page/IG/LinkedIn-profile
+          // to publish to without leaving the preview.
+          if (accts.length === 1) {
+            const only = accts[0]!;
+            return (
+              <li key={p}>
+                <span
+                  className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800"
+                  title={only.displayName ?? undefined}
+                >
+                  <span>{label}</span>
+                  <span aria-hidden="true">·</span>
+                  <span className="font-semibold">✓</span>
+                  {only.displayName && (
+                    <span className="max-w-[14ch] truncate opacity-80">
+                      {only.displayName}
+                    </span>
+                  )}
+                </span>
+              </li>
+            );
+          }
+          return (
+            <li key={p}>
+              <label className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800">
+                <span>{label}</span>
+                <span aria-hidden="true">·</span>
+                <span className="font-semibold">✓</span>
+                <select
+                  value={selectedAccount[p] ?? ''}
+                  onChange={(e) =>
+                    setSelectedAccount((prev) => ({
+                      ...prev,
+                      [p]: e.target.value || null,
+                    }))
+                  }
+                  disabled={submitting}
+                  aria-label={t('approvalAccountPicker', { count: accts.length })}
+                  className="cursor-pointer rounded-md border-none bg-transparent px-1 py-0 text-xs font-medium text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-60"
+                >
+                  {accts.map((a) => (
+                    <option
+                      key={a.externalAccountId}
+                      value={a.externalAccountId}
+                    >
+                      {a.displayName ?? a.externalAccountId}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </li>
           );
         })}

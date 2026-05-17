@@ -2212,6 +2212,7 @@
     "approvalNoDraft": "nessuna bozza",
     "approvalNotConnected": "non collegato",
     "approvalConnect": "Collega",
+    "approvalAccountPicker": "Scegli quale dei {count} account usare",
     "approvalPosted": "Pubblicato",
     "approvalSelectedCount": "{count, plural, =0 {Nulla selezionato} =1 {1 selezionato} other {# selezionati}}",
     "approvalPublishCta": "{count, plural, =0 {Pubblica approvati} =1 {Pubblica 1} other {Pubblica #}}",

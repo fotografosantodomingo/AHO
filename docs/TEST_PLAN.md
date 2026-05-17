@@ -31,6 +31,16 @@
 - **Expect:** Domain `advertisehomes.online` flips to "Verified" within seconds. Confirms the `<meta name="facebook-domain-verification" content="ztd23gv75ztx1kqizjykrk30oeiinn"/>` tag in our `<head>` is live and Meta reads it correctly.
 - **If wrong:** Meta will say "could not find tag" — if so, try the Sharing Debugger (https://developers.facebook.com/tools/debug/) and paste me the result.
 
+### `multi-account-publish-picker` — Phase 3.5 (just shipped)
+- **Setup**: visit `/dashboard/social` as `info@advertisehomes.online`. You should already have 3 FB Pages connected (Advertise Homes Online, Babula Foto Video, Babula Shots) — the multi-account picker will show on Facebook because count > 1.
+- **Do:** Create a Free Audit + visit `/preview/<uuid>`. Scroll to the approval grid section.
+- **Expect:**
+  - The Facebook pill is now a **green dropdown** instead of a static label. Click it → see all 3 Page names. Pick "Babula Foto Video" (or whichever is NOT the default).
+  - Instagram + LinkedIn pills stay as plain labels (only 1 account each, so no picker — status quo).
+  - Tick the EN×FB cell only → click Publish 1 → check FB → the post should appear on the Page you selected, NOT the first one.
+- **If wrong**: paste preview URL + screenshot. Most likely failure mode: dropdown renders but server still publishes to first page (means `accountIds` wasn't sent or wasn't honored). Confirm by checking the actual FB Page post landed.
+- **For non-agency users** (only 1 FB Page): everything looks exactly like before. Pickers only appear when count > 1.
+
 ### `ai-cost-alert-cron` — Phase 5.5 alerting (just shipped — needs deployment)
 - **Code is committed**; one-time Worker deploy:
   ```bash

@@ -2273,6 +2273,7 @@
     "approvalNoDraft": "sin borrador",
     "approvalNotConnected": "no conectado",
     "approvalConnect": "Conectar",
+    "approvalAccountPicker": "Elige cuál de las {count} cuentas usar",
     "approvalPosted": "Publicado",
     "approvalSelectedCount": "{count, plural, =0 {Nada seleccionado} =1 {1 seleccionado} other {# seleccionados}}",
     "approvalPublishCta": "{count, plural, =0 {Publicar aprobados} =1 {Publicar 1} other {Publicar #}}",

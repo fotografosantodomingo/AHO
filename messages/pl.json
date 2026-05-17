@@ -2249,6 +2249,7 @@
     "approvalNoDraft": "brak wersji",
     "approvalNotConnected": "niepołączone",
     "approvalConnect": "Połącz",
+    "approvalAccountPicker": "Wybierz z {count} kont, którego użyć",
     "approvalPosted": "Opublikowano",
     "approvalSelectedCount": "{count, plural, =0 {Nic nie zaznaczono} =1 {1 zaznaczony} few {# zaznaczone} many {# zaznaczonych} other {# zaznaczonych}}",
     "approvalPublishCta": "{count, plural, =0 {Opublikuj zatwierdzone} =1 {Opublikuj 1} few {Opublikuj #} many {Opublikuj #} other {Opublikuj #}}",
