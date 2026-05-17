@@ -121,19 +121,10 @@ export async function SiteHeader({ locale }: Props) {
         <div className="flex items-center gap-2 sm:gap-3">
           <a
             href={`/${locale}`}
-            className="inline-flex items-center transition-opacity hover:opacity-80"
+            className="font-brand text-2xl font-bold tracking-tight transition-colors hover:text-action dark:hover:text-action-dark"
             aria-label="AHO — Advertise Homes Online"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/logo.png?v=4"
-              alt="AHO — Advertise Homes Online"
-              width={52}
-              height={52}
-              className="h-[52px] w-[52px] object-contain"
-              loading="eager"
-              fetchPriority="high"
-            />
+            AHO
           </a>
           <ThemeToggle />
           <LocaleToggle />

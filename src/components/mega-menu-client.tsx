@@ -114,16 +114,7 @@ export function MegaMenuClient({
           Same height as the site header so the close X visually
           replaces the hamburger when transitioning. */}
       <div className="flex items-center justify-between border-b border-border-strong/40 px-4 py-3">
-        <p className="inline-flex items-center">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/logo.png?v=4"
-            alt="AHO — Advertise Homes Online"
-            width={48}
-            height={48}
-            className="h-12 w-12 object-contain"
-          />
-        </p>
+        <p className="font-brand text-2xl font-bold tracking-tight">AHO</p>
         <button
           type="button"
           onClick={() => setOpen(false)}
