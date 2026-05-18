@@ -49,11 +49,23 @@ jobs:
         # we see the AHO wordmark — guarantees the new bundle is
         # serving before we assert anything else. Max 90s, then
         # fail fast.
+        #
+        # IMPLEMENTATION NOTE — do NOT use `echo "$body" | grep -q`.
+        # The homepage body is ~200 KB; grep matches in the first KB
+        # and closes the pipe; echo gets SIGPIPE (exit 141); with
+        # `set -o pipefail` the pipeline returns 141 → the if branch
+        # never fires even when the wordmark IS present. The whole
+        # 90s budget burned silently and the step error'd with
+        # "homepage didn't propagate within 90s" while the page was
+        # actually serving correctly. Bash native string match
+        # `[[ "$body" == *AHO* ]]` is fork-free and SIGPIPE-immune.
+        # Logged 2026-05-18 after 5 consecutive false-failure runs.
+        shell: bash
         run: |
           set -euo pipefail
           for i in $(seq 1 18); do
             body=$(curl -sf "$BASE/en" || echo "")
-            if echo "$body" | grep -q 'AHO'; then
+            if [[ "$body" == *AHO* ]]; then
               echo "✓ homepage ready after $((i*5))s wait"
               exit 0
             fi
@@ -63,12 +75,18 @@ jobs:
           exit 1
 
       - name: Assert /en/for-agents loads (Free Audit wedge)
+        shell: bash
         run: |
           set -euo pipefail
           body=$(curl -sf "$BASE/en/for-agents")
           # The widget label varies by copy revision — match a
-          # robust substring instead of the full button text.
-          echo "$body" | grep -qE 'audit|campaign|paste' || { echo "::error::/for-agents missing wedge widget content"; exit 1; }
+          # robust substring instead of the full button text. Use
+          # bash regex (not `echo | grep`) to dodge the SIGPIPE /
+          # pipefail trap explained on the homepage step above.
+          if [[ ! "$body" =~ (audit|campaign|paste) ]]; then
+            echo "::error::/for-agents missing wedge widget content"
+            exit 1
+          fi
           echo "✓ /for-agents loads + has wedge widget"
 
       - name: Assert /en/investors loads (fundraise toolkit)
@@ -79,22 +97,43 @@ jobs:
           echo "✓ /investors HTTP 200"
 
       - name: Assert dashboard auth gate (anon → 307 to /signin)
+        shell: bash
         run: |
           set -euo pipefail
           # No -L; we want to see the redirect itself
           status=$(curl -s -o /dev/null -w "%{http_code}" "$BASE/en/dashboard")
-          loc=$(curl -sI "$BASE/en/dashboard" | grep -i '^location:' | tr -d '\r' | cut -c11- | xargs)
+          # Capture the Location header via curl -w to avoid the
+          # `curl -sI | grep -i location` pipe, which can SIGPIPE
+          # the curl half under pipefail. -D - prints headers to
+          # stdout; we slice with bash native parameter expansion.
+          headers=$(curl -sI "$BASE/en/dashboard")
+          loc=""
+          while IFS= read -r line; do
+            if [[ "${line,,}" == location:* ]]; then
+              loc=$(echo "${line#*:}" | tr -d '\r' | xargs)
+              break
+            fi
+          done <<< "$headers"
           [ "$status" = "307" ] || { echo "::error::dashboard returned $status (expected 307)"; exit 1; }
-          echo "$loc" | grep -q '/en/signin' || { echo "::error::dashboard redirected to $loc (expected /en/signin)"; exit 1; }
+          if [[ "$loc" != *"/en/signin"* ]]; then
+            echo "::error::dashboard redirected to '$loc' (expected to contain /en/signin)"
+            exit 1
+          fi
           echo "✓ /en/dashboard 307 → /en/signin (auth gate intact)"
 
       - name: Assert ImageResponse renders non-empty bytes
         # This is the big one — the 2026-05-17 devIndicators:false
-        # regression broke EVERY ImageResponse route to return 0
-        # bytes. A simple byte-size assertion catches it instantly.
+        # regression (and again the 2026-05-18 satori woff2 issue)
+        # broke EVERY ImageResponse route to return 0 bytes. A
+        # simple byte-size assertion catches it instantly.
+        shell: bash
         run: |
           set -euo pipefail
-          bytes=$(curl -sf "$BASE/en/opengraph-image" | wc -c)
+          # Write to file first then wc — `curl | wc -c` triggers
+          # the same SIGPIPE class on early wc completion under
+          # pipefail.
+          curl -sf "$BASE/en/opengraph-image" -o /tmp/og.png
+          bytes=$(wc -c < /tmp/og.png)
           if [ "$bytes" -lt 1000 ]; then
             echo "::error::homepage opengraph-image is $bytes bytes (expected ≥ 1000) — ImageResponse likely broken"
             exit 1
@@ -118,10 +157,14 @@ jobs:
         if: ${{ env.CRON_SECRET != '' }}
         # Skip silently when the GH Actions secret hasn't been provisioned
         # yet — we still want the previous step to assert auth works.
+        shell: bash
         run: |
           set -euo pipefail
+          # Tiny response (< 1 KB), so the echo|python3 pipe is
+          # SIGPIPE-safe in practice. But still using here-string
+          # for consistency with the rest of the file.
           resp=$(curl -s -H "Authorization: Bearer $CRON_SECRET" "$BASE/api/cron/audit-prune")
-          ok=$(echo "$resp" | python3 -c "import json,sys; print(json.load(sys.stdin).get('ok'))" 2>/dev/null || echo "parse-error")
+          ok=$(python3 -c "import json,sys; print(json.load(sys.stdin).get('ok'))" <<< "$resp" 2>/dev/null || echo "parse-error")
           if [ "$ok" != "True" ]; then
             echo "::error::audit-prune with bearer returned non-ok: $resp"
             exit 1
@@ -129,12 +172,22 @@ jobs:
           echo "✓ /api/cron/audit-prune with bearer → ok"
 
       - name: Assert robots.txt + sitemap.xml
+        shell: bash
         run: |
           set -euo pipefail
-          curl -sf "$BASE/robots.txt" | grep -q 'Disallow: /api/' || { echo "::error::robots.txt missing /api/ disallow"; exit 1; }
+          # Download to disk first, then check with bash native
+          # matching — same pipefail/SIGPIPE rationale as above.
+          curl -sf "$BASE/robots.txt" -o /tmp/robots.txt
+          if ! grep -q 'Disallow: /api/' /tmp/robots.txt; then
+            echo "::error::robots.txt missing /api/ disallow"
+            exit 1
+          fi
           curl -sfL "$BASE/sitemap.xml" -o /tmp/sm.xml
           [ -s /tmp/sm.xml ] || { echo "::error::sitemap.xml empty"; exit 1; }
-          head -c 100 /tmp/sm.xml | grep -q 'xml' || { echo "::error::sitemap.xml not XML"; exit 1; }
+          if ! head -c 100 /tmp/sm.xml | grep -q 'xml'; then
+            echo "::error::sitemap.xml not XML"
+            exit 1
+          fi
           echo "✓ robots.txt + sitemap.xml healthy"
 
       - name: Assert /api/audit/start rejects malformed input
