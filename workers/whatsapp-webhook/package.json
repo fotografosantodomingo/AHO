@@ -1,0 +1,17 @@
+{
+  "name": "aho-whatsapp-webhook",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AHO WhatsApp webhook receiver — verifies the X-Hub-Signature-256 from 360dialog/Meta, parses inbound messages + delivery callbacks, forwards to the Pages app at /api/inbound/whatsapp(/status). See ../../docs/AI_AGENT_PLAN.md §4c.",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "deploy:dry-run": "wrangler deploy --dry-run",
+    "dev": "wrangler dev",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240620.0",
+    "typescript": "^5.5.4",
+    "wrangler": "^4.88.0"
+  }
+}

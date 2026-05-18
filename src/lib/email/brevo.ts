@@ -46,6 +46,19 @@ export interface SendEmailArgs {
   /** Reply-To address — useful so an agent can hit reply on a lead
    *  notification and respond to the buyer directly. */
   replyTo?: string;
+  /** Override the default From address. Used by the AI agent so
+   *  outbound replies appear FROM the per-agent address
+   *  (`<agent-slug>@reply.advertisehomes.online`), not the generic
+   *  AHO sender. Sender domain must still be verified in Brevo. */
+  fromEmail?: string;
+  /** Override the default From display name. */
+  fromName?: string;
+  /** Arbitrary RFC-5322 headers to attach to the outbound email.
+   *  Brevo's API accepts a `headers` object keyed by name. Used by
+   *  the AI agent to set `In-Reply-To`, `References`, and
+   *  `List-Unsubscribe` so Gmail/Outlook thread the reply correctly
+   *  and the buyer can one-click unsubscribe. */
+  headers?: Record<string, string>;
 }
 
 export interface SendEmailResult {
@@ -69,8 +82,8 @@ export async function sendEmail(args: SendEmailArgs): Promise<SendEmailResult> {
     return { sent: false };
   }
 
-  const fromEmail = process.env.BREVO_FROM_EMAIL ?? DEFAULT_FROM_EMAIL;
-  const fromName = process.env.BREVO_FROM_NAME ?? DEFAULT_FROM_NAME;
+  const fromEmail = args.fromEmail ?? process.env.BREVO_FROM_EMAIL ?? DEFAULT_FROM_EMAIL;
+  const fromName = args.fromName ?? process.env.BREVO_FROM_NAME ?? DEFAULT_FROM_NAME;
 
   const body: Record<string, unknown> = {
     sender: { email: fromEmail, name: fromName },
@@ -80,6 +93,9 @@ export async function sendEmail(args: SendEmailArgs): Promise<SendEmailResult> {
   };
   if (args.text) body.textContent = args.text;
   if (args.replyTo) body.replyTo = { email: args.replyTo };
+  if (args.headers && Object.keys(args.headers).length > 0) {
+    body.headers = args.headers;
+  }
 
   try {
     const res = await fetch(API_URL, {
@@ -106,4 +122,101 @@ export async function sendEmail(args: SendEmailArgs): Promise<SendEmailResult> {
     console.error('[email] brevo send threw', { to: args.to, error: e });
     return { sent: false, error: e instanceof Error ? e.message : String(e) };
   }
+}
+
+// ──────────────────────────────────────────────────────────────────
+// Threaded reply helper for the AI customer-service agent
+// ──────────────────────────────────────────────────────────────────
+
+export interface SendThreadedReplyArgs {
+  to: string;
+  subject: string;
+  html: string;
+  text?: string;
+  /** From address for this reply — typically the per-agent
+   *  `<agent-slug>@reply.advertisehomes.online`. Defaults to the
+   *  BREVO_FROM_EMAIL env var if omitted. */
+  fromEmail?: string;
+  fromName?: string;
+  /** Opaque per-conversation reply-to: typically
+   *  `leads+<hmac>@reply.advertisehomes.online`. When the buyer
+   *  hits Reply, Cloudflare Email Routing dispatches by this token
+   *  back to the same conversation. */
+  replyTo?: string;
+  /** The Message-ID this reply is in response to. Becomes the
+   *  outbound `In-Reply-To` header. Pass WITHOUT angle brackets;
+   *  this helper wraps. */
+  inReplyToMessageId: string;
+  /** Ordered ancestor Message-IDs from email_messages.references_chain
+   *  (oldest → newest), plus `inReplyToMessageId` at the tail. The
+   *  helper composes the outbound `References` header per RFC-5322. */
+  referencesChain?: string[];
+  /** RFC 8058 one-click unsubscribe URL. When set the helper attaches
+   *  `List-Unsubscribe` + `List-Unsubscribe-Post: List-Unsubscribe=One-Click`. */
+  unsubscribeUrl?: string;
+  /** Additional headers to pass through (e.g. List-Id, X-Conversation-Id
+   *  for in-pipe correlation logs). */
+  extraHeaders?: Record<string, string>;
+}
+
+/**
+ * Send a threaded reply via Brevo. The AI customer-service agent's
+ * outbound email helper.
+ *
+ * Sets the In-Reply-To + References headers so Gmail/Outlook stitch
+ * the reply into the buyer's existing thread. Also attaches the
+ * RFC-8058 one-click unsubscribe pair when an unsubscribe URL is
+ * provided.
+ *
+ * Note on Brevo header support: Brevo's v3 `/smtp/email` endpoint
+ * accepts an arbitrary `headers` object (verified against their docs
+ * as of 2026-05). If a future API change breaks this, the fallback
+ * shape is to embed the headers as `X-Mailin-custom` metadata + ask
+ * Brevo support to enable raw-header passthrough on the account.
+ */
+export async function sendEmailWithThreading(
+  args: SendThreadedReplyArgs,
+): Promise<SendEmailResult> {
+  const headers: Record<string, string> = {};
+
+  const inReplyToBracketed = wrapMessageId(args.inReplyToMessageId);
+  if (inReplyToBracketed) headers['In-Reply-To'] = inReplyToBracketed;
+
+  const refs = (args.referencesChain ?? [])
+    .map(wrapMessageId)
+    .filter((s): s is string => Boolean(s));
+  // Standard practice: References = parents + In-Reply-To, in chronological order.
+  if (inReplyToBracketed && !refs.includes(inReplyToBracketed)) {
+    refs.push(inReplyToBracketed);
+  }
+  if (refs.length > 0) headers['References'] = refs.join(' ');
+
+  if (args.unsubscribeUrl) {
+    headers['List-Unsubscribe'] = `<${args.unsubscribeUrl}>`;
+    headers['List-Unsubscribe-Post'] = 'List-Unsubscribe=One-Click';
+  }
+
+  if (args.extraHeaders) {
+    for (const [k, v] of Object.entries(args.extraHeaders)) headers[k] = v;
+  }
+
+  const sendArgs: SendEmailArgs = {
+    to: args.to,
+    subject: args.subject,
+    html: args.html,
+    headers,
+  };
+  if (args.text) sendArgs.text = args.text;
+  if (args.fromEmail) sendArgs.fromEmail = args.fromEmail;
+  if (args.fromName) sendArgs.fromName = args.fromName;
+  if (args.replyTo) sendArgs.replyTo = args.replyTo;
+
+  return sendEmail(sendArgs);
+}
+
+function wrapMessageId(raw: string | undefined | null): string | null {
+  if (!raw) return null;
+  const trimmed = raw.trim().replace(/^<+|>+$/g, '');
+  if (!trimmed) return null;
+  return `<${trimmed}>`;
 }

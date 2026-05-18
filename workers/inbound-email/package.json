@@ -1,0 +1,20 @@
+{
+  "name": "aho-inbound-email",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AHO inbound-email Email Worker — parses incoming buyer email via postal-mime, verifies DKIM/SPF/DMARC, routes by local-part (slug or HMAC-signed leads token), and forwards a parsed payload to /api/inbound/email on the Pages app. Phase 3 of docs/AI_AGENT_PLAN.md.",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "deploy:dry-run": "wrangler deploy --dry-run",
+    "dev": "wrangler dev",
+    "tail": "wrangler tail"
+  },
+  "dependencies": {
+    "postal-mime": "^2.4.4"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240620.0",
+    "typescript": "^5.5.4",
+    "wrangler": "^4.88.0"
+  }
+}

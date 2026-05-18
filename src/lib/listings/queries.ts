@@ -47,6 +47,10 @@ export interface PropertyDetail {
    *  `@/lib/listings/features` to get the typed shape. */
   features: unknown;
   orgId: string;
+  /** Profile id of the listing's primary agent — `properties.created_by`.
+   *  Used to anchor the AI customer-service widget to the right agent
+   *  persona on /properties/[slug]. */
+  createdBy: string | null;
   /** Org's canonical public-profile slug (`organizations.public_slug`),
    *  with `organizations.slug` legacy fallback. Used to build the "See
    *  full profile on AHO" link on the listing page → `/agents/{slug}`.
@@ -166,7 +170,7 @@ export async function fetchPropertyByShortId(
         latitude, longitude,
         amenities, features,
         address_line, neighborhood, city, state_region, country_code, postal_code, display_address,
-        org_id, created_at, updated_at,
+        org_id, created_by, created_at, updated_at,
         organizations (
           public_slug, slug
         ),
@@ -234,6 +238,7 @@ export async function fetchPropertyByShortId(
     postalCode: data.postal_code,
     displayAddress: data.display_address,
     orgId: data.org_id,
+    createdBy: (data.created_by as string | null) ?? null,
     orgPublicSlug:
       ((data.organizations as { public_slug?: string | null; slug?: string | null } | null)?.public_slug ??
         (data.organizations as { slug?: string | null } | null)?.slug ??

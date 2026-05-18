@@ -1,0 +1,17 @@
+{
+  "name": "aho-voice-conversationrelay",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AHO voice channel — Cloudflare Worker that terminates the Twilio ConversationRelay WebSocket. Receives transcribed user turns, bridges to the shared Claude orchestrator (src/lib/ai/converse.ts via the Pages app), emits TTS-bound text events back to Twilio. See ../../docs/AI_AGENT_PLAN.md §4d.",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "deploy:dry-run": "wrangler deploy --dry-run",
+    "dev": "wrangler dev",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240620.0",
+    "typescript": "^5.5.4",
+    "wrangler": "^4.88.0"
+  }
+}

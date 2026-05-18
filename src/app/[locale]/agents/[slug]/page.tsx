@@ -16,6 +16,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getUserFavoriteIds } from '@/lib/listings/favorites';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { buildGraph, type JsonLdNode } from '@/lib/seo/jsonld';
+import { AiChatWidget, type WidgetLocale } from '@/components/chat/ai-chat-widget';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -788,6 +789,19 @@ export default async function AgentProfilePage({
         )}
         </div>
       </main>
+
+      {/* AI customer-service widget — Phase 2 web-chat surface. Only
+          renders when the org has a primary agent owner (a single-agent
+          solo org or the agency's primary contact); without an agent
+          there's no persona for the AI to speak on behalf of. */}
+      {result.agent?.userId && (
+        <AiChatWidget
+          agentId={result.agent.userId}
+          agentName={result.agent.fullName ?? result.org.name}
+          agentAvatarUrl={result.agent.avatarUrl ?? result.org.logoUrl ?? null}
+          buyerLocale={typedLocale as WidgetLocale}
+        />
+      )}
     </>
   );
 }

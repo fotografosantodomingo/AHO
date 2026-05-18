@@ -1,0 +1,37 @@
+name = "aho-inbound-email"
+main = "src/index.ts"
+compatibility_date = "2025-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# AHO inbound-email Email Worker.
+#
+# Triggered by Cloudflare Email Routing on every message that lands
+# on a configured address under `reply.advertisehomes.online`
+# (catch-all). PO action wires this up post-deploy:
+#   1. `cd workers/inbound-email && npm install && wrangler deploy`
+#   2. Cloudflare Dashboard → Email → Email Routing →
+#      Custom address rules → catch-all on `reply.advertisehomes.online`
+#      → Action: "Send to Worker" → select `aho-inbound-email`.
+#   3. Set the Worker secrets:
+#        wrangler secret put INBOUND_SECRET
+#        wrangler secret put AHO_API_BASE         # https://advertisehomes.online
+#        wrangler secret put LEADS_TOKEN_SECRET   # HMAC key for leads+<token>@ routing
+#
+# No KV / R2 bindings yet. Rate-limiting is a TODO via a Durable
+# Object counter once Workers Paid is provisioned with DO storage.
+#
+# Why a standalone Worker instead of a Pages Function: Cloudflare
+# Pages doesn't surface the `email()` handler — only the Worker
+# runtime accepts `ForwardableEmailMessage`. The Worker does the
+# minimum required work (parse + auth-check + route) then forwards
+# to /api/inbound/email on the Pages app for the DB writes. Same
+# split as workers/audit-prune.
+
+# Secrets — set via `wrangler secret put` per environment, never
+# committed:
+#   - INBOUND_SECRET        shared bearer for the AHO /api/inbound/email route.
+#   - AHO_API_BASE          base URL of the AHO Pages app.
+#   - LEADS_TOKEN_SECRET    HMAC key for decoding leads+<token>@... local-parts.
+
+[vars]
+LOG_LEVEL = "info"

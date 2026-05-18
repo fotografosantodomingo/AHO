@@ -32,6 +32,7 @@ import { FavoriteButton } from '@/components/listings/favorite-button';
 import { TrackPropertyView } from '@/components/listings/track-property-view';
 import { TrackedLink } from '@/components/listings/tracked-link';
 import { TrackGalleryOpen } from '@/components/listings/track-gallery-open';
+import { AiChatWidget, type WidgetLocale } from '@/components/chat/ai-chat-widget';
 
 // Below-fold components — dynamic-imported to keep them off the initial
 // JS payload. They render plenty far down the page that hydrating them
@@ -682,6 +683,20 @@ export default async function PropertyDetailPage({
             consume the same alternates from the <head> hreflang already
             emitted in generateMetadata. */}
       </main>
+
+      {/* AI customer-service widget — Phase 2 web-chat surface. Bottom-
+          LEFT during the coexistence period with Tawk (bottom-right).
+          Only renders when the listing has a primary agent id (it's
+          required for the API to know who the buyer is "talking to"). */}
+      {property.createdBy && (
+        <AiChatWidget
+          agentId={property.createdBy}
+          agentName={contact?.agentFullName ?? contact?.orgName ?? 'the agent'}
+          agentAvatarUrl={contact?.agentAvatarUrl ?? null}
+          propertyId={property.id}
+          buyerLocale={typedLocale as WidgetLocale}
+        />
+      )}
     </>
   );
 }

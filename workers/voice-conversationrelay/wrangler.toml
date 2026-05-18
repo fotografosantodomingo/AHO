@@ -1,0 +1,52 @@
+name = "aho-voice-conversationrelay"
+main = "src/index.ts"
+compatibility_date = "2025-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# WebSocket-only Worker — no cron triggers. Twilio Programmable Voice
+# terminates the PSTN call, then upgrades to a WebSocket against this
+# Worker via the <ConversationRelay url="wss://..."/> TwiML primitive.
+# Each call is a single WebSocket connection that lives for the
+# duration of the call (typically 30s - 5min). Twilio handles STT +
+# TTS on its side; this Worker receives "prompt" events (user turns
+# with text already transcribed) and emits "text" events (assistant
+# replies that ConversationRelay synthesizes back to audio).
+#
+# v1 = scaffold only. The `converse()` bridge into src/lib/ai/converse.ts
+# is wired as a TODO comment in src/index.ts — the inter-service auth
+# pattern is the same one used by workers/inbound-email/ (POST to a
+# shared-secret Pages route). PO action gates going live: Twilio
+# account + number purchase + ConversationRelay onboarding. README
+# walks through the exact Twilio Console steps.
+#
+# No R2 / KV / D1 bindings yet. v2 polish will add:
+#   - R2 binding for recording upload (after Twilio recording-callback)
+#   - KV binding for per-conversation transcript buffer (in case
+#     the upstream Edge route is slow)
+#   - Durable Object for per-call session state (currently held in
+#     the WebSocket-handler closure; fine for v1 since one WS = one call)
+
+# Secrets — set via `wrangler secret put` per environment, never
+# committed:
+#   - TWILIO_AUTH_TOKEN  (used to verify the X-Twilio-Signature header
+#                         on the initial WebSocket upgrade — Twilio
+#                         signs the upgrade request the same way it
+#                         signs HTTP webhooks)
+#   - INBOUND_SECRET     (shared secret with the Pages app for the
+#                         /api/ai-chat-internal/voice bridge call —
+#                         same shape as workers/inbound-email/)
+#   - AHO_PAGES_URL      (production: https://advertisehomes.online;
+#                         preview: the *.aho-web.pages.dev subdomain)
+#   - SUPABASE_URL       (Supabase project URL for direct DB writes
+#                         when the bridge route is unreachable; v1
+#                         uses this for the voice_calls + conversation
+#                         row inserts)
+#   - SUPABASE_SERVICE_ROLE_KEY  (service-role key for direct writes;
+#                         scoped to the agent's org_id at every query
+#                         per AI_AGENT_PLAN §5.5)
+
+[vars]
+LOG_LEVEL = "info"
+# The Pages-side route the Worker proxies converse() into. Override
+# per-env via `wrangler secret put` when needed (preview vs prod).
+AHO_VOICE_BRIDGE_PATH = "/api/ai-chat-internal/voice"

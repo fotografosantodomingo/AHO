@@ -153,6 +153,17 @@ const serverSchema = z.object({
    *  against this secret before processing. Missing in deployed env
    *  ⇒ handler returns 503 and Tawk retries with backoff. */
   TAWK_WEBHOOK_SECRET: z.string().min(1).optional(),
+  /** Shared bearer between `workers/whatsapp-webhook/` (and the
+   *  future `workers/inbound-email/`) and the AHO Pages app's
+   *  `/api/inbound/*` routes. The Worker verifies the upstream BSP
+   *  signature against its OWN secret; this token authenticates the
+   *  Worker → Pages forward so a Pages route never has to know the
+   *  BSP signing key. Generate via `openssl rand -hex 32`; set
+   *  identically on the Worker (`wrangler secret put INBOUND_SECRET`)
+   *  and on Cloudflare Pages (Settings → Environment Variables).
+   *  Optional so build-time validation passes in envs that haven't
+   *  wired Phase 4 yet; the route returns 503 when unset. */
+  INBOUND_SECRET: z.string().min(32).optional(),
 });
 
 export type PublicEnv = z.infer<typeof publicSchema>;

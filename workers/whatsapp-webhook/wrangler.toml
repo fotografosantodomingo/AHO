@@ -1,0 +1,46 @@
+name = "aho-whatsapp-webhook"
+main = "src/index.ts"
+compatibility_date = "2025-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Phase 4 of docs/AI_AGENT_PLAN.md. This Worker is the public webhook
+# endpoint that 360dialog (D3=A) — or Twilio for WhatsApp (fallback per
+# R5 in docs/RISKS.md) — calls with two distinct payload shapes:
+#
+#   1. Inbound message  — a buyer wrote to one of our verified
+#                          AHO-WABA numbers. We forward to the Pages
+#                          app at /api/inbound/whatsapp with the
+#                          parsed payload + the wa_number_id
+#                          resolved from the Meta phone_number_id.
+#   2. Status callback   — sent / delivered / read / failed update
+#                          for one of our outbound messages. We
+#                          forward to /api/inbound/whatsapp/status.
+#
+# Both forwards carry a shared HMAC bearer in `Authorization:
+# Bearer <INBOUND_SECRET>` so the Pages routes can authenticate the
+# Worker without exposing user-session cookies.
+#
+# Signature verification: 360dialog uses Meta-compatible signing —
+# `X-Hub-Signature-256: sha256=<hex>` where the digest is
+# HMAC-SHA256(rawBody, WHATSAPP_WEBHOOK_SECRET). We constant-time
+# compare in src/index.ts. The shared secret is set on the
+# 360dialog dashboard at the same time it's set as a Worker secret.
+
+# No cron trigger — this is a pure HTTP webhook endpoint. Meta /
+# 360dialog retry aggressively on non-2xx, so the handler returns
+# 200 even on internal failures (we log + alert separately).
+
+# Secrets — set via `wrangler secret put` per environment, never
+# committed:
+#   - WHATSAPP_WEBHOOK_SECRET  (shared with 360dialog; signs the
+#                               inbound webhook body)
+#   - INBOUND_SECRET           (shared with the AHO Pages app; bearer
+#                               token on the forwarded POST)
+
+[vars]
+LOG_LEVEL = "info"
+# Pages app base URL. Production: https://advertisehomes.online.
+# Preview: the *.aho-web.pages.dev subdomain. Easier to set per env
+# via `wrangler secret put` or [env.preview] / [env.production]
+# blocks than to hardcode here.
+AHO_API_BASE = "https://advertisehomes.online"
