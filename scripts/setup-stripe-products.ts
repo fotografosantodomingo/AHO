@@ -51,6 +51,11 @@ const PRODUCT_ROLES = {
   agent: 'agent',
   plus: 'plus',
   pro_automation: 'pro_automation',
+  // Private-owner one-time listing ($5 / 60 days) — see
+  // docs/SELL_FUNNEL_PLAN.md. Distinct product (not a price under an
+  // existing subscription product) so its Stripe Tax + receipt copy
+  // can be tailored independently.
+  private_listing_one_time: 'private_listing_one_time',
 } as const;
 
 const PRICE_ROLES = {
@@ -64,12 +69,17 @@ const PRICE_ROLES = {
   // Pro Automation (NEW)
   pro_automation_monthly: 'pro_automation_monthly',
   pro_automation_annual: 'pro_automation_annual',
+  // Private-owner one-time
+  private_listing_one_time: 'private_listing_one_time',
 } as const;
 
 interface ProductSpec {
   role: string;
   name: string;
   description: string;
+  /** Extra Stripe Product metadata. Webhook handlers branch on this to
+   *  distinguish subscription products from one-time products. */
+  extraMetadata?: Record<string, string>;
 }
 
 const PRODUCTS: ProductSpec[] = [
@@ -90,6 +100,16 @@ const PRODUCTS: ProductSpec[] = [
     name: 'AHO Pro Automation',
     description:
       'Up to 30 active listings. One-click social automation to Facebook + Instagram + LinkedIn with AI-generated captions, post history + retry, traffic tracking back to AHO. Includes everything in Plus.',
+  },
+  {
+    role: PRODUCT_ROLES.private_listing_one_time,
+    name: 'AHO — Private listing (60 days)',
+    description:
+      'One-time $5 listing for private owners and landlords. Publishes one property worldwide on AHO for 60 days with AI-generated captions. Renewable at the same price.',
+    // Tag the product so the webhook handler can dispatch based on
+    // `event.data.object.metadata.aho_purpose` AND a fallback lookup
+    // by product metadata if metadata is ever missing on a session.
+    extraMetadata: { aho_product_kind: 'private_listing_one_time' },
   },
 ];
 
@@ -115,13 +135,25 @@ async function findPriceByRole(
 
 async function ensureProduct(spec: ProductSpec): Promise<Stripe.Product> {
   const existing = await findProductByRole(spec.role);
+  const metadata: Record<string, string> = {
+    [META_KEY]: spec.role,
+    ...(spec.extraMetadata ?? {}),
+  };
   if (existing) {
     console.error(`[product ${spec.role}] reusing existing ${existing.id}`);
-    // Update name/description in case copy has been edited since first run.
-    if (existing.name !== spec.name || existing.description !== spec.description) {
+    // Update name/description/metadata in case copy has been edited since first run.
+    const metadataDrifted = Object.entries(metadata).some(
+      ([k, v]) => existing.metadata[k] !== v,
+    );
+    if (
+      existing.name !== spec.name ||
+      existing.description !== spec.description ||
+      metadataDrifted
+    ) {
       const updated = await stripe.products.update(existing.id, {
         name: spec.name,
         description: spec.description,
+        metadata,
       });
       console.error(`[product ${spec.role}] copy refreshed`);
       return updated;
@@ -131,7 +163,7 @@ async function ensureProduct(spec: ProductSpec): Promise<Stripe.Product> {
   const created = await stripe.products.create({
     name: spec.name,
     description: spec.description,
-    metadata: { [META_KEY]: spec.role },
+    metadata,
   });
   console.error(`[product ${spec.role}] created ${created.id}`);
   return created;
@@ -141,7 +173,8 @@ interface PriceSpec {
   role: string;
   nickname: string;
   unitAmount: number;
-  interval: 'month' | 'year';
+  /** Recurring interval — omit for one-time prices. */
+  interval?: 'month' | 'year';
   trialPeriodDays?: number;
   /** Archive the price so it never appears on /pricing — application-gated. */
   archive?: boolean;
@@ -166,10 +199,14 @@ async function ensurePrice(
     nickname: spec.nickname,
     unit_amount: spec.unitAmount,
     currency: 'usd',
-    recurring: {
-      interval: spec.interval,
-      ...(spec.trialPeriodDays ? { trial_period_days: spec.trialPeriodDays } : {}),
-    },
+    ...(spec.interval
+      ? {
+          recurring: {
+            interval: spec.interval,
+            ...(spec.trialPeriodDays ? { trial_period_days: spec.trialPeriodDays } : {}),
+          },
+        }
+      : {}),
     metadata: { [META_KEY]: spec.role },
   });
   console.error(`[price ${spec.role}] created ${created.id}`);
@@ -188,6 +225,7 @@ async function main() {
   const agentProduct = await ensureProduct(PRODUCTS[0]!);
   const plusProduct = await ensureProduct(PRODUCTS[1]!);
   const proProduct = await ensureProduct(PRODUCTS[2]!);
+  const privateListingProduct = await ensureProduct(PRODUCTS[3]!);
 
   // Agent prices (existing).
   const agentMonthly = await ensurePrice(agentProduct.id, {
@@ -242,12 +280,22 @@ async function main() {
     interval: 'year',
   });
 
+  // Private-owner one-time listing — $5 USD, NO `interval` so Stripe
+  // creates a one-time (mode='payment') price rather than a
+  // recurring subscription price. Per docs/SELL_FUNNEL_PLAN.md Track D.
+  const privateListingOneTime = await ensurePrice(privateListingProduct.id, {
+    role: PRICE_ROLES.private_listing_one_time,
+    nickname: 'private_listing_one_time',
+    unitAmount: 500,
+  });
+
   const result = {
     mode: MODE,
     products: {
       agent: agentProduct.id,
       plus: plusProduct.id,
       pro_automation: proProduct.id,
+      private_listing_one_time: privateListingProduct.id,
     },
     prices: {
       agent_monthly: agentMonthly.id,
@@ -257,6 +305,7 @@ async function main() {
       plus_annual: plusAnnual.id,
       pro_automation_monthly: proMonthly.id,
       pro_automation_annual: proAnnual.id,
+      private_listing_one_time: privateListingOneTime.id,
     },
     envSnippet: [
       `STRIPE_AGENT_PRODUCT_ID=${agentProduct.id}`,
@@ -269,6 +318,8 @@ async function main() {
       `STRIPE_PRO_AUTOMATION_PRODUCT_ID=${proProduct.id}`,
       `STRIPE_PRO_AUTOMATION_MONTHLY_PRICE_ID=${proMonthly.id}`,
       `STRIPE_PRO_AUTOMATION_ANNUAL_PRICE_ID=${proAnnual.id}`,
+      `STRIPE_PRIVATE_LISTING_PRODUCT_ID=${privateListingProduct.id}`,
+      `STRIPE_PRICE_PRIVATE_LISTING_ONE_TIME=${privateListingOneTime.id}`,
     ].join('\n'),
   };
 

@@ -1,0 +1,18 @@
+{
+  "name": "aho-listing-expiry",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AHO scheduled worker — daily proxy to /api/cron/listing-expiry on the Pages app. Drives the $5 private-owner listing lifecycle: day-55 renewal reminders, day-60 expiry + email, and orphan (paid-but-unpublished) nudges. See ../../docs/SELL_FUNNEL_PLAN.md Track E.",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "deploy:dry-run": "wrangler deploy --dry-run",
+    "dev": "wrangler dev",
+    "trigger": "wrangler dev --test-scheduled",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240620.0",
+    "typescript": "^5.5.4",
+    "wrangler": "^4.88.0"
+  }
+}

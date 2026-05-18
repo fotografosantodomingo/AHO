@@ -76,6 +76,24 @@ function detectSurface(pathname: string): AhoAssistantSurface | null {
   // lead with the most relevant content (pricing comparison on
   // /pricing, agent onboarding on /for-agents, etc).
   if (stripped === '/' || stripped === '') return 'home';
+  // /sell and its 7 locale slugs (identity-selection page) — and the
+  // /sell/private sub-tree which is a product-pitch surface and gets
+  // the closest existing bias ('pricing'). The private-subtree check
+  // MUST come first so the broader /sell prefix doesn't shadow it.
+  const sellPrefixes = [
+    '/sell',
+    '/vender',
+    '/sprzedaj',
+    '/verkaufen',
+    '/vendre',
+    '/vendere',
+  ];
+  for (const p of sellPrefixes) {
+    if (stripped === p || stripped.startsWith(`${p}/`)) {
+      if (stripped.startsWith(`${p}/`)) return 'pricing';
+      return 'sell';
+    }
+  }
   // /pricing or /precios
   if (stripped.startsWith('/pricing') || stripped.startsWith('/precios')) return 'pricing';
   // /for-agents and its 7 locale slugs

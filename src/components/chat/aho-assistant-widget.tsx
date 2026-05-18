@@ -42,6 +42,7 @@ export type AhoAssistantSurface =
   | 'save-time'
   | 'docs'
   | 'dashboard'
+  | 'sell'
   | 'other';
 
 export interface AhoAssistantWidgetProps {

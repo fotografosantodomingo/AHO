@@ -43,7 +43,7 @@ import { narrowContentLocale, type Locale } from '@/i18n/config';
 // Public shape
 // ───────────────────────────────────────────────────────────────────────
 
-export type TierId = 'agent' | 'plus' | 'pro_automation' | 'super_pro';
+export type TierId = 'private_owner' | 'agent' | 'plus' | 'pro_automation' | 'super_pro';
 export type TierGate =
   | 'free'
   | 'agent'
@@ -61,9 +61,15 @@ export interface AhoPlatformKb {
     id: TierId;
     name: string;
     status: 'live' | 'planned';
+    /** Recurring monthly subscription cost. NULL for one-time products
+     *  (the private-owner tier uses `oneTimeUsd` instead). */
     priceMonthlyUsd: number | null;
     priceAnnualUsd: number | null;
     founderPriceMonthlyUsd?: number | null;
+    /** One-time per-listing cost (USD cents → dollar units). Set for
+     *  the private-owner tier ($5 = oneTimeUsd: 5); NULL for
+     *  subscription tiers. */
+    oneTimeUsd?: number | null;
     description: string;
     keyFeatures: string[];
     notIncluded: string[];
@@ -181,8 +187,34 @@ const CONTACT: AhoPlatformKb['contact'] = {
 
 const KB_EN: AhoPlatformKb = {
   what_is_aho:
-    'AHO (Advertise Homes Online) is a subscription real-estate marketplace at advertisehomes.online — Zillow-style for buyers, paid tiers for agents with one-click social distribution to Facebook, Instagram, LinkedIn. Worldwide, multilingual UI (EN/ES/PL/PT/DE/FR/IT), multi-currency.',
+    'AHO (Advertise Homes Online) is a real-estate marketplace at advertisehomes.online — listings for buyers, a $5 one-time per-listing path for private homeowners + landlords, and subscription tiers ($29–$99/mo) for real-estate agents with one-click social distribution to Facebook, Instagram, LinkedIn. Worldwide, multilingual UI (EN/ES/PL/PT/DE/FR/IT), multi-currency.',
   tiers: [
+    {
+      id: 'private_owner',
+      name: 'Private Owner',
+      status: 'live',
+      priceMonthlyUsd: null,
+      priceAnnualUsd: null,
+      oneTimeUsd: 5,
+      description:
+        'One-time $5 per listing. For homeowners, landlords, vacation-rental owners and FSBO sellers who want to advertise a single property without an agent. 60-day publication window; renewable for another $5.',
+      keyFeatures: [
+        '1 active listing for 60 days',
+        'AI-generated captions in 7 languages',
+        'Social publish to ONE channel (Facebook OR Instagram)',
+        'WhatsApp + email lead capture on the listing',
+        'Up to 25 photos',
+        'AI graphics (3 per listing)',
+        'Listed at /properties/{slug} alongside agent listings',
+      ],
+      notIncluded: [
+        'No second listing (one paid product = one listing)',
+        'No multi-channel auto-publish (FB + IG + LinkedIn = Pro Automation)',
+        'No AI customer-service chat widget on the listing (contact form only)',
+        'No lead routing / CRM / branded profile / reviews',
+        'No analytics dashboard (views-only)',
+      ],
+    },
     {
       id: 'agent',
       name: 'Agent',
@@ -698,8 +730,34 @@ const KB_EN: AhoPlatformKb = {
 
 const KB_ES: AhoPlatformKb = {
   what_is_aho:
-    'AHO (Advertise Homes Online) es un marketplace inmobiliario por suscripción en advertisehomes.online — navegación tipo Zillow para compradores; planes de pago para agentes con distribución social en un clic a Facebook, Instagram y LinkedIn. Mundial, interfaz multilingüe (EN/ES/PL/PT/DE/FR/IT), multidivisa.',
+    'AHO (Advertise Homes Online) es un marketplace inmobiliario en advertisehomes.online — anuncios para compradores, un plan de $5 por anuncio para propietarios privados (vivienda, vacacional, FSBO), y planes por suscripción ($29–$99/mes) para agentes inmobiliarios con distribución social en un clic a Facebook, Instagram y LinkedIn. Mundial, interfaz multilingüe (EN/ES/PL/PT/DE/FR/IT), multidivisa.',
   tiers: [
+    {
+      id: 'private_owner',
+      name: 'Propietario privado',
+      status: 'live',
+      priceMonthlyUsd: null,
+      priceAnnualUsd: null,
+      oneTimeUsd: 5,
+      description:
+        'Pago único de $5 por anuncio. Para propietarios particulares, dueños de alquiler vacacional y vendedores sin agente. Ventana de publicación de 60 días; renovable por otros $5.',
+      keyFeatures: [
+        '1 anuncio activo durante 60 días',
+        'Textos generados por IA en 7 idiomas',
+        'Publicación social en UN canal (Facebook O Instagram)',
+        'Captura de contactos por WhatsApp + email en el anuncio',
+        'Hasta 25 fotos',
+        'Gráficas IA (3 por anuncio)',
+        'Aparece en /properties/{slug} junto a los anuncios de agentes',
+      ],
+      notIncluded: [
+        'Sin segundo anuncio (un pago = un anuncio)',
+        'Sin publicación automática multi-canal (FB + IG + LinkedIn = Pro Automation)',
+        'Sin chat IA en el anuncio (solo formulario de contacto)',
+        'Sin enrutamiento de contactos / CRM / perfil con marca / reseñas',
+        'Sin panel de estadísticas (solo visitas)',
+      ],
+    },
     {
       id: 'agent',
       name: 'Agente',

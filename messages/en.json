@@ -2365,5 +2365,241 @@
     "finalHeading": "Ready to publish on Instagram?",
     "finalBody": "Connect or reconnect Meta on your dashboard, then create a new post — Instagram should be in the per-account checkbox list.",
     "finalCta": "Open /dashboard/social"
+  },
+  "sell": {
+    "meta": {
+      "title": "Sell or rent on AHO — $5 for homeowners, $29-$99/mo for agents",
+      "description": "Advertise your property worldwide on AHO. Private homeowners pay $5 for a 60-day listing; professional agents subscribe from $29/mo for unlimited listings, multi-channel automation, AI inbox, and a branded profile."
+    },
+    "hero": {
+      "eyebrow": "Sell or rent on AHO",
+      "heading": "Advertise your property worldwide.",
+      "sub": "AI-powered listings + social-media automation in 7 languages."
+    },
+    "identity": {
+      "heading": "How do you want to advertise?"
+    },
+    "cardPrivate": {
+      "tag": "Homeowner / landlord",
+      "heading": "List your property yourself",
+      "perfectFor": "Perfect for",
+      "bullets": [
+        "Selling one home or apartment, one time",
+        "Renting out a vacation home or short-stay",
+        "Landlord with 1-2 long-term units",
+        "FSBO sellers who don't want an agent"
+      ],
+      "includesLabel": "Includes",
+      "includes": [
+        "1 listing, live for 60 days",
+        "AI captions in 7 languages",
+        "Social publish to 1 channel (Facebook or Instagram)",
+        "WhatsApp + email lead capture",
+        "Up to 25 photos per listing"
+      ],
+      "price": "$5 USD per listing",
+      "priceNote": "one-time payment",
+      "cta": "Start listing"
+    },
+    "cardAgent": {
+      "tag": "Professional agent",
+      "heading": "Multi-listing automation",
+      "bullets": [
+        "Independent real-estate agents",
+        "Brokers running a personal book",
+        "Boutique agencies (2-20 agents)",
+        "Developers marketing new builds"
+      ],
+      "includes": [
+        "Unlimited listings",
+        "Auto-publish to Facebook + Instagram + LinkedIn",
+        "AI inbox with lead routing rules",
+        "Per-listing analytics dashboard",
+        "Verified reviews from past clients",
+        "Branded agent profile page with SEO"
+      ],
+      "priceNote": "From $29/mo · cancel any time",
+      "cta": "View plans"
+    },
+    "how": {
+      "heading": "From paste to published in under 5 minutes.",
+      "private": {
+        "title": "For homeowners",
+        "steps": [
+          "Pay $5 via Stripe — one-time, no subscription, no auto-renew.",
+          "Paste a listing URL from another portal, or fill the short form: price, beds, area, city, up to 25 photos.",
+          "Claude drafts platform-tuned captions in 7 languages; branded social graphics generated automatically.",
+          "Pick Facebook or Instagram as your publish channel.",
+          "Listing goes live for 60 days; leads reach you via WhatsApp and the on-page contact form."
+        ]
+      },
+      "agent": {
+        "title": "For agents",
+        "steps": [
+          "Subscribe to an agent tier — Standard $29/mo, Pro Automation $99/mo, cancel any time.",
+          "Set up your branded agent profile: photo, bio, languages spoken, service area, badges.",
+          "Add your first listing via voice dictation, URL paste, or the listing form.",
+          "Connect Facebook, Instagram, and LinkedIn via OAuth; AHO auto-publishes per-channel variants.",
+          "Manage leads from one AI inbox; review performance per listing per channel in the dashboard."
+        ]
+      }
+    },
+    "trust": {
+      "heading": "Trusted worldwide",
+      "pills": [
+        "7 languages",
+        "Worldwide listings",
+        "Meta Business Partner"
+      ],
+      "realOnly": "AHO does not seed demo listings or stock photos. Every property is real."
+    },
+    "compare": {
+      "heading": "What you get",
+      "colPrivate": "Private $5",
+      "colAgent": "Agent $29-99/mo",
+      "rows": [
+        { "feature": "Number of listings", "private": "1 listing", "agent": "Unlimited" },
+        { "feature": "Listing duration", "private": "60 days", "agent": "Active while subscribed" },
+        { "feature": "AI captions in 7 languages", "private": true, "agent": true },
+        { "feature": "Branded social graphics", "private": true, "agent": true },
+        { "feature": "Social publish — Facebook OR Instagram", "private": true, "agent": true },
+        { "feature": "Multi-channel auto-publish (FB + IG + LinkedIn)", "private": false, "agent": true },
+        { "feature": "AI inbox with lead-routing rules", "private": false, "agent": true },
+        { "feature": "Branded agent profile page", "private": false, "agent": true },
+        { "feature": "Verified client reviews", "private": false, "agent": true },
+        { "feature": "Per-listing analytics dashboard", "private": false, "agent": true },
+        { "feature": "Billing", "private": "One-time $5", "agent": "Monthly subscription" }
+      ]
+    },
+    "faq": {
+      "heading": "Frequently asked",
+      "items": [
+        {
+          "q": "I just want to sell one home — do I need a subscription?",
+          "a": "No. The $5 one-time tier is built exactly for that. One payment, 60-day listing, AI captions, social publish to one channel. No subscription, no auto-renew. If you decide to list more properties later, you can either pay $5 per listing or upgrade to a monthly agent plan."
+        },
+        {
+          "q": "I'm a working agent — can the $5 tier handle my book?",
+          "a": "Not really. $5 is one listing for 60 days with single-channel social publish. The agent tiers give you unlimited listings, multi-channel auto-publish (Facebook + Instagram + LinkedIn), an AI inbox that triages incoming leads, and a branded profile page that ranks in search. If you list more than 2-3 properties a year, the math favours the subscription."
+        },
+        {
+          "q": "Will my listing automatically renew after 60 days?",
+          "a": "No. The $5 charge is one-time. We email you on day 55 with a one-click renewal link ($5 for another 60 days). If you don't renew, the listing flips to expired and stops appearing in search; your data stays so you can renew later."
+        },
+        {
+          "q": "Can I upgrade from $5 to an agent plan later?",
+          "a": "Yes, any time. Your existing listing(s) migrate to the agent account, and you immediately get access to unlimited listings, multi-channel publish, and the AI inbox. The $5 charges are non-refundable but the listing time you already paid for stays on the listing."
+        },
+        {
+          "q": "Are there refunds?",
+          "a": "Full refund within 7 days for the $5 tier, no questions asked, as long as the listing hasn't received leads. Agent subscriptions are billed in advance and you can cancel any time from the Stripe Customer Portal; you keep access until the end of the current billing period."
+        }
+      ]
+    },
+    "cta": {
+      "heading": "Still deciding?",
+      "sub": "The AHO assistant (bottom right) can answer questions.",
+      "private": "Start as Homeowner — $5",
+      "agent": "View Agent Plans"
+    }
+  },
+  "sellPrivate": {
+    "meta": {
+      "title": "$5 to publish your property worldwide — 60-day listing on AHO",
+      "description": "One property, one payment, 60 days live. AI-generated captions in 7 languages, social publish to Facebook or Instagram in one click, WhatsApp + email lead capture. No subscription."
+    },
+    "hero": {
+      "eyebrow": "Homeowner · landlord",
+      "heading": "$5 to publish your property worldwide.",
+      "sub": "60-day listing. AI captions in 7 languages. Social publish in one click.",
+      "cta": "Pay $5 →"
+    },
+    "process": {
+      "heading": "5 minutes from paste to published",
+      "steps": [
+        {
+          "title": "Pay $5",
+          "body": "Secure Stripe checkout. One-time charge — no subscription, no auto-renew. VAT shown inclusive at checkout for EU buyers."
+        },
+        {
+          "title": "Paste a URL or upload photos + facts",
+          "body": "Paste a listing URL from another portal (we import the details) or fill the short form yourself: price, beds, area, city, up to 25 photos."
+        },
+        {
+          "title": "AI writes captions + graphics",
+          "body": "Claude drafts platform-tuned social captions in 7 languages — English, Spanish, Polish, Portuguese, German, French, Italian. Branded image cards generated automatically."
+        },
+        {
+          "title": "Pick Facebook or Instagram",
+          "body": "Choose where to publish first. The $5 tier publishes to one social channel — pick the one your audience actually uses."
+        },
+        {
+          "title": "Publish · listing live for 60 days",
+          "body": "Listing goes live at advertisehomes.online with a permanent URL. Leads reach you via the listing's contact form, WhatsApp, and email."
+        }
+      ]
+    },
+    "included": {
+      "heading": "What you get",
+      "items": [
+        "1 listing, live for 60 days",
+        "AI-written captions in 7 languages (EN/ES/PL/PT/DE/FR/IT)",
+        "AI-generated branded social graphics",
+        "Social publish to 1 channel (Facebook or Instagram)",
+        "Lead capture via WhatsApp + email contact form",
+        "Listing page with up to 25 photos and a permanent URL"
+      ]
+    },
+    "excluded": {
+      "heading": "What you don't get",
+      "items": [
+        "Unlimited listings (this is one property, one payment)",
+        "Multi-channel publish (Facebook + Instagram + LinkedIn at once)",
+        "AI inbox auto-replies to incoming leads",
+        "Branded agent profile page with reviews and SEO"
+      ],
+      "upgradeCta": "Need these? View Agent plans →"
+    },
+    "faq": {
+      "heading": "Frequently asked",
+      "items": [
+        {
+          "q": "Does my listing renew automatically?",
+          "a": "No. The $5 charge is one-time and the listing expires after 60 days. We email you on day 55 with a one-click renewal link ($5 for another 60 days). If you don't renew, the listing flips to expired and stops appearing in search; your data stays so you can renew later."
+        },
+        {
+          "q": "What's your refund policy?",
+          "a": "Full refund within 7 days, no questions asked, as long as the listing hasn't received leads. Email info@advertisehomes.online with your Stripe receipt. After 7 days the charge is final (you've already had the listing live and indexed)."
+        },
+        {
+          "q": "What happens after 60 days?",
+          "a": "The listing flips to expired and disappears from search results. The listing page stays at the same URL (so any inbound links still work) but with a clear \"This listing has expired\" banner and a one-click renewal button. Pay $5 to bring it back live for another 60 days."
+        },
+        {
+          "q": "Who handles the sale or rental?",
+          "a": "You do. AHO is the advertising platform — we publish your listing, generate the captions and graphics, and route leads to your WhatsApp and email. The conversation, viewing, paperwork, and closing are between you and the buyer or tenant. If you want an agent to handle the sale, browse the Find an agent page."
+        }
+      ]
+    },
+    "ctaRepeat": {
+      "heading": "Ready to publish?",
+      "button": "Pay $5 and start"
+    },
+    "success": {
+      "heading": "Payment received — let's publish your listing",
+      "body": "Your $5 payment went through. You have 60 days of listing time waiting for you — let's get the listing live. The next step is a short form (price, beds, photos, social channel). Should take about 5 minutes.",
+      "cta": "Create your listing"
+    },
+    "cancel": {
+      "heading": "Payment cancelled",
+      "body": "No charge made. You can come back any time — your listing slot is just one click away.",
+      "cta": "Back to private landing"
+    },
+    "form": {
+      "heading": "Your property",
+      "submit": "Publish my listing",
+      "gateMissing": "You need to complete payment before creating a listing.",
+      "gateCta": "Go to payment"
+    }
   }
 }

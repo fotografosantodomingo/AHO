@@ -2365,5 +2365,241 @@
     "finalHeading": "¿Listo para publicar en Instagram?",
     "finalBody": "Conecta o reconecta Meta en tu dashboard, luego crea una publicación nueva — Instagram debería estar en la lista de casillas por cuenta.",
     "finalCta": "Abrir /dashboard/social"
+  },
+  "sell": {
+    "meta": {
+      "title": "Vende o alquila en AHO — $5 para propietarios, $29-$99/mes para agentes",
+      "description": "Anuncia tu propiedad en todo el mundo en AHO. Los propietarios particulares pagan $5 por un anuncio de 60 días; los agentes profesionales se suscriben desde $29/mes para anuncios ilimitados, automatización multicanal, bandeja IA y un perfil con marca."
+    },
+    "hero": {
+      "eyebrow": "Vender o alquilar en AHO",
+      "heading": "Anuncia tu propiedad en todo el mundo.",
+      "sub": "Anuncios con IA + automatización en redes sociales en 7 idiomas."
+    },
+    "identity": {
+      "heading": "¿Cómo quieres anunciarte?"
+    },
+    "cardPrivate": {
+      "tag": "Propietario / arrendador",
+      "heading": "Publica tu propiedad tú mismo",
+      "perfectFor": "Ideal para",
+      "bullets": [
+        "Vender una casa o apartamento, una sola vez",
+        "Alquilar una casa de vacaciones o estancia corta",
+        "Propietario con 1-2 unidades de alquiler a largo plazo",
+        "Vendedores particulares (sin agente)"
+      ],
+      "includesLabel": "Incluye",
+      "includes": [
+        "1 anuncio, activo durante 60 días",
+        "Subtítulos generados por IA en 7 idiomas",
+        "Publicación social en 1 canal (Facebook o Instagram)",
+        "Captura de contactos por WhatsApp y email",
+        "Hasta 25 fotos por anuncio"
+      ],
+      "price": "$5 USD por anuncio",
+      "priceNote": "pago único",
+      "cta": "Comenzar anuncio"
+    },
+    "cardAgent": {
+      "tag": "Agente profesional",
+      "heading": "Automatización multi-anuncio",
+      "bullets": [
+        "Agentes inmobiliarios independientes",
+        "Brókeres con cartera personal",
+        "Agencias boutique (2-20 agentes)",
+        "Desarrolladores que comercializan obra nueva"
+      ],
+      "includes": [
+        "Anuncios ilimitados",
+        "Publicación automática en Facebook + Instagram + LinkedIn",
+        "Bandeja IA con reglas de enrutamiento de contactos",
+        "Panel de analítica por anuncio",
+        "Reseñas verificadas de clientes previos",
+        "Página de perfil de agente con marca y SEO"
+      ],
+      "priceNote": "Desde $29/mes · cancela cuando quieras",
+      "cta": "Ver planes"
+    },
+    "how": {
+      "heading": "Del primer paso a la publicación en menos de 5 minutos.",
+      "private": {
+        "title": "Para propietarios",
+        "steps": [
+          "Paga $5 con Stripe — pago único, sin suscripción, sin renovación automática.",
+          "Pega la URL de un anuncio de otro portal, o completa el formulario corto: precio, dormitorios, área, ciudad, hasta 25 fotos.",
+          "Claude redacta subtítulos optimizados por plataforma en 7 idiomas; las imágenes sociales con marca se generan automáticamente.",
+          "Elige Facebook o Instagram como tu canal de publicación.",
+          "El anuncio se publica durante 60 días; los contactos llegan por WhatsApp y el formulario de contacto."
+        ]
+      },
+      "agent": {
+        "title": "Para agentes",
+        "steps": [
+          "Suscríbete a un plan de agente — Standard $29/mes, Pro Automation $99/mes, cancela cuando quieras.",
+          "Configura tu perfil de agente: foto, biografía, idiomas, zona de cobertura, insignias.",
+          "Añade tu primer anuncio por dictado de voz, pegado de URL o formulario.",
+          "Conecta Facebook, Instagram y LinkedIn por OAuth; AHO publica variantes específicas por canal.",
+          "Gestiona contactos desde una bandeja IA; revisa el rendimiento por anuncio y canal en el panel."
+        ]
+      }
+    },
+    "trust": {
+      "heading": "Confianza en todo el mundo",
+      "pills": [
+        "7 idiomas",
+        "Anuncios en todo el mundo",
+        "Socio comercial de Meta"
+      ],
+      "realOnly": "AHO no crea anuncios de demostración ni usa fotos de archivo. Cada propiedad es real."
+    },
+    "compare": {
+      "heading": "Lo que recibes",
+      "colPrivate": "Particular $5",
+      "colAgent": "Agente $29-99/mes",
+      "rows": [
+        { "feature": "Número de anuncios", "private": "1 anuncio", "agent": "Ilimitados" },
+        { "feature": "Duración del anuncio", "private": "60 días", "agent": "Activo mientras estés suscrito" },
+        { "feature": "Subtítulos IA en 7 idiomas", "private": true, "agent": true },
+        { "feature": "Gráficos sociales con marca", "private": true, "agent": true },
+        { "feature": "Publicación social — Facebook O Instagram", "private": true, "agent": true },
+        { "feature": "Publicación multicanal (FB + IG + LinkedIn)", "private": false, "agent": true },
+        { "feature": "Bandeja IA con reglas de enrutamiento", "private": false, "agent": true },
+        { "feature": "Página de perfil de agente con marca", "private": false, "agent": true },
+        { "feature": "Reseñas verificadas de clientes", "private": false, "agent": true },
+        { "feature": "Panel de analítica por anuncio", "private": false, "agent": true },
+        { "feature": "Facturación", "private": "Pago único $5", "agent": "Suscripción mensual" }
+      ]
+    },
+    "faq": {
+      "heading": "Preguntas frecuentes",
+      "items": [
+        {
+          "q": "Solo quiero vender una casa — ¿necesito una suscripción?",
+          "a": "No. El plan de $5 de pago único está pensado precisamente para eso. Un pago, anuncio de 60 días, subtítulos con IA y publicación social en un canal. Sin suscripción, sin renovación automática. Si más adelante decides publicar más propiedades, puedes pagar $5 por anuncio o cambiar a un plan mensual de agente."
+        },
+        {
+          "q": "Soy agente en activo — ¿me sirve el plan de $5?",
+          "a": "En realidad no. $5 son 1 anuncio durante 60 días con publicación social en un canal. Los planes de agente te dan anuncios ilimitados, publicación automática multicanal (Facebook + Instagram + LinkedIn), una bandeja IA que clasifica los contactos entrantes y una página de perfil con marca que posiciona en buscadores. Si publicas más de 2-3 propiedades al año, las matemáticas favorecen la suscripción."
+        },
+        {
+          "q": "¿Mi anuncio se renueva automáticamente a los 60 días?",
+          "a": "No. El cargo de $5 es único. Te enviamos un email el día 55 con un enlace de renovación de un solo clic ($5 por otros 60 días). Si no renuevas, el anuncio pasa a expirado y deja de aparecer en las búsquedas; tus datos se conservan para que puedas renovarlo más tarde."
+        },
+        {
+          "q": "¿Puedo pasar de $5 a un plan de agente más adelante?",
+          "a": "Sí, en cualquier momento. Tus anuncios actuales migran a la cuenta de agente y obtienes acceso inmediato a anuncios ilimitados, publicación multicanal y la bandeja IA. Los cargos de $5 no son reembolsables, pero el tiempo de anuncio ya pagado se mantiene."
+        },
+        {
+          "q": "¿Hay reembolsos?",
+          "a": "Reembolso completo en los primeros 7 días para el plan de $5, sin preguntas, siempre que el anuncio no haya recibido contactos. Las suscripciones de agente se facturan por adelantado y puedes cancelar cuando quieras desde el Portal de Cliente de Stripe; mantienes el acceso hasta el final del periodo de facturación actual."
+        }
+      ]
+    },
+    "cta": {
+      "heading": "¿Aún decidiendo?",
+      "sub": "El asistente de AHO (abajo a la derecha) puede responder tus preguntas.",
+      "private": "Comenzar como propietario — $5",
+      "agent": "Ver planes de agente"
+    }
+  },
+  "sellPrivate": {
+    "meta": {
+      "title": "$5 para publicar tu propiedad en todo el mundo — anuncio de 60 días en AHO",
+      "description": "Una propiedad, un pago, 60 días publicada. Pies de foto generados por IA en 7 idiomas, publicación en redes sociales en un clic, captación de contactos por WhatsApp y email. Sin suscripción."
+    },
+    "hero": {
+      "eyebrow": "Propietario · arrendador",
+      "heading": "$5 para publicar tu propiedad en todo el mundo.",
+      "sub": "Anuncio de 60 días. Pies de foto con IA en 7 idiomas. Publicación en redes en un clic.",
+      "cta": "Pagar $5 →"
+    },
+    "process": {
+      "heading": "5 minutos desde el pago hasta publicado",
+      "steps": [
+        {
+          "title": "Paga $5",
+          "body": "Pago seguro con Stripe. Cargo único — sin suscripción, sin renovación automática. IVA mostrado incluido al pagar para compradores de la UE."
+        },
+        {
+          "title": "Pega una URL o sube fotos y datos",
+          "body": "Pega la URL de un anuncio de otro portal (importamos los detalles) o llena el formulario corto: precio, habitaciones, área, ciudad, hasta 25 fotos."
+        },
+        {
+          "title": "La IA escribe pies de foto y gráficos",
+          "body": "Claude redacta pies de foto adaptados por plataforma en 7 idiomas — inglés, español, polaco, portugués, alemán, francés, italiano. Tarjetas de imagen con marca generadas automáticamente."
+        },
+        {
+          "title": "Elige Facebook o Instagram",
+          "body": "Escoge dónde publicar primero. El plan de $5 publica en un canal social — elige el que tu audiencia realmente usa."
+        },
+        {
+          "title": "Publica · anuncio activo 60 días",
+          "body": "El anuncio se publica en advertisehomes.online con una URL permanente. Los contactos te llegan por el formulario del anuncio, WhatsApp y email."
+        }
+      ]
+    },
+    "included": {
+      "heading": "Qué incluye",
+      "items": [
+        "1 anuncio, activo durante 60 días",
+        "Pies de foto escritos por IA en 7 idiomas (EN/ES/PL/PT/DE/FR/IT)",
+        "Gráficos sociales con marca generados por IA",
+        "Publicación social en 1 canal (Facebook o Instagram)",
+        "Captación de contactos vía WhatsApp + formulario de email",
+        "Página del anuncio con hasta 25 fotos y URL permanente"
+      ]
+    },
+    "excluded": {
+      "heading": "Qué no incluye",
+      "items": [
+        "Anuncios ilimitados (esto es una propiedad, un pago)",
+        "Publicación multicanal (Facebook + Instagram + LinkedIn a la vez)",
+        "Respuestas automáticas de IA a los contactos entrantes",
+        "Página de perfil de agente con marca, reseñas y SEO"
+      ],
+      "upgradeCta": "¿Necesitas esto? Ver planes de Agente →"
+    },
+    "faq": {
+      "heading": "Preguntas frecuentes",
+      "items": [
+        {
+          "q": "¿Mi anuncio se renueva automáticamente?",
+          "a": "No. El cargo de $5 es único y el anuncio expira a los 60 días. Te enviamos un email el día 55 con un enlace de renovación en un clic ($5 por otros 60 días). Si no renuevas, el anuncio pasa a expirado y deja de aparecer en las búsquedas; tus datos quedan guardados para que puedas renovar después."
+        },
+        {
+          "q": "¿Cuál es la política de reembolso?",
+          "a": "Reembolso completo dentro de los primeros 7 días, sin preguntas, siempre que el anuncio no haya recibido contactos. Escribe a info@advertisehomes.online con tu recibo de Stripe. Después de los 7 días el cargo es final (el anuncio ya estuvo publicado e indexado)."
+        },
+        {
+          "q": "¿Qué pasa después de los 60 días?",
+          "a": "El anuncio pasa a expirado y desaparece de los resultados de búsqueda. La página del anuncio sigue en la misma URL (los enlaces entrantes siguen funcionando) pero con un banner claro de \"Este anuncio ha expirado\" y un botón de renovación en un clic. Paga $5 para reactivarlo por otros 60 días."
+        },
+        {
+          "q": "¿Quién gestiona la venta o el alquiler?",
+          "a": "Tú. AHO es la plataforma de publicación — publicamos tu anuncio, generamos los pies de foto y los gráficos, y enrutamos los contactos a tu WhatsApp y email. La conversación, las visitas, los trámites y el cierre son entre tú y el comprador o inquilino. Si quieres que un agente gestione la venta, mira la página Encontrar un agente."
+        }
+      ]
+    },
+    "ctaRepeat": {
+      "heading": "¿Listo para publicar?",
+      "button": "Pagar $5 y empezar"
+    },
+    "success": {
+      "heading": "Pago recibido — publiquemos tu anuncio",
+      "body": "Tu pago de $5 se procesó correctamente. Tienes 60 días de anuncio esperándote — ahora vamos a activar el anuncio. El siguiente paso es un formulario corto (precio, habitaciones, fotos, canal social). Unos 5 minutos.",
+      "cta": "Crear mi anuncio"
+    },
+    "cancel": {
+      "heading": "Pago cancelado",
+      "body": "No se hizo ningún cargo. Puedes volver cuando quieras — tu cupo de anuncio está a un clic.",
+      "cta": "Volver al inicio privado"
+    },
+    "form": {
+      "heading": "Tu propiedad",
+      "submit": "Publicar mi anuncio",
+      "gateMissing": "Debes completar el pago antes de crear un anuncio.",
+      "gateCta": "Ir al pago"
+    }
   }
 }

@@ -1,0 +1,32 @@
+name = "aho-listing-expiry"
+main = "src/index.ts"
+compatibility_date = "2025-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Cron Trigger — runs once a day at 04:00 UTC.
+# Coverage: 00:00 ET / 21:00 PT prev. day / 05:00 Madrid / 06:00 Warsaw.
+#
+# Schedule choice — three night-time DB jobs, no overlap:
+#   - 03:30 UTC  aho-audit-prune          (single DELETE — fast)
+#   - 04:00 UTC  aho-listing-expiry       (this worker — three passes
+#                                          + Brevo sends; medium)
+#   - 06:00 UTC  ai-daily-rollup          (per-listing aggregations;
+#                                          heaviest)
+# 30-min spacing between audit-prune + listing-expiry; 2-hour gap
+# before the daily AI rollup so Brevo + Stripe API headroom is clear
+# by then. Daily is the right cadence — listings have a 60-day TTL
+# with a 5-day renewal window, so checking once per day catches every
+# state transition with up to 24h precision.
+[triggers]
+crons = ["0 4 * * *"]
+
+# Secrets — set via `wrangler secret put` per environment, never
+# committed:
+#   - CRON_SECRET    (matches the Pages env CRON_SECRET; the Pages
+#                     route validates via the shared checkCronAuth
+#                     helper)
+#   - AHO_PAGES_URL  (production: https://advertisehomes.online;
+#                     preview: the *.aho-web.pages.dev subdomain).
+
+[vars]
+LOG_LEVEL = "info"

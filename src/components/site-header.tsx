@@ -68,7 +68,10 @@ export async function SiteHeader({ locale }: Props) {
     defaultCurrencyForLocale(locale);
 
   const searchPath = localePath(locale, '/search');
-  const pricingPath = localePath(locale, '/pricing');
+  // "Sell" in the nav routes to the identity-selection page now
+  // (per docs/SELL_FUNNEL_PLAN.md). The pricing page stays as the
+  // agent-tier deep link reachable from the Agent card on /sell.
+  const sellPath = localePath(locale, '/sell');
   const countriesPath = localePath(locale, '/countries');
   const dashboardPath = localePath(locale, '/dashboard');
   const savedPropertiesPath = localePath(locale, '/saved-properties');
@@ -109,7 +112,7 @@ export async function SiteHeader({ locale }: Props) {
         { kind: 'link', href: homePath, label: t('home') },
         { kind: 'link', href: `${searchPath}?transaction=sale`, label: t('buy') },
         { kind: 'link', href: `${searchPath}?transaction=rent`, label: t('rent') },
-        { kind: 'link', href: pricingPath, label: t('sell') },
+        { kind: 'link', href: sellPath, label: t('sell') },
         { kind: 'link', href: countriesPath, label: t('findAgent') },
       ];
 

@@ -10,6 +10,8 @@ import { handleInvoicePaymentFailed } from '@/lib/billing/handlers/invoice-payme
 import { handleInvoicePaymentActionRequired } from '@/lib/billing/handlers/invoice-payment-action-required';
 import { handleCustomerUpdated } from '@/lib/billing/handlers/customer-updated';
 import { handleChargeRefunded } from '@/lib/billing/handlers/charge-refunded';
+import { handlePrivateListingPurchase } from '@/lib/billing/handlers/private-listing-purchase';
+import { handlePrivateListingRefund } from '@/lib/billing/handlers/private-listing-refund';
 
 export const runtime = 'edge';
 
@@ -33,14 +35,14 @@ export const runtime = 'edge';
 type EventHandler = (event: Stripe.Event) => Promise<void>;
 
 const HANDLERS: Record<string, EventHandler> = {
-  'checkout.session.completed': handleCheckoutSessionCompleted,
+  'checkout.session.completed': dispatchCheckoutSessionCompleted,
   'customer.subscription.updated': handleCustomerSubscriptionUpdated,
   'customer.subscription.deleted': handleCustomerSubscriptionDeleted,
   'customer.updated': handleCustomerUpdated,
   'invoice.paid': handleInvoicePaid,
   'invoice.payment_failed': handleInvoicePaymentFailed,
   'invoice.payment_action_required': handleInvoicePaymentActionRequired,
-  'charge.refunded': handleChargeRefunded,
+  'charge.refunded': dispatchChargeRefunded,
 
   // -------------------------------------------------------------------------
   // INTENTIONALLY NOT HANDLED — do NOT add without an explicit DECISIONS entry
@@ -103,6 +105,54 @@ export async function POST(req: NextRequest) {
     await rollbackDedup(event.id);
     return NextResponse.json({ error: 'handler_failed' }, { status: 500 });
   }
+}
+
+/**
+ * Dispatch `checkout.session.completed` to the right handler based on
+ * the session's `mode` + `metadata.aho_purpose`.
+ *
+ *   mode='subscription'                           → existing subscription handler
+ *   mode='payment' + aho_purpose='private_listing'→ private-listing handler
+ *   anything else                                  → log + ignore
+ *
+ * Per docs/SELL_FUNNEL_PLAN.md Track D §3 — the two flows share an event
+ * type but write to entirely different tables, so we route at the
+ * webhook entry rather than branch inside one handler.
+ */
+async function dispatchCheckoutSessionCompleted(
+  event: Stripe.Event,
+): Promise<void> {
+  const session = event.data.object as Stripe.Checkout.Session;
+  if (session.mode === 'subscription') {
+    return handleCheckoutSessionCompleted(event);
+  }
+  if (
+    session.mode === 'payment' &&
+    session.metadata?.aho_purpose === 'private_listing'
+  ) {
+    return handlePrivateListingPurchase(event);
+  }
+  console.warn(
+    '[stripe webhook] unrecognized checkout.session.completed mode/purpose',
+    {
+      sessionId: session.id,
+      mode: session.mode,
+      aho_purpose: session.metadata?.aho_purpose,
+    },
+  );
+}
+
+/**
+ * Dispatch `charge.refunded` to BOTH the subscription `payments` handler
+ * AND the private-listing refund handler. Each handler returns early if
+ * the charge does not match its table — they are mutually exclusive in
+ * practice (a charge is either a subscription invoice or a one-time
+ * listing payment) but the dispatch is defensive: we ALWAYS try both so
+ * a future product can't go un-handled by accident.
+ */
+async function dispatchChargeRefunded(event: Stripe.Event): Promise<void> {
+  await handlePrivateListingRefund(event);
+  await handleChargeRefunded(event);
 }
 
 /**

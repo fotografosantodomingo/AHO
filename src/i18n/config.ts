@@ -287,6 +287,58 @@ export const PATHNAMES = {
     it: '/risparmia-tempo',
   },
 
+  // ─── Sell funnel — identity-selection + $5 private-owner listing ───
+  // Per docs/SELL_FUNNEL_PLAN.md. The header `Sell` link points at
+  // `/sell` (the identity-selection page) so private owners and
+  // agents both see the choice before pricing. Per-locale slugs
+  // because the URL IS the keyword Google indexes against (every
+  // launch market needs its native "sell" word).
+  '/sell': {
+    en: '/sell',
+    es: '/vender',
+    pl: '/sprzedaj',
+    pt: '/vender',
+    de: '/verkaufen',
+    fr: '/vendre',
+    it: '/vendere',
+  },
+  '/sell/private': {
+    en: '/sell/private',
+    es: '/vender/privado',
+    pl: '/sprzedaj/prywatnie',
+    pt: '/vender/privado',
+    de: '/verkaufen/privat',
+    fr: '/vendre/prive',
+    it: '/vendere/privato',
+  },
+  '/sell/private/new': {
+    en: '/sell/private/new',
+    es: '/vender/privado/nuevo',
+    pl: '/sprzedaj/prywatnie/nowy',
+    pt: '/vender/privado/novo',
+    de: '/verkaufen/privat/neu',
+    fr: '/vendre/prive/nouveau',
+    it: '/vendere/privato/nuovo',
+  },
+  '/sell/private/success': {
+    en: '/sell/private/success',
+    es: '/vender/privado/exito',
+    pl: '/sprzedaj/prywatnie/sukces',
+    pt: '/vender/privado/sucesso',
+    de: '/verkaufen/privat/erfolg',
+    fr: '/vendre/prive/succes',
+    it: '/vendere/privato/successo',
+  },
+  '/sell/private/cancel': {
+    en: '/sell/private/cancel',
+    es: '/vender/privado/cancelar',
+    pl: '/sprzedaj/prywatnie/anuluj',
+    pt: '/vender/privado/cancelar',
+    de: '/verkaufen/privat/abbrechen',
+    fr: '/vendre/prive/annuler',
+    it: '/vendere/privato/annulla',
+  },
+
   // Documentation hub — written guide for buyers + agents + admins.
   // Per locale because the slug IS what users type and what Google
   // indexes; "documentation" in your own language is the natural URL.

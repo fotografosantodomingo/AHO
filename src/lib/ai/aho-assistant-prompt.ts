@@ -52,7 +52,7 @@ export interface AhoAssistantPromptInput {
    *  chatting. Helps the AI tailor: on /pricing → bias toward tier
    *  comparison; on /for-agents → bias toward agent-onboarding;
    *  on /docs → bias toward how-tos. */
-  surfaceContext?: 'home' | 'pricing' | 'for-agents' | 'automation' | 'save-time' | 'docs' | 'dashboard' | 'other';
+  surfaceContext?: 'home' | 'pricing' | 'for-agents' | 'automation' | 'save-time' | 'docs' | 'dashboard' | 'sell' | 'other';
 }
 
 const LANGUAGE_LABEL: Record<Locale, string> = {
@@ -99,6 +99,8 @@ function surfaceBias(surface: AhoAssistantPromptInput['surfaceContext']): string
       return 'The user is on their dashboard. They are an authenticated user; assume they have a subscription. Bias toward "how do I…" troubleshooting.';
     case 'home':
       return 'The user is on the homepage. They may be a buyer, agent, or visitor. Ask one clarifying question if intent is ambiguous, then route.';
+    case 'sell':
+      return 'The user is on /sell. They are deciding whether they are a private owner or a real-estate agent. Help them pick: ask one short clarifying question about their use case if it is not obvious from context, then route to the right card / page.';
     default:
       return 'No specific surface context. Ask one clarifying question if the user query is broad ("buyer or agent?").';
   }

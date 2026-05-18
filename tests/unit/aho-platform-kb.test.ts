@@ -58,16 +58,26 @@ describe('ahoPlatformKb', () => {
     const kb = ahoPlatformKb('en');
     // Must include the four canonical tiers.
     const ids = kb.tiers.map((t) => t.id).sort();
-    expect(ids).toEqual(['agent', 'plus', 'pro_automation', 'super_pro']);
+    // Updated 2026-05-18: private_owner tier added for the $5 one-
+    // time-listing product (docs/SELL_FUNNEL_PLAN.md). Listed alongside
+    // agent / plus / pro_automation / super_pro.
+    expect(ids).toEqual(['agent', 'plus', 'private_owner', 'pro_automation', 'super_pro']);
     for (const tier of kb.tiers) {
       expect(tier.name.length).toBeGreaterThan(0);
       expect(tier.description.length).toBeGreaterThan(10);
       expect(tier.keyFeatures.length).toBeGreaterThanOrEqual(4);
       expect(tier.notIncluded.length).toBeGreaterThanOrEqual(1);
       // Live tiers must have prices; planned tier price is allowed null.
+      // The private_owner tier is live but uses `oneTimeUsd` instead
+      // of monthly/annual (one-time per-listing product, not a
+      // subscription). Other live tiers carry both monthly + annual.
       if (tier.status === 'live') {
-        expect(typeof tier.priceMonthlyUsd).toBe('number');
-        expect(typeof tier.priceAnnualUsd).toBe('number');
+        if (tier.id === 'private_owner') {
+          expect(typeof tier.oneTimeUsd).toBe('number');
+        } else {
+          expect(typeof tier.priceMonthlyUsd).toBe('number');
+          expect(typeof tier.priceAnnualUsd).toBe('number');
+        }
       }
     }
     // Super Pro is planned.
