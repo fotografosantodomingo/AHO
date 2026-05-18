@@ -235,6 +235,11 @@ function Layout({
             {cityLabel && (
               <div
                 style={{
+                  // display:flex is mandatory on any Satori div with more
+                  // than one child (literal + expression counts as two
+                  // children). Otherwise satori throws "Expected <div>
+                  // to have explicit 'display: flex' or 'display: none'".
+                  display: 'flex',
                   fontSize: format === 'pin' ? 26 : 22,
                   textTransform: 'uppercase',
                   letterSpacing: '0.12em',
@@ -242,7 +247,7 @@ function Layout({
                   fontWeight: 700,
                 }}
               >
-                📍 {cityLabel}
+                {`📍 ${cityLabel}`}
               </div>
             )}
             <div
