@@ -13,6 +13,8 @@ import { getAllCountries } from '@/lib/i18n/countries';
 import type { Locale } from '@/i18n/config';
 import { AMENITY_KEYS, type AmenityKey } from '@/lib/listings/amenities';
 import { uploadOneFile } from '@/lib/listings/client-upload';
+import { buildPhotoAlt, type TransactionType } from '@/lib/listings/photo-seo';
+import { getCountryName } from '@/lib/i18n/countries';
 
 // localStorage key for the draft auto-save. Versioned so future schema
 // changes can invalidate stale drafts without orphaning them in user
@@ -276,18 +278,46 @@ export function ListingForm({
     }
 
     // Step 2: upload staged photos, if any. Sequential to keep R2 / RLS-
-    // insert behavior predictable; small N (cap 30).
+    // insert behavior predictable; small N (cap 30). Per-photo alt text
+    // is generated via buildPhotoAlt so the stored values carry the
+    // full SEO payload (title + property type + transaction phrase +
+    // city + country + photo X of Y) in both EN and ES.
     if (stagedFiles.length > 0) {
       setPhase('uploading');
-      const altBase = (enriched.title_en || enriched.title_es || 'listing').trim();
+      const titleForEn = (enriched.title_en || enriched.title_es || 'listing').trim();
+      const titleForEs = (enriched.title_es || enriched.title_en || 'listing').trim();
+      const countryDisplayEn = getCountryName(enriched.country_code, 'en');
+      const countryDisplayEs = getCountryName(enriched.country_code, 'es');
+      const totalAfterBatch = stagedFiles.length;
       let allOk = true;
       for (let i = 0; i < stagedFiles.length; i++) {
         const sf = stagedFiles[i]!;
-        const altText = `${altBase} — ${enriched.city} — ${i + 1}`;
+        const positionIndex = i + 1;
+        const altTextEn = buildPhotoAlt({
+          title: titleForEn,
+          transactionType: enriched.transaction_type as TransactionType,
+          propertyType: enriched.property_type,
+          city: enriched.city,
+          countryDisplay: countryDisplayEn,
+          position: positionIndex,
+          total: totalAfterBatch,
+          locale: 'en',
+        });
+        const altTextEs = buildPhotoAlt({
+          title: titleForEs,
+          transactionType: enriched.transaction_type as TransactionType,
+          propertyType: enriched.property_type,
+          city: enriched.city,
+          countryDisplay: countryDisplayEs,
+          position: positionIndex,
+          total: totalAfterBatch,
+          locale: 'es',
+        });
         const r = await uploadOneFile({
           propertyId,
           file: sf.file,
-          altText,
+          altTextEn,
+          altTextEs,
           onStatus: (status, errorCode) => {
             setStagedFiles((prev) =>
               prev.map((s) => (s.clientId === sf.clientId ? { ...s, status, errorCode } : s)),

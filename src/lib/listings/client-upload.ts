@@ -19,7 +19,15 @@
 export interface UploadOneArgs {
   propertyId: string;
   file: File;
-  altText: string;
+  /** EN alt text. Should be generated via `buildPhotoAlt({ locale: 'en' })`
+   *  from `@/lib/listings/photo-seo` so it carries the full SEO payload
+   *  (title + property type + transaction phrase + city + country + photo
+   *  index). Persisted directly in `property_images.alt_text_en`. */
+  altTextEn: string;
+  /** ES alt text. Same builder with `locale: 'es'`. Persisted directly
+   *  in `property_images.alt_text_es`. The two locales must not share
+   *  one string — that's the bug this signature change closed. */
+  altTextEs: string;
   /** Optional callback to surface progress / errors to the UI. */
   onStatus?: (status: 'pending' | 'uploading' | 'confirmed' | 'error', errorCode?: string) => void;
 }
@@ -31,7 +39,7 @@ export interface UploadOneResult {
 }
 
 export async function uploadOneFile(args: UploadOneArgs): Promise<UploadOneResult> {
-  const { propertyId, file, altText, onStatus } = args;
+  const { propertyId, file, altTextEn, altTextEs, onStatus } = args;
   onStatus?.('uploading');
 
   // Step 1: server signs PUT URL + creates pending row.
@@ -42,8 +50,8 @@ export async function uploadOneFile(args: UploadOneArgs): Promise<UploadOneResul
       filename: file.name,
       contentType: file.type,
       byteSize: file.size,
-      altTextEn: altText,
-      altTextEs: altText,
+      altTextEn,
+      altTextEs,
     }),
   });
   if (!signRes.ok) {

@@ -4,6 +4,10 @@ import { useCallback, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { uploadOneFile } from '@/lib/listings/client-upload';
+import {
+  buildPhotoAlt,
+  type TransactionType,
+} from '@/lib/listings/photo-seo';
 
 const MAX_IMAGES = 30;
 const MAX_FILE_BYTES = 25 * 1024 * 1024;
@@ -22,6 +26,20 @@ interface UploaderProps {
   titleEn: string | null;
   titleEs: string | null;
   city: string;
+  /** Property type (e.g. "apartment", "villa") — fed into the alt-text
+   *  builder so the stored alt is "Modern Villa — villa for sale in
+   *  Santo Domingo, Dominican Republic" rather than the prior crude
+   *  "Modern Villa — Santo Domingo — 1". */
+  propertyType: string;
+  /** Transaction shape — drives the "for sale" / "for rent" /
+   *  "short-term rental" phrase in the alt text. */
+  transactionType: TransactionType;
+  /** Localized country name (e.g. "Dominican Republic" / "República
+   *  Dominicana"). EN form — buildPhotoAlt is locale-aware for the
+   *  rest of the string. */
+  countryDisplayEn: string;
+  /** ES form of the country name. */
+  countryDisplayEs: string;
   /** Already-confirmed image count (server-rendered initial state). */
   initialCount: number;
 }
@@ -64,6 +82,10 @@ export function ImageUploader({
   titleEn,
   titleEs,
   city,
+  propertyType,
+  transactionType,
+  countryDisplayEn,
+  countryDisplayEs,
   initialCount,
 }: UploaderProps) {
   const t = useTranslations('imageUploader');
@@ -79,7 +101,11 @@ export function ImageUploader({
   const remaining = Math.max(0, MAX_IMAGES - totalSlots);
   const atCap = remaining === 0;
 
-  const altBase = (titleEn || titleEs || '').trim() || 'listing';
+  // Title for each locale, falling back across languages when only one
+  // is filled. Spanish-only listing → ES title used for the EN alt too
+  // (per existing convention; better than dropping the slot to empty).
+  const titleForEn = (titleEn || titleEs || 'listing').trim();
+  const titleForEs = (titleEs || titleEn || 'listing').trim();
 
   const handleFiles = useCallback(
     async (files: FileList | File[]) => {
@@ -109,12 +135,42 @@ export function ImageUploader({
 
       // Process each file sequentially. Concurrent uploads might hit R2
       // rate limits or RLS race; sequential is safe and small N.
+      // Total photo count used for the "Photo X of Y" suffix —
+      // initialCount (already confirmed) + everything in this batch.
+      const totalAfterBatch = initialCount + accepted.length;
       for (let i = 0; i < accepted.length; i++) {
         const file = accepted[i]!;
         const item = newItems[i]!;
         const positionIndex = initialCount + i + 1;
-        const altText = `${altBase} — ${city} — ${positionIndex}`;
-        await uploadOne(propertyId, file, item.clientId, altText, setItems, setR2Disabled);
+        const altTextEn = buildPhotoAlt({
+          title: titleForEn,
+          transactionType,
+          propertyType,
+          city,
+          countryDisplay: countryDisplayEn,
+          position: positionIndex,
+          total: totalAfterBatch,
+          locale: 'en',
+        });
+        const altTextEs = buildPhotoAlt({
+          title: titleForEs,
+          transactionType,
+          propertyType,
+          city,
+          countryDisplay: countryDisplayEs,
+          position: positionIndex,
+          total: totalAfterBatch,
+          locale: 'es',
+        });
+        await uploadOne(
+          propertyId,
+          file,
+          item.clientId,
+          altTextEn,
+          altTextEs,
+          setItems,
+          setR2Disabled,
+        );
       }
 
       // Refresh the page so server-rendered counters / sidebar reflect the
@@ -122,7 +178,19 @@ export function ImageUploader({
       // every time a property_images row is inserted/deleted.
       router.refresh();
     },
-    [propertyId, altBase, city, initialCount, remaining, router],
+    [
+      propertyId,
+      titleForEn,
+      titleForEs,
+      city,
+      countryDisplayEn,
+      countryDisplayEs,
+      propertyType,
+      transactionType,
+      initialCount,
+      remaining,
+      router,
+    ],
   );
 
   function onSelectClick() {
@@ -253,14 +321,16 @@ async function uploadOne(
   propertyId: string,
   file: File,
   clientId: string,
-  altText: string,
+  altTextEn: string,
+  altTextEs: string,
   setItems: React.Dispatch<React.SetStateAction<UploadItem[]>>,
   setR2Disabled: React.Dispatch<React.SetStateAction<boolean>>,
 ) {
   await uploadOneFile({
     propertyId,
     file,
-    altText,
+    altTextEn,
+    altTextEs,
     onStatus: (status, errorCode) => {
       if (errorCode === 'r2_not_configured') setR2Disabled(true);
       setItems((prev) =>

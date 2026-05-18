@@ -98,6 +98,87 @@ describe('buildPhotoAlt', () => {
   });
 });
 
+describe('upload-flow integration shape (buildPhotoAlt as the single source)', () => {
+  // These tests pin the EXACT string a photo gets stored with at
+  // upload time. They're here because the three upload paths
+  // (image-uploader.tsx, listing-form.tsx, /api/properties/[id]/
+  // import-photos/route.ts) all call buildPhotoAlt with the same
+  // contract — and that contract is what survives in the DB and feeds
+  // image-sitemap.xml, the RealEstateListing JSON-LD ImageObject.caption,
+  // and the property-gallery render. If the string format changes
+  // here, the SEO-side downstream auto-tracks.
+
+  it('apartment for rent in Warsaw — EN + ES alt strings', () => {
+    const en = buildPhotoAlt({
+      title: 'Mokotów loft',
+      transactionType: 'rent',
+      propertyType: 'apartment',
+      city: 'Warsaw',
+      countryDisplay: 'Poland',
+      position: 2,
+      total: 5,
+      locale: 'en',
+    });
+    const es = buildPhotoAlt({
+      title: 'Mokotów loft',
+      transactionType: 'rent',
+      propertyType: 'apartment',
+      city: 'Warsaw',
+      countryDisplay: 'Polonia',
+      position: 2,
+      total: 5,
+      locale: 'es',
+    });
+    expect(en).toBe(
+      'Mokotów loft — apartment for rent in Warsaw, Poland (Photo 2 of 5)',
+    );
+    expect(es).toBe(
+      'Mokotów loft — apartamento en alquiler en Warsaw, Polonia (Foto 2 de 5)',
+    );
+  });
+
+  it('short-term rental villa — sale phrase replaced correctly', () => {
+    const en = buildPhotoAlt({
+      title: 'Punta Cana getaway',
+      transactionType: 'short_term',
+      propertyType: 'villa',
+      city: 'Punta Cana',
+      countryDisplay: 'Dominican Republic',
+      locale: 'en',
+    });
+    expect(en).toContain('villa short-term rental');
+    expect(en).not.toContain('for sale');
+    expect(en).not.toContain('for rent');
+  });
+
+  it('import-photos batch tail — total reflects the WHOLE listing, not the current batch slot', () => {
+    // The route computes `totalAfterBatch = startCount + dedup.length`,
+    // so an import of 4 URLs onto a listing that already has 6 photos
+    // produces "Photo 7 of 10" through "Photo 10 of 10".
+    const startCount = 6;
+    const importing = ['a.jpg', 'b.jpg', 'c.jpg', 'd.jpg'];
+    const totalAfterBatch = startCount + importing.length;
+    const alts = importing.map((_, index) =>
+      buildPhotoAlt({
+        title: 'Modern Villa',
+        transactionType: 'sale',
+        propertyType: 'villa',
+        city: 'Santo Domingo',
+        countryDisplay: 'Dominican Republic',
+        position: startCount + index + 1,
+        total: totalAfterBatch,
+        locale: 'en',
+      }),
+    );
+    expect(alts).toEqual([
+      'Modern Villa — villa for sale in Santo Domingo, Dominican Republic (Photo 7 of 10)',
+      'Modern Villa — villa for sale in Santo Domingo, Dominican Republic (Photo 8 of 10)',
+      'Modern Villa — villa for sale in Santo Domingo, Dominican Republic (Photo 9 of 10)',
+      'Modern Villa — villa for sale in Santo Domingo, Dominican Republic (Photo 10 of 10)',
+    ]);
+  });
+});
+
 describe('buildPhotoCaption', () => {
   it('sentence-cases the property type', () => {
     expect(buildPhotoCaption(baseEn)).toBe(

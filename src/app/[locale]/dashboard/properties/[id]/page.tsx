@@ -18,6 +18,8 @@ import {
 import nextDynamic from 'next/dynamic';
 import { LockedSocialModule } from '@/components/social/locked-social-module';
 import type { ConnectedAccount, SharePlatform } from '@/components/listings/share-to-socials';
+import { getCountryName } from '@/lib/i18n/countries';
+import type { TransactionType } from '@/lib/listings/photo-seo';
 
 // Lazy-load ShareToSocials — only Pro Automation tier sees it, and it
 // drags ~62 KiB of state-machine logic + per-platform UI branches.
@@ -46,7 +48,7 @@ export default async function EditListingPage({
   const { data: listing, error } = await supabase
     .from('properties')
     .select(
-      'id, short_id, status, title_en, title_es, slug_en, slug_es, description_en, description_es, city, state_region, country_code, price_cents, currency, price_period, image_count, published_at, updated_at, transaction_type, sold_date, sold_price_cents, bedrooms, bathrooms, area_sqm, lot_size_sqm, year_built, address_line, neighborhood, postal_code, display_address, amenities, features',
+      'id, short_id, status, title_en, title_es, slug_en, slug_es, description_en, description_es, city, state_region, country_code, price_cents, currency, price_period, image_count, published_at, updated_at, transaction_type, property_type, sold_date, sold_price_cents, bedrooms, bathrooms, area_sqm, lot_size_sqm, year_built, address_line, neighborhood, postal_code, display_address, amenities, features',
     )
     .eq('id', id)
     .maybeSingle();
@@ -211,6 +213,10 @@ export default async function EditListingPage({
         titleEn={listing.title_en}
         titleEs={listing.title_es}
         city={listing.city}
+        propertyType={listing.property_type}
+        transactionType={listing.transaction_type as TransactionType}
+        countryDisplayEn={getCountryName(listing.country_code, 'en')}
+        countryDisplayEs={getCountryName(listing.country_code, 'es')}
         initialCount={listing.image_count}
       />
 

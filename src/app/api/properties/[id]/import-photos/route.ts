@@ -12,6 +12,8 @@ import {
   normalizeContentType,
   type ImportResult,
 } from '@/lib/listings/photo-import-pipeline';
+import { buildPhotoAlt, type TransactionType } from '@/lib/listings/photo-seo';
+import { getCountryName } from '@/lib/i18n/countries';
 
 export const runtime = 'edge';
 
@@ -105,10 +107,16 @@ export async function POST(
   }
 
   // RLS-protected lookup acts as authz check. If the user can't read the
-  // property they can't import photos to it.
+  // property they can't import photos to it. The transaction_type +
+  // property_type + country_code columns feed buildPhotoAlt below so
+  // imported photos get the same SEO-rich alt text as manually-uploaded
+  // photos ("Modern Villa — villa for sale in Santo Domingo, Dominican
+  // Republic (Photo 2 of 8)").
   const { data: property, error: propertyErr } = await supabase
     .from('properties')
-    .select('id, org_id, title_en, title_es, city')
+    .select(
+      'id, org_id, title_en, title_es, city, transaction_type, property_type, country_code',
+    )
     .eq('id', propertyId)
     .maybeSingle();
   if (propertyErr) {
@@ -147,13 +155,27 @@ export async function POST(
     title_en: string | null;
     title_es: string | null;
     city: string | null;
+    transaction_type: string;
+    property_type: string;
+    country_code: string;
   };
-  const altBaseEn =
-    propTyped.title_en ?? propTyped.title_es ?? `Listing in ${propTyped.city ?? ''}`.trim();
-  const altBaseEs = propTyped.title_es ?? propTyped.title_en ?? `Inmueble en ${propTyped.city ?? ''}`.trim();
+  // Title for each locale, falling back across languages when only one
+  // is filled (matches the convention in image-uploader.tsx).
+  const titleForEn = (propTyped.title_en || propTyped.title_es || 'listing').trim();
+  const titleForEs = (propTyped.title_es || propTyped.title_en || 'listing').trim();
+  const photoCity = propTyped.city ?? '';
+  const countryDisplayEn = getCountryName(propTyped.country_code, 'en');
+  const countryDisplayEs = getCountryName(propTyped.country_code, 'es');
+  const transactionType = propTyped.transaction_type as TransactionType;
+  const propertyType = propTyped.property_type;
 
   const urls = parsed.data.urls.slice(0, remaining);
   const dedup = Array.from(new Set(urls));
+  // Total photo count used for the "Photo X of Y" suffix in alt text —
+  // existing confirmed photos plus everything being imported in this
+  // call. We use the deduped + truncated list so the count matches
+  // what will actually land.
+  const totalAfterBatch = startCount + dedup.length;
 
   /**
    * Persist an exhausted-retry failure to the dead-letter table so the
@@ -188,14 +210,35 @@ export async function POST(
   // Process each URL through the shared pipeline, slotted by index so
   // we can map results back into a stable order after parallel batches.
   async function processOne(url: string, index: number): Promise<ImportResult> {
+    const positionIndex = startCount + index + 1;
+    const altTextEn = buildPhotoAlt({
+      title: titleForEn,
+      transactionType,
+      propertyType,
+      city: photoCity,
+      countryDisplay: countryDisplayEn,
+      position: positionIndex,
+      total: totalAfterBatch,
+      locale: 'en',
+    });
+    const altTextEs = buildPhotoAlt({
+      title: titleForEs,
+      transactionType,
+      propertyType,
+      city: photoCity,
+      countryDisplay: countryDisplayEs,
+      position: positionIndex,
+      total: totalAfterBatch,
+      locale: 'es',
+    });
     const result = await importOne(
       { supabase, r2Bucket: env.R2_BUCKET_PROPERTY_IMAGES! },
       {
         url,
         propertyId,
         position: startCount + index,
-        altTextEn: `${altBaseEn} — ${index + 1}`,
-        altTextEs: `${altBaseEs} — ${index + 1}`,
+        altTextEn,
+        altTextEs,
         uploadedVia: 'import-photos',
         resolveOnSuccess: true,
       },
