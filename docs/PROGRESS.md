@@ -12,6 +12,63 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-18 (LATE EVENING wrap-up) — Sell-funnel + $5 private-owner product (commit `143bd49`)
+
+- **Frame:** PO surfaced a structural UX problem ("Sell → Pricing → confusion → bounce"); proposed adding a free-tier private-owner path. I counter-proposed $5 per listing instead (avoids free-tier abuse + marketplace-quality damage + dilution of the agent moat). PO accepted; we built the full Identity-Selection page + $5 product end-to-end in one parallel-agent burst.
+- **Manager-coordinated execution:** 4 parallel sub-agents on `/sell` page, `/sell/private` landing + simplified create form, Stripe $5 Checkout flow + webhook, expiry cron + renewal emails. Manager (me) wrote the shared brief `docs/SELL_FUNNEL_PLAN.md`, the load-bearing foundation (migration 0074, PATHNAMES, header nav, AHO Platform KB tier entry), then integrated the agent outputs + verified.
+- **What shipped:** 39 files, +5,720 LOC, +8 unit tests (765 total now), typecheck + lint clean.
+  - Migration 0074: `profiles.account_type`, `properties.expires_at` + `published_via`, new `listing_purchases` table (Stripe one-time fact table with idempotency + dedup columns).
+  - `/sell` identity-selection page with new reusable components (`<TrustStrip>`, `<TierComparison>`, `<FaqAccordion>`).
+  - `/sell/private` landing + auth-gated `/new` create form (purchase-row gate) + `/success` + `/cancel` post-Stripe pages.
+  - Stripe one-time-payment Checkout endpoint + webhook handlers for purchase + refund, integrated into the existing webhook dispatcher without disrupting the subscription flow.
+  - `workers/listing-expiry/` cron (04:00 UTC daily) with 3 Brevo templates (day-55 renewal nudge, day-60 expired, day-5 orphan).
+  - AHO Platform KB extended with the `private_owner` tier (full EN + ES); AHO Assistant `surfaceBias` gains a `'sell'` case + the conditional widget routes `/sell` (any locale) → `'sell'` bias and `/sell/private*` → `'pricing'` bias.
+- **PO-side activation needed tomorrow** (see STATUS.md Tomorrow's plan §1-3): apply migrations 0066-0074 to prod Supabase, run `pnpm stripe:setup` for the $5 product, deploy 3 new workers (ai-daily-rollup, ai-weekly-digest, listing-expiry).
+
+---
+
+## 2026-05-18 (evening) — AI Conversion Stack (commits `f49a648` + `8214ee5`)
+
+- **Frame:** AI agent + AHO Assistant + Tawk retirement shipped earlier in the day, but agents had no visibility into whether the AI was actually converting. Built the analytics + dashboards + notifications layer that turns AI chats into measurable agent ROI + fundraise metrics.
+- **Manager-coordinated execution:** Manager built Phase 1 (event stream + daily rollup) directly. Then 3 parallel sub-agents on Phase 2 (dashboard analytics AI tab) / Phase 3 (`/admin/ai-overview`) / Phase 4 (nav badge + stale-draft banner + weekly digest). Phase 4 agent also extracted `src/lib/ai/country-to-market.ts` as a shared helper.
+- **Schema:** `ai_conversation_events` (11 funnel-event kinds), `ai_daily_stats` (pre-aggregated rollup keyed by org_id+agent_id+day with per-agent rows AND `agent_id IS NULL` org-level rows), `ai_conversations.tier_at_creation` snapshot so adoption-by-tier rollups survive a tier change.
+- **Cron:** `workers/ai-daily-rollup/` (02:00 UTC) idempotently re-runs the rollup via delete-then-insert keyed by (org_id, day). `workers/ai-weekly-digest/` (Mondays 09:00 UTC) sends a per-org Brevo email summarizing the week.
+- **Wiring:** `recordEvent()` helper called from `/api/ai-chat`, the approve/reject endpoints, and the `escalate_to_human` + `book_viewing` tools in `src/lib/ai/converse.ts`.
+- **Open items flagged:** v1 rollup leaves `intent_counts` + `risk_flag_counts` + `cost_usd_cents` empty; dashboard donut + admin cost-effectiveness panel wait on those. Documented in STATUS Tier-2 follow-ups.
+
+---
+
+## 2026-05-18 (afternoon) — Tawk retired + AI Customer-Service Agent all 5 phases + AHO Assistant
+
+- **AI Customer-Service Agent — all 5 phases shipped (commits `c1f5b10` + `4d44dbc`)**
+  - Phase 1 foundation: migrations 0066/0067, `src/lib/ai/` (knowledge, agent-prompts, gating, converse, schedule-draft, agent-tier).
+  - Phase 2 web chat (LIVE next deploy): SSE endpoint + `<AiChatWidget>` + dashboard `/dashboard/ai-inbox` with approve/reject + nav badge + stale-draft banner.
+  - Phase 3 email scaffolding (PO-creds blocked): `workers/inbound-email/` + CF Email Routing pattern + threading + Brevo reply integration.
+  - Phase 4 WhatsApp scaffolding (PO-creds blocked): `workers/whatsapp-webhook/` + 360dialog pattern.
+  - Phase 5 voice scaffolding (PO-creds blocked): `workers/voice-conversationrelay/` + Twilio ConversationRelay TwiML route.
+
+- **AHO Assistant + platform KB (commit `08d5e3e`)**
+  - Standalone AI persona at `/api/aho-assistant` mounted on platform pages (homepage, pricing, marketing landings, docs, dashboard) via `<ConditionalAhoAssistant>` skip-list.
+  - Comprehensive `src/lib/ai/aho-platform-kb.ts` — 4 tiers, 12 features, 12 how-tos, 12 troubleshooting Q&As, EN + ES; marketing locales fall back to EN.
+
+- **Tawk retired (commit `af604e6`).** `<TawkWidget />` removed from root layout; component file kept on disk for 1-line rollback per the 30-day NPS check (R13 of AI_AGENT_PLAN).
+
+---
+
+## 2026-05-18 (morning) — Schema + photo alt-text overhaul (5 commits)
+
+- SEO structured-data overhaul: `<JsonLd>` component, 8 new builders in `src/lib/seo/jsonld.ts`, site-wide Organization + WebSite `@graph` in root layout, JSON-LD coverage on 7 previously-bare indexable pages. Listing schema enriched with `petsAllowed`, `tourBookingPage`, 9 boolean amenities, 14 features-derived `additionalProperty` entries. Single-`@graph`-per-page consolidation across for-agents, automation, save-time, pricing, properties-in, properties/[slug], search.
+- Photo alt-text on upload: all 3 paths (new-listing form, post-create uploader, URL-import) now generate per-locale alt text via `buildPhotoAlt` with the full SEO payload (title + property type + transaction phrase + city + country + "Photo X of Y").
+
+---
+
+## 2026-05-18 — AI Customer-Service Agent design + acceptance
+
+- PO accepted `docs/AI_AGENT_PLAN.md` with all 9 defaults (D1-D9 = A) at 2026-05-18.
+- Plan synthesizes parallel research across voice / WhatsApp / email / codebase audit.
+
+---
+
 ## 2026-05-18 (full-power session) — AI Customer-Service Agent all 5 phases shipped in one session via parallel sub-agent execution
 
 - **Frame:** PO accepted `docs/AI_AGENT_PLAN.md` with all 9 defaults (D1-D9=A) at the start of session, then said *"dedicate all force agents to finish the project 100% — full power"*. Built Phase 1 foundation myself (shared primitives every channel depends on), then dispatched 4 sub-agents in parallel for Phases 2-5. 197 new tests landed in one workday (547→744).

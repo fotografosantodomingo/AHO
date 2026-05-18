@@ -8,6 +8,10 @@
 
 ## 🟢 Now — actively in flight
 
+**End of day 2026-05-18.** 17 commits shipped today; massive sprint covering AI agent (4 channels), AHO Assistant, AI Conversion Stack, Tawk retirement, and the Sell-funnel + $5 private-owner product. **All code on `main`; deploys auto-ran.** The remaining work is PO-side activation steps + soft-beta validation.
+
+**Tomorrow's priority queue** lives in §🟡 Next 5 below.
+
 **Phase 4 — Auto-video Reels/TikTok engine.** Render path locked 2026-05-17: **A = Remotion in Cloudflare Containers**. Sliced into 4 units; 4d + the 4a-scaffold shipped 2026-05-17. Remaining slices (4a-container, 4b, 4c) gated on PO opening CF Containers + R2 bucket + Queue.
 
 **AI Customer-Service Agent — all 5 phases SHIPPED (2026-05-18).** All four channels (web chat / email / WhatsApp / voice) have code on `main`. Commits `c1f5b10` (Phase 1 foundation) + `4d44dbc` (Phases 2-5 in one parallel-agent burst). 744 unit tests pass (+197 from start of session), typecheck + lint clean. Web chat is LIVE the moment the deploy lands — replaces Tawk on listing + agent pages. Email + WhatsApp + voice all gated on PO-side credentials only (DNS for `reply.advertisehomes.online`, 360dialog WABA, Twilio + ConversationRelay).
@@ -35,17 +39,49 @@ Auto-video engine slice details preserved below.
 
 ---
 
-## 🟡 Next 5 — priority queue
+## 🟡 Tomorrow's plan — 2026-05-19
 
-Effort: S = same-session, M = 1-3 days, L = ≥4 days. Owner: who's blocking.
+Effort: S = ≤2 hrs, M = ½ day, L = full day+. Owner: who's blocking.
+
+### PO-side activation gates (Tier-1 — biggest unblocks)
+
+| # | Item | Why | Effort | Owner |
+|---|---|---|---|---|
+| 1 | **Apply migrations 0066 → 0074 to production Supabase.** 9 new migrations from today: ai_conversations, ai_generation_log purposes, email_threads, whatsapp_integration, voice_integration, ai_conversation_events, ai_daily_stats, ai_conversation_tier_snapshot, private_owner_listings. | All shipped code reads from these tables. Without them: web chat 500s on every turn, $5 product can't save purchases, conversion dashboards show empty. | S (~15 min via `pnpm migrate` or Supabase SQL editor) | **You** |
+| 2 | **`pnpm stripe:setup` (TEST mode)** to create the new `aho_private_listing_one_time` product → copy the `STRIPE_PRICE_PRIVATE_LISTING_ONE_TIME` env var into Cloudflare Pages production. | Without this, `/sell/private` 503s on the [Pay $5] button. | S (~10 min) | **You** |
+| 3 | **Deploy 3 new Cloudflare Workers**: `workers/ai-daily-rollup/` (02:00 UTC), `workers/ai-weekly-digest/` (Mon 09:00 UTC), `workers/listing-expiry/` (04:00 UTC). `cd workers/<name> && wrangler deploy` + `wrangler secret put CRON_SECRET` + `wrangler secret put AHO_PAGES_URL` per env. | Dashboard analytics tab populates from `ai_daily_stats`; without the rollup it shows empty for the agent + admin views. | M (~20 min total) | **You** |
+| 4 | **Soft-beta — actually use the platform as an agent.** Create a listing, click around the dashboard, fire a conversation as an anonymous buyer on your own listing, approve a draft from `/dashboard/ai-inbox`. | The whole stack is BUILT but UN-VALIDATED. Tomorrow's first real signal of whether D2=A's HITL friction is acceptable. | M | **You** |
+
+### PO_DECISIONS still open
 
 | # | Item | Why now | Effort | Owner |
 |---|---|---|---|---|
-| 1 | **Soft-beta recruitment + first end-to-end test** of the Free Audit → Approval Grid → Publish loop on your own account. | The wedge is BUILT but UN-VALIDATED. Nothing else matters until we know it works for one real agent. | S | **You** |
-| 2 | **PO_DECISIONS #2-4 batch** — Super Pro price ($199/$249/$299) + paywall structure + music library. Needed before Phase 4 fully lands but not before slice 4a starts. | Unblocks the pricing page + the marketing positioning around Phase 4. | S (PO action) | **You** |
-| 3 | **AI Customer-Service Agent — 4-channel plan (chat + email + WhatsApp + voice).** Full plan at `docs/AI_AGENT_PLAN.md` (drafted 2026-05-18 from 4 parallel research agents). Blocks on **PO_DECISIONS #5** (9 design decisions, defaults pre-filled). | Phase 1 ships in 1 week once accepted; full 4-channel in 10 weeks. Replaces Tawk + becomes after-hours agent replacement; defensible because AHO IS the platform (first-party listings + RLS access). | L | **You** (read AI_AGENT_PLAN.md → answer D1-D9 in chat) |
-| 4 | **Dashboard Lighthouse re-test in incognito** (the 30/100 score was contaminated by Chrome extensions + IndexedDB per Lighthouse's own warning; expected real score 75-85). | Validates the perf wins from devIndicators off + source maps off + chunk audit work. | S | **You** (quick test) |
-| 5 | **AI Customer-Service Agent — Phase 1 foundation** (auto-unblocks once #3 is answered). | Once PO_DECISIONS #5 lands, Phase 1 (conversation schema + Claude orchestrator + knowledge fetcher + system prompts + gating) is a 5-day slice that opens all 4 channels. | L | Me (waiting on PO answers to D1-D9) |
+| 5 | **PO_DECISIONS #2-4 batch** — Super Pro price ($199/$249/$299) + paywall structure + music library. | Sell-funnel page mentions "from $29/mo" for Agent and the comparison table refers to Pro Automation — adding a 4th tier above is straightforward but needs the price locked. | S (chat reply) | **You** |
+| 6 | **Soft-beta agent recruitment** — invite 3-5 real DR agents to try AHO. | The AI Conversion Stack only generates value with real conversations; the $5 product needs real visitors to convert. | M (offline; ~3-5 conversations) | **You** |
+
+### Tier-2 — me-side code follow-ups (unblocked, but PO can deprioritize)
+
+| # | Item | Why | Effort | Owner |
+|---|---|---|---|---|
+| 7 | **Wire intent_counts + risk_flag_counts + cost_usd_cents into `ai_daily_stats` rollup** | Dashboard AI tab intent-donut + admin cost-effectiveness panel are waiting on these jsonb columns. Rollup writes them as `{}` today. | M | Me |
+| 8 | **Extract `countryToMarket()` duplicates** from `schedule-draft.ts` + `voice/twiml/route.ts` to use the shared `src/lib/ai/country-to-market.ts` (Agent 3 of the AI-agent burst already extracted it but two consumers still have local copies) | Tech-debt cleanup. Mentioned by 2 sub-agents as the obvious 1-line follow-up. | S | Me |
+| 9 | **Add a renewal-error toast on `/dashboard/properties`** when `?renew_error=…` query param is present. Agent 4 returns 5 error codes; the dashboard currently silently swallows them. | UX polish — without it a failed renewal click is invisible to the agent. | S | Me |
+| 10 | **Header `Sell` link copy review** — per-locale string is `t('sell')`; check it reads cleanly in PL/DE/FR/IT after the destination switched from /pricing to /sell. | The verb shifts from "buy a plan" to "advertise a property"; might want a punchier word per market. | S | Me |
+
+### Tier-3 — creds-blocked AI agent channels (do when ready)
+
+| Channel | Blocker | Effort once unblocked |
+|---|---|---|
+| **Email AI** | DNS for `reply.advertisehomes.online` MX → CF Email Routing + set INBOUND_EMAIL_SECRET + LEADS_TOKEN_SECRET | S — config only; code is in `workers/inbound-email/` |
+| **WhatsApp AI** | 360dialog account approval + Meta Business Verification (already in review) + WABA number cert | M (mostly waiting on Meta) |
+| **Voice AI** | Twilio account + ConversationRelay access request + per-agent phone numbers | M |
+
+### Punch list — pull from when there's slack
+
+- Turnstile on `/sell/private` checkout button (defense against bot abuse on the $5 product; same protection as the lead-capture form)
+- LinkedIn `DRY_RUN=false` verification (still queued from 2026-05-17)
+- Dashboard Lighthouse re-test in incognito
+- `/admin/audit-costs` integration with the new private-listing revenue (one-time $5 charges should show up alongside subscription cost data)
 
 ---
 
