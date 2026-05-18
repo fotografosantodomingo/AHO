@@ -6,6 +6,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { adminMfaSetupPath, getAdminMfaState } from '@/lib/auth/admin-mfa';
 import { BillingPortalButton } from '@/components/billing/billing-portal-button';
 import { DashboardMobileNav } from '@/components/dashboard/dashboard-mobile-nav';
+import { StaleDraftBanner } from '@/components/dashboard/stale-draft-banner';
 
 export const runtime = 'edge';
 
@@ -75,20 +76,63 @@ export default async function DashboardLayout({
   const savedSearchesPath = localePath(typedLocale, '/saved-searches');
   const profilePath = localePath(typedLocale, '/dashboard/profile');
 
+  // Phase 4 of `docs/AI_CONVERSION_PLAN.md` — server-rendered pending-
+  // drafts badge on the AI inbox link + an amber "stale drafts" banner
+  // when the queue has piled up for 24h+. Both reads are RLS-scoped to
+  // the user's org via the user-context supabase client; we don't need
+  // to thread org_id explicitly. Errors here are swallowed (badge =
+  // 0, banner suppressed) so a transient DB miss never blocks the
+  // dashboard chrome from rendering.
+  let pendingCount = 0;
+  let isStale = false;
+  try {
+    const { count } = await supabase
+      .from('ai_conversation_messages')
+      .select('id', { count: 'exact', head: true })
+      .eq('approval_status', 'pending');
+    pendingCount = count ?? 0;
+    if (pendingCount > 0) {
+      const { data: oldest } = await supabase
+        .from('ai_conversation_messages')
+        .select('created_at')
+        .eq('approval_status', 'pending')
+        .order('created_at', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (oldest?.created_at) {
+        isStale =
+          Date.now() - new Date(oldest.created_at).getTime() >
+          24 * 60 * 60 * 1000;
+      }
+    }
+  } catch {
+    // Defensive — see comment above. Badge stays at 0; banner stays hidden.
+  }
+  const showStaleBanner = pendingCount >= 3 && isStale;
+
   // Mobile nav items — same set as desktop sidebar, rendered through
   // a native-select dropdown via <DashboardMobileNav>. Order kept
   // identical to the sidebar for muscle memory. (FAQ editor merged
-  // into the profile page bottom as of 2026-05-06.)
+  // into the profile page bottom as of 2026-05-06.) The AI inbox
+  // entry carries an optional `badgeCount` so the dropdown can fold
+  // the count into the option label, mirroring the desktop sidebar
+  // red dot.
   const navItems = [
     { href: propertiesPath, label: t('navListings') },
     { href: analyticsPath, label: t('navAnalytics') },
     { href: socialPath, label: t('navSocial') },
     { href: leadsPath, label: t('navLeads') },
-    { href: aiInboxPath, label: t('navAiInbox') },
+    { href: aiInboxPath, label: t('navAiInbox'), badgeCount: pendingCount },
     { href: reviewsPath, label: t('navReviews') },
     { href: savedSearchesPath, label: t('navSavedSearches') },
     { href: profilePath, label: t('navProfile') },
   ];
+
+  // ARIA description for the desktop badge; pluralization is handled
+  // by ICU MessageFormat in `messages/{locale}.json`.
+  const pendingBadgeAria = t('navAiInboxPendingBadgeAria', {
+    count: pendingCount,
+  });
 
   return (
     <div className="mx-auto grid max-w-6xl gap-6 px-6 py-8 md:grid-cols-[14rem_1fr] md:gap-8">
@@ -140,9 +184,17 @@ export default async function DashboardLayout({
           </a>
           <a
             href={aiInboxPath}
-            className="rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5"
+            className="flex items-center justify-between gap-2 rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5"
           >
-            {t('navAiInbox')}
+            <span>{t('navAiInbox')}</span>
+            {pendingCount > 0 ? (
+              <span
+                aria-label={pendingBadgeAria}
+                className="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-red-500 px-1.5 text-[11px] font-semibold leading-5 text-white"
+              >
+                {pendingCount > 99 ? '99+' : pendingCount}
+              </span>
+            ) : null}
           </a>
           <a
             href={savedSearchesPath}
@@ -166,7 +218,15 @@ export default async function DashboardLayout({
           past the viewport on mobile. With it, the table's wrapper
           `overflow-x-auto` actually constrains the scroll within the
           section. */}
-      <section className="min-w-0">{children}</section>
+      <section className="min-w-0">
+        {showStaleBanner ? (
+          <StaleDraftBanner
+            pendingCount={pendingCount}
+            inboxHref={aiInboxPath}
+          />
+        ) : null}
+        {children}
+      </section>
     </div>
   );
 }

@@ -2,15 +2,13 @@ import { type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { fetchKnowledge } from '@/lib/ai/knowledge';
-import {
-  buildAgentSystemPrompt,
-  type AgentMarket,
-} from '@/lib/ai/agent-prompts';
+import { buildAgentSystemPrompt } from '@/lib/ai/agent-prompts';
 import { converseStream, type ConverseMessage } from '@/lib/ai/converse';
 import { classifyAssistantTurn } from '@/lib/ai/gating';
 import { getOrgPlanId, planTierLabel } from '@/lib/billing/plan-gating';
 import { mapBillingTierToAgentTier } from '@/lib/ai/agent-tier';
 import { recordEvent } from '@/lib/ai/conversation-events';
+import { countryToMarket } from '@/lib/ai/country-to-market';
 import type { Locale } from '@/i18n/config';
 
 export const runtime = 'edge';
@@ -49,22 +47,6 @@ const BodySchema = z.object({
   userMessage: z.string().trim().min(1).max(2000),
   sessionToken: z.string().max(128).optional(),
 });
-
-// Map an ISO country code (org headquarters) to the AgentMarket bucket
-// the system prompt understands. Anything we don't recognize falls back
-// to 'us' (English / pragmatic copy). Mirrors the locale → market
-// heuristics in src/lib/social/market-prompts.ts.
-function countryToMarket(country: string | null | undefined): AgentMarket {
-  if (!country) return 'us';
-  const c = country.toUpperCase();
-  if (c === 'ES') return 'es';
-  if (c === 'PL') return 'pl';
-  if (c === 'PT' || c === 'BR') return 'pt';
-  if (c === 'DE' || c === 'AT' || c === 'CH') return 'de';
-  if (c === 'FR') return 'fr';
-  if (c === 'IT') return 'it';
-  return 'us';
-}
 
 interface SseEvent {
   event: string;

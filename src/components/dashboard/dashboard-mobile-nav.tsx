@@ -6,6 +6,11 @@ import { useTransition } from 'react';
 interface NavItem {
   href: string;
   label: string;
+  /** Optional count rendered after the label (e.g. AI inbox pending
+   *  drafts). Folded INTO the `<option>` text since native selects
+   *  can't render arbitrary children — visually appears as
+   *  `AI inbox (3)`. */
+  badgeCount?: number;
 }
 
 interface Props {
@@ -75,7 +80,9 @@ export function DashboardMobileNav({ items, ariaLabel, trailing }: Props) {
                 backgroundColor: 'var(--color-surface)',
               }}
             >
-              {it.label}
+              {it.badgeCount && it.badgeCount > 0
+                ? `${it.label} (${it.badgeCount})`
+                : it.label}
             </option>
           ))}
         </select>

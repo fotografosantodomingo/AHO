@@ -1,0 +1,29 @@
+name = "aho-ai-weekly-digest"
+main = "src/index.ts"
+compatibility_date = "2025-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Cron Trigger — runs every Monday at 09:00 UTC.
+# Coverage:
+#   - 11:00 Madrid (CEST: 11; CET: 10)
+#   - 10:00 London (BST: 10; GMT: 9)
+#   - 04:00 ET / 01:00 PT (early morning US, but agents in DR start at 9 local = 13 UTC)
+#   - For PL / PT / DE / FR / IT same as Madrid (±1h).
+# A per-timezone send (one cron per market) is the v2 refinement —
+# see `docs/AI_CONVERSION_PLAN.md` §Phase 4 + §6.
+#
+# Iterates over orgs with ≥1 conversation in the past 7 days; builds
+# the digest from `ai_daily_stats` (org-level rows) + `ai_conversations`
+# (top 3) + `profiles` (recipient = org owner). Skips orgs with zero
+# conversations entirely so the digest never reads as a guilt-trip.
+[triggers]
+crons = ["0 9 * * 1"]
+
+# Secrets:
+#   - CRON_SECRET    (matches the Pages env CRON_SECRET; the Pages
+#                     route validates via the shared checkCronAuth helper)
+#   - AHO_PAGES_URL  (production: https://advertisehomes.online; preview:
+#                     the *.aho-web.pages.dev subdomain)
+
+[vars]
+LOG_LEVEL = "info"

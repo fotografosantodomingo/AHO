@@ -39,6 +39,12 @@ interface RollupSummary {
   errorMessage?: string;
 }
 
+// Used as a const-typed source for `EventKind` below. The lint rule
+// flags it as "only used as a type" — accurate but intentional; the
+// runtime value is still useful when we later want to enumerate
+// kinds (e.g. in tests or a kind-validation guard). Keeping it on a
+// const, not just a literal type, is forward-compat with cheap cost.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const AI_EVENT_KINDS = [
   'started',
   'message_user',
