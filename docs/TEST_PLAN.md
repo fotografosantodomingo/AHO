@@ -4,11 +4,31 @@
 >
 > When you've verified a feature, type **`verified: <name>`** (e.g., `verified: free-audit-widget`) and I'll move it from "Pending verification" to "Verified" with the date.
 >
-> I (Claude) keep this file accurate. Last update: 2026-05-17 (evening — post-QA fixes).
+> I (Claude) keep this file accurate. Last update: 2026-05-18.
 
 ---
 
 ## ⏳ Pending your verification
+
+### `schema-jsonld-coverage` — site-wide structured-data overhaul (shipped `645822b` + `4ad5978`)
+- **Scope:** Every indexable page now emits valid JSON-LD via one `@graph` per page. Site-wide Organization + WebSite + SearchAction emitted once from `[locale]/layout.tsx` with stable `@id`s. 7 previously-bare pages (`/countries`, `/instagram-setup`, `/profile-guide`, `/share-guide`, `/docs`, `/privacy`, `/terms`) now have schema. Listing pages enriched with `petsAllowed`, `tourBookingPage`, and 23 additional features-derived fields (parking, heating, HOA fee, school district, distance to beach, etc).
+- **Do (5 min):**
+  1. Open https://search.google.com/test/rich-results, paste `https://advertisehomes.online/en` — should show **WebSite** with sitelinks SearchAction + **Organization** detected, no errors.
+  2. Paste any active listing URL (find one via https://advertisehomes.online/en/search) — should show **RealEstateListing** with address, geo (if set), bedrooms, bathrooms, floorSize, offers, agent, FAQPage, BreadcrumbList — all green.
+  3. Paste https://advertisehomes.online/en/for-agents — should show **Service**, **Product**, **FAQPage**, **BreadcrumbList** all detected, no errors.
+- **Expect:** Zero errors in Rich Results Test for all three. The listing case may show warnings on fields we don't capture (yearBuilt for some listings, etc) — those are agent-data gaps, not schema bugs.
+- **If wrong:** Paste the URL you tested + a screenshot of the Rich Results error panel.
+- **Background:** Phase 1 was site-wide foundation + missing pages. Phase 2 enriched the listing schema from the `features` jsonb. Phase 3 consolidated agents/[slug] into one @graph. Phase 4 collapsed the remaining marketing pages (for-agents/automation/save-time/pricing/properties-in/properties/[slug]) into one @graph each, removed the duplicate WebSite from /search, and added a smoke-workflow assertion that catches accidental schema drops on future deploys.
+
+### `photo-alt-text-auto-populated` — uploads now write real SEO alt text in both locales (shipped `5eeeab0`)
+- **Scope:** All three photo-upload paths (new-listing form, post-create uploader, URL-import) now generate per-locale alt text via `buildPhotoAlt` instead of crude `"{title} — {city} — {N}"`. Stored `alt_text_en` and `alt_text_es` carry the full SEO payload (title + property type + transaction phrase + city + country + "Photo X of Y") and are now DIFFERENT per locale (Spanish gets Spanish words).
+- **Do (3 min):**
+  1. Create a new draft listing at https://advertisehomes.online/en/dashboard/properties/new with `villa` + `rent` + city "Santo Domingo" + country DR. Stage 1 photo. Submit as draft.
+  2. Open the resulting `/en/dashboard/properties/<id>` page → right-click the photo → Inspect → verify the `<img alt="...">` attribute reads something like *"<title> — villa for rent in Santo Domingo, Dominican Republic (Photo 1 of 1)"*.
+  3. Switch to ES locale (header dropdown) → re-inspect the same photo → `alt` should now say *"<title> — villa en alquiler en Santo Domingo, República Dominicana (Foto 1 de 1)"*.
+- **Expect:** EN + ES alts both correct, both DIFFERENT, both carry "for rent" / "en alquiler" + property type + country (not just city).
+- **If wrong:** Paste the alt attribute string from DevTools.
+- **Background:** The `buildPhotoAlt` helper already existed and was correct, but only used at render time (as a FALLBACK when stored alt was empty). Uploads stored crude strings to both locale columns, identical. Now uploads use the same helper that the render side already trusts — alt_text_en/_es columns get the right payload at write time, which feeds `image-sitemap.xml`, `RealEstateListing → ImageObject.caption`, and Google Image Search directly.
 
 ### `qa-fixes-2026-05-17-evening` — 5 production bugs fixed end-of-day (shipped `b69ca01` + `bc15359` + `79d67c4` + `ed6f611`)
 - **Scope:** OG/creative renders + ai_generation_log writes + post-deploy smoke workflow. All five verified by me directly against prod (44/44 assertions PASS). Listed here for the record + so you can spot-check whichever feels worth touching. None require setup.

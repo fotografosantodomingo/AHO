@@ -12,6 +12,36 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-18 — SEO structured-data overhaul (4 phases) + per-locale photo alt-text auto-populated on upload
+
+- **Frame:** PO requested "schema on all pages, especially listings should have all schema" + "photo alt + leyenda + description from listing data on creation." Audited the existing JSON-LD coverage (10 pages had some, 8 didn't; listing schema was already gold-standard for emitted fields but features-jsonb was untapped; photo alt-text was crude `"{title} — {city} — {N}"` written identically to both locale columns). Shipped the work in 3 commits.
+
+- **Commit `645822b` — Phase 1: site-wide @graph + 7 missing indexable pages**
+  - Added 8 new builders to `src/lib/seo/jsonld.ts`: `buildWebPage`, `buildCollectionPage`, `buildHowTo`, `buildFAQPage`, `buildSoftwareApplication`, `buildService`, `buildRealEstateAgent`, `buildGraph` (the @graph wrapper that strips inner @context per Google's docs).
+  - Created `src/components/seo/JsonLd.tsx` — server component, single `<script type="application/ld+json">` sink. All future schema emission goes through this.
+  - Root `[locale]/layout.tsx` now emits Organization + WebSite (with SearchAction) once per page with stable `@id`s (`#organization`, `#website`) that the existing `buildListingJsonLd` already cross-references. Homepage's duplicate emission removed.
+  - 7 indexable pages got JSON-LD they previously lacked: `/countries` (CollectionPage + ItemList + BreadcrumbList), `/instagram-setup` (HowTo + FAQPage + BreadcrumbList), `/profile-guide` (HowTo + BC), `/share-guide` (HowTo + BC), `/docs` (CollectionPage + ItemList + BC), `/privacy` (WebPage with lastReviewed + BC), `/terms` (WebPage + BC). `/investors` skipped — noindex, JSON-LD on noindex is wasted bytes.
+  - 18 new unit tests in `tests/unit/jsonld.test.ts` covering every new builder.
+
+- **Commit `5eeeab0` — photo alt-text auto-populated on upload (all 3 paths)**
+  - `src/lib/listings/photo-seo.ts:buildPhotoAlt` already existed and was correct, but only used at render time as a fallback. All three upload paths produced crude `"{title} — {city} — {N}"` and wrote the same string to BOTH `alt_text_en` AND `alt_text_es`.
+  - Refactored `client-upload.ts:UploadOneArgs` to take `altTextEn` + `altTextEs` separately (the single `altText` was the root of the EN==ES bug).
+  - `image-uploader.tsx`, `listing-form.tsx`, and `/api/properties/[id]/import-photos/route.ts` all now call `buildPhotoAlt` per-locale with the full payload (title + property type + transaction phrase + city + country + "Photo X of Y"). Dashboard property edit page now passes `propertyType` + `transactionType` + `countryDisplayEn/Es` to the uploader.
+  - Result on a real upload: EN gets `"Modern Villa — villa for sale in Santo Domingo, Dominican Republic (Photo 1 of 5)"`, ES gets `"Modern Villa — villa en venta en Santo Domingo, República Dominicana (Foto 1 de 5)"`. Stored values feed `image-sitemap.xml`, the JSON-LD `ImageObject.caption`, and the gallery's `<img alt>` directly.
+  - +3 photo-seo tests pinning the upload-flow shape (Polish rental, short-term villa, import-batch tail math).
+
+- **Commit `4ad5978` — Phase 2/3/4: listing features enrichment + one @graph per page + smoke gate**
+  - **Phase 2 — `lib/listings/seo.ts`:** parses the `features` jsonb and folds in (a) `petsAllowed` top-level Schema.org boolean (only emitted when policy is `'allowed'` or `'none'` — `'restricted'` omitted to avoid inaccurate yes/no in the SERP), (b) `tourBookingPage = <canonical>#contact` enabling Google's "Schedule a tour" rich-card link, (c) 9 boolean features → `amenityFeature[]` (furnished, laundryInUnit, balcony, terrace, basement, gated, securitySystem, solar, publicTransitNearby) plus all `communityAmenities[]`, (d) 14 numeric/enum facts → `additionalProperty[]` (parkingSpaces, parkingType, stories, heatingFuel, cooling, exteriorMaterial, roofType, lastRenovationYear, water, sewer, schoolDistrict, distanceToBeachMeters, hoaFee{Monthly,Annual}, propertyTaxAnnual, listingTerms). Added `id="contact"` on the inquiry section of `properties/[slug]/page.tsx` so `tourBookingPage` actually resolves to a real anchor.
+  - **Phase 3 — `agents/[slug]/page.tsx`:** collapsed 3 separate inline JSON-LD scripts (agent + breadcrumb + faq) into one `@graph` via `<JsonLd>`. Agent node now has stable `@id` (canonical profile URL) so listings cross-referencing the seller agent have something to link to.
+  - **Phase 4a — marketing + content pages:** `for-agents`, `automation`, `save-time` went from 4 scripts each → one @graph (4 nodes); `pricing` went from 3 scripts (one per tier Product) → one @graph (3 Products + a BreadcrumbList); `properties-in/[country]` and `[city]` went from 3 → 1; `properties/[slug]` went from 2 scripts → 1 @graph (the page's richer geographic breadcrumb replaces the generic one inside `buildListingJsonLd`'s @graph — two BreadcrumbLists on one page is a duplicate signal); `search` dropped its WebSite emission entirely (was duplicate of the layout-emitted one).
+  - **Phase 4b — `post-deploy-smoke.yml`:** new step asserts `/en` and `/en/for-agents` both emit at least one `<script type="application/ld+json">` AND the first payload `JSON.parses`. Catches refactor regressions that silently drop the graph. Initial implementation used a Python heredoc which broke under YAML indentation; rewrote with `python3 -c "$PY_CHECK"` (indent-immune).
+
+- **The 4 marketing-page consolidations + the dashboard photo wiring** carry no breaking-change risk: typecheck + lint + 547 unit tests all green. The Rich Results Test should now pass cleanly on all routes (a manual verification step is in TEST_PLAN.md `schema-jsonld-coverage`).
+
+- **What's next session:** Listed in `STATUS.md` Next 5 — same priorities as before (soft-beta agent recruitment, PO_DECISIONS #2-4 batch, AI Customer Service Agent MVP, Lighthouse re-test in incognito). Schema work itself is done at 100% per the user's "keep going until 100%" directive.
+
+---
+
 ## 2026-05-17 (evening) — End-of-day QA pass found 5 production bugs; all root-caused via wrangler tail + fixed
 
 - **Frame:** After the day's heavy ship pushed Phases 1-5.5 + the cron pipeline live, ran a deep end-to-end QA pass. Surface-level smoke had said "all green," but the actual production output was broken in five places — each one silent (HTTP 200 with empty body, or rows that never landed, or a workflow that false-failed). Spent the evening fixing them properly, root-causing each via `wrangler pages deployment tail` rather than guessing. Three of the five had been "fixed" earlier today with the wrong root cause; today's session re-did them right.
