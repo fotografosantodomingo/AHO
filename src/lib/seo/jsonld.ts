@@ -277,6 +277,372 @@ export function buildProduct(args: {
 }
 
 /* -------------------------------------------------------------------------- */
+/* WebPage (generic page wrapper)                                             */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Construct a `WebPage` node — the right generic for pages that don't
+ * fit a more specific type (Privacy, Terms, Investors). When the page
+ * has a breadcrumb, pass the BreadcrumbList node so it can be wired
+ * via `breadcrumb`. `lastReviewed` is ISO 8601 date — useful on legal
+ * pages where Google ranks freshness signals.
+ */
+export function buildWebPage(args: {
+  name: string;
+  url: string;
+  description?: string | null;
+  inLanguage?: string;
+  /** ISO 8601 date — e.g. "2026-05-17". */
+  lastReviewed?: string | null;
+  /** Optional reference to the publishing organization (`@id` of the
+   *  site-wide Organization node). */
+  publisherId?: string;
+  /** Optional reference to the site-wide WebSite node. */
+  isPartOfId?: string;
+}): JsonLdNode {
+  const node: JsonLdNode = {
+    '@context': SCHEMA_CONTEXT,
+    '@type': 'WebPage',
+    '@id': args.url,
+    url: args.url,
+    name: args.name,
+  };
+  if (args.description) node.description = args.description;
+  if (args.inLanguage) node.inLanguage = args.inLanguage;
+  if (args.lastReviewed) node.lastReviewed = args.lastReviewed;
+  if (args.publisherId) node.publisher = { '@id': args.publisherId };
+  if (args.isPartOfId) node.isPartOf = { '@id': args.isPartOfId };
+  return node;
+}
+
+/* -------------------------------------------------------------------------- */
+/* CollectionPage                                                             */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * `CollectionPage` for index pages that primarily list links to other
+ * pages (Countries index, Docs index). Use together with `buildItemList`
+ * — pass the ItemList's `@id` as `hasPartId` to wire them.
+ */
+export function buildCollectionPage(args: {
+  name: string;
+  url: string;
+  description?: string | null;
+  inLanguage?: string;
+  /** `@id` of an ItemList node on the same page. */
+  hasPartId?: string;
+  publisherId?: string;
+  isPartOfId?: string;
+}): JsonLdNode {
+  const node: JsonLdNode = {
+    '@context': SCHEMA_CONTEXT,
+    '@type': 'CollectionPage',
+    '@id': args.url,
+    url: args.url,
+    name: args.name,
+  };
+  if (args.description) node.description = args.description;
+  if (args.inLanguage) node.inLanguage = args.inLanguage;
+  if (args.hasPartId) node.mainEntity = { '@id': args.hasPartId };
+  if (args.publisherId) node.publisher = { '@id': args.publisherId };
+  if (args.isPartOfId) node.isPartOf = { '@id': args.isPartOfId };
+  return node;
+}
+
+/* -------------------------------------------------------------------------- */
+/* HowTo (step-by-step guides)                                                */
+/* -------------------------------------------------------------------------- */
+
+export interface HowToStep {
+  /** Short step title (e.g. "Connect Instagram"). */
+  name: string;
+  /** Body text — one paragraph; HTML-stripped if needed by the caller. */
+  text: string;
+  /** Optional absolute image URL illustrating the step. */
+  image?: string | null;
+  /** Optional absolute URL — anchor inside the page for the step (e.g.
+   *  `https://example.com/guide#step-2`). */
+  url?: string | null;
+}
+
+/**
+ * `HowTo` node for step-by-step guide pages (instagram-setup,
+ * profile-guide, share-guide). Google can render these in a rich
+ * "How to" carousel. Steps without text are dropped.
+ */
+export function buildHowTo(args: {
+  name: string;
+  description: string;
+  url: string;
+  inLanguage?: string;
+  /** ISO 8601 duration (e.g. "PT5M" for 5 minutes). Optional. */
+  totalTime?: string;
+  steps: HowToStep[];
+}): JsonLdNode {
+  if (args.steps.length === 0) {
+    throw new Error('buildHowTo: at least one step is required');
+  }
+  const node: JsonLdNode = {
+    '@context': SCHEMA_CONTEXT,
+    '@type': 'HowTo',
+    '@id': args.url,
+    name: args.name,
+    description: args.description,
+    url: args.url,
+    step: args.steps.map((s, idx) => {
+      const step: JsonLdNode = {
+        '@type': 'HowToStep',
+        position: idx + 1,
+        name: s.name,
+        text: s.text,
+      };
+      if (s.image) step.image = s.image;
+      if (s.url) step.url = s.url;
+      return step;
+    }),
+  };
+  if (args.inLanguage) node.inLanguage = args.inLanguage;
+  if (args.totalTime) node.totalTime = args.totalTime;
+  return node;
+}
+
+/* -------------------------------------------------------------------------- */
+/* FAQPage                                                                    */
+/* -------------------------------------------------------------------------- */
+
+export interface FaqEntry {
+  /** Question text. */
+  q: string;
+  /** Answer text (plain or HTML — Google accepts both, prefer plain). */
+  a: string;
+}
+
+/**
+ * `FAQPage` node — emit on any page with ≥2 visible Q&A pairs. Google
+ * renders these as an accordion in the SERP card.
+ */
+export function buildFAQPage(args: {
+  url: string;
+  entries: FaqEntry[];
+}): JsonLdNode {
+  if (args.entries.length === 0) {
+    throw new Error('buildFAQPage: at least one entry is required');
+  }
+  return {
+    '@context': SCHEMA_CONTEXT,
+    '@type': 'FAQPage',
+    '@id': `${args.url}#faq`,
+    mainEntity: args.entries.map((e) => ({
+      '@type': 'Question',
+      name: e.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: e.a,
+      },
+    })),
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/* SoftwareApplication                                                        */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * `SoftwareApplication` node — describes AHO itself as a SaaS product.
+ * Useful on the homepage + `/for-agents`. Google sometimes shows star
+ * ratings + price for SaaS results when present.
+ */
+export function buildSoftwareApplication(args: {
+  name: string;
+  description: string;
+  url: string;
+  /** schema.org applicationCategory (e.g. "BusinessApplication"). */
+  applicationCategory?: string;
+  /** Operating system (default "Web"). */
+  operatingSystem?: string;
+  /** Optional offer(s) — typically the cheapest paid tier. */
+  offers?: OfferInput[];
+  /** Optional aggregate rating — DO NOT fabricate; only pass when
+   *  real review data exists. */
+  aggregateRating?: { ratingValue: number; reviewCount: number } | null;
+}): JsonLdNode {
+  const node: JsonLdNode = {
+    '@context': SCHEMA_CONTEXT,
+    '@type': 'SoftwareApplication',
+    name: args.name,
+    description: args.description,
+    url: args.url,
+    applicationCategory: args.applicationCategory ?? 'BusinessApplication',
+    operatingSystem: args.operatingSystem ?? 'Web',
+  };
+  if (args.offers && args.offers.length > 0) {
+    const offers = args.offers.map((o) => {
+      const offer: JsonLdNode = {
+        '@type': 'Offer',
+        price: typeof o.price === 'number' ? o.price.toFixed(2) : o.price,
+        priceCurrency: o.priceCurrency,
+        availability: o.availability ?? 'https://schema.org/InStock',
+      };
+      if (o.url) offer.url = o.url;
+      if (o.description) offer.description = o.description;
+      return offer;
+    });
+    node.offers = offers.length === 1 ? offers[0] : offers;
+  }
+  if (args.aggregateRating && args.aggregateRating.reviewCount > 0) {
+    node.aggregateRating = {
+      '@type': 'AggregateRating',
+      ratingValue: args.aggregateRating.ratingValue.toFixed(1),
+      reviewCount: args.aggregateRating.reviewCount,
+      bestRating: '5',
+      worstRating: '1',
+    };
+  }
+  return node;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Service                                                                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * `Service` node — describes a discrete offering (e.g. the Free Audit
+ * wedge on /for-agents). Provider links back to the site-wide
+ * Organization via `@id`.
+ */
+export function buildService(args: {
+  name: string;
+  description: string;
+  url: string;
+  /** `@id` of the site-wide Organization node. */
+  providerId?: string;
+  /** Free-text area served (e.g. "Worldwide"). */
+  areaServed?: string;
+  /** Schema.org service type (free-text, e.g. "Real estate marketing"). */
+  serviceType?: string;
+  offers?: OfferInput[];
+}): JsonLdNode {
+  const node: JsonLdNode = {
+    '@context': SCHEMA_CONTEXT,
+    '@type': 'Service',
+    '@id': args.url,
+    name: args.name,
+    description: args.description,
+    url: args.url,
+  };
+  if (args.providerId) node.provider = { '@id': args.providerId };
+  if (args.areaServed) node.areaServed = args.areaServed;
+  if (args.serviceType) node.serviceType = args.serviceType;
+  if (args.offers && args.offers.length > 0) {
+    const offers = args.offers.map((o) => {
+      const offer: JsonLdNode = {
+        '@type': 'Offer',
+        price: typeof o.price === 'number' ? o.price.toFixed(2) : o.price,
+        priceCurrency: o.priceCurrency,
+        availability: o.availability ?? 'https://schema.org/InStock',
+      };
+      if (o.url) offer.url = o.url;
+      if (o.description) offer.description = o.description;
+      return offer;
+    });
+    node.offers = offers.length === 1 ? offers[0] : offers;
+  }
+  return node;
+}
+
+/* -------------------------------------------------------------------------- */
+/* RealEstateAgent                                                            */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Standalone `RealEstateAgent` node — used on agent profile pages.
+ * Listing-level seller/broker embedding lives in `lib/listings/seo.ts`
+ * because it inlines an `@id`-cross-referenced version.
+ *
+ * `aggregateRating` is only emitted when `reviewCount > 0` — never
+ * fabricate (CLAUDE.md hard rule #8).
+ */
+export function buildRealEstateAgent(args: {
+  name: string;
+  url: string;
+  image?: string | null;
+  description?: string | null;
+  telephone?: string | null;
+  email?: string | null;
+  /** `@id` of the site-wide Organization node. */
+  worksForId?: string;
+  /** Free-text specialties (e.g. ["Luxury homes", "Beachfront villas"]). */
+  knowsAbout?: string[];
+  /** Absolute external profile URLs. */
+  sameAs?: string[];
+  /** Address — when the agent operates from a specific city. */
+  address?: {
+    addressLocality?: string | null;
+    addressRegion?: string | null;
+    addressCountry?: string | null;
+  };
+  /** Only pass when real review data exists. */
+  aggregateRating?: { ratingValue: number; reviewCount: number } | null;
+}): JsonLdNode {
+  const node: JsonLdNode = {
+    '@context': SCHEMA_CONTEXT,
+    '@type': 'RealEstateAgent',
+    '@id': args.url,
+    name: args.name,
+    url: args.url,
+  };
+  if (args.image) node.image = args.image;
+  if (args.description) node.description = args.description;
+  if (args.telephone) node.telephone = args.telephone;
+  if (args.email) node.email = args.email;
+  if (args.worksForId) node.worksFor = { '@id': args.worksForId };
+  if (args.knowsAbout && args.knowsAbout.length > 0) node.knowsAbout = args.knowsAbout;
+  if (args.sameAs && args.sameAs.length > 0) node.sameAs = args.sameAs;
+  if (args.address) {
+    const addr: JsonLdNode = { '@type': 'PostalAddress' };
+    if (args.address.addressLocality) addr.addressLocality = args.address.addressLocality;
+    if (args.address.addressRegion) addr.addressRegion = args.address.addressRegion;
+    if (args.address.addressCountry) addr.addressCountry = args.address.addressCountry;
+    if (Object.keys(addr).length > 1) node.address = addr;
+  }
+  if (args.aggregateRating && args.aggregateRating.reviewCount > 0) {
+    node.aggregateRating = {
+      '@type': 'AggregateRating',
+      ratingValue: args.aggregateRating.ratingValue.toFixed(1),
+      reviewCount: args.aggregateRating.reviewCount,
+      bestRating: '5',
+      worstRating: '1',
+    };
+  }
+  return node;
+}
+
+/* -------------------------------------------------------------------------- */
+/* @graph wrapper                                                             */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Wrap multiple nodes into a single `@graph` document — Google's
+ * preferred form for pages that need to express relationships between
+ * several typed entities. Each input node KEEPS its own `@type` and
+ * `@id` but the outer `@context` becomes the single source.
+ *
+ * Inner nodes' `@context` is stripped — `JSON.stringify` would emit
+ * it but it's redundant inside an `@graph` and bloats payload.
+ */
+export function buildGraph(nodes: JsonLdNode[]): JsonLdNode {
+  const stripped = nodes.map((n) => {
+    const copy: JsonLdNode = { ...n };
+    delete (copy as { '@context'?: unknown })['@context'];
+    return copy;
+  });
+  return {
+    '@context': SCHEMA_CONTEXT,
+    '@graph': stripped,
+  };
+}
+
+/* -------------------------------------------------------------------------- */
 /* Render helper                                                              */
 /* -------------------------------------------------------------------------- */
 

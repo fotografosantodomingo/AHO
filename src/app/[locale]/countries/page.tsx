@@ -7,6 +7,13 @@ import { getCountriesIndex, getGlobalSearchIndex } from '@/lib/listings/countrie
 import { DotGrid } from '@/components/ui/dot-grid';
 import { CountryCityCombobox } from '@/components/listings/country-city-combobox';
 import { publicEnv } from '@/lib/env';
+import { JsonLd } from '@/components/seo/JsonLd';
+import {
+  buildBreadcrumbList,
+  buildCollectionPage,
+  buildGraph,
+  buildItemList,
+} from '@/lib/seo/jsonld';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -81,8 +88,41 @@ export default async function CountriesPage({
   const browseHref = localePath(typedLocale, '/search');
   const pricingHref = localePath(typedLocale, '/pricing');
 
+  // JSON-LD: CollectionPage + ItemList (one entry per country with
+  // listings) + BreadcrumbList. Only emit ItemList when rows exist —
+  // an empty list reads as a noise signal to crawlers.
+  const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
+  const pageUrl = `${site}${localePath(typedLocale, '/countries')}`;
+  const homeUrl = `${site}/${typedLocale}`;
+  const itemListId = `${pageUrl}#countries`;
+  const itemListNode = buildItemList({
+    name: t('heading'),
+    id: itemListId,
+    entries: rows.map((row) => ({
+      url: `${site}${countryHref(row.countryCode)}`,
+      name: row.displayName,
+    })),
+  });
+  const collectionNode = buildCollectionPage({
+    name: t('heading'),
+    url: pageUrl,
+    description: t('subheading'),
+    inLanguage: typedLocale,
+    publisherId: 'https://advertisehomes.online/#organization',
+    isPartOfId: 'https://advertisehomes.online/#website',
+    hasPartId: rows.length > 0 ? itemListId : undefined,
+  });
+  const breadcrumbNode = buildBreadcrumbList([
+    { name: 'AHO', url: homeUrl },
+    { name: t('heading'), url: pageUrl },
+  ]);
+  const graph = rows.length > 0
+    ? buildGraph([collectionNode, itemListNode, breadcrumbNode])
+    : buildGraph([collectionNode, breadcrumbNode]);
+
   return (
     <main>
+      <JsonLd node={graph} />
       <section className="relative overflow-hidden border-b border-border">
         <DotGrid />
         <div className="relative mx-auto max-w-5xl px-6 py-14 md:py-16">

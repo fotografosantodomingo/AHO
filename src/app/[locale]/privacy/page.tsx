@@ -6,10 +6,13 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { buildBreadcrumbList, buildGraph, buildWebPage } from '@/lib/seo/jsonld';
 
 export const runtime = 'edge';
 
 const LAST_UPDATED = '2026-05-06';
+const SITE_ORIGIN = 'https://advertisehomes.online';
 
 export async function generateMetadata({
   params,
@@ -43,8 +46,35 @@ export default async function PrivacyPage({
   if (!LOCALES.includes(locale as Locale)) return null;
   setRequestLocale(locale);
 
+  // JSON-LD: WebPage (legal — lastReviewed signals freshness for legal
+  // copy, which Google ranks higher than stale legal pages) +
+  // BreadcrumbList.
+  const path = locale === 'es' ? '/privacidad' : '/privacy';
+  const pageUrl = `${SITE_ORIGIN}/${locale}${path}`;
+  const homeUrl = `${SITE_ORIGIN}/${locale}`;
+  const name = locale === 'es' ? 'Política de Privacidad' : 'Privacy Policy';
+  const graph = buildGraph([
+    buildWebPage({
+      name,
+      url: pageUrl,
+      description:
+        locale === 'es'
+          ? 'Política de privacidad de AHO — qué datos recopilamos, por qué, con quién los compartimos y cómo ejercer tus derechos.'
+          : 'AHO privacy policy — what data we collect, why, who we share it with, and how to exercise your rights.',
+      inLanguage: locale,
+      lastReviewed: LAST_UPDATED,
+      publisherId: `${SITE_ORIGIN}/#organization`,
+      isPartOfId: `${SITE_ORIGIN}/#website`,
+    }),
+    buildBreadcrumbList([
+      { name: 'AHO', url: homeUrl },
+      { name, url: pageUrl },
+    ]),
+  ]);
+
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
+      <JsonLd node={graph} />
       {locale === 'es' ? <PrivacyEs /> : <PrivacyEn />}
     </main>
   );

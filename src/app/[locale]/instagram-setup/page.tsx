@@ -5,6 +5,13 @@ import { LOCALES, type Locale } from '@/i18n/config';
 import { localePath } from '@/i18n/routing';
 import { buildLandingAlternates } from '@/lib/seo/landing-alternates';
 import { publicEnv } from '@/lib/env';
+import { JsonLd } from '@/components/seo/JsonLd';
+import {
+  buildBreadcrumbList,
+  buildFAQPage,
+  buildGraph,
+  buildHowTo,
+} from '@/lib/seo/jsonld';
 
 export const runtime = 'edge';
 export const dynamic = 'force-static';
@@ -73,8 +80,42 @@ export default async function InstagramSetupPage({
   const t = await getTranslations({ locale, namespace: 'instagramSetup' });
   const socialHref = localePath(typedLocale, '/dashboard/social');
 
+  // JSON-LD: HowTo (4 steps) + FAQPage (3 troubleshooting entries) +
+  // BreadcrumbList. Google renders HowTo as a step-by-step rich card
+  // and FAQPage as an accordion in the SERP for indexed pages.
+  const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
+  const pageUrl = `${site}${localePath(typedLocale, '/instagram-setup')}`;
+  const homeUrl = `${site}/${typedLocale}`;
+  const graph = buildGraph([
+    buildHowTo({
+      name: t('heading'),
+      description: t('subheading'),
+      url: pageUrl,
+      inLanguage: typedLocale,
+      steps: [
+        { name: t('step1Title'), text: t('step1Body') },
+        { name: t('step2Title'), text: t('step2Body') },
+        { name: t('step3Title'), text: t('step3Body') },
+        { name: t('step4Title'), text: t('step4Body') },
+      ],
+    }),
+    buildFAQPage({
+      url: pageUrl,
+      entries: [
+        { q: t('trouble1Q'), a: t('trouble1A') },
+        { q: t('trouble2Q'), a: t('trouble2A') },
+        { q: t('trouble3Q'), a: t('trouble3A') },
+      ],
+    }),
+    buildBreadcrumbList([
+      { name: 'AHO', url: homeUrl },
+      { name: t('heading'), url: pageUrl },
+    ]),
+  ]);
+
   return (
     <main className="mx-auto max-w-3xl px-4 py-12 md:py-16">
+      <JsonLd node={graph} />
       <header className="mb-12 text-center md:mb-16">
         <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-action dark:text-action-dark">
           {t('eyebrow')}

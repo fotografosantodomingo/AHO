@@ -5,6 +5,8 @@ import { LOCALES, type Locale } from '@/i18n/config';
 import { localePath } from '@/i18n/routing';
 import { buildLandingAlternates } from '@/lib/seo/landing-alternates';
 import { publicEnv } from '@/lib/env';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { buildBreadcrumbList, buildGraph, buildHowTo } from '@/lib/seo/jsonld';
 
 export const runtime = 'edge';
 export const dynamic = 'force-static';
@@ -84,8 +86,32 @@ export default async function ProfileGuidePage({
     { titleKey: 'field8Title', bodyKey: 'field8Body' },
   ] as const;
 
+  // JSON-LD: HowTo (8 profile-field steps) + BreadcrumbList. The
+  // page is essentially a step-by-step checklist for filling the
+  // agent profile, so HowTo is the right schema.
+  const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
+  const pageUrl = `${site}${localePath(typedLocale, '/profile-guide')}`;
+  const homeUrl = `${site}/${typedLocale}`;
+  const graph = buildGraph([
+    buildHowTo({
+      name: t('heading'),
+      description: t('subheading'),
+      url: pageUrl,
+      inLanguage: typedLocale,
+      steps: fields.map(({ titleKey, bodyKey }) => ({
+        name: t(titleKey as 'field1Title'),
+        text: t(bodyKey as 'field1Body'),
+      })),
+    }),
+    buildBreadcrumbList([
+      { name: 'AHO', url: homeUrl },
+      { name: t('heading'), url: pageUrl },
+    ]),
+  ]);
+
   return (
     <main className="mx-auto max-w-3xl px-4 py-12 md:py-16">
+      <JsonLd node={graph} />
       {/* Hero */}
       <header className="mb-12 text-center md:mb-16">
         <p className="font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-action dark:text-action-dark">

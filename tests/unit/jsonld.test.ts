@@ -2,10 +2,18 @@ import { describe, it, expect } from 'vitest';
 import {
   SCHEMA_CONTEXT,
   buildBreadcrumbList,
+  buildCollectionPage,
+  buildFAQPage,
+  buildGraph,
+  buildHowTo,
   buildItemList,
   buildOrganization,
   buildPlace,
   buildProduct,
+  buildRealEstateAgent,
+  buildService,
+  buildSoftwareApplication,
+  buildWebPage,
   buildWebSite,
   serializeJsonLd,
 } from '@/lib/seo/jsonld';
@@ -196,6 +204,232 @@ describe('buildProduct', () => {
         offers: [],
       }),
     ).toThrow(/at least one offer/);
+  });
+});
+
+describe('buildWebPage', () => {
+  it('emits @id, url, name and the language tag', () => {
+    const node = buildWebPage({
+      name: 'Privacy Policy',
+      url: 'https://aho.test/en/privacy',
+      description: 'How AHO handles your data.',
+      inLanguage: 'en',
+      lastReviewed: '2026-05-06',
+      publisherId: 'https://aho.test/#organization',
+      isPartOfId: 'https://aho.test/#website',
+    });
+    expect(node['@type']).toBe('WebPage');
+    expect(node['@id']).toBe('https://aho.test/en/privacy');
+    expect(node.inLanguage).toBe('en');
+    expect(node.lastReviewed).toBe('2026-05-06');
+    expect((node.publisher as Record<string, unknown>)['@id']).toBe(
+      'https://aho.test/#organization',
+    );
+    expect((node.isPartOf as Record<string, unknown>)['@id']).toBe(
+      'https://aho.test/#website',
+    );
+  });
+
+  it('omits optional fields when absent', () => {
+    const node = buildWebPage({
+      name: 'Page',
+      url: 'https://aho.test/en/page',
+    });
+    expect(node).not.toHaveProperty('description');
+    expect(node).not.toHaveProperty('inLanguage');
+    expect(node).not.toHaveProperty('lastReviewed');
+    expect(node).not.toHaveProperty('publisher');
+    expect(node).not.toHaveProperty('isPartOf');
+  });
+});
+
+describe('buildCollectionPage', () => {
+  it('wires mainEntity to the hasPartId', () => {
+    const node = buildCollectionPage({
+      name: 'Countries',
+      url: 'https://aho.test/en/countries',
+      description: 'Browse all countries on AHO.',
+      inLanguage: 'en',
+      hasPartId: 'https://aho.test/en/countries#countries',
+    });
+    expect(node['@type']).toBe('CollectionPage');
+    expect((node.mainEntity as Record<string, unknown>)['@id']).toBe(
+      'https://aho.test/en/countries#countries',
+    );
+  });
+});
+
+describe('buildHowTo', () => {
+  it('emits 1-indexed HowToStep entries', () => {
+    const node = buildHowTo({
+      name: 'How to publish your first listing',
+      description: 'Four-step quickstart.',
+      url: 'https://aho.test/en/share-guide',
+      inLanguage: 'en',
+      steps: [
+        { name: 'Subscribe', text: 'Pick a plan and pay.' },
+        { name: 'Connect Facebook', text: 'OAuth your Page.' },
+        { name: 'Publish a listing', text: 'Paste the URL.' },
+        { name: 'Click Share', text: 'Pick the channels.' },
+      ],
+    });
+    expect(node['@type']).toBe('HowTo');
+    const steps = node.step as Array<Record<string, unknown>>;
+    expect(steps).toHaveLength(4);
+    expect(steps[0]?.position).toBe(1);
+    expect(steps[3]?.position).toBe(4);
+    expect(steps[0]?.name).toBe('Subscribe');
+  });
+
+  it('throws when no steps are provided', () => {
+    expect(() =>
+      buildHowTo({
+        name: 'X',
+        description: 'Y',
+        url: 'https://aho.test',
+        steps: [],
+      }),
+    ).toThrow(/at least one step/);
+  });
+});
+
+describe('buildFAQPage', () => {
+  it('wraps entries as Question + Answer', () => {
+    const node = buildFAQPage({
+      url: 'https://aho.test/en/instagram-setup',
+      entries: [
+        { q: 'Why no IG detected?', a: 'IG must be linked to a Page.' },
+        { q: 'How do I link it?', a: 'In Meta Business Suite.' },
+      ],
+    });
+    expect(node['@type']).toBe('FAQPage');
+    expect(node['@id']).toBe('https://aho.test/en/instagram-setup#faq');
+    const entries = node.mainEntity as Array<Record<string, unknown>>;
+    expect(entries).toHaveLength(2);
+    expect(entries[0]?.['@type']).toBe('Question');
+    expect(
+      ((entries[0]?.acceptedAnswer as Record<string, unknown>).text as string),
+    ).toContain('Page');
+  });
+
+  it('throws on empty entries', () => {
+    expect(() =>
+      buildFAQPage({ url: 'https://aho.test', entries: [] }),
+    ).toThrow(/at least one entry/);
+  });
+});
+
+describe('buildSoftwareApplication', () => {
+  it('defaults applicationCategory and operatingSystem', () => {
+    const node = buildSoftwareApplication({
+      name: 'AHO',
+      description: 'Real-estate social automation.',
+      url: 'https://aho.test/en',
+    });
+    expect(node.applicationCategory).toBe('BusinessApplication');
+    expect(node.operatingSystem).toBe('Web');
+    expect(node).not.toHaveProperty('offers');
+    expect(node).not.toHaveProperty('aggregateRating');
+  });
+
+  it('omits aggregateRating when reviewCount is 0 (no fabrication)', () => {
+    const node = buildSoftwareApplication({
+      name: 'AHO',
+      description: 'X',
+      url: 'https://aho.test/en',
+      aggregateRating: { ratingValue: 4.8, reviewCount: 0 },
+    });
+    expect(node).not.toHaveProperty('aggregateRating');
+  });
+
+  it('emits Offer + aggregateRating when both are present', () => {
+    const node = buildSoftwareApplication({
+      name: 'AHO',
+      description: 'X',
+      url: 'https://aho.test/en',
+      offers: [{ price: 29, priceCurrency: 'USD' }],
+      aggregateRating: { ratingValue: 4.8, reviewCount: 42 },
+    });
+    expect((node.offers as Record<string, unknown>).price).toBe('29.00');
+    const r = node.aggregateRating as Record<string, unknown>;
+    expect(r.reviewCount).toBe(42);
+    expect(r.ratingValue).toBe('4.8');
+  });
+});
+
+describe('buildService', () => {
+  it('wires provider by @id when given', () => {
+    const node = buildService({
+      name: 'Free Listing Audit',
+      description: 'Free SEO audit for any listing URL.',
+      url: 'https://aho.test/en/for-agents',
+      providerId: 'https://aho.test/#organization',
+      areaServed: 'Worldwide',
+      serviceType: 'Real-estate marketing',
+    });
+    expect(node['@type']).toBe('Service');
+    expect((node.provider as Record<string, unknown>)['@id']).toBe(
+      'https://aho.test/#organization',
+    );
+    expect(node.areaServed).toBe('Worldwide');
+    expect(node.serviceType).toBe('Real-estate marketing');
+  });
+});
+
+describe('buildRealEstateAgent', () => {
+  it('omits aggregateRating when reviewCount is 0', () => {
+    const node = buildRealEstateAgent({
+      name: 'Jane Doe',
+      url: 'https://aho.test/en/agents/jane-doe',
+      aggregateRating: { ratingValue: 5.0, reviewCount: 0 },
+    });
+    expect(node).not.toHaveProperty('aggregateRating');
+  });
+
+  it('attaches PostalAddress only when at least one part is provided', () => {
+    const empty = buildRealEstateAgent({
+      name: 'Jane',
+      url: 'https://aho.test/en/agents/jane',
+      address: {},
+    });
+    expect(empty).not.toHaveProperty('address');
+
+    const filled = buildRealEstateAgent({
+      name: 'Jane',
+      url: 'https://aho.test/en/agents/jane',
+      address: { addressLocality: 'Santo Domingo', addressCountry: 'DO' },
+    });
+    const addr = filled.address as Record<string, unknown>;
+    expect(addr['@type']).toBe('PostalAddress');
+    expect(addr.addressLocality).toBe('Santo Domingo');
+  });
+});
+
+describe('buildGraph', () => {
+  it('wraps multiple nodes and strips inner @context', () => {
+    const org = buildOrganization({ name: 'AHO', url: 'https://aho.test' });
+    const site = buildWebSite({ name: 'AHO', url: 'https://aho.test' });
+    const graph = buildGraph([org, site]);
+    expect(graph['@context']).toBe(SCHEMA_CONTEXT);
+    const inner = graph['@graph'] as Array<Record<string, unknown>>;
+    expect(inner).toHaveLength(2);
+    // Inner @context fields are stripped — they'd be redundant under
+    // the outer @graph and inflate payload.
+    expect(inner[0]).not.toHaveProperty('@context');
+    expect(inner[1]).not.toHaveProperty('@context');
+    expect(inner[0]?.['@type']).toBe('Organization');
+    expect(inner[1]?.['@type']).toBe('WebSite');
+  });
+
+  it('round-trips through JSON.parse', () => {
+    const graph = buildGraph([
+      buildOrganization({ name: 'AHO', url: 'https://aho.test' }),
+      buildBreadcrumbList([{ name: 'Home', url: 'https://aho.test' }]),
+    ]);
+    const out = serializeJsonLd(graph);
+    const parsed = JSON.parse(out.replace(/\\u003c/g, '<')) as Record<string, unknown>;
+    expect(parsed['@context']).toBe(SCHEMA_CONTEXT);
+    expect(Array.isArray(parsed['@graph'])).toBe(true);
   });
 });
 

@@ -9,7 +9,22 @@ import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/footer/site-footer';
 import { PwaRegister } from '@/components/pwa-register';
 import { TawkWidget } from '@/components/chat/tawk-widget';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { buildOrganization, buildWebSite, buildGraph } from '@/lib/seo/jsonld';
+import { localePath } from '@/i18n/locale-path';
 import '../globals.css';
+
+// Stable `@id`s for the site-wide Organization + WebSite nodes. Per-
+// page JSON-LD (property listings, agent profiles) reference these
+// via `@id` instead of re-emitting them — keeps payloads lean and
+// makes the entity graph explicit to Googlebot.
+const SITE_ORIGIN = 'https://advertisehomes.online';
+const ORG_ID = `${SITE_ORIGIN}/#organization`;
+const WEBSITE_ID = `${SITE_ORIGIN}/#website`;
+const ORG_SAMEAS = [
+  'https://www.facebook.com/profile.php?id=61580170197960',
+  'https://www.linkedin.com/company/advertise-homes-online',
+];
 
 // Brand font — substituted for HashiCorp Sans (proprietary; we don't have
 // the license). Inter preserves the dense, kerned-tight, infrastructural
@@ -103,6 +118,37 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
   const messages = await getMessages();
 
+  // Site-wide JSON-LD — emits Organization + WebSite once per page
+  // load. Stable `@id`s let per-page graphs (property listings,
+  // agent profiles, place pages) cross-reference rather than re-emit.
+  // SearchAction lives on WebSite (site-level), not on each WebPage,
+  // per Google's sitelinks-searchbox doc.
+  const t = await getTranslations({ locale, namespace: 'site' });
+  const searchUrl = `${SITE_ORIGIN}${localePath(locale as Locale, '/search')}`;
+  const siteGraph = buildGraph([
+    {
+      ...buildOrganization({
+        name: t('name'),
+        alternateName: t('tagline'),
+        url: SITE_ORIGIN,
+        description: t('description'),
+        logo: `${SITE_ORIGIN}/icon.png`,
+        sameAs: ORG_SAMEAS,
+      }),
+      '@id': ORG_ID,
+    },
+    {
+      ...buildWebSite({
+        name: t('name'),
+        url: SITE_ORIGIN,
+        inLanguage: locale,
+        searchUrlTemplate: `${searchUrl}?q={search_term_string}`,
+      }),
+      '@id': WEBSITE_ID,
+      publisher: { '@id': ORG_ID },
+    },
+  ]);
+
   return (
     <html lang={locale} className={inter.variable} suppressHydrationWarning>
       <head>
@@ -133,6 +179,10 @@ export default async function LocaleLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="min-h-screen antialiased">
+        {/* Site-wide JSON-LD: Organization + WebSite. Per-page graphs
+            (property listings, agent profiles, etc.) reference these
+            via stable `@id`s instead of re-emitting. */}
+        <JsonLd node={siteGraph} />
         {/* Skip-to-main-content — visible only on keyboard focus.
             Lighthouse "bypass blocks" already passes via <main> /
             <nav> / <footer> landmarks; the skip link is the WCAG

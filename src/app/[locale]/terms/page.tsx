@@ -7,10 +7,13 @@ import Link from 'next/link';
 import { setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { localePath } from '@/i18n/routing';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { buildBreadcrumbList, buildGraph, buildWebPage } from '@/lib/seo/jsonld';
 
 export const runtime = 'edge';
 
 const LAST_UPDATED = '2026-05-06';
+const SITE_ORIGIN = 'https://advertisehomes.online';
 
 export async function generateMetadata({
   params,
@@ -44,8 +47,34 @@ export default async function TermsPage({
   if (!LOCALES.includes(locale as Locale)) return null;
   setRequestLocale(locale);
 
+  // JSON-LD: WebPage (legal) + BreadcrumbList. lastReviewed signals
+  // freshness — Google ranks legal pages partly on recency.
+  const path = locale === 'es' ? '/terminos' : '/terms';
+  const pageUrl = `${SITE_ORIGIN}/${locale}${path}`;
+  const homeUrl = `${SITE_ORIGIN}/${locale}`;
+  const name = locale === 'es' ? 'Términos de Servicio' : 'Terms of Service';
+  const graph = buildGraph([
+    buildWebPage({
+      name,
+      url: pageUrl,
+      description:
+        locale === 'es'
+          ? 'Términos de Servicio de AHO — quién puede usar la plataforma, obligaciones de los agentes y compradores, suscripciones, contenido y limitación de responsabilidad.'
+          : 'AHO Terms of Service — who can use the platform, agent and buyer obligations, subscriptions, content, and limitations of liability.',
+      inLanguage: locale,
+      lastReviewed: LAST_UPDATED,
+      publisherId: `${SITE_ORIGIN}/#organization`,
+      isPartOfId: `${SITE_ORIGIN}/#website`,
+    }),
+    buildBreadcrumbList([
+      { name: 'AHO', url: homeUrl },
+      { name, url: pageUrl },
+    ]),
+  ]);
+
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
+      <JsonLd node={graph} />
       {locale === 'es' ? <TermsEs /> : <TermsEn />}
     </main>
   );

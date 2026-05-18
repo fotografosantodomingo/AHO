@@ -22,6 +22,13 @@ import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { localeUrl } from '@/lib/seo/sitemap-helpers';
 import { publicEnv } from '@/lib/env';
+import { JsonLd } from '@/components/seo/JsonLd';
+import {
+  buildBreadcrumbList,
+  buildCollectionPage,
+  buildGraph,
+  buildItemList,
+} from '@/lib/seo/jsonld';
 
 export const runtime = 'edge';
 
@@ -156,8 +163,41 @@ export default async function DocsPage({
     return builder ? builder(typedLocale) : '#';
   };
 
+  // JSON-LD: CollectionPage + ItemList of the 3 audience sections
+  // (anchored entries) + BreadcrumbList. The audience sub-sections
+  // themselves are anchored within this page, not separate URLs, so
+  // we don't emit TechArticle nodes per section — would inflate
+  // payload without giving Google a separately-rankable URL.
+  const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
+  const pageUrl = localeUrl({ siteUrl: site, locale: typedLocale, pathKey: '/docs' });
+  const homeUrl = `${site}/${typedLocale}`;
+  const itemListId = `${pageUrl}#audiences`;
+  const itemListNode = buildItemList({
+    name: t('heading'),
+    id: itemListId,
+    entries: audiences.map(({ key, data }) => ({
+      url: `${pageUrl}#${key}`,
+      name: data.heading,
+    })),
+  });
+  const collectionNode = buildCollectionPage({
+    name: t('heading'),
+    url: pageUrl,
+    description: t('intro'),
+    inLanguage: typedLocale,
+    publisherId: 'https://advertisehomes.online/#organization',
+    isPartOfId: 'https://advertisehomes.online/#website',
+    hasPartId: itemListId,
+  });
+  const breadcrumbNode = buildBreadcrumbList([
+    { name: 'AHO', url: homeUrl },
+    { name: t('heading'), url: pageUrl },
+  ]);
+  const graph = buildGraph([collectionNode, itemListNode, breadcrumbNode]);
+
   return (
     <main className="mx-auto max-w-6xl px-6 py-16">
+      <JsonLd node={graph} />
       <header className="mx-auto max-w-3xl">
         <h1 className="font-brand text-3xl font-semibold tracking-tight md:text-4xl">
           {t('heading')}

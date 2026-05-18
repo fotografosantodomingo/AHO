@@ -8,16 +8,10 @@ import { ListingCard } from '@/components/listings/listing-card';
 import { HeroSearchForm } from '@/components/home/hero-search-form';
 import { DotGrid, HeroGlow } from '@/components/ui/dot-grid';
 import { EmptyState } from '@/components/ui/empty-state';
-import { publicEnv } from '@/lib/env';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getUserFavoriteIds } from '@/lib/listings/favorites';
 import { RecentlyViewed } from '@/components/listings/recently-viewed';
 import { ProAutomationSection } from '@/components/home/pro-automation-section';
-import {
-  buildOrganization,
-  buildWebSite,
-  serializeJsonLd,
-} from '@/lib/seo/jsonld';
 
 export const runtime = 'edge';
 
@@ -32,7 +26,6 @@ export default async function HomePage({
   setRequestLocale(typedLocale);
 
   const t = await getTranslations({ locale, namespace: 'home' });
-  const tSite = await getTranslations({ locale, namespace: 'site' });
   const searchPath = localePath(typedLocale, '/search');
   const pricingPath = localePath(typedLocale, '/pricing');
   // City-landing route stem per locale. The hero form appends
@@ -83,43 +76,13 @@ export default async function HomePage({
   const visibleIds = featured.listings.slice(0, 6).map((l) => l.id);
   const favoriteIds = await getUserFavoriteIds(supabase, userId, visibleIds);
 
-  // Structured data for the homepage. Two graphs:
-  //   1. Organization (publisher info — Knowledge Panel eligibility for
-  //      branded "AHO" / "Advertise Homes Online" searches).
-  //   2. WebSite + SearchAction (lets Google surface a site-search box
-  //      directly in the SERP for branded queries — sitelinks searchbox).
-  // Per HANDOFF.md §16: structured data is part of the SEO baseline, and
-  // the homepage is where these top-level graphs belong. We deliberately
-  // do NOT emit a 1-crumb BreadcrumbList — the homepage is the root, and
-  // a BreadcrumbList of length 1 reads as a SERP misconfiguration to
-  // crawlers. Country / city pages emit the full crumb chain instead.
-  const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
-  const homeUrl = `${site}/${locale}`;
-  const organizationLd = buildOrganization({
-    name: tSite('name'),
-    alternateName: tSite('tagline'),
-    url: homeUrl,
-    description: tSite('description'),
-    logo: `${site}/icon.png`,
-  });
-  const websiteLd = buildWebSite({
-    name: tSite('name'),
-    url: homeUrl,
-    inLanguage: locale === 'es' ? 'es' : 'en',
-    searchUrlTemplate: `${site}${searchPath}?q={search_term_string}`,
-  });
+  // Organization + WebSite (with SearchAction) are emitted site-wide
+  // from `[locale]/layout.tsx`. The homepage does not re-emit them or
+  // a 1-crumb BreadcrumbList (a single-crumb BreadcrumbList reads as
+  // a SERP misconfiguration to crawlers).
 
   return (
     <main>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: serializeJsonLd(organizationLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: serializeJsonLd(websiteLd) }}
-      />
-
       {/* Hero. Body bg in BOTH modes (light: surface-muted; dark:
           surface-dark). No section-band fill — visual definition
           comes from the dot-grid + glow + bottom border. Fixed in
