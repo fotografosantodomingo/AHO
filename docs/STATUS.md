@@ -8,6 +8,19 @@
 
 ## 🟢 Now — actively in flight
 
+**AI Customer-Service Agent — Phase 1 foundation (started 2026-05-18 after PO accepted full plan defaults).** Building the channel-agnostic primitives that all 4 channels (chat / email / WhatsApp / voice) will plug into. Migration 0066 + 4 shared lib files + tests. Full plan at `docs/AI_AGENT_PLAN.md` (ACCEPTED). Full-power parallel-agent execution per PO directive.
+
+| Slice | What ships | Effort | Status |
+|---|---|---|---|
+| **1.0** — Migration 0066 (`ai_conversations` + `ai_conversation_messages` + RLS + revoke grants) | Foundation schema | S | 🟢 In flight |
+| **1.1** — `src/lib/ai/knowledge.ts` (RLS-isolated context fetcher) | Pure-fn over Supabase | S | 🟢 In flight |
+| **1.2** — `src/lib/ai/agent-prompts.ts` (per-(market, channel) system prompts) | Extends market-prompts.ts | S | 🟢 In flight |
+| **1.3** — `src/lib/ai/gating.ts` (confidence + risk classifier heuristic v1) | Pure-fn | S | 🟢 In flight |
+| **1.4** — `src/lib/ai/converse.ts` (Claude orchestrator + tool schema + streaming) | Wraps Anthropic SDK | M | 🟢 In flight |
+| **1.5** — Unit tests for the pure-function pieces | | S | 🟢 In flight |
+| **2** — Web chat surface: `/api/ai-chat` SSE route + `<AiChatWidget>` + dashboard inbox view | M | Queued (after Phase 1) |
+| **3-5** — Email + WhatsApp + Voice schemas + workers scaffolded (creds-blocked integration deferred) | | M-L | Queued |
+
 **Phase 4 — Auto-video Reels/TikTok engine.** Render path locked 2026-05-17: **A = Remotion in Cloudflare Containers**. Sliced into 4 units; 4d + the 4a-scaffold shipped today.
 
 | Slice | What ships | Effort | Status |

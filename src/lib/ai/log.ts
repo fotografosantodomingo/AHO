@@ -25,7 +25,24 @@ export interface LogAiCallInput {
   /** Optional FK to ai_audits — set for audit-triggered calls; NULL
    *  for /api/social/ai-draft on real listings. */
   auditId?: string | null;
-  purpose: 'audit_import' | 'audit_draft' | 'listing_draft';
+  /**
+   * What kind of Anthropic call this is. The DB CHECK constraint on
+   * `ai_generation_log.purpose` currently allows only the three
+   * audit/draft values (migration 0061). The AI-agent purposes
+   * (`ai_agent_converse`, `ai_agent_classify`) are TS-side-only until
+   * a follow-up migration relaxes the CHECK — `logAiCall` will swallow
+   * the resulting postgrest 23514 and console.error it so the AI
+   * conversation surface doesn't fail when those rows can't land.
+   * Once the migration ships, the failed rows are simply lost cost
+   * observability for the gap window; the conversation itself was
+   * unaffected.
+   */
+  purpose:
+    | 'audit_import'
+    | 'audit_draft'
+    | 'listing_draft'
+    | 'ai_agent_converse'
+    | 'ai_agent_classify';
   /** Verbatim Anthropic model id, e.g. 'claude-haiku-4-5-20251001'. */
   model: string;
   /** Market dim from market-prompts.ts for draft calls; NULL for imports. */

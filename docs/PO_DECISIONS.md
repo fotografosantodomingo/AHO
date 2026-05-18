@@ -10,19 +10,7 @@
 
 ## 🔴 Blocking active work
 
-### 5. AI Customer-Service Agent — 9 design decisions (blocks Phase 1 of the AI inbox)
-
-**Question:** I drafted `docs/AI_AGENT_PLAN.md` synthesizing parallel research across voice / WhatsApp / email / codebase. The plan ends with 9 decisions (D1-D9) that bind the build before code starts. Read the plan end-to-end, then reply inline.
-
-**Why I'm stuck:** Every decision changes a downstream architectural commitment (scope of v1, auto-send liability, BSP vendor, WABA model, tier mapping, voice stack, inbound email provider, address scheme, knowledge isolation). I can't write Phase 1 code without them.
-
-**What to read:** `docs/AI_AGENT_PLAN.md` — about 800 lines. Defaults are recommended on each decision; you can punt any item with `D{n}=default`.
-
-**Reply format:** `D1=A, D2=A, D3=A, D4=A, D5=A, D6=A, D7=A, D8=A, D9=A` (or any mix; `default` works per item).
-
-**Recommendations summary (all the "A" / default options):** chat-only v1 (3 weeks), always-HITL for v1, 360dialog WhatsApp BSP, shared AHO WABA + per-agent numbers, AI bundled into Pro Automation, Twilio+ConversationRelay+Claude voice stack, Cloudflare Email Routing inbound, hybrid email address (`<slug>@reply…` display + opaque-token `Reply-To`), org-isolated knowledge per agent.
-
-**Deadline:** Whenever — once answered, I start Phase 1 (foundation week) immediately.
+*(Nothing right now — #5 answered 2026-05-18, see "Recently answered" below. Phase 1 of AI_AGENT_PLAN now in flight.)*
 
 ---
 
@@ -97,6 +85,7 @@
 | 2026-05-17 | Auto-video render engine — Remotion (A) vs FFmpeg-WASM (B) vs Creatomate (C)? | **A — Remotion in Cloudflare Containers** (~$0.05/video, predictable infra). Phase 4 building now in slices 4a-4d. |
 | 2026-05-17 | Brand mark on every generated creative — bold footer vs subtle watermark vs per-agent toggle? | **Bold "Powered by AHO" footer bar** (recorded in `docs/DECISIONS.md`) |
 | 2026-05-17 | Path A (finish Stage 1 Phase 3 first) vs Path B (start AI agent now)? | **Path A** — Phase 3 shipped same day as `c385f93` |
+| 2026-05-18 | AI Customer-Service Agent — 9 design decisions (D1-D9) | **All defaults (A)** — chat-only v1, always-HITL, 360dialog BSP, shared AHO WABA, AI bundled into Pro Automation, Twilio+ConversationRelay+Claude voice stack, Cloudflare Email Routing inbound, hybrid email address scheme, org-isolated knowledge per agent. Plan accepted in full. |
 
 ---
 

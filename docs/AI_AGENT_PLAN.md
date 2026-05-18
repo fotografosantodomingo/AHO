@@ -1,8 +1,10 @@
 # AI Customer-Service Agent — Plan for Review
 
-> **Status:** DRAFT awaiting PO acceptance. Authored 2026-05-18 by Claude after parallel research across 4 agents (voice stack, WhatsApp Business Platform, inbound email architecture, AHO codebase audit).
+> **Status:** ✅ **ACCEPTED** 2026-05-18 by PO. All 9 decisions = defaults (A across the board). Authored 2026-05-18 by Claude after parallel research across 4 agents (voice stack, WhatsApp Business Platform, inbound email architecture, AHO codebase audit).
 >
-> **Acceptance ritual:** read this end-to-end → answer the 9 decisions in §2 (one line each, like `D1=A, D2=B`) → I update STATUS.md + start Phase 1. No code lands until the decisions are in.
+> **PO acceptance notes (verbatim):** *"The architecture and phasing look incredibly tight. Sticking to the defaults across the board is the most strategic path forward. Starting with Chat-only (D1) and strict HITL (D2) minimizes our initial legal liability and engineering surface area while immediately proving the core 'first-party wedge' thesis. Furthermore, the routing and RLS patterns perfectly leverage our existing infrastructure to keep early inference and orchestration costs trivial."*
+>
+> **What this unlocks:** Phase 1 (foundation) starts immediately. The 9 D-values bind all downstream architecture choices — no further consult required for Phases 2-5 unless we discover something the research missed.
 
 ---
 
