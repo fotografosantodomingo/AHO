@@ -8,7 +8,6 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/footer/site-footer';
 import { PwaRegister } from '@/components/pwa-register';
-import { TawkWidget } from '@/components/chat/tawk-widget';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { buildOrganization, buildWebSite, buildGraph } from '@/lib/seo/jsonld';
 import { localePath } from '@/i18n/locale-path';
@@ -201,7 +200,16 @@ export default async function LocaleLayout({
           </ThemeProvider>
         </NextIntlClientProvider>
         <PwaRegister />
-        <TawkWidget />
+        {/* TawkWidget retired 2026-05-18 — replaced by AIChatWidget on
+            listing + agent pages. AHO's first-party AI chat (Phase 2
+            of docs/AI_AGENT_PLAN.md) supersedes Tawk's third-party
+            human-chat widget; the AI persona has direct RLS-scoped
+            access to the agent's listings + FAQs + reviews where
+            Tawk had no listing context. Component file at
+            src/components/chat/tawk-widget.tsx is kept for quick
+            rollback (re-import + re-mount one line) if AI chat NPS
+            drops below Tawk's at 30 days (risk R13 in
+            AI_AGENT_PLAN.md). */}
       </body>
     </html>
   );

@@ -1,5 +1,24 @@
 'use client';
 
+/**
+ * **RETIRED 2026-05-18** — no longer mounted from [locale]/layout.tsx.
+ *
+ * The AHO AI chat widget (src/components/chat/ai-chat-widget.tsx) on
+ * /properties/[slug] + /agents/[slug] supersedes this Tawk integration
+ * per Phase 2 of docs/AI_AGENT_PLAN.md. AI chat has first-party
+ * RLS-scoped access to the agent's listings + FAQs + reviews + market
+ * context where Tawk had no listing awareness.
+ *
+ * This file is kept (not deleted) for fast rollback per risk R13 in
+ * AI_AGENT_PLAN.md: if AI chat NPS drops below Tawk's at the 30-day
+ * mark, re-import + re-mount in [locale]/layout.tsx restores the prior
+ * behavior on a single-line revert. The Tawk property/widget IDs +
+ * the show-on-public-pages routing logic stay intact below.
+ *
+ * Do NOT delete without confirmation — the rollback insurance is
+ * cheaper than the bytes saved.
+ */
+
 import { usePathname } from 'next/navigation';
 import Script from 'next/script';
 import { useEffect } from 'react';
