@@ -10,7 +10,19 @@
 
 ## 🔴 Blocking active work
 
-*(Nothing right now — #1 answered 2026-05-17, see "Recently answered" below.)*
+### 5. AI Customer-Service Agent — 9 design decisions (blocks Phase 1 of the AI inbox)
+
+**Question:** I drafted `docs/AI_AGENT_PLAN.md` synthesizing parallel research across voice / WhatsApp / email / codebase. The plan ends with 9 decisions (D1-D9) that bind the build before code starts. Read the plan end-to-end, then reply inline.
+
+**Why I'm stuck:** Every decision changes a downstream architectural commitment (scope of v1, auto-send liability, BSP vendor, WABA model, tier mapping, voice stack, inbound email provider, address scheme, knowledge isolation). I can't write Phase 1 code without them.
+
+**What to read:** `docs/AI_AGENT_PLAN.md` — about 800 lines. Defaults are recommended on each decision; you can punt any item with `D{n}=default`.
+
+**Reply format:** `D1=A, D2=A, D3=A, D4=A, D5=A, D6=A, D7=A, D8=A, D9=A` (or any mix; `default` works per item).
+
+**Recommendations summary (all the "A" / default options):** chat-only v1 (3 weeks), always-HITL for v1, 360dialog WhatsApp BSP, shared AHO WABA + per-agent numbers, AI bundled into Pro Automation, Twilio+ConversationRelay+Claude voice stack, Cloudflare Email Routing inbound, hybrid email address (`<slug>@reply…` display + opaque-token `Reply-To`), org-isolated knowledge per agent.
+
+**Deadline:** Whenever — once answered, I start Phase 1 (foundation week) immediately.
 
 ---
 

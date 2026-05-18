@@ -28,9 +28,9 @@ Effort: S = same-session, M = 1-3 days, L = ≥4 days. Owner: who's blocking.
 |---|---|---|---|---|
 | 1 | **Soft-beta recruitment + first end-to-end test** of the Free Audit → Approval Grid → Publish loop on your own account. | The wedge is BUILT but UN-VALIDATED. Nothing else matters until we know it works for one real agent. | S | **You** |
 | 2 | **PO_DECISIONS #2-4 batch** — Super Pro price ($199/$249/$299) + paywall structure + music library. Needed before Phase 4 fully lands but not before slice 4a starts. | Unblocks the pricing page + the marketing positioning around Phase 4. | S (PO action) | **You** |
-| 3 | **AI Customer Service Agent MVP** — knowledge ingestion (19a) → web chat replaces Tawk (19b) → confidence gating (19f). | ~7-day shippable slice; not blocked on Meta. Replaces Tawk + becomes the on-site sales engine. | L | Me (waiting on PO greenlight to commit to the 7-day window) |
+| 3 | **AI Customer-Service Agent — 4-channel plan (chat + email + WhatsApp + voice).** Full plan at `docs/AI_AGENT_PLAN.md` (drafted 2026-05-18 from 4 parallel research agents). Blocks on **PO_DECISIONS #5** (9 design decisions, defaults pre-filled). | Phase 1 ships in 1 week once accepted; full 4-channel in 10 weeks. Replaces Tawk + becomes after-hours agent replacement; defensible because AHO IS the platform (first-party listings + RLS access). | L | **You** (read AI_AGENT_PLAN.md → answer D1-D9 in chat) |
 | 4 | **Dashboard Lighthouse re-test in incognito** (the 30/100 score was contaminated by Chrome extensions + IndexedDB per Lighthouse's own warning; expected real score 75-85). | Validates the perf wins from devIndicators off + source maps off + chunk audit work. | S | **You** (quick test) |
-| 5 | **AI Customer Service Agent MVP** (still gated on PO greenlight for the 7-day commitment). | Once Phase 4 needs PO action to proceed (CF Containers + R2 + Queue setup), the AI agent is the largest unblocked dev pipeline. | L | Me (waiting on PO greenlight) |
+| 5 | **AI Customer-Service Agent — Phase 1 foundation** (auto-unblocks once #3 is answered). | Once PO_DECISIONS #5 lands, Phase 1 (conversation schema + Claude orchestrator + knowledge fetcher + system prompts + gating) is a 5-day slice that opens all 4 channels. | L | Me (waiting on PO answers to D1-D9) |
 
 ---
 
