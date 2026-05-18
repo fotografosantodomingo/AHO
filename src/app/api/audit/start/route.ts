@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { serverEnv } from '@/lib/env';
-import { runAudit } from '@/lib/audit/run-audit';
+import { runAudit, flushAuditLogs } from '@/lib/audit/run-audit';
 import { checkRateLimit } from '@/lib/rate-limit/kv';
 
 export const runtime = 'edge';
@@ -151,6 +151,12 @@ export async function POST(req: NextRequest) {
     console.error('[audit.start] insert failed', insertErr);
     return fail(500, 'db_error', insertErr.message);
   }
+
+  // Flush the per-call cost rows NOW that the ai_audits row exists
+  // (FK constraint on ai_generation_log.audit_id is satisfied).
+  // Buffered during runAudit because logging mid-orchestration would
+  // hit FK violation 23503 — diagnosed via wrangler tail 2026-05-18.
+  await flushAuditLogs(auditResult.pendingLogs);
 
   return NextResponse.json({ ok: true, auditId });
 }

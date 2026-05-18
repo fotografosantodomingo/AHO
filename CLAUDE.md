@@ -75,6 +75,14 @@ wrangler.toml              — name=aho-web, compatibility_flags=["nodejs_compat
   revoke all on public.<table_name> from anon, authenticated;
   ```
   RLS with no policies still blocks reads in practice, but defense-in-depth missing. See `src/db/migrations/0065_revoke_extra_grants.sql` for the precedent.
+- **Satori (next/og ImageResponse) fonts: TTF/OTF only, not woff2.** Satori parses fonts via opentype.js which has no woff2 support (woff2 requires brotli decompression that isn't bundled in the wasm). Vendoring a `.woff2` causes EVERY ImageResponse route to return HTTP 200 + image/png + 0 bytes with `Error: Unsupported OpenType signature wOF2` in `wrangler tail` output. Use TTF (~3× the file size of woff2 but CDN-cached forever after first request, server-side only). The middleware matcher already excludes `.ttf|.otf|.woff|.woff2` from locale rewriting; the file extension just has to be one satori can parse. Logged 2026-05-18 after the bug took three mitigation attempts to root-cause.
+- **supabase-js does NOT throw on row-level errors.** `await admin.from('x').insert(row)` resolves successfully even when the INSERT was rejected by RLS, a CHECK constraint, a schema mismatch, or a missing column. The error is on the resolved value, not in a rejected promise. ALWAYS destructure:
+  ```ts
+  const { error } = await admin.from('x').insert({...});
+  if (error) console.error('postgrest', { code: error.code, message: error.message, details: error.details, hint: error.hint });
+  ```
+  A try/catch around the await only catches NETWORK-level failures. Without the destructure, silent insert drops produce 0 rows in prod with zero log output. Diagnosed via `wrangler pages deployment tail` after `void → await` didn't fix the empty `ai_generation_log` table.
+- **`wrangler pages deployment tail` surfaces `console.error` reliably, `console.log` not at all (in `--format pretty`).** Use `console.error` for any in-Edge instrumentation you actually want to read in tail output. Use `--format json` if you need every log line, but the JSON is harder to scan by eye.
 
 ## Hard rules (must hold throughout the build)
 1. **Never commit secrets.** Use `.env.local` locally and Cloudflare/Supabase/Stripe-managed secrets in deployed envs.

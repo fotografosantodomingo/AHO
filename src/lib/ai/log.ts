@@ -40,14 +40,6 @@ export interface LogAiCallInput {
 }
 
 export async function logAiCall(input: LogAiCallInput): Promise<void> {
-  // Temporary instrumentation 2026-05-18: confirm the function is
-  // being invoked per audit. Remove once the silent-drop bug is closed
-  // and rows reliably land.
-  console.error('[ai-log] start', {
-    purpose: input.purpose,
-    auditId: input.auditId,
-    model: input.model,
-  });
   try {
     const admin = createAdminClient();
     const cost = estimateCostUsdCents(
@@ -79,11 +71,6 @@ export async function logAiCall(input: LogAiCallInput): Promise<void> {
         message: error.message,
         details: error.details,
         hint: error.hint,
-        purpose: input.purpose,
-        auditId: input.auditId,
-      });
-    } else {
-      console.error('[ai-log] ok', {
         purpose: input.purpose,
         auditId: input.auditId,
       });

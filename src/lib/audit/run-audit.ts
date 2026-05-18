@@ -4,7 +4,7 @@ import { generateDrafts, type DrafterResult } from '@/lib/social/ai-drafter';
 import { formatPrice } from '@/lib/listings/format';
 import type { Locale } from '@/i18n/config';
 import { localeToMarket } from '@/lib/social/market-prompts';
-import { logAiCall } from '@/lib/ai/log';
+import { logAiCall, type LogAiCallInput } from '@/lib/ai/log';
 
 const HAIKU_MODEL = 'claude-haiku-4-5-20251001';
 
@@ -48,6 +48,29 @@ export interface AuditResult {
   facts: ImportedFacts;
   drafts: Record<AuditDraftLocale, DrafterResult>;
   usage: { inputTokens: number; outputTokens: number };
+  /** Per-Anthropic-call cost rows the caller should flush to
+   *  ai_generation_log AFTER inserting the ai_audits row. We can't
+   *  log them here because ai_generation_log.audit_id has a FK to
+   *  ai_audits(id) and the audit row doesn't exist yet — silently
+   *  fails with 23503 (logged in production 2026-05-18). The caller
+   *  uses flushAuditLogs() below to write all rows in one shot. */
+  pendingLogs: LogAiCallInput[];
+}
+
+/**
+ * Flush the pendingLogs collected during runAudit. Call this AFTER
+ * inserting the ai_audits row so the FK constraint on
+ * ai_generation_log.audit_id is satisfied. Awaited per-call — Edge
+ * runtime kills unawaited promises when the response is sent — but
+ * each logAiCall has its own try/catch so a logging failure here
+ * never bubbles into the user response.
+ */
+export async function flushAuditLogs(
+  logs: LogAiCallInput[],
+): Promise<void> {
+  for (const entry of logs) {
+    await logAiCall(entry);
+  }
 }
 
 export async function runAudit(args: {
@@ -62,14 +85,14 @@ export async function runAudit(args: {
 }): Promise<AuditResult> {
   const importResult = await importFromUrl({ url: args.url });
   const facts = importResult.facts;
-  // Phase 5.5: log the importFromUrl Sonnet call so daily cost
-  // rollups reflect TOTAL audit cost (import + drafters), not just
-  // the drafter portion. AWAITed — Cloudflare Edge runtime kills
-  // unawaited promises when the request handler returns (QA
-  // 2026-05-17: void logAiCall produced 0 rows in production).
-  // logAiCall has its own try/catch so a write failure won't throw
-  // here — the await just keeps the promise alive past the response.
-  await logAiCall({
+  // Buffer the cost rows in memory rather than writing them now.
+  // ai_generation_log.audit_id has a FK to ai_audits(id) and the
+  // ai_audits row is inserted at the END of /api/audit/start — so
+  // writing here gets the row silently rejected with FK violation
+  // 23503 (diagnosed via wrangler tail 2026-05-18). The route
+  // handler calls flushAuditLogs() AFTER the ai_audits insert.
+  const pendingLogs: LogAiCallInput[] = [];
+  pendingLogs.push({
     auditId: args.auditId ?? null,
     purpose: 'audit_import',
     model: importResult.model,
@@ -132,12 +155,8 @@ export async function runAudit(args: {
       inputTokens += result.usage.inputTokens;
       outputTokens += result.usage.outputTokens;
     }
-    // Per-call cost + usage log — Phase 5.5 unit-economics observability.
-    // AWAITed (not void) — Cloudflare Edge runtime kills unawaited
-    // promises when the response is sent. Adds ~50ms per call =
-    // ~150ms per audit. logAiCall has its own try/catch so a logging
-    // failure won't bubble.
-    await logAiCall({
+    // Buffer for post-insert flush — see note at the audit_import push above.
+    pendingLogs.push({
       auditId: args.auditId ?? null,
       purpose: 'audit_draft',
       model: HAIKU_MODEL,
@@ -153,5 +172,6 @@ export async function runAudit(args: {
     facts,
     drafts,
     usage: { inputTokens, outputTokens },
+    pendingLogs,
   };
 }
