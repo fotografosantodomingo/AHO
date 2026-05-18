@@ -18,10 +18,11 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getUserFavoriteIds } from '@/lib/listings/favorites';
 import {
   buildBreadcrumbList,
+  buildGraph,
   buildItemList,
   buildPlace,
-  serializeJsonLd,
 } from '@/lib/seo/jsonld';
+import { JsonLd } from '@/components/seo/JsonLd';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -214,20 +215,12 @@ export default async function CityLandingPage({
     })(),
   });
 
+  // Single @graph: Place + BreadcrumbList + ItemList (listings).
+  const pageGraph = buildGraph([placeLd, breadcrumbLd, itemListLd]);
+
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: serializeJsonLd(placeLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: serializeJsonLd(itemListLd) }}
-      />
+      <JsonLd node={pageGraph} />
       <main>
         <LocationSubBar
           locale={typedLocale}

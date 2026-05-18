@@ -5,6 +5,8 @@ import { localePath } from '@/i18n/routing';
 import { LandingPage, type LandingCopy } from '@/components/marketing/landing-page';
 import { buildLandingAlternates } from '@/lib/seo/landing-alternates';
 import { publicEnv } from '@/lib/env';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { buildGraph, type JsonLdNode } from '@/lib/seo/jsonld';
 
 export const runtime = 'edge';
 export const dynamic = 'force-static';
@@ -174,24 +176,17 @@ export default async function AutomationPage({
     })),
   };
 
+  // Single @graph: BreadcrumbList + Service + Product + FAQPage.
+  const pageGraph = buildGraph([
+    breadcrumbJsonLd as JsonLdNode,
+    serviceJsonLd as JsonLdNode,
+    productJsonLd as JsonLdNode,
+    faqJsonLd as JsonLdNode,
+  ]);
+
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-      />
+      <JsonLd node={pageGraph} />
       <LandingPage
         copy={copy}
         primaryCtaHref={pricingFocusHref}

@@ -9,6 +9,8 @@ import {
   parseSlugParam,
 } from '@/lib/listings/queries';
 import { buildSeoMeta, buildListingJsonLd, listingUrls } from '@/lib/listings/seo';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { buildGraph, type JsonLdNode } from '@/lib/seo/jsonld';
 import { buildWhatsAppLink } from '@/lib/leads/whatsapp';
 // ContactForm lazy-loaded below — it's below the fold + bundles ~50 KiB
 // of zod + react-hook-form + Turnstile widget. Keeping it out of the
@@ -326,14 +328,20 @@ export default async function PropertyDetailPage({
       )}
 
       {/* JSON-LD lives in the body — Next.js dedupes scripts in head, but for
-          structured data the body works equivalently for crawlers. */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+          structured data the body works equivalently for crawlers. Single
+          @graph: buildListingJsonLd already returns one (WebSite +
+          Organization + RealEstateListing + Agent + FAQPage + a
+          generic listing-shaped BreadcrumbList). We MERGE the page-level
+          richer geographic BreadcrumbList in by replacing the generic
+          one inside the listing graph — emitting two BreadcrumbList
+          nodes confuses Google. */}
+      <JsonLd
+        node={(() => {
+          const innerGraph = (jsonLd['@graph'] as JsonLdNode[]).filter(
+            (n) => n['@type'] !== 'BreadcrumbList',
+          );
+          return buildGraph([...innerGraph, breadcrumbJsonLd as JsonLdNode]);
+        })()}
       />
 
       <main className="mx-auto max-w-5xl px-6 py-8 md:py-10">
@@ -483,7 +491,12 @@ export default async function PropertyDetailPage({
             listing is active+published (gated by SECURITY DEFINER RPC).
             WhatsApp link prefers the agent's dedicated WhatsApp number,
             falls back to their main phone. */}
+        {/* id="contact" is the anchor target for Schema.org's
+            tourBookingPage (set in lib/listings/seo.ts → buildListingJsonLd)
+            — Google links to `/properties/<slug>#contact` from rich
+            results when offering the "Schedule a tour" CTA. */}
         <section
+          id="contact"
           aria-labelledby="contact-heading"
           className="mt-12 grid gap-6 rounded-card border border-border bg-surface p-6 shadow-whisper dark:bg-surface-deep md:grid-cols-[1fr_1.2fr]"
         >

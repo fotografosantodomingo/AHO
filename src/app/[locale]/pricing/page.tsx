@@ -10,7 +10,8 @@ import {
   planTierLabel,
 } from '@/lib/billing/plan-gating';
 import { publicEnv } from '@/lib/env';
-import { buildProduct, serializeJsonLd } from '@/lib/seo/jsonld';
+import { buildBreadcrumbList, buildGraph, buildProduct } from '@/lib/seo/jsonld';
+import { JsonLd } from '@/components/seo/JsonLd';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -132,15 +133,18 @@ export default async function PricingPage({
     }),
   );
 
+  // Consolidate all three Products + a BreadcrumbList into one @graph
+  // so Google parses the page once and sees the entity relationships.
+  const homeUrl = `${site}/${typedLocale}`;
+  const breadcrumbLd = buildBreadcrumbList([
+    { name: 'AHO', url: homeUrl },
+    { name: t('heading'), url: pricingUrl },
+  ]);
+  const pricingGraph = buildGraph([...productLds, breadcrumbLd]);
+
   return (
     <main>
-      {productLds.map((ld, idx) => (
-        <script
-          key={`pld-${tierKeys[idx]}`}
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: serializeJsonLd(ld) }}
-        />
-      ))}
+      <JsonLd node={pricingGraph} />
       {/* Hero band. */}
       <section className="relative overflow-hidden border-b border-border">
         <DotGrid />

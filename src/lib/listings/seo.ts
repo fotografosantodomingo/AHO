@@ -3,6 +3,7 @@ import type { PropertyDetail, ListingContact } from './queries';
 import type { Locale } from '@/i18n/config';
 import { formatPrice } from './format';
 import { getCountryName } from '@/lib/i18n/countries';
+import { parseFeatures } from './features';
 // Re-export so existing call sites (formatPrice from '@/lib/listings/seo')
 // keep working. Client components should import from './format' directly.
 export { formatPrice };
@@ -263,6 +264,10 @@ export function buildListingJsonLd({ property: p, locale, contact, reviewSummary
     ...(p.displayAddress && p.addressLine ? { streetAddress: p.addressLine } : {}),
   };
 
+  // Parse the `features` jsonb once — used by both additionalProperty[]
+  // (numeric / enum facts) and amenityFeature[] (boolean facts) below.
+  const f = parseFeatures(p.features);
+
   // additionalProperty[] — surface non-canonical facts (yearBuilt, lotSize,
   // parking, heating, etc.) without polluting the top-level node. Google
   // reads these for the "Property details" card in rich results.
@@ -293,14 +298,163 @@ export function buildListingJsonLd({ property: p, locale, contact, reviewSummary
     value: p.propertyType,
   });
 
-  // amenityFeature[] — one LocationFeatureSpecification per unit amenity.
-  // Free-text amenities map to `name`; we set `value: true` because Schema.org's
-  // LocationFeatureSpecification.value is a boolean for binary features.
-  const amenityFeature = (p.amenities ?? []).map((a) => ({
+  // Extra facts from the `features` jsonb. Each one is a
+  // PropertyValue so Google's "Property details" rich card has a richer
+  // payload to render. Skip undefined fields (CLAUDE.md hard rule #8).
+  if (f.parkingSpaces != null) {
+    additionalProperty.push({
+      '@type': 'PropertyValue',
+      name: 'parkingSpaces',
+      value: f.parkingSpaces,
+    });
+  }
+  if (f.parkingType != null) {
+    additionalProperty.push({
+      '@type': 'PropertyValue',
+      name: 'parkingType',
+      value: f.parkingType,
+    });
+  }
+  if (f.stories != null) {
+    additionalProperty.push({
+      '@type': 'PropertyValue',
+      name: 'stories',
+      value: f.stories,
+    });
+  }
+  if (f.heatingFuel != null) {
+    additionalProperty.push({
+      '@type': 'PropertyValue',
+      name: 'heatingFuel',
+      value: f.heatingFuel,
+    });
+  }
+  if (f.cooling != null) {
+    additionalProperty.push({
+      '@type': 'PropertyValue',
+      name: 'cooling',
+      value: f.cooling,
+    });
+  }
+  if (f.exteriorMaterial != null) {
+    additionalProperty.push({
+      '@type': 'PropertyValue',
+      name: 'exteriorMaterial',
+      value: f.exteriorMaterial,
+    });
+  }
+  if (f.roofType != null) {
+    additionalProperty.push({
+      '@type': 'PropertyValue',
+      name: 'roofType',
+      value: f.roofType,
+    });
+  }
+  if (f.lastRenovationYear != null) {
+    additionalProperty.push({
+      '@type': 'PropertyValue',
+      name: 'lastRenovationYear',
+      value: f.lastRenovationYear,
+    });
+  }
+  if (f.water != null) {
+    additionalProperty.push({
+      '@type': 'PropertyValue',
+      name: 'water',
+      value: f.water,
+    });
+  }
+  if (f.sewer != null) {
+    additionalProperty.push({
+      '@type': 'PropertyValue',
+      name: 'sewer',
+      value: f.sewer,
+    });
+  }
+  if (f.schoolDistrict != null) {
+    additionalProperty.push({
+      '@type': 'PropertyValue',
+      name: 'schoolDistrict',
+      value: f.schoolDistrict,
+    });
+  }
+  if (f.distanceToBeachMeters != null) {
+    additionalProperty.push({
+      '@type': 'PropertyValue',
+      name: 'distanceToBeachMeters',
+      value: f.distanceToBeachMeters,
+      unitCode: 'MTR',
+    });
+  }
+  if (f.hoaFeeCents != null && f.hoaFeePeriod != null) {
+    // Emit HOA fee as a PropertyValue with the period encoded in the
+    // name (e.g. "hoaFeeMonthly"). Schema.org doesn't have a first-
+    // class HOA fee field; this keeps the structured signal intact.
+    const periodCapped = f.hoaFeePeriod === 'monthly' ? 'Monthly' : 'Annual';
+    additionalProperty.push({
+      '@type': 'PropertyValue',
+      name: `hoaFee${periodCapped}`,
+      value: (f.hoaFeeCents / 100).toFixed(0),
+      unitText: p.currency,
+    });
+  }
+  if (f.propertyTaxAnnualCents != null) {
+    additionalProperty.push({
+      '@type': 'PropertyValue',
+      name: 'propertyTaxAnnual',
+      value: (f.propertyTaxAnnualCents / 100).toFixed(0),
+      unitText: p.currency,
+    });
+  }
+  if (f.listingTerms && f.listingTerms.length > 0) {
+    additionalProperty.push({
+      '@type': 'PropertyValue',
+      name: 'listingTerms',
+      value: f.listingTerms.join(', '),
+    });
+  }
+
+  // amenityFeature[] — one LocationFeatureSpecification per unit
+  // amenity. Free-text amenities map to `name`; we set `value: true`
+  // because Schema.org's LocationFeatureSpecification.value is a
+  // boolean for binary features. Boolean features (furnished, balcony,
+  // terrace, basement, gated, securitySystem, solar, laundryInUnit,
+  // publicTransitNearby) become entries here when true. Community-
+  // level amenities are folded in too — Google doesn't distinguish
+  // between unit- and community-level for amenityFeature, but the
+  // total signal is richer.
+  const amenityFeature: Array<Record<string, unknown>> = (p.amenities ?? []).map((a) => ({
     '@type': 'LocationFeatureSpecification',
     name: a,
     value: true,
   }));
+  for (const a of f.communityAmenities ?? []) {
+    amenityFeature.push({
+      '@type': 'LocationFeatureSpecification',
+      name: a,
+      value: true,
+    });
+  }
+  const booleanFeatures: Array<[keyof typeof f, string]> = [
+    ['furnished', 'Furnished'],
+    ['laundryInUnit', 'In-unit laundry'],
+    ['balcony', 'Balcony'],
+    ['terrace', 'Terrace'],
+    ['basement', 'Basement'],
+    ['gated', 'Gated community'],
+    ['securitySystem', 'Security system'],
+    ['solar', 'Solar'],
+    ['publicTransitNearby', 'Public transit nearby'],
+  ];
+  for (const [key, name] of booleanFeatures) {
+    if (f[key] === true) {
+      amenityFeature.push({
+        '@type': 'LocationFeatureSpecification',
+        name,
+        value: true,
+      });
+    }
+  }
 
   // VideoObject schema — not emitted today because we don't yet store
   // video tours on properties. When that lands (Phase: scope TBD), the
@@ -352,6 +506,19 @@ export function buildListingJsonLd({ property: p, locale, contact, reviewSummary
   if (p.bedrooms != null && p.bathrooms != null) {
     listingNode.numberOfRooms = p.bedrooms + p.bathrooms;
   }
+
+  // petsAllowed — Schema.org first-class boolean. Only emit when the
+  // agent has actually stated a policy; "restricted" → omit because
+  // the boolean field can't express "with conditions" and Google
+  // would render an inaccurate yes/no.
+  if (f.petPolicy === 'allowed') listingNode.petsAllowed = true;
+  else if (f.petPolicy === 'none') listingNode.petsAllowed = false;
+
+  // tourBookingPage — anchor on the listing's own page that scrolls
+  // to the agent contact form. The detail page renders a `#contact`
+  // anchor for the inquiry form. Surfaces Google's "Schedule a tour"
+  // rich card link when present.
+  listingNode.tourBookingPage = `${canonical}#contact`;
 
   // GeoCoordinates — when the listing has precise lat/lng (migration
   // 0007 maintains these via trigger from PostGIS `location`).

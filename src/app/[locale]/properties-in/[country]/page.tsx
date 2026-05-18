@@ -11,10 +11,11 @@ import { LocationSubBar } from '@/components/location-sub-bar';
 import { publicEnv } from '@/lib/env';
 import {
   buildBreadcrumbList,
+  buildGraph,
   buildItemList,
   buildPlace,
-  serializeJsonLd,
 } from '@/lib/seo/jsonld';
+import { JsonLd } from '@/components/seo/JsonLd';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -141,22 +142,14 @@ export default async function CountryLandingPage({
         })
       : null;
 
+  // Single @graph: Place + BreadcrumbList + ItemList (when cities exist).
+  const pageGraph = buildGraph(
+    itemListLd ? [placeLd, breadcrumbLd, itemListLd] : [placeLd, breadcrumbLd],
+  );
+
   return (
     <main>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: serializeJsonLd(placeLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbLd) }}
-      />
-      {itemListLd && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: serializeJsonLd(itemListLd) }}
-        />
-      )}
+      <JsonLd node={pageGraph} />
       <LocationSubBar
         locale={typedLocale}
         countryCode={cc}

@@ -121,6 +121,56 @@ jobs:
           fi
           echo "✓ /en/dashboard 307 → /en/signin (auth gate intact)"
 
+      - name: Assert JSON-LD present and parseable on homepage + a listing-like surface
+        # Catches regressions where a refactor accidentally drops the
+        # <script type="application/ld+json"> tag from a page. Asserts:
+        #   (1) the page emits at least one JSON-LD script (the
+        #       site-wide Organization + WebSite from layout)
+        #   (2) the bytes between the script's open + close tags parse
+        #       as JSON (catches truncation, accidental string drift,
+        #       missing `serializeJsonLd` escape).
+        # /en/for-agents is a higher-value test surface than the home
+        # because it carries the Service + Product + FAQPage graph;
+        # if that page's @graph breaks, marketing rich-results die.
+        #
+        # IMPLEMENTATION NOTE — the JSON-LD extraction + parse runs
+        # via `python3 -c` reading the HTML from a file, NOT a heredoc.
+        # Heredocs inside YAML's `run: |` block carry the YAML indent
+        # as part of stdin, which Python rejects as IndentationError on
+        # the first non-comment line. The -c form is fork-clean and
+        # indent-immune.
+        shell: bash
+        run: |
+          set -euo pipefail
+          PY_CHECK='
+          import json, re, sys
+          html = open("/tmp/page.html").read()
+          m = re.search(r"<script[^>]+type=\"application/ld\+json\"[^>]*>(.*?)</script>", html, re.S)
+          if not m:
+              print("::error::regex failed to extract JSON-LD payload")
+              sys.exit(1)
+          payload = m.group(1).replace(r"<", "<")
+          try:
+              json.loads(payload)
+          except Exception as e:
+              print(f"::error::JSON-LD payload did not parse: {e}")
+              sys.exit(1)
+          '
+          assert_jsonld() {
+            local path="$1"
+            curl -sf "$BASE$path" -o /tmp/page.html
+            local count
+            count=$(grep -c 'application/ld+json' /tmp/page.html || true)
+            if [ "$count" -lt 1 ]; then
+              echo "::error::$path emitted ZERO JSON-LD scripts (expected ≥1)"
+              exit 1
+            fi
+            python3 -c "$PY_CHECK"
+            echo "✓ $path: $count JSON-LD script(s), first one parses"
+          }
+          assert_jsonld /en
+          assert_jsonld /en/for-agents
+
       - name: Assert ImageResponse renders non-empty bytes
         # This is the big one — the 2026-05-17 devIndicators:false
         # regression (and again the 2026-05-18 satori woff2 issue)

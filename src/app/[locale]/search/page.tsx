@@ -14,8 +14,6 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { precomputeApproxLabels } from '@/lib/currency/server';
 import { getUserFavoriteIds } from '@/lib/listings/favorites';
 import { getCountriesIndex } from '@/lib/listings/countries';
-import { publicEnv } from '@/lib/env';
-import { buildWebSite, serializeJsonLd } from '@/lib/seo/jsonld';
 
 export const runtime = 'edge';
 
@@ -112,27 +110,12 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
   // /search page itself is robots:noindex (faceted URLs cause infinite
   // crawl loops per HANDOFF §16.7), but the WebSite schema is keyed by
   // the locale-rooted home URL and is independent of the noindex on
-  // this page — Google still picks it up because crawlers follow
-  // sitelinks-searchbox to the home, fetch this page once for the
-  // schema, and don't re-index its faceted variants. The placeholder
-  // `{search_term_string}` is required by Google's spec; the helper
-  // throws if it's missing.
-  const tSite = await getTranslations({ locale, namespace: 'site' });
-  const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
-  const homeUrl = `${site}/${locale}`;
-  const websiteLd = buildWebSite({
-    name: tSite('name'),
-    url: homeUrl,
-    inLanguage: typedLocale,
-    searchUrlTemplate: `${site}${searchHref}?q={search_term_string}`,
-  });
+  // WebSite + SearchAction now live in [locale]/layout.tsx (emitted
+  // once per page with a stable @id). This page used to re-emit them;
+  // removed to avoid duplicate WebSite nodes in the rendered HTML.
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: serializeJsonLd(websiteLd) }}
-      />
       {/* Pre-warm TLS to the OpenStreetMap tile origin the moment a
           visitor lands on /search. The map view is one click away (or
           already rendered if `?view=map`), and on a mobile connection

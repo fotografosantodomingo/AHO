@@ -14,6 +14,8 @@ import { publicEnv } from '@/lib/env';
 import { getCountryName } from '@/lib/i18n/countries';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getUserFavoriteIds } from '@/lib/listings/favorites';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { buildGraph, type JsonLdNode } from '@/lib/seo/jsonld';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -355,22 +357,20 @@ export default async function AgentProfilePage({
       ? 'Agente inmobiliario'
       : 'Real estate agent';
 
+  // Consolidate the three previously-separate JSON-LD blocks into one
+  // @graph document. Google parses the page once instead of three
+  // times, the entity relationships are explicit, and the bytes
+  // shrink slightly (single @context). The agent node also gets a
+  // stable @id (the canonical profile URL) so it can be cross-
+  // referenced from other surfaces (notably the listing's seller).
+  const agentNodeWithId: JsonLdNode = { ...jsonLd, '@id': profileUrl };
+  const graphNodes: JsonLdNode[] = [agentNodeWithId, breadcrumbJsonLd as JsonLdNode];
+  if (faqJsonLd) graphNodes.push(faqJsonLd as JsonLdNode);
+  const agentGraph = buildGraph(graphNodes);
+
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
-      />
-      {faqJsonLd && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-        />
-      )}
+      <JsonLd node={agentGraph} />
       <main>
         {/* Hero band — dot-grid + glow, logo or initials chip on the seam. */}
         <section className="relative overflow-hidden border-b border-border">
