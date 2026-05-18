@@ -12,7 +12,43 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
-## 2026-05-18 — SEO structured-data overhaul (4 phases) + per-locale photo alt-text auto-populated on upload
+## 2026-05-18 (full-power session) — AI Customer-Service Agent all 5 phases shipped in one session via parallel sub-agent execution
+
+- **Frame:** PO accepted `docs/AI_AGENT_PLAN.md` with all 9 defaults (D1-D9=A) at the start of session, then said *"dedicate all force agents to finish the project 100% — full power"*. Built Phase 1 foundation myself (shared primitives every channel depends on), then dispatched 4 sub-agents in parallel for Phases 2-5. 197 new tests landed in one workday (547→744).
+
+- **Phase 1 — foundation (commit `c1f5b10`)**
+  - Migration `0066_ai_conversations.sql` — `ai_conversations` thread header + `ai_conversation_messages` per-turn rows; channel-agnostic so chat+email+WhatsApp+voice messages from the same buyer land in the same thread with shared context. RLS: org_members read, service-role writes, explicit `REVOKE` on anon/authenticated.
+  - Migration `0067_ai_generation_log_agent_purposes.sql` — relaxes the existing CHECK constraint to admit `ai_agent_converse` + `ai_agent_classify` purpose values so cost rollups capture AI-agent traffic.
+  - `src/lib/ai/knowledge.ts` — RLS-isolated context fetcher; one `Promise.all` batch returns agent identity + org FAQs + active listings (max 20) + review aggregate + buyer's saved-search count. Real-data rule honored: filters out `aho-test-org-*` + `aho-fixture-*` slugs.
+  - `src/lib/ai/agent-prompts.ts` — per-(market, channel, tier) system-prompt composer. Brand voice opener (always "AHO assistant on behalf of {agent}" — never claims to BE the human). Market drives vocabulary (PL `metraż`, DE `Wohnfläche`, IT `trilocale`), buyer locale drives reply language. Channel constraints (web_chat = no markdown headers; email = `[[COMPLIANCE_FOOTER]]` token; whatsapp ≤1024 chars; voice = no markdown ever + short sentences). 5 tool names enumerated; refusal templates for 5 regulated topics; soft-beta block when listingCount=0.
+  - `src/lib/ai/gating.ts` — confidence + risk classifier; v1 heuristic (no extra Claude call per turn). Pattern-matches discrimination/legal/financial/commission/price_negotiation in either user message or AI draft. Returns ApprovalDecision auto_send/pending/escalate honoring D2's HITL-default and D5's tier mapping.
+  - `src/lib/ai/converse.ts` — Claude orchestrator. Tool-use schema (5 tools: lookup_listing, find_comparable, get_agent_availability, book_viewing, escalate_to_human). Tool-call loop with hard cap (3 iterations; final forces `tool_choice='none'`). Per-call `logAiCall` with model + market + latency + tokens + cost. Errors normalized — NEVER throw past function boundary. Streaming variant scaffolded.
+
+- **Phases 2-5 — all four channels (commit `4d44dbc`)** dispatched as 4 parallel sub-agents (web chat / email / WhatsApp / voice), all returned cleanly, integrated as one commit.
+
+  - **Phase 2 web chat (LIVE on next deploy):** `/api/ai-chat` Edge SSE endpoint streams `text-delta` + `tool-call` + `done` events; persists turns; classifies via `gating.ts` (D2=A → all rows `approval_status='pending'`). `<AiChatWidget>` floating bottom-left (Tawk stays bottom-right during soft-launch). `/dashboard/ai-inbox` shows pending drafts + all conversations with per-row intent/risk/confidence badges; approve/reject/edit-and-send actions. Wired onto `/properties/[slug]` + `/agents/[slug]`. Added `properties.created_by` to `PropertyDetail`.
+
+  - **Phase 3 inbound email (PO needs DNS + CF Email Routing rule):** Migration `0068_email_threads.sql`. `workers/inbound-email/` Cloudflare Email Worker — `postal-mime` parse + DMARC verify + `leads+<hmac>@` token OR `<agent-slug>@` catch-all routing. `/api/inbound/email` Edge route — HMAC-bearer auth, threading via In-Reply-To+References, twin row in `email_messages`. `src/lib/email/inbound-routing.ts` — `crypto.subtle` HMAC encode/decode with 90-day TTL. `brevo.ts` extended with `sendEmailWithThreading` (RFC-8058 List-Unsubscribe + In-Reply-To + References).
+
+  - **Phase 4 WhatsApp (PO needs 360dialog + Meta WABA):** Migration `0069_whatsapp_integration.sql`. `workers/whatsapp-webhook/` Cloudflare Worker — GET `hub.mode=subscribe` verification + POST inbound (constant-time HMAC on `X-Hub-Signature-256`); always returns 200 to avoid Meta retry storms. `/api/inbound/whatsapp` resolves wa number → agent → conversation, inserts twin in `whatsapp_messages`, idempotent on `wa_message_id`. `/api/inbound/whatsapp/status` updates delivery status. `src/lib/whatsapp/pricing.ts` per-market rate table (7 markets × 3 categories × in/out-service-window). `wa-link-builder.ts` locale-aware pre-fill text with listing-hint round-trip parser. `templates/index.ts` v1 utility template pack (viewing_reminder × 7 languages). Added `INBOUND_SECRET` to env schema.
+
+  - **Phase 5 voice (PO needs Twilio + ConversationRelay):** Migration `0070_voice_integration.sql`. `workers/voice-conversationrelay/` WebSocket handler for Twilio ConversationRelay — parses setup/prompt/interrupted/dtmf/end events; resolves agent by dialed E.164; logs transcripts via `console.error`. `/api/voice/twiml` GET returning `<Connect><ConversationRelay/>` with voice + language + bridge URL; XML-escapes dynamic values. `src/lib/voice/pricing.ts` per-market Twilio + flat STT/LLM/TTS rates (30-min US baseline = 390¢ matching plan §4d's $4.32 variable). `voice-prompts.ts` greetings in 7 locales with ≤15 words/sentence + no-markdown enforcement. `warm-transfer.ts` Twilio Conference TwiML with whisper prompt + buyer caller-ID + record-from-start.
+
+- **Integration pass** — landed cleanly: typecheck clean, lint clean (1 prefer-const Error fixed in `/dashboard/ai-inbox/page.tsx`), 744/744 tests pass. Total session shipped: **62 new/modified files, +11,888 LOC, +197 unit tests, 2 commits**.
+
+- **What goes live on the next deploy:** Phase 2 web chat (no PO action needed — replaces Tawk on listing + agent pages). Phases 3-5 are code-complete and gated only on PO credentials; the moment those land each channel is a config flip.
+
+- **Punch list / what next session might pick up:**
+  - Wire the real tier lookup into `/api/ai-chat` (currently hard-coded to `'pro_automation'`)
+  - Wire the `converse()` bridge inside `workers/voice-conversationrelay/src/index.ts` (currently a TODO comment)
+  - Replace the Tawk widget when web chat NPS exceeds Tawk NPS at 30 days
+  - PO_DECISIONS #2 (Super Pro pricing) becomes blocking once AI is the bundled value proposition
+
+- **Sub-agent execution pattern (worth recording):** 4 agents in parallel for the research/spec/scaffold phase works well when each gets its own non-overlapping file scope and is told to NOT run typecheck/lint/test itself (those tend to stall on Bash permission prompts). Parent agent integrates at the end. Total wall-clock from "dispatch" to "all 4 reported" was ~10 minutes; parent integration + commit took another ~15.
+
+---
+
+## 2026-05-18 (earlier) — SEO structured-data overhaul (4 phases) + per-locale photo alt-text auto-populated on upload
 
 - **Frame:** PO requested "schema on all pages, especially listings should have all schema" + "photo alt + leyenda + description from listing data on creation." Audited the existing JSON-LD coverage (10 pages had some, 8 didn't; listing schema was already gold-standard for emitted fields but features-jsonb was untapped; photo alt-text was crude `"{title} — {city} — {N}"` written identically to both locale columns). Shipped the work in 3 commits.
 

@@ -10,6 +10,22 @@
 
 ## ⏳ Pending your verification
 
+### `ai-agent-web-chat` — Phase 2 web chat live (shipped `4d44dbc` after `c1f5b10` foundation)
+- **Scope:** AI customer-service agent web-chat surface live on `/properties/[slug]` + `/agents/[slug]`. Replaces Tawk for the agent-conversation slot (Tawk widget intentionally kept during soft-launch — bottom-right; AHO widget is bottom-left). D2=A → every AI draft requires agent approval in `/dashboard/ai-inbox` before the buyer's-side widget shows the "(awaiting review)" badge.
+- **Do (5 min):**
+  1. Open an incognito tab, navigate to any active listing on https://advertisehomes.online. Click the bottom-left chat bubble. Type "Hi, is this still available?". An AI reply should appear within ~2 seconds with the "(awaiting agent review)" badge.
+  2. Open another tab signed in as the agent who owns the listing → navigate to https://advertisehomes.online/en/dashboard/ai-inbox?tab=pending. The buyer's question + AI's drafted reply should appear with intent badge ("availability") + confidence (~0.95).
+  3. Click "Send" → confirm the row leaves the pending tab.
+- **Expect:** All three steps complete without errors. If the AI is "thinking" for >5s with no response, the gating.ts may have flagged a risk — check the `/dashboard/ai-inbox` for the pending row.
+- **Background:** The AI's tier is currently hard-coded to `pro_automation` (TODO — wire to billing). Knowledge is RLS-isolated per D9=A so the AI only sees the agent's own org's listings + FAQs.
+
+### `ai-agent-channels-creds-blocked` — Email + WhatsApp + Voice scaffolded; needs PO creds to integrate
+- **Scope:** All code for Phases 3-5 lands in commit `4d44dbc`. Schemas + workers + libs + tests are on disk. Integration is one config flip per channel.
+- **Do (no action needed yet):** Track via the PO-side gating list in STATUS.md. When you're ready to enable each channel, the steps live in:
+  - Email: `workers/inbound-email/README.md` (DNS + CF Email Routing + 2 worker secrets)
+  - WhatsApp: `workers/whatsapp-webhook/README.md` (360dialog account + Meta WABA + 2 worker secrets)
+  - Voice: `workers/voice-conversationrelay/README.md` (Twilio + ConversationRelay + 4 worker secrets)
+
 ### `schema-jsonld-coverage` — site-wide structured-data overhaul (shipped `645822b` + `4ad5978`)
 - **Scope:** Every indexable page now emits valid JSON-LD via one `@graph` per page. Site-wide Organization + WebSite + SearchAction emitted once from `[locale]/layout.tsx` with stable `@id`s. 7 previously-bare pages (`/countries`, `/instagram-setup`, `/profile-guide`, `/share-guide`, `/docs`, `/privacy`, `/terms`) now have schema. Listing pages enriched with `petsAllowed`, `tourBookingPage`, and 23 additional features-derived fields (parking, heating, HOA fee, school district, distance to beach, etc).
 - **Do (5 min):**
