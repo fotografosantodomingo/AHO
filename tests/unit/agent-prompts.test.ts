@@ -219,10 +219,10 @@ describe('buildAgentSystemPrompt', () => {
     expect(prompt).toMatch(/superlatives/i);
   });
 
-  it('prompt length is between 1500 and 5000 characters', () => {
+  it('prompt length is between 1500 and 6000 characters', () => {
     const prompt = buildAgentSystemPrompt(base());
     expect(prompt.length).toBeGreaterThanOrEqual(1500);
-    expect(prompt.length).toBeLessThanOrEqual(5000);
+    expect(prompt.length).toBeLessThanOrEqual(6000);
   });
 
   it('prompt length stays in budget across the (channel, market, tier) matrix', () => {
@@ -236,7 +236,12 @@ describe('buildAgentSystemPrompt', () => {
             base({ channel, market, tier, buyerLocale: market === 'us' ? 'en' : market }),
           );
           expect(prompt.length).toBeGreaterThanOrEqual(1500);
-          expect(prompt.length).toBeLessThanOrEqual(5000);
+          // Ceiling bumped from 5000 → 6000 after Phase-2 follow-up
+          // (commit 2026-05-18) added a compact ~400-char ABOUT AHO
+          // appendix so the per-agent AI can answer "what is this
+          // site?"-style buyer drift questions inline. 6000 chars
+          // ≈ ~1500 input tokens; still cheap per-turn.
+          expect(prompt.length).toBeLessThanOrEqual(6000);
         }
       }
     }

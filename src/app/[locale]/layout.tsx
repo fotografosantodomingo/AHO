@@ -8,7 +8,9 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/footer/site-footer';
 import { PwaRegister } from '@/components/pwa-register';
+import { ConditionalAhoAssistant } from '@/components/chat/conditional-aho-assistant';
 import { JsonLd } from '@/components/seo/JsonLd';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { buildOrganization, buildWebSite, buildGraph } from '@/lib/seo/jsonld';
 import { localePath } from '@/i18n/locale-path';
 import '../globals.css';
@@ -117,6 +119,14 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
   const messages = await getMessages();
 
+  // Probe auth state once for the AHO Assistant widget. The widget
+  // uses it to choose between sign-up nudges (anon) and "view your
+  // dashboard" nudges (signed-in). Cheap call, RSC-safe; the user
+  // row comes from the same Supabase auth cookie the header reads.
+  const supabase = await createServerSupabaseClient();
+  const { data: userResult } = await supabase.auth.getUser();
+  const isAuthenticated = !!userResult.user;
+
   // Site-wide JSON-LD — emits Organization + WebSite once per page
   // load. Stable `@id`s let per-page graphs (property listings,
   // agent profiles, place pages) cross-reference rather than re-emit.
@@ -200,15 +210,22 @@ export default async function LocaleLayout({
           </ThemeProvider>
         </NextIntlClientProvider>
         <PwaRegister />
+        {/* AHO platform assistant — answers Q&A about AHO itself
+            (pricing, features, how-to, troubleshooting). Mounted
+            site-wide but the wrapper skips per-agent-AI surfaces
+            (/properties/[slug], /agents/[slug]) and single-purpose
+            flows (auth, onboarding, admin, preview). See
+            src/components/chat/conditional-aho-assistant.tsx for the
+            full skip-list. */}
+        <ConditionalAhoAssistant
+          userLocale={locale as Locale}
+          isAuthenticated={isAuthenticated}
+        />
         {/* TawkWidget retired 2026-05-18 — replaced by AIChatWidget on
-            listing + agent pages. AHO's first-party AI chat (Phase 2
-            of docs/AI_AGENT_PLAN.md) supersedes Tawk's third-party
-            human-chat widget; the AI persona has direct RLS-scoped
-            access to the agent's listings + FAQs + reviews where
-            Tawk had no listing context. Component file at
-            src/components/chat/tawk-widget.tsx is kept for quick
-            rollback (re-import + re-mount one line) if AI chat NPS
-            drops below Tawk's at 30 days (risk R13 in
+            listing + agent pages + AhoAssistantWidget on platform
+            pages. Component file at src/components/chat/tawk-widget.tsx
+            is kept for quick rollback (re-import + re-mount one line)
+            if AI chat NPS drops below Tawk's at 30 days (risk R13 in
             AI_AGENT_PLAN.md). */}
       </body>
     </html>

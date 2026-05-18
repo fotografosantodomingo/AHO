@@ -43,6 +43,8 @@
  */
 
 import type { Locale } from '@/i18n/config';
+import { narrowContentLocale } from '@/i18n/config';
+import { ahoPlatformKb } from '@/lib/ai/aho-platform-kb';
 
 export type AgentChannel = 'web_chat' | 'email' | 'whatsapp' | 'voice';
 export type AgentTier = 'free' | 'pro_automation' | 'super_pro' | 'agency';
@@ -355,5 +357,43 @@ export function buildAgentSystemPrompt(args: AgentPromptInput): string {
     ].join('\n'),
   );
 
+  // 11. AHO platform knowledge appendix — so the per-agent AI can
+  // ALSO answer buyer questions about AHO itself ("what is this
+  // site?", "how do I save this listing?", "what's the privacy
+  // policy?") without bouncing them off to a separate assistant.
+  // Trimmed: only the URLs + a one-line "what is AHO" + the most
+  // common buyer-side FAQs. The full KB lives in the AHO Assistant
+  // (different surface, different conversation). Compact on purpose —
+  // ~600 tokens — so it doesn't crowd out the agent-specific
+  // knowledge.
+  sections.push(buildAhoPlatformAppendix(buyerLocale, agent.name));
+
   return sections.join('\n\n');
+}
+
+/**
+ * Compact AHO-platform-knowledge appendix appended to every per-agent
+ * system prompt. The per-agent AI is FIRST a specialist in the agent
+ * + their listings, but it must also know the platform well enough to
+ * answer the common drift questions ("what is AHO?", "how do I save
+ * this property?", "what's the privacy policy?").
+ *
+ * The full platform KB (pricing tiers, all features, all how-tos, all
+ * troubleshooting) is in the AHO Assistant's system prompt
+ * (src/lib/ai/aho-assistant-prompt.ts). Here we only need the tip of
+ * the iceberg: identity + the most-asked buyer-side facts + URLs.
+ */
+function buildAhoPlatformAppendix(buyerLocale: Locale, agentName: string): string {
+  const cl = narrowContentLocale(buyerLocale);
+  const kb = ahoPlatformKb(cl);
+  // Deliberately compact: ≤400 chars total. The per-agent AI is FIRST
+  // a specialist in the agent + their listings; this appendix only
+  // teaches it to NOT get confused by stray platform-Q&A and to
+  // redirect cleanly. Full platform knowledge lives in the AHO
+  // Assistant's prompt.
+  return [
+    `ABOUT AHO (platform): ${kb.what_is_aho}`,
+    `Useful URLs: ${kb.canonicalUrls.docs} (help) · ${kb.canonicalUrls.privacy} · ${kb.canonicalUrls.terms}`,
+    `If the buyer asks about AHO billing / signup / dashboard, redirect: "the AHO assistant on the homepage can answer that — I focus on ${agentName}'s listings."`,
+  ].join('\n');
 }
