@@ -119,8 +119,13 @@ export default async function PreviewPage({
   // the alternative (using ctx.waitUntil) requires reaching into
   // next-on-pages internals which is fragile. Try/catch keeps a
   // logging-write failure from breaking the page render.
+  // Destructure the PostgrestResponse — supabase-js does NOT throw on
+  // row-level errors (RLS denial, constraint failure, schema mismatch).
+  // Pre-2026-05-18 we only logged catches around network throws and
+  // silent insert failures produced 0 rows in production without ever
+  // surfacing in logs. Now we log the postgrest error if present.
   try {
-    await admin.from('audit_funnel_events').insert({
+    const view = await admin.from('audit_funnel_events').insert({
       audit_id: auditId,
       event: 'preview_view',
       ip_hash: ipHash,
@@ -128,8 +133,17 @@ export default async function PreviewPage({
       locale,
       user_agent: userAgent,
     });
+    if (view.error) {
+      console.error('[preview] funnel postgrest error (view)', {
+        code: view.error.code,
+        message: view.error.message,
+        details: view.error.details,
+        hint: view.error.hint,
+        auditId,
+      });
+    }
     if (justClaimed) {
-      await admin.from('audit_funnel_events').insert({
+      const claim = await admin.from('audit_funnel_events').insert({
         audit_id: auditId,
         event: 'preview_claim',
         ip_hash: ipHash,
@@ -137,9 +151,16 @@ export default async function PreviewPage({
         locale,
         user_agent: userAgent,
       });
+      if (claim.error) {
+        console.error('[preview] funnel postgrest error (claim)', {
+          code: claim.error.code,
+          message: claim.error.message,
+          auditId,
+        });
+      }
     }
   } catch (err) {
-    console.error('[preview] funnel insert failed', err);
+    console.error('[preview] funnel insert threw', err);
   }
 
   const facts = audit.facts as ImportedFacts;

@@ -47,7 +47,14 @@ export async function logAiCall(input: LogAiCallInput): Promise<void> {
       input.inputTokens,
       input.outputTokens,
     );
-    await admin.from('ai_generation_log').insert({
+    // Destructure the PostgrestResponse — supabase-js does NOT throw on
+    // a row-level error (RLS denial, constraint violation, schema
+    // mismatch). It returns the error as a property on the resolved
+    // value. Pre-2026-05-18 we ignored that and only the try/catch
+    // wrapped network-level failures, so silent insert failures
+    // produced 0 rows in production without surfacing in logs. Now we
+    // log the postgrest error explicitly when present.
+    const { error } = await admin.from('ai_generation_log').insert({
       audit_id: input.auditId ?? null,
       purpose: input.purpose,
       model: input.model,
@@ -58,10 +65,20 @@ export async function logAiCall(input: LogAiCallInput): Promise<void> {
       latency_ms: input.latencyMs,
       error_code: input.errorCode ?? null,
     });
+    if (error) {
+      console.error('[ai-log] postgrest error', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        purpose: input.purpose,
+        auditId: input.auditId,
+      });
+    }
   } catch (err) {
     // Never let a logging-write failure cascade into user-facing
     // failure. Drop the row + log the error; the audit / draft response
     // returns successfully regardless.
-    console.error('[ai-log] insert failed', err);
+    console.error('[ai-log] insert threw', err);
   }
 }
