@@ -42,18 +42,25 @@ jobs:
       CRON_SECRET: ${{ secrets.CRON_SECRET }}
 
     steps:
-      - name: Wait 30s for CDN propagation
+      - name: Wait for CDN propagation (homepage poll)
         # Cloudflare Pages reports success the instant the upload
-        # finishes; edge propagation lags ~10-20s. Sleep keeps us
-        # from racing the deploy.
-        run: sleep 30
-
-      - name: Assert homepage loads (HTTP 200 + brand mark)
+        # finishes; edge propagation lags ~10-30s and varies per
+        # PoP. Instead of a flat sleep, poll the homepage until
+        # we see the AHO wordmark — guarantees the new bundle is
+        # serving before we assert anything else. Max 90s, then
+        # fail fast.
         run: |
           set -euo pipefail
-          body=$(curl -sf "$BASE/en")
-          echo "$body" | grep -q 'AHO' || { echo "::error::homepage missing AHO wordmark"; exit 1; }
-          echo "✓ homepage loads + contains AHO"
+          for i in $(seq 1 18); do
+            body=$(curl -sf "$BASE/en" || echo "")
+            if echo "$body" | grep -q 'AHO'; then
+              echo "✓ homepage ready after $((i*5))s wait"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::homepage didn't propagate within 90s"
+          exit 1
 
       - name: Assert /en/for-agents loads (Free Audit wedge)
         run: |
