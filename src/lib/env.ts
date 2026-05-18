@@ -164,6 +164,22 @@ const serverSchema = z.object({
    *  Optional so build-time validation passes in envs that haven't
    *  wired Phase 4 yet; the route returns 503 when unset. */
   INBOUND_SECRET: z.string().min(32).optional(),
+  /** Shared bearer between `workers/inbound-email/` and the AHO Pages
+   *  app's `/api/inbound/email` route. Functionally equivalent to
+   *  `INBOUND_SECRET` but kept separate so the email channel can be
+   *  rotated independently of WhatsApp / voice without coordinating
+   *  three Worker deploys. Same shape rules (≥32 chars, optional at
+   *  build time, route returns 503 when unset). */
+  INBOUND_EMAIL_SECRET: z.string().min(32).optional(),
+  /** HMAC signing key for the `leads+<token>@reply.advertisehomes.online`
+   *  opaque addressing scheme. Encodes `{lead_id, agent_id, listing_id?,
+   *  issuedAt}` into a base64url token the inbound-email worker decodes
+   *  to route messages directly to the right conversation. 90-day TTL
+   *  enforced inside `src/lib/email/inbound-routing.ts`. Generate via
+   *  `openssl rand -hex 32`; set on both the Worker
+   *  (`wrangler secret put LEADS_TOKEN_SECRET`) AND the Pages app
+   *  (env var `AHO_LEADS_TOKEN_SECRET`). Optional at build time. */
+  AHO_LEADS_TOKEN_SECRET: z.string().min(32).optional(),
 });
 
 export type PublicEnv = z.infer<typeof publicSchema>;

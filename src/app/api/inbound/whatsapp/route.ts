@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { serverEnv } from '@/lib/env';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { scheduleDraft } from '@/lib/ai/schedule-draft';
 
 export const runtime = 'edge';
 
@@ -248,45 +249,33 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // 7. Kick off the AI draft asynchronously. The stub keeps the route
-  // synchronous + 200-fast; the actual converse.ts call lands in a
-  // Phase 4 polish PR alongside the converse → send adapter.
-  scheduleDraft({
+  // 7. Kick off the AI draft synchronously (v1). Awaited because the
+  // Edge runtime kills unawaited promises once the response returns,
+  // and next-on-pages doesn't expose `ctx.waitUntil` cleanly. Adds
+  // ~2-4s of latency to the 200 ack; the upstream Worker waits but
+  // the BUYER doesn't (WhatsApp delivery is async on Meta's side).
+  // Per the schedule-draft helper docstring this is the pragmatic
+  // v1; a Cloudflare Queue-backed drafter is a later polish slice.
+  const draftResult = await scheduleDraft({
+    supabase,
     conversationId,
     agentId: waNumber.agent_id,
     orgId: waNumber.org_id,
   });
+  if (!draftResult.ok) {
+    console.error('[whatsapp inbound] draft failed', {
+      conversationId,
+      errorCode: draftResult.errorCode,
+    });
+    // Still return 200 — the user-turn landed; the agent will see it
+    // in /dashboard/ai-inbox even without an AI draft.
+  }
 
   return NextResponse.json({
     ok: true,
     conversation_id: conversationId,
     message_id: msgInserted.id,
   });
-}
-
-/**
- * Phase-4 stub. Same shape as the email-channel scheduleDraft in
- * `/api/inbound/email`. The polish PR replaces this with a queue
- * push (Cloudflare Queues or a Supabase pg_cron-driven worker) so
- * inbound HTTP handlers stay <200 ms p95.
- *
- * Why not just `void converse(...)` here:
- *   - The Edge runtime kills unawaited promises after the response
- *     returns (CLAUDE.md gotcha). We'd lose the draft silently.
- *   - We don't want the inbound webhook to wait on a 2-4s Anthropic
- *     call before acking 200 to the upstream Worker.
- *
- * The fix is `ctx.waitUntil(...)` — but next-on-pages doesn't expose
- * `ctx` cleanly inside route handlers. The Phase 4 polish PR adds a
- * dedicated drafter Worker + queue push; this stub keeps the
- * interface stable so the polish PR is a 1-line swap here.
- */
-function scheduleDraft(args: {
-  conversationId: string;
-  agentId: string;
-  orgId: string;
-}): void {
-  console.log('[whatsapp inbound] scheduleDraft stub', args);
 }
 
 function isValidBearer(header: string, secret: string): boolean {

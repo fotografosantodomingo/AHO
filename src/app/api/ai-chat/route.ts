@@ -8,6 +8,8 @@ import {
 } from '@/lib/ai/agent-prompts';
 import { converseStream, type ConverseMessage } from '@/lib/ai/converse';
 import { classifyAssistantTurn } from '@/lib/ai/gating';
+import { getOrgPlanId, planTierLabel } from '@/lib/billing/plan-gating';
+import { mapBillingTierToAgentTier } from '@/lib/ai/agent-tier';
 import type { Locale } from '@/i18n/config';
 
 export const runtime = 'edge';
@@ -215,12 +217,13 @@ export async function POST(req: NextRequest) {
     buyerLocale: body.buyerLocale as Locale,
   });
 
-  // v1: tier is hard-coded to 'pro_automation' until we wire the
-  // org → plan lookup. Per D2=A every channel is HITL regardless of
-  // tier in v1, so this is a safe default that doesn't accidentally
-  // promote anyone into auto-send. TODO: read the actual subscription
-  // tier from billing.
-  const tier = 'pro_automation' as const;
+  // Resolve the AGENT's billing tier (not the buyer's — buyers are
+  // anonymous on this surface). Per D5=A, AI inbox is bundled into
+  // Pro Automation; agents on lower tiers get HITL-only gating.
+  // Defaults gracefully to 'free' on lookup failure so the widget
+  // never breaks the page on a billing-table miss.
+  const agentPlanId = await getOrgPlanId(admin, org.id);
+  const tier = mapBillingTierToAgentTier(planTierLabel(agentPlanId));
 
   // Find the focus-listing title for the system prompt's optional
   // FOCUS LISTING block. fetchKnowledge has already sorted the focus

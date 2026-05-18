@@ -296,6 +296,97 @@ export function AiChatWidget({
     }
   }, [messages, isOpen]);
 
+  // HITL polling — every 5s while the widget is open AND the
+  // conversation is established, fetch the server's view of the
+  // thread from /api/ai-chat/poll. The buyer-side endpoint is gated
+  // by the per-conversation `buyer_session_token` so the same
+  // anonymous browser sees only its own conversation.
+  //
+  // Why poll instead of WebSockets / SSE-push: Cloudflare Pages
+  // anonymous-browser server-push is fiddly; a 5s poll is dirt-cheap
+  // (~$0 at our volumes), survives refresh / network drops without
+  // state, and absorbs the agent's approve / edit / reject without
+  // any extra plumbing on the dashboard side.
+  //
+  // Reconciliation strategy is intentionally coarse: we replace the
+  // local non-greeting / non-streaming rows with the server set.
+  // - "Greeting" rows (id = 'greeting') stay; they're synthetic.
+  // - "Streaming" rows (streaming: true) stay; the SSE is still
+  //   landing deltas into them. The poll is paused effectively when
+  //   sending=true.
+  // - Everything else is replaced by the server view. Rejected rows
+  //   are server-side filtered out (the buyer never sees a draft
+  //   the agent killed).
+  useEffect(() => {
+    if (!isOpen) return;
+    let cancelled = false;
+    let timerId: ReturnType<typeof setTimeout> | null = null;
+
+    const tick = async () => {
+      try {
+        // Re-read sessionRef on every tick so we pick up the
+        // conversationId after the first SSE round-trip lands it.
+        const convoId = sessionRef.current.conversationId;
+        const sessionToken = sessionRef.current.sessionToken;
+        if (!convoId || !sessionToken || sending) return; // skip; retry next tick
+
+        const url = `/api/ai-chat/poll?conversationId=${encodeURIComponent(convoId)}&sessionToken=${encodeURIComponent(sessionToken)}`;
+        const res = await fetch(url, { method: 'GET' });
+        if (!res.ok) return;
+        const data = (await res.json()) as {
+          ok: boolean;
+          messages?: Array<{
+            id: string;
+            role: 'user' | 'assistant' | 'system' | 'tool';
+            body: string;
+            approval_status: 'pending' | 'approved' | 'auto_sent' | 'rejected' | null;
+            created_at: string;
+          }>;
+        };
+        if (!data.ok || !Array.isArray(data.messages) || cancelled) return;
+
+        setMessages((prev) => {
+          // Keep the greeting + any streaming-in-progress rows
+          // unchanged.
+          const keep = prev.filter(
+            (m) => m.id === 'greeting' || m.streaming === true,
+          );
+          // Convert the server rows that aren't tool / system into
+          // widget Message rows.
+          const serverMessages: Message[] = data
+            .messages!.filter((m) => m.role === 'user' || m.role === 'assistant')
+            .map((m) => ({
+              id: m.id,
+              role: m.role as 'user' | 'assistant',
+              body: m.body,
+              approvalStatus:
+                m.role === 'assistant'
+                  ? m.approval_status === 'pending'
+                    ? 'pending'
+                    : 'auto_sent'
+                  : undefined,
+            }));
+          return [...keep, ...serverMessages];
+        });
+      } catch (err) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[ai-chat-widget] poll error', err);
+        }
+      } finally {
+        if (!cancelled) timerId = setTimeout(tick, 5000);
+      }
+    };
+
+    // Start the first tick after 5s so the local optimistic-insert
+    // flow lands first without contention.
+    timerId = setTimeout(tick, 5000);
+
+    return () => {
+      cancelled = true;
+      if (timerId !== null) clearTimeout(timerId);
+    };
+  }, [isOpen, sending]);
+
   const userTurnCount = messages.filter((m) => m.role === 'user').length;
   const shouldShowLeadCapture =
     userTurnCount >= 3 && !leadSubmitted && !leadDismissed;

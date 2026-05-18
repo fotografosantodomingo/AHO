@@ -71,6 +71,7 @@ export default async function DashboardLayout({
   const socialPath = localePath(typedLocale, '/dashboard/social');
   const leadsPath = localePath(typedLocale, '/dashboard/leads');
   const reviewsPath = localePath(typedLocale, '/dashboard/reviews');
+  const aiInboxPath = localePath(typedLocale, '/dashboard/ai-inbox');
   const savedSearchesPath = localePath(typedLocale, '/saved-searches');
   const profilePath = localePath(typedLocale, '/dashboard/profile');
 
@@ -83,6 +84,7 @@ export default async function DashboardLayout({
     { href: analyticsPath, label: t('navAnalytics') },
     { href: socialPath, label: t('navSocial') },
     { href: leadsPath, label: t('navLeads') },
+    { href: aiInboxPath, label: t('navAiInbox') },
     { href: reviewsPath, label: t('navReviews') },
     { href: savedSearchesPath, label: t('navSavedSearches') },
     { href: profilePath, label: t('navProfile') },
@@ -135,6 +137,12 @@ export default async function DashboardLayout({
             className="rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5"
           >
             {t('navReviews')}
+          </a>
+          <a
+            href={aiInboxPath}
+            className="rounded-lg px-3 py-2 transition hover:bg-black/5 dark:hover:bg-white/5"
+          >
+            {t('navAiInbox')}
           </a>
           <a
             href={savedSearchesPath}

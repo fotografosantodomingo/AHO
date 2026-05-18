@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { decodeLeadsToken, parseLocalPart } from '@/lib/email/inbound-routing';
+import { scheduleDraft } from '@/lib/ai/schedule-draft';
 
 export const runtime = 'edge';
 
@@ -213,7 +214,20 @@ export async function POST(req: NextRequest) {
   }
 
   // 7. Hand off to the async AI-draft pipeline.
-  await scheduleDraft(conversationId);
+  const draftResult = await scheduleDraft({
+    supabase: admin,
+    conversationId,
+    agentId,
+    orgId,
+  });
+  if (!draftResult.ok) {
+    console.error('[inbound-email] draft failed', {
+      conversationId,
+      errorCode: draftResult.errorCode,
+    });
+    // Still return 200 — the user-turn landed; the agent will see it
+    // in /dashboard/ai-inbox even without an AI draft.
+  }
 
   return NextResponse.json({
     ok: true,
@@ -481,37 +495,6 @@ async function resolveOrCreateThread(
   }
   return created.id;
 }
-
-// ──────────────────────────────────────────────────────────────────
-// Async-draft handoff stub
-// ──────────────────────────────────────────────────────────────────
-
-/**
- * Kicks off the AI reply draft for the newly-landed user message.
- *
- * Out of scope for this scaffold. The eventual implementation will:
- *   1. Enqueue a job (Cloudflare Queue or a Pages route called
- *      with `ctx.waitUntil`) keyed on conversationId.
- *   2. The job worker pulls the latest N turns + knowledge context
- *      (src/lib/ai/knowledge.ts), calls converse.ts, gates via
- *      src/lib/ai/gating.ts, and either auto-sends via Brevo
- *      (with `sendEmailWithThreading`) or parks an
- *      ai_conversation_messages row with approval_status='pending'
- *      for the HITL dashboard.
- *
- * For now this is a no-op + a console marker so the route is
- * end-to-end shippable: PO can wire up Email Routing, send a test,
- * see the conversation row appear, then we layer the draft on top.
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function scheduleDraft(conversationId: string): Promise<void> {
-  console.error('[inbound-email] scheduleDraft_stub', { conversationId });
-  // No-op v1.
-}
-
-// Defensive: export so future tests can mock this without touching
-// the route export shape.
-export { scheduleDraft as _scheduleDraft };
 
 // Surface the routing helpers so unit-tests can spot import-typos
 // at build time. Not part of the route's runtime contract.

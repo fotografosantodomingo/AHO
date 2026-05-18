@@ -158,6 +158,19 @@ export const PATHNAMES = {
     es: '/panel/perfil',
     ...en5('/dashboard/profile'),
   },
+  // AI Customer-Service Agent inbox — Phase 2 of AI_AGENT_PLAN.
+  // Per-locale slugs since the URL IS the keyword agents will type
+  // (`bandeja-ia` in ES, `ki-postfach` in DE, etc.). EN slug kept
+  // English-tight; the rest hand-translated.
+  '/dashboard/ai-inbox': {
+    en: '/dashboard/ai-inbox',
+    es: '/panel/bandeja-ia',
+    pl: '/panel/skrzynka-ai',
+    pt: '/painel/caixa-ia',
+    de: '/dashboard/ki-postfach',
+    fr: '/tableau-de-bord/messagerie-ia',
+    it: '/dashboard/posta-ia',
+  },
   '/saved-searches': {
     en: '/saved-searches',
     es: '/busquedas-guardadas',
