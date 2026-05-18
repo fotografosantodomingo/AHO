@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { recordEvent } from '@/lib/ai/conversation-events';
 
 export const runtime = 'edge';
 
@@ -38,7 +39,7 @@ export async function POST(req: NextRequest) {
 
   const { data: msg, error: msgErr } = await supabase
     .from('ai_conversation_messages')
-    .select('id, role, approval_status')
+    .select('id, role, approval_status, channel, conversation_id, created_at')
     .eq('id', body.messageId)
     .maybeSingle();
   if (msgErr) {
@@ -57,12 +58,13 @@ export async function POST(req: NextRequest) {
   }
 
   const admin = createAdminClient();
+  const nowIso = new Date().toISOString();
   const { error: updateErr } = await admin
     .from('ai_conversation_messages')
     .update({
       approval_status: 'rejected',
       approved_by: userId,
-      approved_at: new Date().toISOString(),
+      approved_at: nowIso,
     })
     .eq('id', body.messageId);
   if (updateErr) {
@@ -71,6 +73,30 @@ export async function POST(req: NextRequest) {
       message: updateErr.message,
     });
     return NextResponse.json({ error: 'update_failed' }, { status: 500 });
+  }
+
+  // Funnel event — rejected drafts are the strongest signal of bad
+  // AI output. Admin /admin/ai-overview shows the rejected/total
+  // ratio per market so we can spot prompt regressions early.
+  const { data: conv } = await admin
+    .from('ai_conversations')
+    .select('org_id, agent_id')
+    .eq('id', msg.conversation_id)
+    .maybeSingle();
+  if (conv) {
+    const msSincePending =
+      msg.created_at != null
+        ? new Date(nowIso).getTime() - new Date(msg.created_at as string).getTime()
+        : null;
+    await recordEvent({
+      conversationId: msg.conversation_id as string,
+      orgId: conv.org_id as string,
+      agentId: (conv.agent_id as string | null) ?? null,
+      channel: (msg.channel as 'web_chat' | 'email' | 'whatsapp' | 'voice') ?? 'web_chat',
+      kind: 'rejected',
+      payload: { messageId: body.messageId, rejectedBy: userId, msSincePending },
+      supabase: admin,
+    });
   }
 
   return NextResponse.json({ ok: true });

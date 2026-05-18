@@ -1,6 +1,7 @@
 import 'server-only';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { logAiCall } from '@/lib/ai/log';
+import { recordEvent } from '@/lib/ai/conversation-events';
 
 /**
  * Claude orchestrator for the AHO AI customer-service agent.
@@ -705,6 +706,17 @@ async function toolBookViewing(
     console.error('[converse] book_viewing postgrest', error);
     return { id: call.id, output: { error: 'booking_failed' }, isError: true };
   }
+  // Funnel event — viewing booked is the highest-conversion signal
+  // the AI can produce. Dashboards rank agents partly by this rate.
+  await recordEvent({
+    conversationId: input.conversationId,
+    orgId: input.orgId,
+    agentId: input.agentId,
+    channel: 'web_chat', // tool calls happen inside the converse() flow; channel is the chat surface
+    kind: 'viewing_booked',
+    payload: { listingId, leadId: data.id, requestedTime },
+    supabase: input.supabase,
+  });
   return {
     id: call.id,
     output: {
@@ -731,6 +743,19 @@ async function toolEscalateToHuman(
     console.error('[converse] escalate_to_human postgrest', error);
     return { id: call.id, output: { error: 'escalate_failed' }, isError: true };
   }
+  // Funnel event — escalations measure the AI's "can't help" rate.
+  // High escalation rate = the AI is over its skis on certain
+  // intents; admin view shows escalation-by-intent so we can tune
+  // refusal templates or expand the tool catalog.
+  await recordEvent({
+    conversationId: input.conversationId,
+    orgId: input.orgId,
+    agentId: input.agentId,
+    channel: 'web_chat',
+    kind: 'escalated',
+    payload: { reason },
+    supabase: input.supabase,
+  });
   return {
     id: call.id,
     output: {

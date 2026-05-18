@@ -10,6 +10,7 @@ import { converseStream, type ConverseMessage } from '@/lib/ai/converse';
 import { classifyAssistantTurn } from '@/lib/ai/gating';
 import { getOrgPlanId, planTierLabel } from '@/lib/billing/plan-gating';
 import { mapBillingTierToAgentTier } from '@/lib/ai/agent-tier';
+import { recordEvent } from '@/lib/ai/conversation-events';
 import type { Locale } from '@/i18n/config';
 
 export const runtime = 'edge';
@@ -166,6 +167,14 @@ export async function POST(req: NextRequest) {
       return jsonError(404, 'conversation_not_found');
     }
   } else {
+    // Tier snapshot for the conversation row — captured at creation
+    // so adoption-by-tier rollups (migration 0073) measure true at-
+    // the-time behavior even after a later upgrade. Resolved later
+    // for the gating model too; doing it here lets us snapshot
+    // BEFORE the conversation insert.
+    const conversationCreateTier = mapBillingTierToAgentTier(
+      planTierLabel(await getOrgPlanId(admin, org.id)),
+    );
     const { data: inserted, error: insertErr } = await admin
       .from('ai_conversations')
       .insert({
@@ -176,6 +185,7 @@ export async function POST(req: NextRequest) {
         status: 'open',
         buyer_locale: body.buyerLocale,
         buyer_session_token: body.sessionToken ?? null,
+        tier_at_creation: conversationCreateTier,
       })
       .select('id')
       .single();
@@ -188,17 +198,30 @@ export async function POST(req: NextRequest) {
       return jsonError(500, 'conversation_create_failed');
     }
     conversationId = inserted.id;
+    // Funnel event: conversation started. payload carries the
+    // surface bias + buyer locale for downstream analytics.
+    await recordEvent({
+      conversationId: inserted.id,
+      orgId: org.id,
+      agentId: body.agentId,
+      channel: 'web_chat',
+      kind: 'started',
+      payload: { buyerLocale: body.buyerLocale, propertyId: body.propertyId ?? null },
+      supabase: admin,
+    });
   }
 
   // ─── Step 4: persist the buyer's user turn ─────────────────────────
-  const { error: userMsgErr } = await admin
+  const { data: userMsg, error: userMsgErr } = await admin
     .from('ai_conversation_messages')
     .insert({
       conversation_id: conversationId,
       role: 'user',
       channel: 'web_chat',
       body: body.userMessage,
-    });
+    })
+    .select('id')
+    .single();
   if (userMsgErr) {
     console.error('[ai-chat] user message insert error', {
       code: userMsgErr.code,
@@ -207,6 +230,18 @@ export async function POST(req: NextRequest) {
     });
     return jsonError(500, 'user_message_persist_failed');
   }
+  // Funnel event for the user turn — payload includes the message id
+  // for join-back analytics + the user's text length as a coarse
+  // engagement signal.
+  await recordEvent({
+    conversationId: conversationId!,
+    orgId: org.id,
+    agentId: body.agentId,
+    channel: 'web_chat',
+    kind: 'message_user',
+    payload: { messageId: userMsg?.id, length: body.userMessage.length },
+    supabase: admin,
+  });
 
   // ─── Step 5+6: system prompt + knowledge ───────────────────────────
   const market = countryToMarket(org.headquarters_country);
@@ -400,6 +435,25 @@ export async function POST(req: NextRequest) {
                 message: bumpErr.message,
               });
             }
+
+            // Funnel event: draft landed. Distinguish auto_sent (no
+            // human review needed) from pending (waiting on agent).
+            // The dashboard analytics tab + admin overview consume
+            // these two kinds separately.
+            await recordEvent({
+              conversationId: conversationId!,
+              orgId: org.id,
+              agentId: body.agentId,
+              channel: 'web_chat',
+              kind: approvalStatus === 'auto_sent' ? 'auto_sent' : 'draft_pending',
+              payload: {
+                messageId: assistantMessageId,
+                intent: classification.intent,
+                confidence: classification.confidence,
+                riskFlags: classification.riskFlags,
+              },
+              supabase: admin,
+            });
 
             send({
               event: 'done',

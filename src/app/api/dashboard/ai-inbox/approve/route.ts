@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { recordEvent } from '@/lib/ai/conversation-events';
 
 export const runtime = 'edge';
 
@@ -53,7 +54,7 @@ export async function POST(req: NextRequest) {
   // `org_members_read_msg` policy, they belong to the org.
   const { data: msg, error: msgErr } = await supabase
     .from('ai_conversation_messages')
-    .select('id, conversation_id, role, approval_status, body')
+    .select('id, conversation_id, role, approval_status, body, channel, created_at')
     .eq('id', body.messageId)
     .maybeSingle();
   if (msgErr) {
@@ -112,6 +113,41 @@ export async function POST(req: NextRequest) {
     // Soft-fail — the approval landed, the sort order is just slightly
     // stale until the next message arrives.
     console.warn('[ai-inbox.approve] conversation bump warn', bumpErr);
+  }
+
+  // Funnel event — distinguish a plain approval from an edit-and-
+  // send. The dashboard analytics uses the ratio of edits to plain
+  // approvals as a proxy for AI draft quality.
+  const wasEdited =
+    body.editedBody !== undefined && body.editedBody !== (msg.body as string | null);
+  // Resolve org_id + agent_id for the event row. The msg row has
+  // conversation_id; one short lookup gets us the rest.
+  const { data: conv } = await admin
+    .from('ai_conversations')
+    .select('org_id, agent_id')
+    .eq('id', msg.conversation_id)
+    .maybeSingle();
+  if (conv) {
+    const msSincePending =
+      msg.created_at != null
+        ? new Date(nowIso).getTime() - new Date(msg.created_at as string).getTime()
+        : null;
+    await recordEvent({
+      conversationId: msg.conversation_id as string,
+      orgId: conv.org_id as string,
+      agentId: (conv.agent_id as string | null) ?? null,
+      channel: (msg.channel as 'web_chat' | 'email' | 'whatsapp' | 'voice') ?? 'web_chat',
+      kind: wasEdited ? 'edited' : 'approved',
+      payload: {
+        messageId: body.messageId,
+        approvedBy: userId,
+        msSincePending,
+        bodyChangedChars: wasEdited
+          ? Math.abs(((body.editedBody as string).length ?? 0) - ((msg.body as string | null)?.length ?? 0))
+          : 0,
+      },
+      supabase: admin,
+    });
   }
 
   return NextResponse.json({ ok: true });

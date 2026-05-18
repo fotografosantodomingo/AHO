@@ -1,0 +1,18 @@
+{
+  "name": "aho-ai-daily-rollup",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AHO scheduled worker — daily proxy to /api/cron/ai-daily-rollup on the Pages app. Aggregates yesterday's ai_conversation_events into ai_daily_stats. Phase 1 of docs/AI_CONVERSION_PLAN.md.",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "deploy:dry-run": "wrangler deploy --dry-run",
+    "dev": "wrangler dev",
+    "trigger": "wrangler dev --test-scheduled",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240620.0",
+    "typescript": "^5.5.4",
+    "wrangler": "^4.88.0"
+  }
+}

@@ -1,0 +1,27 @@
+name = "aho-ai-daily-rollup"
+main = "src/index.ts"
+compatibility_date = "2025-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Cron Trigger — runs once a day at 02:00 UTC.
+# Coverage: 22:00 ET / 19:00 PT / 03:00 Madrid / 04:00 Warsaw.
+# 90 minutes before the audit-prune cron (03:30 UTC) so the rollup
+# has fresh data when ops queries the dashboard in the morning.
+#
+# Aggregates yesterday's ai_conversation_events into ai_daily_stats
+# (one row per (org_id, agent_id, day) tuple, plus an org-level row
+# per (org_id, day)). The job is idempotent via a delete-then-
+# insert pattern keyed by `(org_id, day)`. Re-running it for the
+# same day is safe; passing `?day=YYYY-MM-DD` to the Pages route
+# back-fills a specific day manually.
+[triggers]
+crons = ["0 2 * * *"]
+
+# Secrets:
+#   - CRON_SECRET    (matches the Pages env CRON_SECRET; the Pages
+#                     route validates via the shared checkCronAuth helper)
+#   - AHO_PAGES_URL  (production: https://advertisehomes.online; preview:
+#                     the *.aho-web.pages.dev subdomain)
+
+[vars]
+LOG_LEVEL = "info"
