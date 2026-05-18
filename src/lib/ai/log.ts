@@ -43,7 +43,7 @@ export async function logAiCall(input: LogAiCallInput): Promise<void> {
   // Temporary instrumentation 2026-05-18: confirm the function is
   // being invoked per audit. Remove once the silent-drop bug is closed
   // and rows reliably land.
-  console.log('[ai-log] start', {
+  console.error('[ai-log] start', {
     purpose: input.purpose,
     auditId: input.auditId,
     model: input.model,
@@ -83,7 +83,7 @@ export async function logAiCall(input: LogAiCallInput): Promise<void> {
         auditId: input.auditId,
       });
     } else {
-      console.log('[ai-log] ok', {
+      console.error('[ai-log] ok', {
         purpose: input.purpose,
         auditId: input.auditId,
       });
