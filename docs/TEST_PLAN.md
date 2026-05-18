@@ -4,11 +4,31 @@
 >
 > When you've verified a feature, type **`verified: <name>`** (e.g., `verified: free-audit-widget`) and I'll move it from "Pending verification" to "Verified" with the date.
 >
-> I (Claude) keep this file accurate. Last update: 2026-05-17.
+> I (Claude) keep this file accurate. Last update: 2026-05-17 (evening — post-QA fixes).
 
 ---
 
 ## ⏳ Pending your verification
+
+### `qa-fixes-2026-05-17-evening` — 5 production bugs fixed end-of-day (shipped `b69ca01` + `bc15359` + `79d67c4` + `ed6f611`)
+- **Scope:** OG/creative renders + ai_generation_log writes + post-deploy smoke workflow. All five verified by me directly against prod (44/44 assertions PASS). Listed here for the record + so you can spot-check whichever feels worth touching. None require setup.
+- **Do (1 min total):**
+  1. Open https://advertisehomes.online/en/opengraph-image in a new tab — should render a dark `#15181e` 1200×630 PNG with the AHO wordmark + "Real estate, real listings — anywhere" headline.
+  2. Open https://advertisehomes.online/api/audit/1af6552e-9203-4490-9c56-2a16da03af7e/creative/fb — should render a property card PNG (photo left, title/price right, "AHO" footer band).
+  3. Open https://github.com/fotografosantodomingo/AHO/actions/workflows/post-deploy-smoke.yml — most recent run should be **green** (#8 was first green after the SIGPIPE fix).
+- **Expect:** All three render / show success. If any are broken, paste me the URL + status code (HTTP headers tab in DevTools).
+- **Background (for future-you reading this):** Today's day-leg ship was followed by an evening QA pass that found 5 silent prod bugs. Spent the evening root-causing each via `wrangler pages deployment tail` (the prior "fixes" had targeted wrong causes — see PROGRESS.md 2026-05-17 evening entry). The fixes themselves are now permanent guardrails: destructured supabase-js writes log postgrest errors on every site, smoke workflow uses bash-native string matching (no pipe-SIGPIPE bug possible), satori font is TTF not woff2.
+
+### `cron-secret-provisioned` — all 6 cron routes now functional in prod
+- **Background:** All 6 cron routes (`/api/cron/audit-prune`, `/api/cron/linkedin-insights`, `/api/cron/meta-insights`, `/api/cron/instagram-drift`, `/api/cron/ai-cost-alert`, `/api/cron/meta-token-refresh`) had been returning 503 `cron_secret_unconfigured` because the `CRON_SECRET` env var was missing in CF Pages prod. Generated 256-bit secret via `openssl rand -hex 32`, set on CF Pages production via the API (PATCH /pages/projects/aho-web with `secret_text` type), mirrored to `.env.local`, also set the GitHub Actions repo secret via libsodium SealedBox encryption + PUT.
+- **Do:** Nothing — verified via the smoke workflow which now exercises all 6 routes (no-auth=401, with-bearer=200). They'll start firing on their scheduled times once the 4 standalone Workers (`aho-audit-prune`, `aho-instagram-drift`, `aho-ai-cost-alert`, `aho-meta-token-refresh`) are deployed (separate PO action — `cd workers/<name> && wrangler deploy` from each).
+- **Expect:** If everything is in place, you should see daily entries showing up in `ai_generation_log` (after each Free Audit), `meta_drift_notifications` (when an IG link drifts), email to info@... when AI spend > $50/day, etc.
+
+### `ai-cost-rollup-real-data` — admin/audit-costs dashboard now populates
+- **Background:** The `/admin/audit-costs` page exists (shipped `371da4b`) but had been showing empty data because `ai_generation_log` rows weren't landing (FK bug fixed today in `79d67c4`). Now that audits actually log their per-Anthropic-call cost, the rollup tiles should fill in.
+- **Do:** Sign in as `info@advertisehomes.online`, visit https://advertisehomes.online/en/admin/audit-costs.
+- **Expect:** 4 tiles at the top show 7d cost / 30d cost / avg-per-audit-7d / avg-per-audit-30d. Daily rollup table shows the last 30 days (sparse if there hasn't been audit traffic yet). Avg-per-audit should be ≤ $0.30 (the SUPER_PRO_STAGE_1_PLAN.md unit-economics target). One per-market row per locale that's been audited (us/es/pl).
+- **If wrong:** Empty tiles after running ≥1 audit since 2026-05-17 21:09 UTC (when the FK fix deployed) means the buffer-and-flush isn't working — paste the page URL + a screenshot.
 
 ### `free-audit-widget` — Phase 1 wedge (shipped `2602016`)
 - **Do:** Open https://advertisehomes.online/en/for-agents in **incognito**. Paste a real listing URL (your own, otodom.pl, idealista.com, zillow.com). Click "Get my campaign."
