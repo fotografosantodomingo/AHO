@@ -203,6 +203,9 @@ tests/unit/blog-topic-pool.test.ts                  — 8 topic-randomizer + slu
 - **`--color-surface-band`** is the always-dark feature-band token (`#16382a`), NOT a light surface. Using it as a card background tanks contrast.
 - **Migration trigger function name** — `touch_updated_at()` (from migration 0001), NOT `set_updated_at()` (doesn't exist).
 - **woff2 fonts in Satori** — Satori parses TTF/OTF only. The OG route imports `interBoldFontEntry()` from `src/lib/og/load-font.ts` which loads `inter-700.ttf` from `/public/fonts/`.
+- **Tailwind v4 purges plain CSS rules inside `@layer components`** when the selector references a class that doesn't appear in scanned source files. The blog typography uses `.aho-blog-prose .table-of-contents`, `.aho-blog-prose .author-bio-box`, etc. — those nested classes only exist in DB-rendered `body_html`, not in any TSX file Tailwind scans. Result: the whole stylesheet gets stripped from prod. **Fix**: put the entire `.aho-blog-prose` block OUTSIDE any `@layer` directive (top-level CSS is never purged). The comment in `src/app/globals.css` above the block calls this out — leave it.
+- **`loading="lazy"` on the LCP element** — the hero `<img>` is the LCP for an editorial article. Loading lazy regresses LCP by 1-2 seconds because the browser deprioritizes it. The prompt requires `loading="eager" fetchpriority="high"` and the validator should flag if either is missing (future improvement).
+- **`revalidate` does NOT work cleanly on next-on-pages Edge runtime.** ISR persistence isn't there. To get CDN caching, set `Cache-Control` via `next.config.ts:headers()` for the `/blog/:slug` pattern — CF Pages picks up `s-maxage` and caches the rendered HTML at the edge. The article page stays `force-dynamic` (renders per cold-cache request) but the warm-cache path is <100ms from a POP.
 
 # Caveats
 
