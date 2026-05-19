@@ -12,30 +12,28 @@ export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
 /**
- * GET /sitemap-blog.xml — programmatic SEO blog index + per-post URLs.
+ * GET /sitemap-blog.xml — programmatic-SEO blog URL set.
  *
- * Three buckets emitted:
- *   1. The /blog index page, per locale (7 locales × hreflang map).
- *   2. Each published post at /blog/<slug>, one URL per row.
+ * Two buckets:
+ *   1. The /blog INDEX page per locale (7 locales × hreflang map).
+ *   2. Per-published-post URLs. For each `translation_group_id`,
+ *      every published sibling row contributes ONE URL, and ALL
+ *      siblings appear as `<xhtml:link rel="alternate">` entries on
+ *      each other's <url> — that's Google's reciprocal-hreflang
+ *      requirement for multilingual content.
  *
- * Empty-platform behavior: when zero posts are published the route
- * still emits the index page entry per locale (the index page itself
- * renders an "empty" state, not an error) but no per-post URLs.
- *
- * Master sitemap (`/sitemap.xml`) conditionally includes this child
- * only when ≥1 published post exists — same convention as the
- * properties + agents children. See `/sitemap.xml/route.ts` for the
- * gating logic.
+ * Empty-platform behavior: index page entry still ships even when
+ * zero posts are published; the index page itself renders a clean
+ * empty state. Master `/sitemap.xml` conditionally includes this
+ * child only when ≥1 published row exists.
  */
 export async function GET(): Promise<Response> {
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
   const admin = createAdminClient();
 
-  // Posts ordered newest-first so the freshest URLs sit at the top of
-  // the sitemap (Google biases crawl priority by position).
   const { data, error } = await admin
     .from('blog_posts')
-    .select('slug, language, published_at, updated_at')
+    .select('slug, language, published_at, updated_at, translation_group_id')
     .eq('status', 'published')
     .order('published_at', { ascending: false });
   if (error) {
@@ -50,11 +48,12 @@ export async function GET(): Promise<Response> {
     language: string;
     published_at: string | null;
     updated_at: string | null;
+    translation_group_id: string;
   }>;
 
   const entries: UrlEntry[] = [];
 
-  // Index page — one entry, with all locales as hreflang alternates.
+  // ─── Index page entry, per locale via hreflang map ───────────────
   const indexAlternates: Record<string, string> = {};
   for (const loc of LOCALES) {
     indexAlternates[loc] = `${site}${localePath(loc, '/blog')}`;
@@ -67,27 +66,43 @@ export async function GET(): Promise<Response> {
     priority: 0.6,
   });
 
-  // Per-post entries. v1 ships English-only posts; ES/PL/PT/DE/FR/IT
-  // posts will populate as soon as a translation pass runs. The
-  // language column tells us which locale to render the canonical URL
-  // under — we don't multiply per locale here since we don't have
-  // translations.
-  for (const row of rows) {
-    const lastmodSource = row.updated_at ?? row.published_at;
+  // ─── Group rows by translation_group_id ───────────────────────────
+  // Each group emits N <url> entries, one per language, where each
+  // entry's `alternates` map carries the OTHER languages' URLs (incl.
+  // self) for proper reciprocal hreflang.
+  const groups = new Map<
+    string,
+    Array<{ slug: string; language: string; lastmod: Date | undefined }>
+  >();
+  for (const r of rows) {
+    if (!(LOCALES as readonly string[]).includes(r.language)) continue;
+    const lastmodSource = r.updated_at ?? r.published_at;
     const lastmod = lastmodSource ? new Date(lastmodSource) : undefined;
-    // Map the row's language to a Locale safely.
-    const lang = (LOCALES as readonly string[]).includes(row.language)
-      ? (row.language as (typeof LOCALES)[number])
-      : 'en';
-    entries.push({
-      loc: `${site}${localePath(lang, `/blog/${row.slug}`)}`,
-      lastmod,
-      changefreq: 'monthly',
-      priority: 0.7,
-    });
+    const existing = groups.get(r.translation_group_id) ?? [];
+    existing.push({ slug: r.slug, language: r.language, lastmod });
+    groups.set(r.translation_group_id, existing);
   }
 
-  // 1h browser cache + bumps when a post publishes (master index
-  // controls re-crawl; this file's lastmod follows post writes).
+  for (const [, siblings] of groups) {
+    // Build the alternates map ONCE per group — every sibling URL
+    // shares the same map.
+    const alternates: Record<string, string> = {};
+    for (const s of siblings) {
+      alternates[s.language] = `${site}/${s.language}/blog/${s.slug}`;
+    }
+    const enSibling = siblings.find((s) => s.language === 'en');
+    if (enSibling) alternates['x-default'] = `${site}/en/blog/${enSibling.slug}`;
+
+    for (const s of siblings) {
+      entries.push({
+        loc: `${site}/${s.language}/blog/${s.slug}`,
+        lastmod: s.lastmod,
+        alternates,
+        changefreq: 'monthly',
+        priority: 0.7,
+      });
+    }
+  }
+
   return xmlResponse(renderSitemap(entries), 3600);
 }

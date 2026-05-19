@@ -56,7 +56,8 @@ Use when:
 | `og:image` resolves to a valid PNG (200, image/png) | The Next OG route at `<slug>/opengraph-image` | `.png` URL mistake (see above) |
 | `BlogPosting` + `Person` + `Organization` + `BreadcrumbList` JSON-LD | `src/lib/seo/jsonld.ts:buildBlogPosting` + page render | If `dateModified` is older than `datePublished`, Google's validator warns |
 | Robots = `index, follow` | `generateMetadata.robots` | n/a |
-| Hreflang to other locale translations | `src/app/sitemap-blog.xml` per-row entries (when ES post lands, it'll auto-pick up) | v1 ships EN only; ES translation pass is queued |
+| Hreflang to other locale translations | `src/app/sitemap-blog.xml` + `generateMetadata.alternates.languages` in `app/[locale]/blog/[slug]/page.tsx` — both walk siblings via `translation_group_id` | Removing the group_id default trigger or the unique-per-language index will silently break reciprocal hreflang |
+| Per-locale translations exist | Cron's Step 6.5 dispatches 6 parallel Haiku translations after the EN insert | Translation failures skip a locale gracefully; if `ANTHROPIC_API_KEY` is missing, only EN ships and the rest log `[translation failed]` |
 
 # How to verify (the actual test loop)
 

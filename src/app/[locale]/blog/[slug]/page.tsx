@@ -58,27 +58,61 @@ interface BlogPostRow {
   word_count: number;
   published_at: string;
   updated_at: string;
+  translation_group_id: string;
 }
 
-async function loadPost(slug: string): Promise<BlogPostRow | null> {
+interface SiblingRow {
+  slug: string;
+  language: string;
+}
+
+async function loadPost(slug: string, locale: string): Promise<BlogPostRow | null> {
   const admin = createAdminClient();
+  // Filter by language AND slug — prevents `/es/blog/<en-slug>`
+  // rendering EN content inside the ES shell.
   const { data, error } = await admin
     .from('blog_posts')
     .select(
-      'slug, title, summary, body_html, hero_image_url, language, author_name, author_role, author_url, reviewer_name, reviewed_at, word_count, published_at, updated_at',
+      'slug, title, summary, body_html, hero_image_url, language, author_name, author_role, author_url, reviewer_name, reviewed_at, word_count, published_at, updated_at, translation_group_id',
     )
     .eq('slug', slug)
+    .eq('language', locale)
     .eq('status', 'published')
     .maybeSingle();
   if (error) {
     console.error('[/blog/[slug]] load failed', {
       slug,
+      locale,
       code: error.code,
       message: error.message,
     });
     return null;
   }
   return (data as unknown as BlogPostRow) ?? null;
+}
+
+/**
+ * Returns each sibling translation in the group (including the row
+ * itself). Used by both generateMetadata (hreflang alternates) and
+ * the page body (JSON-LD BreadcrumbList — currently doesn't need
+ * siblings, but kept for future "Read in <lang>" UI).
+ */
+async function loadSiblings(translationGroupId: string): Promise<SiblingRow[]> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from('blog_posts')
+    .select('slug, language')
+    .eq('translation_group_id', translationGroupId)
+    .eq('status', 'published');
+  if (error) {
+    console.error('[/blog/[slug]] siblings load failed', {
+      translationGroupId,
+      code: error.code,
+      message: error.message,
+    });
+    return [];
+  }
+  return (data as unknown as SiblingRow[]) ?? [];
 }
 
 export async function generateMetadata({
@@ -89,14 +123,29 @@ export async function generateMetadata({
   const { locale, slug } = await params;
   if (!LOCALES.includes(locale as Locale)) return {};
   const typedLocale = locale as Locale;
-  const post = await loadPost(slug);
+  const post = await loadPost(slug, typedLocale);
   if (!post) return {};
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
   const canonical = `${site}${localePath(typedLocale, `/blog/${slug}`)}`;
+
+  // Hreflang alternates — walk siblings in the translation group and
+  // emit one href per locale (incl. self). This is Google's reciprocal-
+  // hreflang requirement for multilingual content.
+  const siblings = await loadSiblings(post.translation_group_id);
+  const languages: Record<string, string> = {};
+  for (const s of siblings) {
+    if (!LOCALES.includes(s.language as Locale)) continue;
+    languages[s.language] = `${site}/${s.language}/blog/${s.slug}`;
+  }
+  // x-default points at the EN sibling if present, otherwise the
+  // canonical for this locale.
+  const enSibling = siblings.find((s) => s.language === 'en');
+  if (enSibling) languages['x-default'] = `${site}/en/blog/${enSibling.slug}`;
+
   return {
     title: `${post.title} — AHO Blog`,
     description: post.summary,
-    alternates: { canonical },
+    alternates: { canonical, languages },
     openGraph: {
       type: 'article',
       url: canonical,
@@ -106,6 +155,7 @@ export async function generateMetadata({
       publishedTime: post.published_at,
       modifiedTime: post.updated_at,
       authors: [post.author_name],
+      locale: typedLocale,
     },
     robots: { index: true, follow: true },
   };
@@ -121,7 +171,7 @@ export default async function BlogPostPage({
   const typedLocale = locale as Locale;
   setRequestLocale(typedLocale);
 
-  const post = await loadPost(slug);
+  const post = await loadPost(slug, typedLocale);
   if (!post) notFound();
 
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();

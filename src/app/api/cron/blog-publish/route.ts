@@ -10,6 +10,10 @@ import {
 } from '@/lib/blog/generate-post';
 import { buildBlogSlug } from '@/lib/blog/slug';
 import { distributeBlogPost } from '@/lib/blog/distribute';
+import {
+  translateBlogPost,
+  type TranslateLocale,
+} from '@/lib/blog/translate-post';
 import { sendEmail } from '@/lib/email/brevo';
 import { renderBlogPublishSuccessEmail } from '@/lib/email/templates/blog-publish-success';
 import { renderBlogPublishFailureEmail } from '@/lib/email/templates/blog-publish-failure';
@@ -261,9 +265,16 @@ async function handle(req: NextRequest): Promise<NextResponse<CronSummary>> {
     });
   }
 
-  // ─── Step 6: insert ────────────────────────────────────────────────
+  // ─── Step 6: insert (EN canonical) ────────────────────────────────
+  // Generate the translation group id up-front so we can share it
+  // across the EN + 6 translated sibling inserts. The DB trigger
+  // would default it to row.id on a single-row insert, but we want
+  // the explicit group id so the parallel translation inserts can
+  // reference it without an extra round-trip read.
+  const translationGroupId = crypto.randomUUID();
   const { error: insertErr } = await admin.from('blog_posts').insert({
     slug,
+    translation_group_id: translationGroupId,
     topic_key: topic.key,
     language: 'en',
     title: result.title,
@@ -301,6 +312,90 @@ async function handle(req: NextRequest): Promise<NextResponse<CronSummary>> {
       { status: 500 },
     );
   }
+
+  // ─── Step 6.5: translate to the 6 marketing locales ──────────────
+  // Each translation is a parallel Anthropic Haiku call. Failures
+  // skip that single locale (logged + counted in translationsByLocale)
+  // — they don't roll back the EN publish. Per-locale slug is built
+  // from the translated title so URLs are localized:
+  //   /es/blog/captura-de-leads-de-whatsapp-...-05c32c
+  //   /pl/blog/przechwytywanie-leadow-z-whatsappa-...-05c32c
+  // The shared 6-char hash suffix (from buildBlogSlug) keeps them
+  // group-aligned for human inspection.
+  //
+  // Per-locale OG hero URL points at the locale-specific slug;
+  // /[locale]/blog/[slug]/opengraph-image reads the row's title and
+  // renders the Satori card in the target language.
+  const TARGET_LOCALES: TranslateLocale[] = ['es', 'pl', 'pt', 'de', 'fr', 'it'];
+  const apiKeyForTranslation = process.env.ANTHROPIC_API_KEY ?? '';
+  const translationJobs = TARGET_LOCALES.map(async (locale) => {
+    const translated = await translateBlogPost({
+      apiKey: apiKeyForTranslation,
+      targetLocale: locale,
+      enTitle: result.title,
+      enSummary: result.summary,
+      enBodyHtml: result.bodyHtml,
+    });
+    if (!translated.ok) {
+      console.warn('[blog-publish] translation failed', {
+        locale,
+        error: translated.error,
+        detail: translated.detail?.slice(0, 200),
+      });
+      return { locale, ok: false as const, error: translated.error };
+    }
+    const localeSlug = buildBlogSlug({
+      title: translated.title,
+      topicKey: topic.key,
+      isoDay,
+    });
+    const localeHeroUrl = `${site}/${locale}/blog/${localeSlug}/opengraph-image`;
+    const localeStampedHtml = stampBodyPlaceholders({
+      html: translated.bodyHtml,
+      wordCount: result.wordCount,
+      publishedAt,
+      heroImageUrl: localeHeroUrl,
+      heroImageSrcsetByWidth: {
+        400: localeHeroUrl,
+        800: localeHeroUrl,
+        1200: localeHeroUrl,
+      },
+    });
+    const { error: localeInsertErr } = await admin.from('blog_posts').insert({
+      slug: localeSlug,
+      translation_group_id: translationGroupId,
+      topic_key: topic.key,
+      language: locale,
+      title: translated.title,
+      summary: translated.summary,
+      body_html: localeStampedHtml,
+      hero_image_url: localeHeroUrl,
+      author_name: result.authorName,
+      author_role: result.authorRole,
+      author_url: result.authorUrl,
+      reviewer_name: result.reviewerName,
+      reviewed_at: publishedAt.toISOString(),
+      word_count: result.wordCount,
+      status: 'published',
+      published_at: publishedAt.toISOString(),
+      model: translated.model,
+      input_tokens: translated.inputTokens,
+      output_tokens: translated.outputTokens,
+      estimated_cost_usd_cents: translated.estimatedCostUsdCents,
+    });
+    if (localeInsertErr) {
+      console.error('[blog-publish] translated insert failed', {
+        locale,
+        code: localeInsertErr.code,
+        message: localeInsertErr.message,
+      });
+      return { locale, ok: false as const, error: 'insert_failed' };
+    }
+    return { locale, ok: true as const, slug: localeSlug };
+  });
+  const translationResults = await Promise.all(translationJobs);
+  const translatedOk = translationResults.filter((r) => r.ok).length;
+  console.log(`[blog-publish] translations: ${translatedOk}/${TARGET_LOCALES.length} ok`);
 
   // ─── Step 7: distribution to admin's connected social accounts ────
   // Run AFTER the insert so the publicUrl + heroImageUrl resolve to a

@@ -87,7 +87,11 @@ export default async function BlogIndexPage({
     .from('blog_posts')
     .select('slug, title, summary, published_at, word_count, language')
     .eq('status', 'published')
-    .eq('language', typedLocale === 'es' ? 'es' : 'en')
+    // Each locale (en/es/pl/pt/de/fr/it) reads its own translated
+    // siblings — translation pipeline lands one row per locale per
+    // post. Pre-2026-05-19 only en + es had real rows; pl/pt/de/fr/it
+    // fell back to en. Now every locale has its own row.
+    .eq('language', typedLocale)
     .order('published_at', { ascending: false })
     .limit(PAGE_LIMIT);
   if (error) {
