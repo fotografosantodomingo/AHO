@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ChatMessageBody } from './render-message';
 
 /**
  * AHO AI customer-service widget — Phase 2 web-chat surface.
@@ -712,12 +713,7 @@ export function AiChatWidget({
                         : 'inline-block max-w-[85%] rounded-2xl rounded-bl-sm border border-border bg-surface px-3 py-2 text-sm text-ink shadow-whisper dark:bg-surface-deep dark:text-ink-inverse'
                     }
                   >
-                    <p className="whitespace-pre-line">
-                      {m.body}
-                      {m.streaming && (
-                        <span className="ml-1 inline-block h-3 w-1 animate-pulse bg-current align-middle" />
-                      )}
-                    </p>
+                    <ChatMessageBody body={m.body} streaming={m.streaming} />
                     {m.role === 'assistant' && m.approvalStatus === 'pending' && (
                       // Per D2=A: surface that the human will review.
                       // When D2 flips to B and auto_sent rows arrive,

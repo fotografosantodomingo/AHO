@@ -24,6 +24,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ChatMessageBody } from './render-message';
 
 export type AhoAssistantLocale =
   | 'en'
@@ -343,7 +344,7 @@ export function AhoAssistantWidget({
                 : 'mr-auto max-w-[90%] rounded-2xl rounded-bl-sm bg-surface-muted/60 px-3 py-2 text-ink dark:bg-surface-dark/60 dark:text-ink-inverse'
             }
           >
-            <p className="whitespace-pre-wrap leading-relaxed">{m.body}</p>
+            <ChatMessageBody body={m.body} streaming={m.streaming} />
           </div>
         ))}
         {error && (

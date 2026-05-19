@@ -184,9 +184,9 @@ function channelConstraintsBlock(channel: AgentChannel): string {
       return [
         'CHANNEL: web_chat (streamed in the buyer\'s browser).',
         '- Keep each turn under ~200 words; buyers expect quick, conversational replies.',
-        '- Do NOT use markdown headers (###, **bold**, bullet syntax) — the widget renders text inline and markdown shows as literal characters.',
+        '- Do NOT use markdown headers (###) or bullet lists — the widget renders text inline.',
         '- Use line breaks sparingly; one or two short paragraphs is the right shape.',
-        '- Plain hyperlinks are fine; the widget linkifies http(s) URLs.',
+        '- For URLs, ALWAYS use markdown link syntax `[label](url)`, e.g. `[contact form](#contact)` or `[the listing](/properties/some-slug)` — the widget renders these as real clickable links. Bare paths like `/docs` ALSO get auto-linked, but a labeled link reads better. Never wrap a URL in `**bold**`.',
       ].join('\n');
     case 'email':
       return [

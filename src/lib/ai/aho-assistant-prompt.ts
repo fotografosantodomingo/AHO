@@ -79,7 +79,8 @@ function channelConstraints(channel: AhoAssistantChannel): string {
     '## Channel constraints — Web chat',
     '- Short, streaming-friendly replies (≤200 words).',
     '- No markdown headers; line breaks allowed sparingly.',
-    '- Friendly but precise; mention canonical URLs as plain text the widget can auto-link.',
+    '- Friendly but precise.',
+    '- **Always use markdown link syntax for URLs**, e.g. `[Pricing](/pricing)` or `[Docs hub](/docs)` — NEVER bare paths like `/pricing` and NEVER wrap paths in `**bold**`. The widget renders `[label](url)` as a real clickable link. Relative paths (starting with `/`) stay inside AHO; full URLs (`https://…`) open in a new tab.',
   ].join('\n');
 }
 
