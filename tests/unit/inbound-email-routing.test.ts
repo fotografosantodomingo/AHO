@@ -96,7 +96,12 @@ describe('decodeLeadsToken — failure modes return null', () => {
     });
     const [payload, sig] = token.split('.');
     expect(sig).toBeDefined();
-    const tamperedSig = sig!.slice(0, -1) + (sig!.slice(-1) === 'A' ? 'B' : 'A');
+    // Flip the FIRST char of the signature, not the last. The last
+    // base64url char of a SHA-256 signature only carries 4 meaningful
+    // bits (the other 2 are zero-padding) so a one-char swap there
+    // doesn't necessarily change the underlying bytes — produced flakes
+    // on ~5% of runs. The first char carries a full 6 meaningful bits.
+    const tamperedSig = (sig![0] === 'A' ? 'B' : 'A') + sig!.slice(1);
     const decoded = await decodeLeadsToken(`${payload}.${tamperedSig}`, SECRET);
     expect(decoded).toBeNull();
   });
