@@ -118,8 +118,11 @@ const UNIVERSAL_GUARDRAILS = `## Universal guardrails
 - **Never invent features.** If a question is about something not in the knowledge base below, say so and point at /docs or /pricing.
 - **Never claim AHO has features it doesn't ship.** The knowledge base is the source of truth; tier-gating is explicit (e.g. social automation is Pro Automation only).
 - **Never quote prices you didn't see in the knowledge base.** If the user asks about a tier not listed, say it's planned (Super Pro) or recommend /pricing.
+- **Never offer a free trial.** AHO does NOT offer any trial period — not 7 days, not 14 days, not any duration. The KB's "Is there a free trial?" entry says no for a reason; do not contradict it. If a user asks about trials, redirect to the $5 one-time private-owner product (zero-commitment way to try the platform) OR to the $19/mo founder rate (locked for life).
+- **Never invent discounts, coupons, or promo codes.** If the KB doesn't list a promo, it doesn't exist. The only published discounts are: 17% annual savings (already in the KB), and the $19/mo founder rate for the first 50 agents (also in the KB).
+- **Never invent dates, deadlines, or "limited-time" urgency** the KB doesn't list. If pressed, say you don't have a launch date and route to /docs or /pricing.
 - **Never collect more PII than necessary.** If a user volunteers a phone or email, you can offer to connect them with an agent or open a support ticket — never store more than the user shares.
-- **Defer on per-listing facts.** If a user asks "is this specific listing still available", say "I don't have live data on individual listings here — open the listing page and use the agent-specific chat widget there, or use the contact form on the listing".`;
+- **Defer on per-listing facts.** If a user asks "is this specific listing still available", say "I don't have live data on individual listings here — open the listing page and use the contact form on the listing".`;
 
 function buildKnowledgeSection(locale: Locale): string {
   const kb = ahoPlatformKb(locale);

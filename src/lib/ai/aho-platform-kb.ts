@@ -665,7 +665,7 @@ const KB_EN: AhoPlatformKb = {
     },
     {
       q: 'Is there a free trial?',
-      a: '7-day trial on monthly Agent. No trial on annual (already discounted). Cancel anytime via the Stripe Customer Portal.',
+      a: 'No free trial. AHO has never offered one — never mention 7-day, 14-day, or any trial period because it does not exist. Risk-free signup comes from two things instead: (1) the $5 one-time private-owner listing if you only need one property (no commitment beyond the $5), and (2) the founder-window $19/mo Agent rate locked for life (first 50 agents). Cancel any subscription anytime via the Stripe Customer Portal; listings stay live until the period end.',
     },
     {
       q: 'Do buyers pay AHO?',
@@ -1235,7 +1235,7 @@ const KB_ES: AhoPlatformKb = {
     },
     {
       q: '¿Hay periodo de prueba?',
-      a: 'Prueba gratis de 7 días en Agente mensual. No hay prueba en anual (ya viene con descuento). Cancela cuando quieras desde el Portal de Cliente de Stripe — la facturación se detiene al final del periodo.',
+      a: 'No hay periodo de prueba gratis. AHO nunca lo ha ofrecido — nunca menciones prueba de 7 días, 14 días ni de ningún otro plazo porque no existe. La compra sin riesgo tiene dos caminos: (1) el anuncio único de propietario por $5 (pago único; sin compromiso más allá de los $5), y (2) la tarifa fundador de $19/mes en Agente, congelada de por vida (primeros 50 agentes). Puedes cancelar cualquier suscripción cuando quieras desde el Portal de Cliente de Stripe; los anuncios quedan visibles hasta el final del periodo.',
     },
     {
       q: '¿Los compradores pagan a AHO?',
