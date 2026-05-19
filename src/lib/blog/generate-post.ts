@@ -23,7 +23,7 @@ import { logAiCall } from '@/lib/ai/log';
  */
 
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
-const MODEL = 'claude-sonnet-4-6-20250508';
+const MODEL = 'claude-sonnet-4-6';
 const MAX_TOKENS = 4096;
 const TEMPERATURE = 0.7;
 
