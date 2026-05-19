@@ -2,7 +2,7 @@
 
 > The single place to look for "what's happening." Read this first when you start a session. Type **`status`** to me at the start and I'll read this, propose the next action, and either get your sign-off or redirect.
 >
-> I (Claude) keep this file accurate. Last update: 2026-05-17 (evening — post-QA-pass).
+> I (Claude) keep this file accurate. Last update: 2026-05-19 (Tier-1 activation done).
 
 ---
 
@@ -43,14 +43,14 @@ Auto-video engine slice details preserved below.
 
 Effort: S = ≤2 hrs, M = ½ day, L = full day+. Owner: who's blocking.
 
-### PO-side activation gates (Tier-1 — biggest unblocks)
+### PO-side activation gates (Tier-1)
 
-| # | Item | Why | Effort | Owner |
-|---|---|---|---|---|
-| 1 | **Apply migrations 0066 → 0074 to production Supabase.** 9 new migrations from today: ai_conversations, ai_generation_log purposes, email_threads, whatsapp_integration, voice_integration, ai_conversation_events, ai_daily_stats, ai_conversation_tier_snapshot, private_owner_listings. | All shipped code reads from these tables. Without them: web chat 500s on every turn, $5 product can't save purchases, conversion dashboards show empty. | S (~15 min via `pnpm migrate` or Supabase SQL editor) | **You** |
-| 2 | **`pnpm stripe:setup` (TEST mode)** to create the new `aho_private_listing_one_time` product → copy the `STRIPE_PRICE_PRIVATE_LISTING_ONE_TIME` env var into Cloudflare Pages production. | Without this, `/sell/private` 503s on the [Pay $5] button. | S (~10 min) | **You** |
-| 3 | **Deploy 3 new Cloudflare Workers**: `workers/ai-daily-rollup/` (02:00 UTC), `workers/ai-weekly-digest/` (Mon 09:00 UTC), `workers/listing-expiry/` (04:00 UTC). `cd workers/<name> && wrangler deploy` + `wrangler secret put CRON_SECRET` + `wrangler secret put AHO_PAGES_URL` per env. | Dashboard analytics tab populates from `ai_daily_stats`; without the rollup it shows empty for the agent + admin views. | M (~20 min total) | **You** |
-| 4 | **Soft-beta — actually use the platform as an agent.** Create a listing, click around the dashboard, fire a conversation as an anonymous buyer on your own listing, approve a draft from `/dashboard/ai-inbox`. | The whole stack is BUILT but UN-VALIDATED. Tomorrow's first real signal of whether D2=A's HITL friction is acceptable. | M | **You** |
+| # | Item | Status |
+|---|---|---|
+| 1 | **Migrations 0066 → 0074 applied to prod Supabase.** Two fixes uncovered + shipped in commit `ee8daa7`: (a) 0066 + 0072 referenced a non-existent `set_updated_at()` — renamed to the real `touch_updated_at()` from 0001; (b) 0068 collided with the existing `email_messages` table from 0055 — renamed the new AI-agent tables to `ai_email_threads` + `ai_email_messages` and updated `/api/inbound/email/route.ts`. | ✅ |
+| 2 | **`aho_private_listing_one_time` product created in Stripe TEST** (`prod_UXiuInhrpPIfc2`) + `STRIPE_PRICE_PRIVATE_LISTING_ONE_TIME=price_1TYdSxBsPTDRb0ccgmtxhsWB` set on `aho-web` production via `wrangler pages secret put`. | ✅ |
+| 3 | **3 new Workers deployed** to `homekrypto.workers.dev`: `aho-ai-daily-rollup` (02:00 UTC), `aho-ai-weekly-digest` (Mon 09:00 UTC), `aho-listing-expiry` (04:00 UTC). All three have `CRON_SECRET` + `AHO_PAGES_URL=https://advertisehomes.online` set. | ✅ |
+| 4 | **Soft-beta — actually use the platform as an agent.** Create a listing, click around the dashboard, fire a conversation as an anonymous buyer on your own listing, approve a draft from `/dashboard/ai-inbox`. | 🟡 PO action — only step left in Tier 1 |
 
 ### PO_DECISIONS still open
 
