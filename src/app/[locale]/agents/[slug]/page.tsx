@@ -16,7 +16,9 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getUserFavoriteIds } from '@/lib/listings/favorites';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { buildGraph, type JsonLdNode } from '@/lib/seo/jsonld';
-import { AiChatWidget, type WidgetLocale } from '@/components/chat/ai-chat-widget';
+// Per-agent <AiChatWidget> retired 2026-05-19 per PO directive — the
+// AHO Assistant mounted in [locale]/layout.tsx is now the single chat
+// surface site-wide. See properties/[slug]/page.tsx for the same note.
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -790,18 +792,9 @@ export default async function AgentProfilePage({
         </div>
       </main>
 
-      {/* AI customer-service widget — Phase 2 web-chat surface. Only
-          renders when the org has a primary agent owner (a single-agent
-          solo org or the agency's primary contact); without an agent
-          there's no persona for the AI to speak on behalf of. */}
-      {result.agent?.userId && (
-        <AiChatWidget
-          agentId={result.agent.userId}
-          agentName={result.agent.fullName ?? result.org.name}
-          agentAvatarUrl={result.agent.avatarUrl ?? result.org.logoUrl ?? null}
-          buyerLocale={typedLocale as WidgetLocale}
-        />
-      )}
+      {/* Per-agent <AiChatWidget> mount retired 2026-05-19 — see the
+          import-line comment above. The platform AHO Assistant in
+          [locale]/layout.tsx now covers this surface. */}
     </>
   );
 }

@@ -32,7 +32,15 @@ import { FavoriteButton } from '@/components/listings/favorite-button';
 import { TrackPropertyView } from '@/components/listings/track-property-view';
 import { TrackedLink } from '@/components/listings/tracked-link';
 import { TrackGalleryOpen } from '@/components/listings/track-gallery-open';
-import { AiChatWidget, type WidgetLocale } from '@/components/chat/ai-chat-widget';
+// Per-agent <AiChatWidget> retired 2026-05-19 per PO directive — the
+// platform-wide AHO Assistant (mounted in [locale]/layout.tsx via
+// ConditionalAhoAssistant) is now the single chat surface site-wide,
+// INCLUDING this page. Visitors get one consistent gate + transcript
+// flow instead of an agent-anchored bubble on listing pages and a
+// platform bubble everywhere else. The widget file
+// (src/components/chat/ai-chat-widget.tsx) is kept on disk for a
+// possible future per-agent surface (e.g. a logged-in agent's
+// in-app chat) but is no longer mounted.
 
 // Below-fold components — dynamic-imported to keep them off the initial
 // JS payload. They render plenty far down the page that hydrating them
@@ -684,19 +692,9 @@ export default async function PropertyDetailPage({
             emitted in generateMetadata. */}
       </main>
 
-      {/* AI customer-service widget — Phase 2 web-chat surface. Bottom-
-          LEFT during the coexistence period with Tawk (bottom-right).
-          Only renders when the listing has a primary agent id (it's
-          required for the API to know who the buyer is "talking to"). */}
-      {property.createdBy && (
-        <AiChatWidget
-          agentId={property.createdBy}
-          agentName={contact?.agentFullName ?? contact?.orgName ?? 'the agent'}
-          agentAvatarUrl={contact?.agentAvatarUrl ?? null}
-          propertyId={property.id}
-          buyerLocale={typedLocale as WidgetLocale}
-        />
-      )}
+      {/* Per-agent <AiChatWidget> mount retired 2026-05-19 — the
+          platform-wide AHO Assistant in [locale]/layout.tsx now
+          covers this surface too. See the import-line comment above. */}
     </>
   );
 }

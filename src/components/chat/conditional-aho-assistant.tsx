@@ -33,12 +33,15 @@ interface Props {
 // Path-segments that, if present anywhere in the pathname, disable
 // the widget. Compared after the locale prefix is stripped.
 const SKIP_SEGMENTS = [
-  // Per-agent widget surfaces (chat already exists, bottom-left).
-  'properties/',
-  'propiedades/',           // ES localized
-  'agents/',
-  'agentes/',                // ES localized
-  // Single-purpose flows.
+  // Per-agent <AiChatWidget> retired 2026-05-19 per PO directive — the
+  // AHO Assistant is now the SINGLE chat surface site-wide, including
+  // on /properties/[slug] and /agents/[slug]. The previous coexistence
+  // (per-agent bubble + AHO Assistant on the rest) was confusing for
+  // visitors who saw two different bots depending on which page they
+  // were on. The skip-entries for 'properties/' / 'propiedades/' /
+  // 'agents/' / 'agentes/' that used to live here have been removed.
+  // Single-purpose flows below stay skipped (auth surfaces don't need
+  // a sales chat overlay):
   'preview/',
   'vista-previa/',
   'admin',
