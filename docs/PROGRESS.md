@@ -12,6 +12,118 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-05-19 (END-OF-DAY wrap-up) — Tier-1 PO activation + programmatic SEO blog (EN→multi-locale) + Lighthouse 100 invariants
+
+**Frame:** Took control end-to-end of Tier-1 activation (per PO's "do, don't ask" directive). Shipped the entire programmatic SEO engine the PO spec'd — generator + cron + worker + JSON-LD + sitemap + Brevo emails + social distribution + Satori hero image. Then iterated three rounds with the PO on Lighthouse scores, fixed each first-party issue, and captured the invariants in two reusable skills (`/blog-perfect` + `/listing-perfect`). Closed with full multi-locale: every blog post now ships into 7 languages with reciprocal hreflang.
+
+**~30 commits today** (`ff7d0c8` → `888895a`). Highlights:
+
+### Tier-1 PO activation — all me-side items done
+- **Migrations 0066-0074 applied to prod Supabase** via `pnpm db:migrate`. Two issues fixed mid-run: (a) `set_updated_at` → real fn `touch_updated_at`; (b) `email_messages` collision with marketing table from 0055 → renamed AI tables to `ai_email_threads` / `ai_email_messages`. Commit `ee8daa7`.
+- **Stripe TEST $5 product created**. `prod_UXiuInhrpPIfc2` / `price_1TYdSxBsPTDRb0ccgmtxhsWB` set on Pages prod via `wrangler pages secret put`.
+- **3 new workers deployed**: `aho-ai-daily-rollup`, `aho-ai-weekly-digest`, `aho-listing-expiry` — all with `CRON_SECRET` + `AHO_PAGES_URL` secrets.
+
+### Soft-beta validation paused mid-Test 4
+- Test 1 ✅ (auth-gate on /sell/private)
+- Test 4 ❌ → fixed: chat widgets parsed only plain text; built `ChatMessageBody` with markdown link + bold tokenizer (`ecd6d56`); updated AI prompts to emit `[label](url)` markdown syntax (still pending PO retest)
+
+### Two small-but-real fixes from PO
+- `/sell/private` was POSTing straight to Stripe Checkout from anon; the route returned 401 silently. Auth-gate now renders Sign-in / Create-account when anon (`ff7d0c8`).
+- Saved-searches had a stale "email transport coming soon" banner — the `aho-saved-search-alerts` cron has been live for weeks. Removed banner from all 7 locales (`85514b2`).
+
+### Tier-2 me-side code follow-ups (`762c59a`)
+- Wire `intent_counts` + `risk_flag_counts` into `ai_daily_stats` rollup (second-pass query over `ai_conversation_messages` for the day's classified turns, attributed back through events' `conversation_id` → `org_id/agent_id` map).
+- Extract `countryToMarket()` duplicates in `schedule-draft.ts` + `voice/twiml/route.ts` to use the shared `src/lib/ai/country-to-market.ts`.
+- Renewal-error toast on `/dashboard/properties` for `?renew_error=…` query param (5 codes from `/api/sell/private/renew/[propertyId]`).
+
+### Programmatic SEO blog engine — full pipeline shipped (`a3a6aa2`)
+
+PO spec: cron every ~2 days with jitter, no Microdata, breadcrumb + ToC + author bio + E-E-A-T, no AI clichés, srcset images, JSON-LD in head. Two deliberate deviations from spec (both PO-confirmed): topic pool = real-estate marketing (NOT SaaS engineering — wrong audience for AHO domain) + byline = real founder (NOT fictional — Google E-E-A-T 2024+ + Hard rule #8).
+
+Pieces:
+- Migration `0075_blog_posts.sql` — schema with `status`, `failure_reason`, `distribution` JSONB, cost columns.
+- `src/lib/blog/topic-pool.ts` — 12 real-estate-marketing topics (~60% agent / ~40% private-seller), 90-day per-topic dedup.
+- `src/lib/blog/author.ts` — Michał Babula byline (single source of truth).
+- `src/lib/blog/generate-post.ts` — Anthropic Sonnet 4.6 with locked structural-contract prompt; banned-phrase list.
+- `src/lib/blog/html-validate.ts` — regex-based structural-contract enforcer (no Microdata, ToC anchor map, breadcrumb, author bio); Edge-safe (no DOM).
+- `src/lib/blog/slug.ts` — DJB2-hash suffix for stable URL identity.
+- `src/lib/blog/distribute.ts` — FB Page + IG Business + LinkedIn publish via existing `publishToX` primitives + admin's `ad_platform_tokens`. Failure isolation per channel.
+- `src/app/[locale]/blog/page.tsx` + `[slug]/page.tsx` + `[slug]/opengraph-image.tsx` — index + article + Satori hero card.
+- `src/app/sitemap-blog.xml/route.ts` + master sitemap conditional include.
+- Brevo email templates: `blog-publish-success` (with per-channel distribution log) + `blog-publish-failure` (with truncated raw model output for debugging).
+- Cron route + worker `aho-blog-publish` (cron `0 9 * * *`).
+- 18 new unit tests (`blog-html-validate` × 10, `blog-topic-pool` × 8). 795/795 unit suite.
+
+First forced cron run was a learning sprint:
+- Run 1: `anthropic_malformed` 404 — wrong model id `claude-sonnet-4-6-20250508` (stale date suffix). Fixed to canonical `claude-sonnet-4-6` (`7eb4f0a`).
+- Run 2: CF Pages deploy failed (transient "Unknown internal error"); empty-commit retry (`fb2c080`).
+- Run 3: **published** ✅ — "WhatsApp Lead Capture for Real Estate Agents in 2026" — but hero image 404'd (`.png` suffix issue — Next OG route serves at `<segment>/opengraph-image` with NO extension). Fixed in source + back-filled DB.
+
+### Satori hero image — one URL, four surfaces (`3c19d32`)
+
+`src/app/[locale]/blog/[slug]/opengraph-image.tsx` — forest-green editorial cover with AHO badge + title + summary + dateline. 1200x630 PNG. Used for: in-article `<img srcset>`, FB Page photo card, IG single-image post, LinkedIn `contentThumbnailUrl`, OG/Twitter card preview. Zero R2 round-trips, zero third-party image-AI cost, ~$0 per image.
+
+### Social URLs corrected (`7ec61b7`)
+
+PO confirmed real AHO profiles:
+- FB: `/people/Advertise-Homes-Online/61589895684586/`
+- IG: `/advertisehomes.online/`
+- LinkedIn: `/company/advertise-homes-online/`
+
+`src/lib/social-urls.ts` updated (single source of truth used by footer + email templates). `[locale]/layout.tsx` JSON-LD `Organization.sameAs` had stale FB Page id + missing IG — now reads from the canonical file. LinkedIn URL in blog author bio fixed: was placeholder `/in/michalbabula/`, real is `/in/michal-babula-8aba7241/` (`e1ee9db`). Footer "For agents" column gained `/blog` link.
+
+### Lighthouse 100 invariants captured in two skills
+
+PO ran 3 rounds of Lighthouse audits on the live blog post → diagnostics → fixes → re-test:
+
+**Round 1**: 64/68/92/92 on the blog. Most was Chrome-extension noise (`aiinhbfoop-*` AI Sidebar + Coupert = 5-9 MB of injected JS). Real first-party issues: link contrast (ToC + author bio), `<img>` missing width/height, chat widget loading on /blog. Fixes (`f9f3b5f`):
+- `globals.css`: `.aho-blog-prose` surface tokens (was `surface-band` — the always-dark feature-band → forest-on-forest. Now `surface-warm` cream → 6:1 contrast).
+- Prompt rule #6 requires `width="1200" height="630" loading="eager" fetchpriority="high" decoding="async"`.
+- `'blog'` added to `SKIP_SEGMENTS` in `conditional-aho-assistant.tsx`.
+
+**Round 2** (incognito): 59/96/100/100. The Tailwind v4 stripped ALL `.aho-blog-prose` rules from production CSS because the nested selectors referenced classes the scanner couldn't find in TSX source (DB-rendered HTML). Fix: moved the entire block OUT of `@layer components` to top-level CSS (`fd9b8a0`). Also added Cache-Control via `next.config.ts:headers()` for /blog/[slug].
+
+**Round 3** (post-fix incognito): **98/100/100/100** ✅ on the blog. Then PO ran Lighthouse on `/properties/[slug]` and got 61/100/96/92.
+
+**Round 4 (listings)** (`74e2cf7` + `a6b2642`):
+- Diagnosed the duplicate `| AHO | AHO` brand suffix in titles (builder + layout template both appending) — fixed `buildSeoMeta:tail` to be brand-free.
+- Tried Cache-Control via `next.config.ts:headers()` for `/properties/:slug` — **didn't work**: next-on-pages doesn't apply the static `headers()` config to Edge Function responses. AND `Set-Cookie: NEXT_LOCALE=…` blocks CF caching entirely.
+- Real fix: `localeDetection: false` in `src/i18n/routing.ts` (kills the unneeded cookie write when URL already has locale) + Cache-Control set inline in `src/middleware.ts` (gated on "is anonymous" so signed-in users skip the cache).
+
+**Skills shipped**:
+- `.claude/skills/blog-perfect/SKILL.md` — four-invariant audit playbook (Performance / Accessibility / Best Practices / SEO), file-map, pitfalls log (`.png` suffix, wrong model id, surface-band misuse, woff2 in Satori, Tailwind v4 purge, lazy LCP, Set-Cookie blocker, `revalidate` doesn't work on next-on-pages Edge). Invocable as `/blog-perfect`.
+- `.claude/skills/listing-perfect/SKILL.md` — parallel skill for property pages, agent profiles, city landings. References `/blog-perfect` for shared pitfalls.
+
+### Multi-locale blog pipeline — every post → 7 languages (`888895a`)
+
+Final commit of the day: full multi-locale support. Migration 0076 adds `translation_group_id UUID` to `blog_posts` + unique `(group_id, language)` index per published row + auto-default trigger.
+
+Pipeline:
+1. EN article generates as before (Sonnet 4.6).
+2. Cron mints a fresh UUID as `translation_group_id`, inserts EN row pinned to it.
+3. 6 parallel Haiku 4.5 calls translate the EN body into ES/PL/PT/DE/FR/IT. Translation prompt preserves every `<h2 id>` + breadcrumb + ToC + author-bio wrapper verbatim. Failed locale = logged + skipped (others publish).
+4. Each translated row gets a locale-specific slug + per-locale hero-image URL.
+5. Page `loadPost(slug, locale)` now filters by language; OG image route mirrors the filter.
+6. `generateMetadata.alternates.languages` walks siblings via `translation_group_id` → emits one hreflang per published locale + `x-default` to EN.
+7. `/sitemap-blog.xml` groups by `translation_group_id`; emits reciprocal `<xhtml:link rel="alternate">` map per `<url>`.
+8. Blog index `/[locale]/blog` filters on exact locale (was en-or-es-only fallback).
+
+Cost added per post: ~$0.06-0.12 for the 6 Haiku translations on top of Sonnet's $0.05-0.10 — total $0.10-0.20 per fully-multi-locale post every ~2 days.
+
+### Blockers / open questions for tomorrow
+
+- 🟡 **Soft-beta validation paused mid-Test 4** (PO testing). Tests 2/3/5 still pending. Test 4 fix retest pending.
+- 🟡 **Lighthouse re-test on listings** after the middleware Cache-Control + `localeDetection: false` fixes land. Expected: Perf 90+, A11y 100, BP 100, SEO 96+.
+- 🟡 **Multi-locale blog publish verification**: scheduled wakeup at 02:56 UTC fires a forced cron — expect 7 sibling rows. Operator email with per-locale cost summary lands at info@advertisehomes.online.
+- 🔴 **PO-blocked**: Tier 3 AI agent channels (Email DNS / WhatsApp 360dialog / Voice Twilio) — code ready, creds pending.
+- 🔴 **PO_DECISIONS #2-5 still open**: Super Pro price, paywall structure, music library, Google Ads dev token.
+
+### Next session should start with
+
+`status` — read STATUS.md + PO_DECISIONS.md, propose tomorrow's queue from the §🟡 list (soft-beta validation + Lighthouse re-tests + multi-locale verification). Most-impactful next item: the user reads through the freshly-translated blog rows on `/es/blog`, `/de/blog`, etc., and signs off on translation quality.
+
+---
+
 ## 2026-05-18 (LATE EVENING wrap-up) — Sell-funnel + $5 private-owner product (commit `143bd49`)
 
 - **Frame:** PO surfaced a structural UX problem ("Sell → Pricing → confusion → bounce"); proposed adding a free-tier private-owner path. I counter-proposed $5 per listing instead (avoids free-tier abuse + marketplace-quality damage + dilution of the agent moat). PO accepted; we built the full Identity-Selection page + $5 product end-to-end in one parallel-agent burst.

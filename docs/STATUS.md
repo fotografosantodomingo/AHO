@@ -2,11 +2,13 @@
 
 > The single place to look for "what's happening." Read this first when you start a session. Type **`status`** to me at the start and I'll read this, propose the next action, and either get your sign-off or redirect.
 >
-> I (Claude) keep this file accurate. Last update: 2026-05-19 (programmatic SEO blog shipped).
+> I (Claude) keep this file accurate. Last update: 2026-05-19 (massive sprint — Tier-1 activation + programmatic SEO blog + multi-locale).
 
-## 🆕 Programmatic SEO blog — shipped 2026-05-19
+## 🆕 Programmatic SEO blog — shipped 2026-05-19 (multi-locale)
 
-`workers/blog-publish` cron (09:00 UTC daily, 50% jitter → ~every 2 days) generates a real-estate-marketing article via Anthropic Sonnet, validates the HTML against the spec contract (no Microdata, ToC + breadcrumb + author bio present, anchors map), inserts into `blog_posts`, emails operator with success/failure. Pages at `/[locale]/blog` (index) + `/[locale]/blog/[slug]` (article). JSON-LD BlogPosting + Person(author) + BreadcrumbList in one `@graph`. Sitemap conditionally exposes `/sitemap-blog.xml` once ≥1 post is live. Migration 0075 applied to prod. Worker deployed. Commit `a3a6aa2`.
+`workers/blog-publish` cron (09:00 UTC daily, 50% jitter → ~every 2 days) generates a real-estate-marketing article via Anthropic Sonnet, validates the HTML against the spec contract (no Microdata, ToC + breadcrumb + author bio present, anchors map), inserts into `blog_posts`, then fans out **6 parallel Haiku translations** into ES/PL/PT/DE/FR/IT — all linked via `translation_group_id` for reciprocal hreflang. Inserts a row per locale (7 total per cron run), emails operator with per-locale success/failure stats. Pages at `/[locale]/blog` (index) + `/[locale]/blog/[slug]` (article) — both locale-filtered. JSON-LD `BlogPosting` + `Person(author)` + `BreadcrumbList` in one `@graph` per locale. `/sitemap-blog.xml` groups siblings + emits reciprocal `<xhtml:link rel="alternate">` per locale. Distribution to FB Page + IG Business + LinkedIn auto-fires from the EN row using `ad_platform_tokens` for the admin account. Migrations 0075 (schema) + 0076 (translation_group_id) applied to prod. Worker `aho-blog-publish` deployed. Commits today: `a3a6aa2` → `888895a` (~25 commits).
+
+**Two reusable skills shipped**: `/blog-perfect` + `/listing-perfect` — Lighthouse-100 audit playbooks documenting every invariant + pitfall encountered.
 
 
 
@@ -45,7 +47,40 @@ Auto-video engine slice details preserved below.
 
 ---
 
-## 🟡 Tomorrow's plan — 2026-05-19
+## 🟡 Tomorrow's plan — 2026-05-20
+
+Effort: S = ≤2 hrs, M = ½ day, L = full day+. Owner: who's blocking.
+
+### Soft-beta validation by PO (paused mid-Test 4 yesterday)
+
+| # | Test | Status |
+|---|---|---|
+| 1 | `/sell/private` anon auth-gate → Sign in / Create account | ✅ verified |
+| 2 | Sign-in → bounce back → "Pay $5" button visible | pending |
+| 3 | Click Pay $5 → Stripe Checkout at $5.00 USD | pending |
+| 4 | Web chat widget — markdown links render clickable | 🟡 fix shipped (`ecd6d56`), retest pending |
+| 5 | `/dashboard/ai-inbox` shows approve / edit / reject loop | pending |
+
+### Lighthouse re-test in incognito
+
+After all today's caching + multi-locale fixes deployed (final commit `888895a`):
+
+| URL | Last seen | Expected after deploy |
+|---|---|---|
+| `/en/blog/<slug>` | 98/100 | 100/100 across all four (after Tailwind purge fix landed in `fd9b8a0`) |
+| `/en/properties/<slug>` | 53/100/100/96 (Perf was server-bound) | 90+ once `cf-cache-status: HIT` flips — middleware Cache-Control + `localeDetection: false` should unblock the CDN cache |
+
+Verify with `curl -sI <url>`: should see `cache-control: public, ...` AND no `set-cookie` AND `cf-cache-status` flipping to HIT on the second request.
+
+### Blog multi-locale validation (post the scheduled-wakeup forced cron lands)
+
+Pending wakeup at 02:56 UTC fired a forced cron → expect 7 sibling rows live across 7 locales. Verify:
+- `https://advertisehomes.online/en/blog`
+- `/es/blog` `/pl/blog` `/pt/blog` `/de/blog` `/fr/blog` `/it/blog` — each shows their own translated article in the index
+- `/sitemap-blog.xml` — 8 `<url>` entries (1 index + 7 article siblings) with reciprocal hreflang
+- Operator email at info@advertisehomes.online with per-locale cost summary
+
+### Original 🟡 Tomorrow's plan — 2026-05-19 (historical — TIER 1 ALL DONE)
 
 Effort: S = ≤2 hrs, M = ½ day, L = full day+. Owner: who's blocking.
 
