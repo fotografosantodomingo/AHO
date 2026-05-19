@@ -94,10 +94,6 @@ export default async function SavedSearchesPage({
         <h1 className="font-brand text-2xl font-semibold tracking-tight md:text-[34px] md:leading-[1.18]">
           {t('heading')}
         </h1>
-        <div className="inline-flex items-center gap-2 rounded-md border border-warn/30 bg-warn-bg/50 px-3 py-1.5 text-xs text-warn">
-          <span aria-hidden="true">⚠</span>
-          <span>{t('alertsBlocked')}</span>
-        </div>
       </header>
 
       {searches.length === 0 ? (

@@ -1170,7 +1170,6 @@
     "saveButtonSaved": "Guardada ✓",
     "saveButtonAuth": "Inicia sesión para guardar",
     "saveButtonError": "Error al guardar",
-    "alertsBlocked": "Las alertas por correo empezarán cuando AHO termine de configurar su transporte de email.",
     "yourAccountEyebrow": "Tu cuenta"
   },
   "metaConnect": {

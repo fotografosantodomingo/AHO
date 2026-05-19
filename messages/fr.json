@@ -1637,7 +1637,6 @@
     "saveButtonSaved": "Enregistrée ✓",
     "saveButtonAuth": "Connectez-vous pour enregistrer",
     "saveButtonError": "Échec de l'enregistrement",
-    "alertsBlocked": "Les alertes e-mail démarreront dès qu'AHO aura finalisé le branchement de son transport e-mail.",
     "yourAccountEyebrow": "Votre compte"
   },
   "docs": {

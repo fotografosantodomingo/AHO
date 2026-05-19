@@ -1170,7 +1170,6 @@
     "saveButtonSaved": "Saved ✓",
     "saveButtonAuth": "Sign in to save",
     "saveButtonError": "Save failed",
-    "alertsBlocked": "Email alerts will start when AHO finishes wiring its email transport.",
     "yourAccountEyebrow": "Your account"
   },
   "metaConnect": {
