@@ -9,6 +9,7 @@ import {
   stampBodyPlaceholders,
 } from '@/lib/blog/generate-post';
 import { buildBlogSlug } from '@/lib/blog/slug';
+import { distributeBlogPost } from '@/lib/blog/distribute';
 import { sendEmail } from '@/lib/email/brevo';
 import { renderBlogPublishSuccessEmail } from '@/lib/email/templates/blog-publish-success';
 import { renderBlogPublishFailureEmail } from '@/lib/email/templates/blog-publish-failure';
@@ -285,9 +286,40 @@ async function handle(req: NextRequest): Promise<NextResponse<CronSummary>> {
     );
   }
 
-  // ─── Step 7: success email ────────────────────────────────────────
+  // ─── Step 7: distribution to admin's connected social accounts ────
+  // Run AFTER the insert so the publicUrl resolves to a live page.
+  // Distribution failures DO NOT roll back the post — they're logged
+  // into `blog_posts.distribution` JSONB and reported in the success
+  // email. The post itself is the durable artifact.
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
   const liveUrl = `${site}/en/blog/${slug}`;
+  const distributionEnabled = process.env.BLOG_DISTRIBUTION_ENABLED !== 'false';
+  const distributionEntries = await distributeBlogPost({
+    admin,
+    post: {
+      title: result.title,
+      summary: result.summary,
+      publicUrl: liveUrl,
+    },
+    tokenEncryptionKey: env.AHO_TOKEN_ENCRYPTION_KEY ?? '',
+    enabled: distributionEnabled && Boolean(env.AHO_TOKEN_ENCRYPTION_KEY),
+  });
+  // Best-effort write into the row's distribution JSONB. Don't fail
+  // the cron if this update errors — the post is already live.
+  {
+    const { error: distErr } = await admin
+      .from('blog_posts')
+      .update({ distribution: distributionEntries })
+      .eq('slug', slug);
+    if (distErr) {
+      console.error('[blog-publish] distribution JSONB update failed', {
+        code: distErr.code,
+        message: distErr.message,
+      });
+    }
+  }
+
+  // ─── Step 8: success email ────────────────────────────────────────
   const successEmail = renderBlogPublishSuccessEmail({
     title: result.title,
     slug,
@@ -298,6 +330,7 @@ async function handle(req: NextRequest): Promise<NextResponse<CronSummary>> {
     model: result.model,
     liveUrl,
     publishedAt: publishedAt.toISOString(),
+    distribution: distributionEntries,
   });
   const emailResult = await sendEmail({
     to: ADMIN_EMAIL,

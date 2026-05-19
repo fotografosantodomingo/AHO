@@ -65,6 +65,7 @@ export async function SiteFooter({ locale }: Props) {
   const privacyHref = localePath(locale, '/privacy');
   const termsHref = localePath(locale, '/terms');
   const docsHref = localePath(locale, '/docs');
+  const blogHref = localePath(locale, '/blog');
 
   // Reusable shape for column links — same JSX rendered both inside the
   // mobile accordion and inside the desktop column. Pulling into a const
@@ -83,6 +84,7 @@ export async function SiteFooter({ locale }: Props) {
     <ul className="space-y-2 text-sm">
       <li><a href={forAgentsHref} className="footer-link">{t('linkForAgents')}</a></li>
       <li><a href={pricingHref} className="footer-link">{t('linkPricing')}</a></li>
+      <li><a href={blogHref} className="footer-link">{t('linkBlog')}</a></li>
       <li><a href={signupHref} className="footer-link">{t('linkSignUp')}</a></li>
       <li><a href={signinHref} className="footer-link">{t('linkSignIn')}</a></li>
     </ul>

@@ -1,4 +1,8 @@
 import { emailLayout, buttonPrimary, escapeHtml } from './_layout';
+import {
+  renderDistributionSummary,
+  type DistributionEntry,
+} from '@/lib/blog/distribute';
 
 interface RenderedEmail {
   subject: string;
@@ -26,6 +30,8 @@ export function renderBlogPublishSuccessEmail(args: {
   model: string;
   liveUrl: string;
   publishedAt: string; // ISO
+  /** Per-channel distribution log from distributeBlogPost(). */
+  distribution: ReadonlyArray<DistributionEntry>;
 }): RenderedEmail {
   const costUsd = (args.estimatedCostUsdCents / 100).toFixed(3);
   const subject = `[AHO] Blog published — ${args.title}`;
@@ -37,6 +43,8 @@ export function renderBlogPublishSuccessEmail(args: {
       ${escapeHtml(args.audience)} · ${args.wordCount} words · ~$${costUsd} · ${escapeHtml(args.model)}
     </p>
     <p>${buttonPrimary(args.liveUrl, 'Open the live post')}</p>
+    <p style="margin: 24px 0 8px;"><strong>Distribution</strong></p>
+    ${renderDistributionSummary(args.distribution)}
     <p style="font-size: 13px; color: #6b6356; margin-top: 28px;">
       Topic key: <code>${escapeHtml(args.topicKey)}</code><br/>
       Slug: <code>${escapeHtml(args.slug)}</code><br/>
@@ -50,11 +58,23 @@ export function renderBlogPublishSuccessEmail(args: {
     </p>
   `;
 
+  const distLines = args.distribution
+    .map((e) => {
+      if (e.status === 'posted') return `  · ${e.channel}: ✓ posted${e.external_url ? ` (${e.external_url})` : ''}`;
+      if (e.status === 'failed') return `  · ${e.channel}: ✗ failed (${e.error_code ?? 'unknown'})`;
+      if (e.status === 'skipped') return `  · ${e.channel}: — skipped (${e.skip_reason ?? 'no_reason'})`;
+      return `  · ${e.channel}: ${e.status}`;
+    })
+    .join('\n');
+
   const text = `Blog published — ${args.title}
 
 ${args.audience} · ${args.wordCount} words · ~$${costUsd} · ${args.model}
 
 Open: ${args.liveUrl}
+
+Distribution:
+${distLines}
 
 Topic key: ${args.topicKey}
 Slug: ${args.slug}
