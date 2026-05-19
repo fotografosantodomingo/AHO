@@ -181,12 +181,12 @@ revoke insert, update, delete on public.ai_conversation_messages from anon, auth
 
 -- ─── updated_at trigger ────────────────────────────────────────────
 
--- Reuse the existing public.set_updated_at() helper installed in
+-- Reuse the existing public.touch_updated_at() helper installed in
 -- migration 0001. Conversation rows get touched every time a new
 -- message lands (the API layer also updates last_message_at).
 create trigger ai_conversations_set_updated_at
   before update on public.ai_conversations
-  for each row execute function public.set_updated_at();
+  for each row execute function public.touch_updated_at();
 
 comment on table public.ai_conversations is
   'AI customer-service agent thread header. One row per (buyer, listing?, agent) pair. Shared across the 4 channels (web_chat / email / whatsapp / voice) so the AI has cross-channel context.';

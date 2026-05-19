@@ -76,7 +76,7 @@ revoke insert, update, delete on public.ai_daily_stats from anon, authenticated;
 
 create trigger ai_daily_stats_set_updated_at
   before update on public.ai_daily_stats
-  for each row execute function public.set_updated_at();
+  for each row execute function public.touch_updated_at();
 
 comment on table public.ai_daily_stats is
   'Daily rollup of ai_conversation_events keyed by (org_id, agent_id, day). agent_id IS NULL rows hold org-level totals; agent_id NOT NULL rows hold per-agent. UPSERT pattern in the rollup cron makes re-runs idempotent.';

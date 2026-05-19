@@ -24,7 +24,7 @@ export const runtime = 'edge';
  * Async-draft handoff pattern:
  *   This route does NOT call the AI to draft a reply. It only:
  *     1. Resolves / creates the parent ai_conversations row.
- *     2. Threads the email into email_threads / email_messages.
+ *     2. Threads the email into ai_email_threads / ai_email_messages.
  *     3. Inserts an ai_conversation_messages row (role='user',
  *        channel='email').
  *     4. Calls `scheduleDraft(conversationId)` to kick off the AI
@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
   }
   const { conversationId, orgId, agentId, propertyId } = resolved;
 
-  // 4. Thread the email into email_threads / email_messages.
+  // 4. Thread the email into ai_email_threads / ai_email_messages.
   const messageId = normalizeMessageId(body.parsed.messageId);
   const inReplyTo = normalizeMessageId(body.parsed.inReplyTo);
   const references = normalizeReferences(body.parsed.references);
@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
   }
 
   // 5. Insert the channel-agnostic ai_conversation_messages row
-  //    first. The email_messages row references it via FK.
+  //    first. The ai_email_messages row references it via FK.
   const attachments = (body.parsed.attachments ?? []).map((a) => ({
     filename: a.filename,
     mimeType: a.mimeType,
@@ -173,7 +173,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: 'message_insert_failed' }, { status: 500 });
   }
 
-  const { error: emailErr } = await admin.from('email_messages').insert({
+  const { error: emailErr } = await admin.from('ai_email_messages').insert({
     thread_id: threadId,
     conversation_message_id: msgRow.id,
     message_id: messageId ?? `aho-synthetic-${msgRow.id}`,
@@ -190,7 +190,7 @@ export async function POST(req: NextRequest) {
   });
 
   if (emailErr) {
-    console.error('[inbound-email] email_messages_insert', {
+    console.error('[inbound-email] ai_email_messages_insert', {
       code: emailErr.code,
       message: emailErr.message,
       details: emailErr.details,
@@ -459,7 +459,7 @@ async function resolveOrCreateThread(
     // Either the root_message_id matches, or one of the in-thread
     // message_ids matches. Two queries; small + cheap.
     const { data: rootMatch } = await admin
-      .from('email_threads')
+      .from('ai_email_threads')
       .select('id, conversation_id')
       .in('root_message_id', candidates)
       .limit(1)
@@ -467,7 +467,7 @@ async function resolveOrCreateThread(
     if (rootMatch) return rootMatch.id;
 
     const { data: msgMatch } = await admin
-      .from('email_messages')
+      .from('ai_email_messages')
       .select('thread_id')
       .in('message_id', candidates)
       .limit(1)
@@ -478,7 +478,7 @@ async function resolveOrCreateThread(
   // 2. No match — this is a thread root. Create one.
   const rootId = args.messageId ?? `aho-thread-root-${crypto.randomUUID()}`;
   const { data: created, error: createErr } = await admin
-    .from('email_threads')
+    .from('ai_email_threads')
     .insert({
       conversation_id: args.conversationId,
       root_message_id: rootId,
