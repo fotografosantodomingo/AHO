@@ -187,6 +187,28 @@ const config: NextConfig = {
       '/:locale(en|es|pl|pt|de|fr|it)/preview/:path*',
       '/:locale(en|es|pl|pt|de|fr|it)/vista-previa/:path*',
     ];
+    // Cache-Control for the programmatic-SEO blog. The article body
+    // is static once published (the cron writes ~every 2 days), so
+    // we tell CF Pages to cache the rendered HTML at the edge for
+    // 1 hour (s-maxage) while browsers keep a fresh copy for 5 min
+    // (max-age). `stale-while-revalidate` lets the cache serve a
+    // slightly-stale page instantly while async-fetching a fresh
+    // render in the background. Drops LCP on subsequent loads from
+    // ~1.1s (cold-render w/ Supabase) to <100ms (CDN cache HIT).
+    //
+    // Why not on the index page (/blog): index ordering can change
+    // any time a new post lands; we let it stay default-uncached so
+    // the most-recent post appears immediately after each publish.
+    const blogCacheHeader = [
+      {
+        key: 'Cache-Control',
+        value: 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400',
+      },
+    ];
+    const blogCacheGlobs = [
+      '/blog/:slug',
+      '/:locale(en|es|pl|pt|de|fr|it)/blog/:slug',
+    ];
     return [
       {
         source: '/:path*',
@@ -195,6 +217,10 @@ const config: NextConfig = {
       ...authedPathGlobs.map((source) => ({
         source,
         headers: noIndexHeader,
+      })),
+      ...blogCacheGlobs.map((source) => ({
+        source,
+        headers: blogCacheHeader,
       })),
     ];
   },

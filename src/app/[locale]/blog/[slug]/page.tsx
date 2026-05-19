@@ -28,6 +28,14 @@ import {
  */
 
 export const runtime = 'edge';
+// Render on each request (the page reads the post by slug from
+// Supabase). CDN-level caching is set via Cache-Control headers in
+// `next.config.ts:headers()` for the /blog/* pattern; CF Pages picks
+// up the header and caches the rendered HTML at the edge so
+// subsequent readers get a <100ms response from the closest POP.
+// Article content is static once published — only the cron writes
+// new rows, and even an edit hits the row's `updated_at` which
+// busts any per-row cache the future may want.
 export const dynamic = 'force-dynamic';
 
 interface PageParams {

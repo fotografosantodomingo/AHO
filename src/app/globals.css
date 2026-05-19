@@ -304,13 +304,26 @@ html.dark {
   .footer-accordion[open] .footer-accordion-chevron::before {
     content: '−';
   }
+}
 
-  /* — Programmatic SEO blog body (rendered from blog_posts.body_html) — */
-  /* The AI emits semantic HTML; we add only the typographic styles
-     needed for readability since `aho-blog-prose` is the only hook
-     applied to <article>. Element-level selectors target what the
-     spec contract guarantees (breadcrumb, ToC, headings, etc.). */
-  .aho-blog-prose {
+/* — Programmatic SEO blog body (rendered from blog_posts.body_html) — */
+/*
+ * IMPORTANT: these rules live OUTSIDE the @layer components block.
+ * Tailwind v4 was tree-shaking rules whose selectors referenced
+ * descendant classes the scanner couldn't find in source (e.g.
+ * `.table-of-contents`, `.author-bio-box` — both only ever appear
+ * in body_html that comes from the DB, never in TSX). Result on
+ * 2026-05-19: zero blog typography styles in the production CSS
+ * bundle, ToC contrast still failing in Lighthouse.
+ *
+ * Plain CSS at the top level is never purged. This block intentionally
+ * stays outside @layer.
+ *
+ * The AI emits semantic HTML; we add only the typographic styles
+ * needed for readability since `aho-blog-prose` is the only hook
+ * applied to <article>.
+ */
+.aho-blog-prose {
     color: var(--color-ink);
     font-size: 17px;
     line-height: 1.7;
@@ -447,5 +460,4 @@ html.dark {
     color: var(--color-helper);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-  }
 }
