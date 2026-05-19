@@ -58,6 +58,13 @@ const SKIP_SEGMENTS = [
   'inicio/bienvenida',
   'reviews/verify/',
   'resenas/verificar/',
+  // Editorial blog — readers don't expect a sales chat widget on a
+  // long-form article, and stripping the widget here saves ~290 KB
+  // of unused first-party JS on those routes (Lighthouse flagged
+  // the chunks 3c6892b9 + 7045 + 3949 as unused on /blog/[slug]).
+  // Footer + header + JSON-LD still ship; only the floating chat
+  // bubble is removed.
+  'blog',
 ];
 
 function detectSurface(pathname: string): AhoAssistantSurface | null {
