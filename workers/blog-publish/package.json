@@ -1,0 +1,18 @@
+{
+  "name": "aho-blog-publish",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AHO scheduled worker — daily 09:00 UTC proxy to /api/cron/blog-publish on the Pages app. The route rolls a 50% skip for human-like ~every-2-days cadence, picks a real-estate-marketing topic, generates an article via Anthropic, inserts it into blog_posts, and emails the operator.",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "deploy:dry-run": "wrangler deploy --dry-run",
+    "dev": "wrangler dev",
+    "trigger": "wrangler dev --test-scheduled",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240620.0",
+    "typescript": "^5.5.4",
+    "wrangler": "^4.88.0"
+  }
+}

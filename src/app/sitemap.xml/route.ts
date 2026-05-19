@@ -85,10 +85,28 @@ export async function GET(): Promise<Response> {
   // logic already uses max(org, listings)). Cheap + accurate enough.
   const agentsLastmod = listingsLastmod;
 
+  // Latest blog-post lastmod — drives the /sitemap-blog.xml lastmod
+  // on the index. NULL when no post is published yet (in which case
+  // we omit the child entirely to keep the index clean).
+  const { data: latestPost } = await supabase
+    .from('blog_posts')
+    .select('updated_at')
+    .eq('status', 'published')
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const blogLastmod = latestPost?.updated_at
+    ? new Date(latestPost.updated_at)
+    : null;
+
   const children: SitemapIndexChild[] = [
     { loc: `${site}/sitemap-pages.xml`, lastmod: MARKETING_LASTMOD },
     { loc: `${site}/sitemap-landings.xml`, lastmod: MARKETING_LASTMOD },
   ];
+
+  if (blogLastmod) {
+    children.push({ loc: `${site}/sitemap-blog.xml`, lastmod: blogLastmod });
+  }
 
   // Only advertise the dynamic children when there's at least one real
   // listing. Otherwise these all return `<urlset></urlset>` which GSC

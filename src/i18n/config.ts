@@ -176,6 +176,16 @@ export const PATHNAMES = {
     es: '/busquedas-guardadas',
     ...en5('/saved-searches'),
   },
+  '/blog': {
+    en: '/blog',
+    es: '/blog',
+    ...en5('/blog'),
+  },
+  '/blog/[slug]': {
+    en: '/blog/[slug]',
+    es: '/blog/[slug]',
+    ...en5('/blog/[slug]'),
+  },
   '/preview/[auditId]': {
     en: '/preview/[auditId]',
     es: '/vista-previa/[auditId]',

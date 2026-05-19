@@ -618,6 +618,94 @@ export function buildRealEstateAgent(args: {
 }
 
 /* -------------------------------------------------------------------------- */
+/* Article (blog post)                                                        */
+/* -------------------------------------------------------------------------- */
+
+export interface ArticleAuthorInput {
+  name: string;
+  /** External or same-domain URL pointing at the author's identity
+   *  page. Optional — when null the Person node omits `url`. */
+  url?: string | null;
+  /** Same-domain profile page if any (rendered as `Person.sameAs`). */
+  sameDomainUrl?: string | null;
+  jobTitle?: string | null;
+  image?: string | null;
+}
+
+/**
+ * Build a `BlogPosting` JSON-LD node. Used by /blog/[slug] pages.
+ *
+ * We emit BlogPosting specifically (vs. plain Article) because Google
+ * Search Central documents BlogPosting as the canonical type for
+ * editorial blog content and it carries the same fields with a more
+ * specific signal.
+ */
+export function buildBlogPosting(args: {
+  url: string;
+  headline: string;
+  description: string;
+  /** Absolute URL of the hero image. Optional — Google still parses
+   *  the article without an image but Discover surfaces require one. */
+  image?: string | null;
+  datePublished: string;
+  dateModified?: string | null;
+  inLanguage: string;
+  author: ArticleAuthorInput;
+  /** Optional separate reviewer Person node. */
+  reviewer?: { name: string } | null;
+  publisher: { name: string; url: string; logoUrl?: string | null };
+  /** Word count rendered as `wordCount` on the Article node. */
+  wordCount?: number | null;
+  /** Topical keywords — used for the `keywords` field. Should be a
+   *  comma-separated string per schema.org spec. */
+  keywords?: string | null;
+}): JsonLdNode {
+  const authorNode: JsonLdNode = {
+    '@type': 'Person',
+    name: args.author.name,
+  };
+  if (args.author.url) authorNode.url = args.author.url;
+  if (args.author.jobTitle) authorNode.jobTitle = args.author.jobTitle;
+  if (args.author.image) authorNode.image = args.author.image;
+  if (args.author.sameDomainUrl) authorNode.sameAs = args.author.sameDomainUrl;
+
+  const publisherNode: JsonLdNode = {
+    '@type': 'Organization',
+    name: args.publisher.name,
+    url: args.publisher.url,
+  };
+  if (args.publisher.logoUrl) {
+    publisherNode.logo = {
+      '@type': 'ImageObject',
+      url: args.publisher.logoUrl,
+    };
+  }
+
+  const node: JsonLdNode = {
+    '@context': SCHEMA_CONTEXT,
+    '@type': 'BlogPosting',
+    '@id': `${args.url}#article`,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': args.url },
+    headline: args.headline,
+    description: args.description,
+    datePublished: args.datePublished,
+    inLanguage: args.inLanguage,
+    author: authorNode,
+    publisher: publisherNode,
+  };
+  if (args.image) node.image = args.image;
+  if (args.dateModified) node.dateModified = args.dateModified;
+  if (args.reviewer) {
+    node.reviewedBy = { '@type': 'Person', name: args.reviewer.name };
+  }
+  if (typeof args.wordCount === 'number' && args.wordCount > 0) {
+    node.wordCount = args.wordCount;
+  }
+  if (args.keywords) node.keywords = args.keywords;
+  return node;
+}
+
+/* -------------------------------------------------------------------------- */
 /* @graph wrapper                                                             */
 /* -------------------------------------------------------------------------- */
 

@@ -1,0 +1,26 @@
+name = "aho-blog-publish"
+main = "src/index.ts"
+compatibility_date = "2025-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Cron Trigger — fires daily at 09:00 UTC. Coverage:
+#   05:00 ET / 06:00 EST(DR) / 10:00 Madrid / 12:00 Riyadh.
+# The route itself rolls a 50% skip (SKIP_PROBABILITY) so on-paper
+# cadence averages ~every 2 days while staying statistically
+# irregular — no fixed-interval bot footprint.
+#
+# Per CLAUDE.md hard rule #9: the first live run inserts a real
+# article into production AND emails the operator. That's expected;
+# the safety here is the SKIP roll + the dedup_window (90 days per
+# topic_key) preventing runaway publishing.
+[triggers]
+crons = ["0 9 * * *"]
+
+# Secrets — set via `wrangler secret put`:
+#   CRON_SECRET    — matches Pages env; route validates via
+#                    shared checkCronAuth.
+#   AHO_PAGES_URL  — https://advertisehomes.online (production).
+#                    Preview env can point at *.aho-web.pages.dev.
+
+[vars]
+LOG_LEVEL = "info"

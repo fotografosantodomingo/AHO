@@ -1,0 +1,323 @@
+import { NextResponse, type NextRequest } from 'next/server';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { serverEnv, publicEnv } from '@/lib/env';
+import { checkCronAuth } from '@/app/api/cron/meta-insights/route';
+import { BLOG_TOPIC_POOL, pickTopic, type BlogTopic } from '@/lib/blog/topic-pool';
+import { PRIMARY_AUTHOR, ARTICLE_REVIEWER } from '@/lib/blog/author';
+import {
+  generateBlogPost,
+  stampBodyPlaceholders,
+} from '@/lib/blog/generate-post';
+import { buildBlogSlug } from '@/lib/blog/slug';
+import { sendEmail } from '@/lib/email/brevo';
+import { renderBlogPublishSuccessEmail } from '@/lib/email/templates/blog-publish-success';
+import { renderBlogPublishFailureEmail } from '@/lib/email/templates/blog-publish-failure';
+
+export const runtime = 'edge';
+
+/**
+ * GET /api/cron/blog-publish
+ *
+ * Programmatic SEO cron — fires daily at 09:00 UTC from
+ * `workers/blog-publish/`, applies a 50% skip-roll for human-like
+ * cadence (so the on-paper interval averages ~every 2 days while
+ * being statistically irregular — no fixed-day bot footprint),
+ * picks an unused topic, generates an article via Anthropic, inserts
+ * it into `blog_posts(status='published')`, and emails the operator
+ * with stats on success or with the failure code + raw model output
+ * on rejection.
+ *
+ * Auth: shared CRON_SECRET bearer via checkCronAuth (same pattern as
+ * the other 6 AHO crons).
+ *
+ * Query overrides (back-fill / dry-run / debug):
+ *   ?force=1            Skip the 50% jitter — always attempt this run.
+ *                       Required when the operator triggers a manual
+ *                       run. The cron worker NEVER passes this.
+ *   ?topic_key=<key>    Generate for the exact topic key, bypassing
+ *                       the random picker. Useful for one-off
+ *                       coverage. Still respects dedup unless
+ *                       ?force=1 is also passed.
+ *   ?dry_run=1          Generate + validate, but don't insert and
+ *                       don't email. Returns the article JSON in the
+ *                       HTTP response for local QA.
+ *
+ * Idempotency: a topic shipped in the last 90 days is excluded from
+ * the random pick (see DEDUP_WINDOW_DAYS). For the same date + same
+ * topic_key, `buildBlogSlug` produces the same slug — a duplicate
+ * insert hits the unique index and the cron treats that as a no-op.
+ */
+
+const DEDUP_WINDOW_DAYS = 90;
+const SKIP_PROBABILITY = 0.5;
+const ADMIN_EMAIL = 'info@advertisehomes.online';
+
+interface CronSummary {
+  ok: boolean;
+  outcome:
+    | 'skipped_jitter'
+    | 'all_topics_recently_covered'
+    | 'no_anthropic_key'
+    | 'ai_failed'
+    | 'insert_failed'
+    | 'published'
+    | 'dry_run';
+  errorCode?: string;
+  topicKey?: string;
+  slug?: string;
+  title?: string;
+}
+
+async function handle(req: NextRequest): Promise<NextResponse<CronSummary>> {
+  const env = serverEnv();
+  const auth = checkCronAuth({
+    authorizationHeader: req.headers.get('authorization'),
+    expectedSecret: env.CRON_SECRET,
+  });
+  if (!auth.ok) {
+    return NextResponse.json(
+      { ok: false, outcome: 'no_anthropic_key', errorCode: auth.errorCode },
+      { status: auth.status },
+    );
+  }
+
+  const url = new URL(req.url);
+  const force = url.searchParams.get('force') === '1';
+  const dryRun = url.searchParams.get('dry_run') === '1';
+  const forcedTopicKey = url.searchParams.get('topic_key');
+
+  // ─── Step 1: jitter ────────────────────────────────────────────────
+  if (!force && Math.random() < SKIP_PROBABILITY) {
+    return NextResponse.json({
+      ok: true,
+      outcome: 'skipped_jitter',
+    });
+  }
+
+  // ─── Step 2: pick topic ────────────────────────────────────────────
+  const admin = createAdminClient();
+  const dedupSince = new Date(
+    Date.now() - DEDUP_WINDOW_DAYS * 24 * 60 * 60 * 1000,
+  );
+  const { data: recentRows } = await admin
+    .from('blog_posts')
+    .select('topic_key')
+    .gte('created_at', dedupSince.toISOString());
+  const recentKeys = new Set<string>(
+    (recentRows ?? []).map((r) => (r as { topic_key: string }).topic_key),
+  );
+
+  let topic: BlogTopic | null;
+  if (forcedTopicKey) {
+    topic =
+      BLOG_TOPIC_POOL.find((t) => t.key === forcedTopicKey) ?? null;
+    if (!topic) {
+      return NextResponse.json(
+        {
+          ok: false,
+          outcome: 'all_topics_recently_covered',
+          errorCode: 'unknown_topic_key',
+        },
+        { status: 400 },
+      );
+    }
+    if (!force && recentKeys.has(topic.key)) {
+      return NextResponse.json(
+        {
+          ok: false,
+          outcome: 'all_topics_recently_covered',
+          errorCode: 'topic_in_dedup_window',
+          topicKey: topic.key,
+        },
+        { status: 200 },
+      );
+    }
+  } else {
+    topic = pickTopic(recentKeys);
+    if (!topic) {
+      return NextResponse.json(
+        { ok: true, outcome: 'all_topics_recently_covered' },
+        { status: 200 },
+      );
+    }
+  }
+
+  // ─── Step 3: AI generate ───────────────────────────────────────────
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    return NextResponse.json(
+      { ok: false, outcome: 'no_anthropic_key', errorCode: 'ANTHROPIC_API_KEY missing' },
+      { status: 503 },
+    );
+  }
+
+  const result = await generateBlogPost(topic, apiKey);
+
+  if (!result.ok) {
+    // Persist the failure as an `ai_failed` row so /admin can surface
+    // a streak of failures. Also email the operator.
+    const failureRowSlug = buildBlogSlug({
+      title: `failed-${topic.title}`,
+      topicKey: topic.key,
+      isoDay: new Date().toISOString().slice(0, 10),
+    });
+    const { error: insertErr } = await admin.from('blog_posts').insert({
+      slug: failureRowSlug,
+      topic_key: topic.key,
+      language: 'en',
+      title: `[failed] ${topic.title}`,
+      summary: '(AI generation failed — see failure_reason)',
+      body_html: '<!-- generation failed -->',
+      author_name: PRIMARY_AUTHOR.name,
+      author_role: PRIMARY_AUTHOR.role,
+      author_url: PRIMARY_AUTHOR.url,
+      reviewer_name: ARTICLE_REVIEWER?.name ?? null,
+      word_count: 0,
+      status: 'ai_failed',
+      failure_reason: `${result.error}${result.detail ? `: ${result.detail.slice(0, 280)}` : ''}`,
+    });
+    if (insertErr) {
+      console.error('[blog-publish] ai_failed row insert failed', {
+        code: insertErr.code,
+        message: insertErr.message,
+      });
+    }
+
+    // Failure email — always sent so the operator notices a streak.
+    const failureEmail = renderBlogPublishFailureEmail({
+      topicKey: topic.key,
+      topicTitle: topic.title,
+      failureCode: result.error,
+      detail: result.detail,
+      rawBodyExcerpt: result.rawBody,
+      latencyMs: result.latencyMs,
+      attemptedAt: new Date().toISOString(),
+    });
+    const emailResult = await sendEmail({
+      to: ADMIN_EMAIL,
+      subject: failureEmail.subject,
+      html: failureEmail.html,
+      text: failureEmail.text,
+    });
+    if (!emailResult.sent) {
+      console.error('[blog-publish] failure email send failed', emailResult.error);
+    }
+
+    return NextResponse.json(
+      {
+        ok: false,
+        outcome: 'ai_failed',
+        errorCode: result.error,
+        topicKey: topic.key,
+      },
+      { status: 200 },
+    );
+  }
+
+  // ─── Step 4: stamp placeholders + build slug ──────────────────────
+  const publishedAt = new Date();
+  const isoDay = publishedAt.toISOString().slice(0, 10);
+  const slug = buildBlogSlug({
+    title: result.title,
+    topicKey: topic.key,
+    isoDay,
+  });
+
+  const stampedHtml = stampBodyPlaceholders({
+    html: result.bodyHtml,
+    wordCount: result.wordCount,
+    publishedAt,
+    // v1 ships without hero images — the prompt's image tag uses
+    // {HERO_IMG} placeholders which stampBodyPlaceholders strips when
+    // heroImageUrl is null.
+    heroImageUrl: null,
+    heroImageSrcsetByWidth: null,
+  });
+
+  // ─── Step 5: dry-run early exit ───────────────────────────────────
+  if (dryRun) {
+    return NextResponse.json({
+      ok: true,
+      outcome: 'dry_run',
+      topicKey: topic.key,
+      slug,
+      title: result.title,
+    });
+  }
+
+  // ─── Step 6: insert ────────────────────────────────────────────────
+  const { error: insertErr } = await admin.from('blog_posts').insert({
+    slug,
+    topic_key: topic.key,
+    language: 'en',
+    title: result.title,
+    summary: result.summary,
+    body_html: stampedHtml,
+    author_name: result.authorName,
+    author_role: result.authorRole,
+    author_url: result.authorUrl,
+    reviewer_name: result.reviewerName,
+    reviewed_at: publishedAt.toISOString(),
+    word_count: result.wordCount,
+    status: 'published',
+    published_at: publishedAt.toISOString(),
+    model: result.model,
+    input_tokens: result.inputTokens,
+    output_tokens: result.outputTokens,
+    estimated_cost_usd_cents: result.estimatedCostUsdCents,
+  });
+  if (insertErr) {
+    console.error('[blog-publish] insert failed', {
+      code: insertErr.code,
+      message: insertErr.message,
+      details: insertErr.details,
+      hint: insertErr.hint,
+    });
+    return NextResponse.json(
+      {
+        ok: false,
+        outcome: 'insert_failed',
+        errorCode: insertErr.code ?? 'unknown',
+        topicKey: topic.key,
+        slug,
+      },
+      { status: 500 },
+    );
+  }
+
+  // ─── Step 7: success email ────────────────────────────────────────
+  const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
+  const liveUrl = `${site}/en/blog/${slug}`;
+  const successEmail = renderBlogPublishSuccessEmail({
+    title: result.title,
+    slug,
+    topicKey: topic.key,
+    audience: topic.audience,
+    wordCount: result.wordCount,
+    estimatedCostUsdCents: result.estimatedCostUsdCents,
+    model: result.model,
+    liveUrl,
+    publishedAt: publishedAt.toISOString(),
+  });
+  const emailResult = await sendEmail({
+    to: ADMIN_EMAIL,
+    subject: successEmail.subject,
+    html: successEmail.html,
+    text: successEmail.text,
+  });
+  if (!emailResult.sent) {
+    console.error('[blog-publish] success email send failed', emailResult.error);
+  }
+
+  return NextResponse.json({
+    ok: true,
+    outcome: 'published',
+    topicKey: topic.key,
+    slug,
+    title: result.title,
+  });
+}
+
+export async function GET(req: NextRequest): Promise<NextResponse<CronSummary>> {
+  return handle(req);
+}
