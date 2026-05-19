@@ -209,6 +209,32 @@ const config: NextConfig = {
       '/blog/:slug',
       '/:locale(en|es|pl|pt|de|fr|it)/blog/:slug',
     ];
+
+    // Property + agent + city-landing pages — same edge-cache rationale
+    // as the blog. The listing body is static once published; agents
+    // edit infrequently (~weekly); CF Pages caches the rendered HTML.
+    // s-maxage shortened to 5 min (vs blog 1 hr) because edits to a
+    // listing's status (unpublish, price drop) need to propagate
+    // faster than blog edits. SWR=30 min lets readers always get an
+    // instant page while a fresh render runs in the background.
+    const listingCacheHeader = [
+      {
+        key: 'Cache-Control',
+        value: 'public, max-age=60, s-maxage=300, stale-while-revalidate=1800',
+      },
+    ];
+    const listingCacheGlobs = [
+      '/properties/:slug',
+      '/agents/:slug',
+      '/properties-in/:country',
+      '/properties-in/:country/:city',
+      '/:locale(en|es|pl|pt|de|fr|it)/properties/:slug',
+      '/:locale(en|es|pl|pt|de|fr|it)/agents/:slug',
+      '/:locale(en|es|pl|pt|de|fr|it)/properties-in/:country',
+      '/:locale(en|es|pl|pt|de|fr|it)/properties-in/:country/:city',
+      // Spanish localized property slug (PATHNAMES alternate)
+      '/:locale(en|es|pl|pt|de|fr|it)/propiedades/:slug',
+    ];
     return [
       {
         source: '/:path*',
@@ -221,6 +247,10 @@ const config: NextConfig = {
       ...blogCacheGlobs.map((source) => ({
         source,
         headers: blogCacheHeader,
+      })),
+      ...listingCacheGlobs.map((source) => ({
+        source,
+        headers: listingCacheHeader,
       })),
     ];
   },

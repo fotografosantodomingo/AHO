@@ -71,10 +71,14 @@ export function buildSeoMeta({ property: p, locale }: BuildMetaArgs): SeoMeta {
   if (p.bedrooms != null) factSegments.push(`${p.bedrooms}bd`);
   if (p.areaSqm != null) factSegments.push(`${p.areaSqm} m²`);
   const facts = factSegments.length > 0 ? ` · ${factSegments.join(' · ')}` : '';
-  // Truncate title body if combined output would exceed 65 chars (leaves
-  // headroom for ' | AHO' suffix).
-  const tail = `${facts} · ${cityCountry} | AHO`;
-  const titleBudget = Math.max(20, 70 - tail.length);
+  // The page-shell layout (`app/[locale]/layout.tsx`) wraps every
+  // page title with the brand suffix via `title.template: '%s | AHO'`.
+  // Originally this builder ALSO appended ' | AHO', which produced
+  // a double-suffix `... | AHO | AHO` on the rendered <title> tag —
+  // visible in Lighthouse SEO audits as a long-title regression.
+  // Keep the tail brand-free; Next handles the suffix uniformly.
+  const tail = `${facts} · ${cityCountry}`;
+  const titleBudget = Math.max(20, 64 - tail.length);
   const trimmedTitle =
     title.length > titleBudget ? title.slice(0, titleBudget - 1).replace(/\s+\S*$/, '') + '…' : title;
   const seoTitle = `${trimmedTitle}${tail}`;
