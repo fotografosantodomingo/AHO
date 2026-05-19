@@ -36,7 +36,7 @@ export interface BlogAuthor {
 export const PRIMARY_AUTHOR: BlogAuthor = {
   name: 'Michał Babula',
   role: 'Founder, AHO (Advertise Homes Online)',
-  url: 'https://www.linkedin.com/in/michalbabula/',
+  url: 'https://www.linkedin.com/in/michal-babula-8aba7241/',
   photoUrl: null,
   sameDomainProfileUrl: null,
   bioParagraph:
