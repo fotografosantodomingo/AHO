@@ -2585,6 +2585,11 @@
       "heading": "¿Listo para publicar?",
       "button": "Pagar $5 y empezar"
     },
+    "authGate": {
+      "note": "Crea una cuenta primero — así guardamos tu anuncio y te enviamos los contactos. Tarda 30 segundos.",
+      "signIn": "Iniciar sesión",
+      "createAccount": "Crear cuenta"
+    },
     "success": {
       "heading": "Pago recibido — publiquemos tu anuncio",
       "body": "Tu pago de $5 se procesó correctamente. Tienes 60 días de anuncio esperándote — ahora vamos a activar el anuncio. El siguiente paso es un formulario corto (precio, habitaciones, fotos, canal social). Unos 5 minutos.",

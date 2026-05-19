@@ -15,9 +15,13 @@ import {
   type JsonLdNode,
 } from '@/lib/seo/jsonld';
 import { PayNowButton } from '@/components/sell/pay-now-button';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 export const runtime = 'edge';
-export const dynamic = 'force-static';
+// Auth-aware — the hero + repeat CTA branch on whether the visitor is
+// signed in, so we cannot pre-render statically. Renders one-shot per
+// request; everything else on the page is i18n string reads.
+export const dynamic = 'force-dynamic';
 
 interface PageParams {
   locale: string;
@@ -88,6 +92,19 @@ export default async function SellPrivateLandingPage({
   const pricingHref = localePath(typedLocale, '/pricing');
   const homeUrl = `${site}/${typedLocale}`;
   const sellUrl = `${site}${localePath(typedLocale, '/sell')}`;
+
+  // Auth-aware CTA. Anon visitors get Sign-in + Create-account buttons
+  // that return them to /sell/private after auth (where the Pay $5
+  // button is the only thing they then need to click). Signed-in
+  // visitors see Pay $5 directly. The 401 path on the checkout-session
+  // endpoint should now never fire from this surface.
+  const supabase = await createServerSupabaseClient();
+  const { data: authData } = await supabase.auth.getUser();
+  const isSignedIn = Boolean(authData.user);
+
+  const sellPrivatePath = localePath(typedLocale, '/sell/private');
+  const signInHref = `${localePath(typedLocale, '/signin')}?next=${encodeURIComponent(sellPrivatePath)}`;
+  const signUpHref = `${localePath(typedLocale, '/signup')}?next=${encodeURIComponent(sellPrivatePath)}`;
 
   // JSON-LD: single @graph with WebPage + Product + Offer + FAQPage + BreadcrumbList.
   const breadcrumb = buildBreadcrumbList([
@@ -162,7 +179,17 @@ export default async function SellPrivateLandingPage({
             {t('hero.sub')}
           </p>
           <div className="mt-8">
-            <PayNowButton label={t('hero.cta')} />
+            {isSignedIn ? (
+              <PayNowButton label={t('hero.cta')} />
+            ) : (
+              <AuthGateCtas
+                signInHref={signInHref}
+                signUpHref={signUpHref}
+                note={t('authGate.note')}
+                signInLabel={t('authGate.signIn')}
+                signUpLabel={t('authGate.createAccount')}
+              />
+            )}
           </div>
         </section>
 
@@ -301,10 +328,66 @@ export default async function SellPrivateLandingPage({
             {t('ctaRepeat.heading')}
           </h2>
           <div className="mt-6 flex justify-center">
-            <PayNowButton label={t('ctaRepeat.button')} />
+            {isSignedIn ? (
+              <PayNowButton label={t('ctaRepeat.button')} />
+            ) : (
+              <AuthGateCtas
+                signInHref={signInHref}
+                signUpHref={signUpHref}
+                note={t('authGate.note')}
+                signInLabel={t('authGate.signIn')}
+                signUpLabel={t('authGate.createAccount')}
+                center
+              />
+            )}
           </div>
         </section>
       </main>
     </>
+  );
+}
+
+/**
+ * Anon-visitor CTA replacement for `<PayNowButton>`. Renders
+ * "Sign in" + "Create account" buttons that both return to
+ * /sell/private after auth — so the visitor lands on the same page
+ * signed-in, sees the real Pay $5 button, and clicks it. Avoids the
+ * silent 401 the checkout-session endpoint returned to anon clicks.
+ */
+function AuthGateCtas({
+  signInHref,
+  signUpHref,
+  note,
+  signInLabel,
+  signUpLabel,
+  center = false,
+}: {
+  signInHref: string;
+  signUpHref: string;
+  note: string;
+  signInLabel: string;
+  signUpLabel: string;
+  center?: boolean;
+}) {
+  return (
+    <div
+      className={`flex flex-col gap-3 ${center ? 'items-center text-center' : 'items-start'}`}
+    >
+      <p className="max-w-sm text-sm text-helper">{note}</p>
+      <div className="flex flex-wrap items-center gap-3">
+        <Link
+          href={signUpHref}
+          className="btn-primary inline-flex h-12 items-center px-6 text-base font-semibold"
+        >
+          {signUpLabel} →
+        </Link>
+        <Link
+          href={signInHref}
+          className="btn-secondary inline-flex h-12 items-center px-6 text-base font-semibold"
+        >
+          {signInLabel}
+        </Link>
+      </div>
+    </div>
   );
 }

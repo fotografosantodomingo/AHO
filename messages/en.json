@@ -2585,6 +2585,11 @@
       "heading": "Ready to publish?",
       "button": "Pay $5 and start"
     },
+    "authGate": {
+      "note": "Quick account first — so we can save your listing and send leads to you. Takes 30 seconds.",
+      "signIn": "Sign in",
+      "createAccount": "Create account"
+    },
     "success": {
       "heading": "Payment received — let's publish your listing",
       "body": "Your $5 payment went through. You have 60 days of listing time waiting for you — let's get the listing live. The next step is a short form (price, beds, photos, social channel). Should take about 5 minutes.",
