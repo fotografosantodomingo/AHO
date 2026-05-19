@@ -33,19 +33,42 @@
 // Bump VERSION to force every existing SW to update on next page load
 // — the activate handler purges old caches on the next activation.
 
-const VERSION = 'aho-sw-v3';
+// Bump VERSION whenever a deploy needs to evict every existing client's
+// cached SW state. Each bump triggers `activate` which clears every
+// older VERSION cache; the new install runs the precache against the
+// fresh deploy. Per the gotcha doc-block above.
+//
+// v4 (2026-05-19): cache.addAll() became cache.add() in a loop with
+// per-URL try/catch. Reason: a single failing URL (e.g. middleware
+// 307s /offline.html to /en/offline.html because of a matcher gap)
+// would reject the whole addAll and abort the install. The new SW
+// then never activates, the OLD SW keeps serving stale chunks, the
+// page mounts in a mismatched-bundle state, React throws
+// "Application error: a client-side exception". Now a single 307
+// just logs + drops that one URL; the rest of the precache still
+// lands; install succeeds; new SW takes over.
+const VERSION = 'aho-sw-v4';
 const OFFLINE_URL = '/offline.html';
 const PRECACHE_URLS = [OFFLINE_URL, '/icon-pwa.svg', '/manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     (async () => {
-      // Precache the offline shell + brand assets so the navigation
-      // fallback works first time, even before the user has visited
-      // any page on the deployed origin while online (e.g. they
-      // installed the app and immediately went underground).
       const cache = await caches.open(VERSION);
-      await cache.addAll(PRECACHE_URLS);
+      // Per-URL add() with try/catch so a single non-2xx response
+      // doesn't abort the install. We still want to precache the
+      // healthy URLs even if one is temporarily broken.
+      for (const url of PRECACHE_URLS) {
+        try {
+          await cache.add(url);
+        } catch (err) {
+          // Non-fatal: log + continue. The page-render path doesn't
+          // depend on this cache succeeding; only the offline-page
+          // fallback in the fetch handler does, and even that has
+          // a "you are offline" string fallback for the empty case.
+          console.warn('[sw] precache skip:', url, err && err.message ? err.message : String(err));
+        }
+      }
       // Activate immediately on first install. We're not pre-caching
       // anything dynamic so there's no race with in-flight requests.
       await self.skipWaiting();

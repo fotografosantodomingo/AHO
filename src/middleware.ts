@@ -189,6 +189,14 @@ export const config = {
     //     ImageResponse route returned 0 bytes. This was the REAL
     //     cause of the "ImageResponse broken" QA finding — not the
     //     `devIndicators: false` change I initially reverted.
-    '/((?!_next/static|_next/image|favicon\\.ico|icon|apple-icon|sitemap(?:-[a-z]+)?\\.xml|robots\\.txt|sw\\.js|manifest\\.webmanifest|leaflet/|fonts/|.*\\.(?:css|svg|png|jpg|jpeg|gif|webp|avif|ico|woff|woff2|ttf|otf)$|api/|auth/callback).*)',
+    //   - `/offline.html` — the PWA's offline shell. The service worker
+    //     (`public/sw.js`) precaches it on install via cache.addAll;
+    //     if the middleware 307s it to `/en/offline.html` (because
+    //     `offline.html` wasn't in the exclude list), `addAll` rejects,
+    //     SW install fails, and on the next deploy the page is served
+    //     in a broken hybrid state (old chunks + new HTML → "Application
+    //     error" in the browser console). Diagnosed 2026-05-19 after
+    //     the chat-gate deploy.
+    '/((?!_next/static|_next/image|favicon\\.ico|icon|apple-icon|sitemap(?:-[a-z]+)?\\.xml|robots\\.txt|sw\\.js|manifest\\.webmanifest|offline\\.html|leaflet/|fonts/|.*\\.(?:css|svg|png|jpg|jpeg|gif|webp|avif|ico|woff|woff2|ttf|otf)$|api/|auth/callback).*)',
   ],
 };
