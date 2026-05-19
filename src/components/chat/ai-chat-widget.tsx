@@ -62,6 +62,43 @@ interface Message {
   approvalStatus?: 'pending' | 'auto_sent';
   /** True while the SSE stream is still flowing into this row. */
   streaming?: boolean;
+  /** ISO timestamp captured at first render; carried into the
+   *  operator transcript email for pacing visibility. */
+  at?: string;
+}
+
+/**
+ * Best-effort transcript-to-email beacon. Same shape + survival
+ * guarantees as the helper in aho-assistant-widget.tsx (sendBeacon
+ * with keepalive-fetch fallback). Duplicated here intentionally:
+ * the per-agent widget carries a conversationId + agentName that
+ * the AHO Assistant doesn't, so the payloads diverge enough that
+ * an extracted helper would just shuttle args. If a third widget
+ * ever needs the same plumbing, pull both into a shared
+ * `src/lib/chat/transcript-beacon.ts`.
+ */
+function sendAgentTranscriptBeacon(payload: unknown): void {
+  if (typeof window === 'undefined') return;
+  const url = '/api/chat-transcript/email';
+  const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+  try {
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(url, blob);
+      return;
+    }
+  } catch {
+    /* sendBeacon throws on huge payloads; fall through to fetch */
+  }
+  try {
+    void fetch(url, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: blob,
+      keepalive: true,
+    });
+  } catch {
+    /* widget already torn down */
+  }
 }
 
 interface StoredSession {
@@ -416,6 +453,16 @@ export function AiChatWidget({
     setGateInfo(readStoredAcceptance());
     setGateInitialized(true);
   }, []);
+  // Transcript-shipping refs — same pattern as the AHO Assistant.
+  // messagesRef + subscriberRef provide the always-fresh snapshot
+  // the pagehide listener reads; transcriptSentRef de-dupes within
+  // a single shutdown window.
+  const messagesRef = useRef<Message[]>([]);
+  const transcriptSentRef = useRef(false);
+  const subscriberRef = useRef<GateResult | null>(null);
+  useEffect(() => {
+    subscriberRef.current = gateInfo;
+  }, [gateInfo]);
 
   const sessionRef = useRef<StoredSession>({ conversationId: null, sessionToken: '' });
   const initialGreeting = useMemo<Message>(
@@ -435,6 +482,49 @@ export function AiChatWidget({
     setLeadSubmitted(false);
     setLeadDismissed(false);
   }, [agentId, propertyId, initialGreeting]);
+
+  // Keep the transcript-ref synced so the pagehide listener reads
+  // the latest snapshot without stale-closure issues.
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+
+  // Build + ship the transcript. Skipped when the visitor never
+  // typed (greeting-only sessions aren't worth emailing). Includes
+  // the conversation_id so the operator can cross-reference the
+  // dashboard /admin/ai-overview view.
+  const shipTranscript = useCallback(() => {
+    if (transcriptSentRef.current) return;
+    const snapshot = messagesRef.current;
+    const hasUserTurn = snapshot.some((m) => m.role === 'user');
+    if (!hasUserTurn) return;
+    transcriptSentRef.current = true;
+    sendAgentTranscriptBeacon({
+      source: 'per-agent',
+      locale: buyerLocale,
+      pageUrl: typeof window !== 'undefined' ? window.location.href : null,
+      subscriber: subscriberRef.current,
+      conversationId: sessionRef.current.conversationId,
+      agentName,
+      messages: snapshot
+        .filter((m) => m.id !== initialGreeting.id)
+        .map((m) => ({
+          role: m.role,
+          body: m.body,
+          ...(m.at ? { at: m.at } : {}),
+        })),
+      endedAt: new Date().toISOString(),
+    });
+  }, [agentName, buyerLocale, initialGreeting.id]);
+
+  // pagehide: catch tab-close / navigation away while chat is open.
+  useEffect(() => {
+    const onPageHide = () => {
+      if (isOpen) shipTranscript();
+    };
+    window.addEventListener('pagehide', onPageHide);
+    return () => window.removeEventListener('pagehide', onPageHide);
+  }, [isOpen, shipTranscript]);
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -591,8 +681,8 @@ export function AiChatWidget({
       const assistantId = generateUuid();
       setMessages((prev) => [
         ...prev,
-        { id: userId, role: 'user', body: trimmed },
-        { id: assistantId, role: 'assistant', body: '', streaming: true },
+        { id: userId, role: 'user', body: trimmed, at: new Date().toISOString() },
+        { id: assistantId, role: 'assistant', body: '', streaming: true, at: new Date().toISOString() },
       ]);
       setDraft('');
       setSending(true);
@@ -821,7 +911,10 @@ export function AiChatWidget({
             <button
               type="button"
               aria-label={copy.close}
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                shipTranscript();
+                setIsOpen(false);
+              }}
               className="rounded-md p-1.5 text-helper transition hover:bg-black/5 dark:hover:bg-white/5"
             >
               <svg

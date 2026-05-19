@@ -25,6 +25,12 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ChatMessageBody } from './render-message';
+import {
+  PreChatGate,
+  readStoredAcceptance,
+  type GateResult,
+} from './pre-chat-gate';
+import { GATE_COPY } from './pre-chat-gate-copy';
 
 export type AhoAssistantLocale =
   | 'en'
@@ -62,6 +68,42 @@ interface Msg {
   role: 'user' | 'assistant';
   body: string;
   streaming?: boolean;
+  /** ISO timestamp captured when the bubble first renders. Carried
+   *  into the transcript email so the operator sees pacing. */
+  at?: string;
+}
+
+/**
+ * Best-effort transcript-to-email beacon. Called from the close-button
+ * onClick and from a `pagehide` listener. Uses `navigator.sendBeacon`
+ * when available (queues the POST + survives page unmount), falls
+ * back to `fetch` with `keepalive: true` for the same survival
+ * guarantee. Both call sites tolerate failure silently — operator
+ * email might be missed in pathological cases but the chat itself
+ * keeps working.
+ */
+function sendTranscriptBeacon(payload: unknown): void {
+  if (typeof window === 'undefined') return;
+  const url = '/api/chat-transcript/email';
+  const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+  try {
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(url, blob);
+      return;
+    }
+  } catch {
+    /* sendBeacon throws on huge payloads; fall through to fetch */
+  }
+  try {
+    void fetch(url, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: blob,
+      keepalive: true,
+    });
+  } catch {
+    /* widget already torn down — nothing else to do */
+  }
 }
 
 const COPY: Record<AhoAssistantLocale, {
@@ -149,16 +191,81 @@ export function AhoAssistantWidget({
   isAuthenticated = false,
 }: AhoAssistantWidgetProps) {
   const copy = COPY[userLocale] ?? COPY.en;
+  const gateCopy = GATE_COPY[userLocale] ?? GATE_COPY.en;
   const [isOpen, setIsOpen] = useState(false);
   const [sending, setSending] = useState(false);
   const [draft, setDraft] = useState('');
   const [error, setError] = useState<string | null>(null);
+  // Pre-chat gate state. Same localStorage key as the per-agent
+  // widget so a visitor who consented on /properties/[slug] doesn't
+  // see the gate again on /pricing or /sell.
+  const [gateInfo, setGateInfo] = useState<GateResult | null>(null);
+  const [gateInitialized, setGateInitialized] = useState(false);
+  useEffect(() => {
+    setGateInfo(readStoredAcceptance());
+    setGateInitialized(true);
+  }, []);
+  // Refs used by the transcript-shipper. The `messagesRef` keeps an
+  // always-fresh snapshot of state for the `pagehide` listener (which
+  // captures variables once at attach time + needs a way to read the
+  // latest messages without re-attaching on every state change).
+  // `transcriptSentRef` prevents double-firing if both the × button
+  // AND the pagehide fire within the same shutdown window.
+  const messagesRef = useRef<Msg[]>([]);
+  const transcriptSentRef = useRef(false);
+  const subscriberRef = useRef<GateResult | null>(null);
+  useEffect(() => {
+    subscriberRef.current = gateInfo;
+  }, [gateInfo]);
 
   const greeting: Msg = useMemo(
     () => ({ id: 'greeting', role: 'assistant', body: copy.greeting }),
     [copy.greeting],
   );
   const [messages, setMessages] = useState<Msg[]>([greeting]);
+
+  // Mirror messages into the ref every render so the close/unload
+  // callbacks see the latest transcript without depending on stale
+  // closure captures.
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+
+  // Helper: build the payload + ship it. No-op when the visitor
+  // didn't send a single message (just opened the chat + closed).
+  const shipTranscript = useCallback(() => {
+    if (transcriptSentRef.current) return;
+    const snapshot = messagesRef.current;
+    const hasUserTurn = snapshot.some((m) => m.role === 'user');
+    if (!hasUserTurn) return;
+    transcriptSentRef.current = true;
+    sendTranscriptBeacon({
+      source: 'aho-assistant',
+      locale: userLocale,
+      pageUrl: typeof window !== 'undefined' ? window.location.href : null,
+      subscriber: subscriberRef.current,
+      conversationId: null,
+      messages: snapshot
+        .filter((m) => m.id !== 'greeting')
+        .map((m) => ({
+          role: m.role,
+          body: m.body,
+          ...(m.at ? { at: m.at } : {}),
+        })),
+      endedAt: new Date().toISOString(),
+    });
+  }, [userLocale]);
+
+  // Page-unload safety net — captures Cmd-W / tab-close / navigation
+  // away while the chat is open. sendBeacon survives the unload; the
+  // operator gets the transcript even when the visitor never clicks ×.
+  useEffect(() => {
+    const onPageHide = () => {
+      if (isOpen) shipTranscript();
+    };
+    window.addEventListener('pagehide', onPageHide);
+    return () => window.removeEventListener('pagehide', onPageHide);
+  }, [isOpen, shipTranscript]);
 
   // Reset to the greeting when locale changes (rare; mostly when the
   // language toggle fires while the widget is mounted).
@@ -183,8 +290,8 @@ export function AhoAssistantWidget({
       const assistantId = genId();
       setMessages((prev) => [
         ...prev,
-        { id: userId, role: 'user', body: trimmed },
-        { id: assistantId, role: 'assistant', body: '', streaming: true },
+        { id: userId, role: 'user', body: trimmed, at: new Date().toISOString() },
+        { id: assistantId, role: 'assistant', body: '', streaming: true, at: new Date().toISOString() },
       ]);
       setDraft('');
       setSending(true);
@@ -324,13 +431,25 @@ export function AhoAssistantWidget({
         </div>
         <button
           type="button"
-          onClick={() => setIsOpen(false)}
+          onClick={() => {
+            shipTranscript();
+            setIsOpen(false);
+          }}
           aria-label={copy.close}
           className="rounded-full p-1 text-ink-muted transition hover:bg-black/5 hover:text-ink dark:text-ink-inverse-muted dark:hover:bg-white/5 dark:hover:text-ink-inverse"
         >
           ×
         </button>
       </header>
+      {gateInitialized && !gateInfo ? (
+        <div className="flex-1 overflow-y-auto">
+          <PreChatGate
+            onAccepted={(res) => setGateInfo(res)}
+            copy={gateCopy}
+          />
+        </div>
+      ) : (
+        <>
       <div
         ref={scrollRef}
         className="flex-1 space-y-3 overflow-y-auto px-4 py-3 text-sm"
@@ -376,6 +495,8 @@ export function AhoAssistantWidget({
           {copy.send}
         </button>
       </form>
+        </>
+      )}
     </div>
   );
 }
