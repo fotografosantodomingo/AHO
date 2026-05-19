@@ -13,6 +13,7 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { buildOrganization, buildWebSite, buildGraph } from '@/lib/seo/jsonld';
 import { localePath } from '@/i18n/locale-path';
+import { FACEBOOK_URL, INSTAGRAM_URL, LINKEDIN_URL } from '@/lib/social-urls';
 import '../globals.css';
 
 // Stable `@id`s for the site-wide Organization + WebSite nodes. Per-
@@ -22,10 +23,9 @@ import '../globals.css';
 const SITE_ORIGIN = 'https://advertisehomes.online';
 const ORG_ID = `${SITE_ORIGIN}/#organization`;
 const WEBSITE_ID = `${SITE_ORIGIN}/#website`;
-const ORG_SAMEAS = [
-  'https://www.facebook.com/profile.php?id=61580170197960',
-  'https://www.linkedin.com/company/advertise-homes-online',
-];
+// sameAs nodes — read from the canonical social-urls.ts so the JSON-LD
+// Organization stays in lockstep with the footer + email chrome.
+const ORG_SAMEAS = [FACEBOOK_URL, INSTAGRAM_URL, LINKEDIN_URL];
 
 // Brand font — substituted for HashiCorp Sans (proprietary; we don't have
 // the license). Inter preserves the dense, kerned-tight, infrastructural
