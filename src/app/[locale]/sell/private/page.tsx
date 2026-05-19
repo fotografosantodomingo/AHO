@@ -139,8 +139,8 @@ export default async function SellPrivateLandingPage({
         url: alts.canonical,
         description:
           typedLocale === 'es'
-            ? 'Anuncio único de 60 días — pago único, sin suscripción'
-            : 'Single 60-day listing — one-time payment, no subscription',
+            ? 'Anuncio único de 90 días — pago único, sin suscripción'
+            : 'Single 90-day listing — one-time payment, no subscription',
       },
     ],
   });

@@ -2391,7 +2391,7 @@
   "sell": {
     "meta": {
       "title": "Sell or rent on AHO — $5 for homeowners, $29-$99/mo for agents",
-      "description": "Advertise your property worldwide on AHO. Private homeowners pay $5 for a 60-day listing; professional agents subscribe from $29/mo for unlimited listings, multi-channel automation, AI inbox, and a branded profile."
+      "description": "Advertise your property worldwide on AHO. Private homeowners pay $5 for a 90-day listing; professional agents subscribe from $29/mo for unlimited listings, multi-channel automation, AI inbox, and a branded profile."
     },
     "hero": {
       "eyebrow": "Sell or rent on AHO",
@@ -2413,7 +2413,7 @@
       ],
       "includesLabel": "Includes",
       "includes": [
-        "1 listing, live for 60 days",
+        "1 listing, live for 90 days",
         "AI captions in 7 languages",
         "Social publish to 1 channel (Facebook or Instagram)",
         "WhatsApp + email lead capture",
@@ -2452,7 +2452,7 @@
           "Paste a listing URL from another portal, or fill the short form: price, beds, area, city, up to 25 photos.",
           "Claude drafts platform-tuned captions in 7 languages; branded social graphics generated automatically.",
           "Pick Facebook or Instagram as your publish channel.",
-          "Listing goes live for 60 days; leads reach you via WhatsApp and the on-page contact form."
+          "Listing goes live for 90 days; leads reach you via WhatsApp and the on-page contact form."
         ]
       },
       "agent": {
@@ -2481,7 +2481,7 @@
       "colAgent": "Agent $29-99/mo",
       "rows": [
         { "feature": "Number of listings", "private": "1 listing", "agent": "Unlimited" },
-        { "feature": "Listing duration", "private": "60 days", "agent": "Active while subscribed" },
+        { "feature": "Listing duration", "private": "90 days", "agent": "Active while subscribed" },
         { "feature": "AI captions in 7 languages", "private": true, "agent": true },
         { "feature": "Branded social graphics", "private": true, "agent": true },
         { "feature": "Social publish — Facebook OR Instagram", "private": true, "agent": true },
@@ -2498,15 +2498,15 @@
       "items": [
         {
           "q": "I just want to sell one home — do I need a subscription?",
-          "a": "No. The $5 one-time tier is built exactly for that. One payment, 60-day listing, AI captions, social publish to one channel. No subscription, no auto-renew. If you decide to list more properties later, you can either pay $5 per listing or upgrade to a monthly agent plan."
+          "a": "No. The $5 one-time tier is built exactly for that. One payment, 90-day listing, AI captions, social publish to one channel. No subscription, no auto-renew. If you decide to list more properties later, you can either pay $5 per listing or upgrade to a monthly agent plan."
         },
         {
           "q": "I'm a working agent — can the $5 tier handle my book?",
-          "a": "Not really. $5 is one listing for 60 days with single-channel social publish. The agent tiers give you unlimited listings, multi-channel auto-publish (Facebook + Instagram + LinkedIn), an AI inbox that triages incoming leads, and a branded profile page that ranks in search. If you list more than 2-3 properties a year, the math favours the subscription."
+          "a": "Not really. $5 is one listing for 90 days with single-channel social publish. The agent tiers give you unlimited listings, multi-channel auto-publish (Facebook + Instagram + LinkedIn), an AI inbox that triages incoming leads, and a branded profile page that ranks in search. If you list more than 2-3 properties a year, the math favours the subscription."
         },
         {
-          "q": "Will my listing automatically renew after 60 days?",
-          "a": "No. The $5 charge is one-time. We email you on day 55 with a one-click renewal link ($5 for another 60 days). If you don't renew, the listing flips to expired and stops appearing in search; your data stays so you can renew later."
+          "q": "Will my listing automatically renew after 90 days?",
+          "a": "No. The $5 charge is one-time. We email you on day 82 with a one-click renewal link ($5 for another 90 days). If you don't renew, the listing flips to expired and stops appearing in search; your data stays so you can renew later."
         },
         {
           "q": "Can I upgrade from $5 to an agent plan later?",
@@ -2527,13 +2527,13 @@
   },
   "sellPrivate": {
     "meta": {
-      "title": "$5 to publish your property worldwide — 60-day listing on AHO",
-      "description": "One property, one payment, 60 days live. AI-generated captions in 7 languages, social publish to Facebook or Instagram in one click, WhatsApp + email lead capture. No subscription."
+      "title": "$5 to publish your property worldwide — 90-day listing on AHO",
+      "description": "One property, one payment, 90 days live. AI-generated captions in 7 languages, social publish to Facebook or Instagram in one click, WhatsApp + email lead capture. No subscription."
     },
     "hero": {
       "eyebrow": "Homeowner · landlord",
       "heading": "$5 to publish your property worldwide.",
-      "sub": "60-day listing. AI captions in 7 languages. Social publish in one click.",
+      "sub": "90-day listing. AI captions in 7 languages. Social publish in one click.",
       "cta": "Pay $5 →"
     },
     "process": {
@@ -2556,7 +2556,7 @@
           "body": "Choose where to publish first. The $5 tier publishes to one social channel — pick the one your audience actually uses."
         },
         {
-          "title": "Publish · listing live for 60 days",
+          "title": "Publish · listing live for 90 days",
           "body": "Listing goes live at advertisehomes.online with a permanent URL. Leads reach you via the listing's contact form, WhatsApp, and email."
         }
       ]
@@ -2564,7 +2564,7 @@
     "included": {
       "heading": "What you get",
       "items": [
-        "1 listing, live for 60 days",
+        "1 listing, live for 90 days",
         "AI-written captions in 7 languages (EN/ES/PL/PT/DE/FR/IT)",
         "AI-generated branded social graphics",
         "Social publish to 1 channel (Facebook or Instagram)",
@@ -2587,15 +2587,15 @@
       "items": [
         {
           "q": "Does my listing renew automatically?",
-          "a": "No. The $5 charge is one-time and the listing expires after 60 days. We email you on day 55 with a one-click renewal link ($5 for another 60 days). If you don't renew, the listing flips to expired and stops appearing in search; your data stays so you can renew later."
+          "a": "No. The $5 charge is one-time and the listing expires after 90 days. We email you on day 82 with a one-click renewal link ($5 for another 90 days). If you don't renew, the listing flips to expired and stops appearing in search; your data stays so you can renew later."
         },
         {
           "q": "What's your refund policy?",
           "a": "Full refund within 7 days, no questions asked, as long as the listing hasn't received leads. Email info@advertisehomes.online with your Stripe receipt. After 7 days the charge is final (you've already had the listing live and indexed)."
         },
         {
-          "q": "What happens after 60 days?",
-          "a": "The listing flips to expired and disappears from search results. The listing page stays at the same URL (so any inbound links still work) but with a clear \"This listing has expired\" banner and a one-click renewal button. Pay $5 to bring it back live for another 60 days."
+          "q": "What happens after 90 days?",
+          "a": "The listing flips to expired and disappears from search results. The listing page stays at the same URL (so any inbound links still work) but with a clear \"This listing has expired\" banner and a one-click renewal button. Pay $5 to bring it back live for another 90 days."
         },
         {
           "q": "Who handles the sale or rental?",
@@ -2614,7 +2614,7 @@
     },
     "success": {
       "heading": "Payment received — let's publish your listing",
-      "body": "Your $5 payment went through. You have 60 days of listing time waiting for you — let's get the listing live. The next step is a short form (price, beds, photos, social channel). Should take about 5 minutes.",
+      "body": "Your $5 payment went through. You have 90 days of listing time waiting for you — let's get the listing live. The next step is a short form (price, beds, photos, social channel). Should take about 5 minutes.",
       "cta": "Create your listing"
     },
     "cancel": {

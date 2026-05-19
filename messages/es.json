@@ -2391,7 +2391,7 @@
   "sell": {
     "meta": {
       "title": "Vende o alquila en AHO — $5 para propietarios, $29-$99/mes para agentes",
-      "description": "Anuncia tu propiedad en todo el mundo en AHO. Los propietarios particulares pagan $5 por un anuncio de 60 días; los agentes profesionales se suscriben desde $29/mes para anuncios ilimitados, automatización multicanal, bandeja IA y un perfil con marca."
+      "description": "Anuncia tu propiedad en todo el mundo en AHO. Los propietarios particulares pagan $5 por un anuncio de 90 días; los agentes profesionales se suscriben desde $29/mes para anuncios ilimitados, automatización multicanal, bandeja IA y un perfil con marca."
     },
     "hero": {
       "eyebrow": "Vender o alquilar en AHO",
@@ -2413,7 +2413,7 @@
       ],
       "includesLabel": "Incluye",
       "includes": [
-        "1 anuncio, activo durante 60 días",
+        "1 anuncio, activo durante 90 días",
         "Subtítulos generados por IA en 7 idiomas",
         "Publicación social en 1 canal (Facebook o Instagram)",
         "Captura de contactos por WhatsApp y email",
@@ -2452,7 +2452,7 @@
           "Pega la URL de un anuncio de otro portal, o completa el formulario corto: precio, dormitorios, área, ciudad, hasta 25 fotos.",
           "Claude redacta subtítulos optimizados por plataforma en 7 idiomas; las imágenes sociales con marca se generan automáticamente.",
           "Elige Facebook o Instagram como tu canal de publicación.",
-          "El anuncio se publica durante 60 días; los contactos llegan por WhatsApp y el formulario de contacto."
+          "El anuncio se publica durante 90 días; los contactos llegan por WhatsApp y el formulario de contacto."
         ]
       },
       "agent": {
@@ -2481,7 +2481,7 @@
       "colAgent": "Agente $29-99/mes",
       "rows": [
         { "feature": "Número de anuncios", "private": "1 anuncio", "agent": "Ilimitados" },
-        { "feature": "Duración del anuncio", "private": "60 días", "agent": "Activo mientras estés suscrito" },
+        { "feature": "Duración del anuncio", "private": "90 días", "agent": "Activo mientras estés suscrito" },
         { "feature": "Subtítulos IA en 7 idiomas", "private": true, "agent": true },
         { "feature": "Gráficos sociales con marca", "private": true, "agent": true },
         { "feature": "Publicación social — Facebook O Instagram", "private": true, "agent": true },
@@ -2498,15 +2498,15 @@
       "items": [
         {
           "q": "Solo quiero vender una casa — ¿necesito una suscripción?",
-          "a": "No. El plan de $5 de pago único está pensado precisamente para eso. Un pago, anuncio de 60 días, subtítulos con IA y publicación social en un canal. Sin suscripción, sin renovación automática. Si más adelante decides publicar más propiedades, puedes pagar $5 por anuncio o cambiar a un plan mensual de agente."
+          "a": "No. El plan de $5 de pago único está pensado precisamente para eso. Un pago, anuncio de 90 días, subtítulos con IA y publicación social en un canal. Sin suscripción, sin renovación automática. Si más adelante decides publicar más propiedades, puedes pagar $5 por anuncio o cambiar a un plan mensual de agente."
         },
         {
           "q": "Soy agente en activo — ¿me sirve el plan de $5?",
-          "a": "En realidad no. $5 son 1 anuncio durante 60 días con publicación social en un canal. Los planes de agente te dan anuncios ilimitados, publicación automática multicanal (Facebook + Instagram + LinkedIn), una bandeja IA que clasifica los contactos entrantes y una página de perfil con marca que posiciona en buscadores. Si publicas más de 2-3 propiedades al año, las matemáticas favorecen la suscripción."
+          "a": "En realidad no. $5 son 1 anuncio durante 90 días con publicación social en un canal. Los planes de agente te dan anuncios ilimitados, publicación automática multicanal (Facebook + Instagram + LinkedIn), una bandeja IA que clasifica los contactos entrantes y una página de perfil con marca que posiciona en buscadores. Si publicas más de 2-3 propiedades al año, las matemáticas favorecen la suscripción."
         },
         {
-          "q": "¿Mi anuncio se renueva automáticamente a los 60 días?",
-          "a": "No. El cargo de $5 es único. Te enviamos un email el día 55 con un enlace de renovación de un solo clic ($5 por otros 60 días). Si no renuevas, el anuncio pasa a expirado y deja de aparecer en las búsquedas; tus datos se conservan para que puedas renovarlo más tarde."
+          "q": "¿Mi anuncio se renueva automáticamente a los 90 días?",
+          "a": "No. El cargo de $5 es único. Te enviamos un email el día 82 con un enlace de renovación de un solo clic ($5 por otros 90 días). Si no renuevas, el anuncio pasa a expirado y deja de aparecer en las búsquedas; tus datos se conservan para que puedas renovarlo más tarde."
         },
         {
           "q": "¿Puedo pasar de $5 a un plan de agente más adelante?",
@@ -2527,13 +2527,13 @@
   },
   "sellPrivate": {
     "meta": {
-      "title": "$5 para publicar tu propiedad en todo el mundo — anuncio de 60 días en AHO",
-      "description": "Una propiedad, un pago, 60 días publicada. Pies de foto generados por IA en 7 idiomas, publicación en redes sociales en un clic, captación de contactos por WhatsApp y email. Sin suscripción."
+      "title": "$5 para publicar tu propiedad en todo el mundo — anuncio de 90 días en AHO",
+      "description": "Una propiedad, un pago, 90 días publicada. Pies de foto generados por IA en 7 idiomas, publicación en redes sociales en un clic, captación de contactos por WhatsApp y email. Sin suscripción."
     },
     "hero": {
       "eyebrow": "Propietario · arrendador",
       "heading": "$5 para publicar tu propiedad en todo el mundo.",
-      "sub": "Anuncio de 60 días. Pies de foto con IA en 7 idiomas. Publicación en redes en un clic.",
+      "sub": "Anuncio de 90 días. Pies de foto con IA en 7 idiomas. Publicación en redes en un clic.",
       "cta": "Pagar $5 →"
     },
     "process": {
@@ -2556,7 +2556,7 @@
           "body": "Escoge dónde publicar primero. El plan de $5 publica en un canal social — elige el que tu audiencia realmente usa."
         },
         {
-          "title": "Publica · anuncio activo 60 días",
+          "title": "Publica · anuncio activo 90 días",
           "body": "El anuncio se publica en advertisehomes.online con una URL permanente. Los contactos te llegan por el formulario del anuncio, WhatsApp y email."
         }
       ]
@@ -2564,7 +2564,7 @@
     "included": {
       "heading": "Qué incluye",
       "items": [
-        "1 anuncio, activo durante 60 días",
+        "1 anuncio, activo durante 90 días",
         "Pies de foto escritos por IA en 7 idiomas (EN/ES/PL/PT/DE/FR/IT)",
         "Gráficos sociales con marca generados por IA",
         "Publicación social en 1 canal (Facebook o Instagram)",
@@ -2587,15 +2587,15 @@
       "items": [
         {
           "q": "¿Mi anuncio se renueva automáticamente?",
-          "a": "No. El cargo de $5 es único y el anuncio expira a los 60 días. Te enviamos un email el día 55 con un enlace de renovación en un clic ($5 por otros 60 días). Si no renuevas, el anuncio pasa a expirado y deja de aparecer en las búsquedas; tus datos quedan guardados para que puedas renovar después."
+          "a": "No. El cargo de $5 es único y el anuncio expira a los 90 días. Te enviamos un email el día 82 con un enlace de renovación en un clic ($5 por otros 90 días). Si no renuevas, el anuncio pasa a expirado y deja de aparecer en las búsquedas; tus datos quedan guardados para que puedas renovar después."
         },
         {
           "q": "¿Cuál es la política de reembolso?",
           "a": "Reembolso completo dentro de los primeros 7 días, sin preguntas, siempre que el anuncio no haya recibido contactos. Escribe a info@advertisehomes.online con tu recibo de Stripe. Después de los 7 días el cargo es final (el anuncio ya estuvo publicado e indexado)."
         },
         {
-          "q": "¿Qué pasa después de los 60 días?",
-          "a": "El anuncio pasa a expirado y desaparece de los resultados de búsqueda. La página del anuncio sigue en la misma URL (los enlaces entrantes siguen funcionando) pero con un banner claro de \"Este anuncio ha expirado\" y un botón de renovación en un clic. Paga $5 para reactivarlo por otros 60 días."
+          "q": "¿Qué pasa después de los 90 días?",
+          "a": "El anuncio pasa a expirado y desaparece de los resultados de búsqueda. La página del anuncio sigue en la misma URL (los enlaces entrantes siguen funcionando) pero con un banner claro de \"Este anuncio ha expirado\" y un botón de renovación en un clic. Paga $5 para reactivarlo por otros 90 días."
         },
         {
           "q": "¿Quién gestiona la venta o el alquiler?",
@@ -2614,7 +2614,7 @@
     },
     "success": {
       "heading": "Pago recibido — publiquemos tu anuncio",
-      "body": "Tu pago de $5 se procesó correctamente. Tienes 60 días de anuncio esperándote — ahora vamos a activar el anuncio. El siguiente paso es un formulario corto (precio, habitaciones, fotos, canal social). Unos 5 minutos.",
+      "body": "Tu pago de $5 se procesó correctamente. Tienes 90 días de anuncio esperándote — ahora vamos a activar el anuncio. El siguiente paso es un formulario corto (precio, habitaciones, fotos, canal social). Unos 5 minutos.",
       "cta": "Crear mi anuncio"
     },
     "cancel": {
