@@ -108,6 +108,44 @@ export async function middleware(req: NextRequest) {
       'noindex, nofollow, noarchive, nosnippet',
     );
   }
+
+  // Cache-Control for public editorial / listing surfaces — set here
+  // (not in next.config.ts:headers()) because next-on-pages's Edge
+  // Function responses don't pick up the static `headers()` config.
+  // Combined with `localeDetection: false` in i18n/routing.ts (which
+  // dropped the per-response Set-Cookie that was making CF skip the
+  // cache), this finally lets Cloudflare Pages cache the rendered
+  // HTML at the edge:
+  //   /blog/[slug]              — 1h s-maxage (blog posts are static)
+  //   /properties/[slug]        — 5m s-maxage (listings can flip status)
+  //   /agents/[slug]            — 5m s-maxage (agent profile edits)
+  //   /properties-in/<country>[/<city>]  — 5m s-maxage (city landings)
+  //
+  // ONLY for anonymous visitors (no Supabase auth cookies) — once a
+  // user is signed in, their per-user response shouldn't be cached.
+  const isAnon = !req.cookies
+    .getAll()
+    .some((c) => c.name.startsWith('sb-') || c.name === 'supabase-auth-token');
+  if (isAnon) {
+    if (
+      /^\/(?:[a-z]{2}\/)?blog\//.test(pathname)
+    ) {
+      res.headers.set(
+        'cache-control',
+        'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400',
+      );
+    } else if (
+      /^\/(?:[a-z]{2}\/)?(?:properties|propiedades|agents|properties-in)(?:\/|$)/.test(
+        pathname,
+      )
+    ) {
+      res.headers.set(
+        'cache-control',
+        'public, max-age=60, s-maxage=300, stale-while-revalidate=1800',
+      );
+    }
+  }
+
   return res;
 }
 
