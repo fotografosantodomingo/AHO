@@ -230,8 +230,14 @@ async function handle(req: NextRequest): Promise<NextResponse<CronSummary>> {
   // LinkedIn thumbnail) AND for the in-article <img srcset>. Browser
   // scales the same 1200x630 source for the srcset variants — good
   // enough for editorial hero cards in v1.
+  //
+  // URL pattern: Next.js's auto-generated OG endpoint lives at
+  // <segment>/opengraph-image with content-type image/png — NO `.png`
+  // suffix. The .png URL 404s with an HTML body (first cron run on
+  // 2026-05-19 made that mistake; patched here + the live row was
+  // back-filled via a one-off UPDATE).
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
-  const heroImageUrl = `${site}/en/blog/${slug}/opengraph-image.png`;
+  const heroImageUrl = `${site}/en/blog/${slug}/opengraph-image`;
   const stampedHtml = stampBodyPlaceholders({
     html: result.bodyHtml,
     wordCount: result.wordCount,
