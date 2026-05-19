@@ -277,6 +277,21 @@ function TermsEn() {
         review.
       </p>
 
+      <h3>8.1 Chat-widget signup and newsletter consent</h3>
+      <p>
+        Before you can start a conversation with the AI assistant on a listing or
+        agent page, AHO asks for your name and email address and requires you to
+        check the consent box. Submitting the form constitutes your agreement to
+        these Terms and to AHO's Privacy Policy, AND your explicit consent to be
+        added to AHO's newsletter mailing list, which we use for occasional product
+        updates and market notes (typically once per month). Your subscription is
+        recorded with a timestamp at our email provider, Brevo. You can withdraw
+        consent and unsubscribe at any time via the one-click link included in
+        every email; unsubscribing removes you from all future newsletter sends
+        but does not delete any conversation history with the AHO assistant or
+        any contact-form leads you have separately submitted to specific agents.
+      </p>
+
       <h2>9. Social distribution (Pro Automation tier)</h2>
       <p>
         When you connect a Facebook Page, Instagram Business account, or WhatsApp

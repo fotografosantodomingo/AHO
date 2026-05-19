@@ -128,6 +128,17 @@ function PrivacyEn() {
           in, Cloudflare Turnstile generates a one-time token to confirm you're not
           automated. We send only the token to Cloudflare, not your form contents.
         </li>
+        <li>
+          <strong>Chat-widget signup</strong> — before starting a conversation with a
+          listing's AI assistant, we ask for your name and email address and require
+          you to accept these terms. Submitting that form adds you to AHO's newsletter
+          contact list (stored at our email provider, Brevo) with the timestamp of
+          your consent. We use it for occasional product updates and market notes —
+          typically once a month. You can unsubscribe instantly via the link in any
+          email; doing so removes you from all future sends. The agent you chatted
+          with separately receives any contact details you choose to share inside the
+          conversation; the newsletter subscription is independent of that.
+        </li>
       </ul>
 
       <h3>From buyers who create an account</h3>

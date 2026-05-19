@@ -27,9 +27,24 @@ export const runtime = 'edge';
  * segment EN vs ES newsletter blasts. Stored as a Brevo contact attribute.
  */
 
+/** Allowed `source` values that the route accepts. Adding a new
+ *  source means picking a stable string here so admins can filter
+ *  Brevo contacts by signup origin without hunting through ad-hoc
+ *  free-form text. Stored as a Brevo contact attribute `SOURCE`. */
+const KNOWN_SOURCES = ['footer', 'chat-widget', 'lead-form'] as const;
+
 const BodySchema = z.object({
   email: z.string().trim().email().max(254),
+  /** Display name. Optional for the footer form (legacy) but required
+   *  by the chat-widget gate. Trimmed + clamped to 120 chars (typical
+   *  full-name length cap on Brevo + most CRMs). Stored as
+   *  `attributes.FIRSTNAME` on Brevo (full name in one field is the
+   *  Brevo norm when only one field is captured). */
+  name: z.string().trim().min(1).max(120).optional(),
   locale: z.enum(LOCALES).optional(),
+  /** Where the signup came from. Stored as the `SOURCE` Brevo
+   *  attribute so admins can filter campaigns by signup origin. */
+  source: z.enum(KNOWN_SOURCES).optional(),
 });
 
 const BREVO_CONTACTS_URL = 'https://api.brevo.com/v3/contacts';
@@ -45,7 +60,7 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json({ ok: false, errorCode: 'invalid_email' }, { status: 400 });
   }
-  const { email, locale } = parsed.data;
+  const { email, locale, name, source } = parsed.data;
 
   const apiKey = process.env.BREVO_API_KEY;
   const listId = process.env.BREVO_NEWSLETTER_LIST_ID;
@@ -59,6 +74,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, stored: false });
   }
 
+  // Build the Brevo attributes payload. FIRSTNAME is the conventional
+  // single-field display name on Brevo when only one name is captured.
+  // CONSENT_TS is an ISO timestamp recording when the user accepted
+  // the terms — needed for GDPR audit trails (the chat-widget gate is
+  // the consent surface; the footer form is more permissive but still
+  // benefits from a timestamp). SOURCE differentiates chat-widget
+  // signups from footer signups when admins build campaign segments.
+  const attributes: Record<string, string> = {};
+  if (locale) attributes.LOCALE = locale.toUpperCase();
+  if (name) attributes.FIRSTNAME = name;
+  if (source) attributes.SOURCE = source;
+  attributes.CONSENT_TS = new Date().toISOString();
+
   try {
     const res = await fetch(BREVO_CONTACTS_URL, {
       method: 'POST',
@@ -70,7 +98,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         email,
         listIds: [Number(listId)],
-        attributes: locale ? { LOCALE: locale.toUpperCase() } : undefined,
+        attributes,
         updateEnabled: true, // re-subscribe is idempotent
       }),
     });

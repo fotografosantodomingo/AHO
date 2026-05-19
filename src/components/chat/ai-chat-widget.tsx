@@ -2,6 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ChatMessageBody } from './render-message';
+import {
+  PreChatGate,
+  readStoredAcceptance,
+  type GateResult,
+  type PreChatGateProps,
+} from './pre-chat-gate';
 
 /**
  * AHO AI customer-service widget — Phase 2 web-chat surface.
@@ -83,6 +89,9 @@ const COPY: Record<WidgetLocale, {
   leadSubmitted: string;
   toolStub: (name: string) => string;
   errorGeneric: string;
+  /** Pre-chat gate copy. The shape matches PreChatGateProps['copy']
+   *  exactly — the widget passes this sub-object straight through. */
+  gate: PreChatGateProps['copy'];
 }> = {
   en: {
     greeting: (name) => `Hi! I'm ${name}'s AI assistant. How can I help you with this property?`,
@@ -100,6 +109,24 @@ const COPY: Record<WidgetLocale, {
     leadSubmitted: "Thanks! We'll be in touch.",
     toolStub: (name) => `(checking ${name.replace(/_/g, ' ')}…)`,
     errorGeneric: 'Something went wrong. Try again in a moment.',
+    gate: {
+      heading: 'Before we start',
+      sub: 'Tell us who you are so the agent can follow up if the conversation leads somewhere.',
+      nameLabel: 'Name',
+      namePlaceholder: 'Your full name',
+      emailLabel: 'Email',
+      emailPlaceholder: 'you@example.com',
+      consentText:
+        'I accept the {terms} and the {privacy}, and I agree to receive occasional newsletter updates from AHO. I can unsubscribe at any time.',
+      consentTermsLabel: 'terms of service',
+      consentPrivacyLabel: 'privacy policy',
+      submit: 'Start chat',
+      submitting: 'Starting…',
+      errorEmail: 'Enter a valid email address.',
+      errorName: 'Tell us your name.',
+      errorConsent: 'Please accept the terms before continuing.',
+      errorNetwork: 'Could not subscribe. Try again in a moment.',
+    },
   },
   es: {
     greeting: (name) => `¡Hola! Soy el asistente IA de ${name}. ¿En qué puedo ayudarte con esta propiedad?`,
@@ -117,6 +144,24 @@ const COPY: Record<WidgetLocale, {
     leadSubmitted: '¡Gracias! Te contactaremos pronto.',
     toolStub: (name) => `(consultando ${name.replace(/_/g, ' ')}…)`,
     errorGeneric: 'Algo salió mal. Inténtalo de nuevo en un momento.',
+    gate: {
+      heading: 'Antes de empezar',
+      sub: 'Cuéntanos quién eres para que el agente pueda contactarte si la conversación lo amerita.',
+      nameLabel: 'Nombre',
+      namePlaceholder: 'Tu nombre completo',
+      emailLabel: 'Correo electrónico',
+      emailPlaceholder: 'tu@ejemplo.com',
+      consentText:
+        'Acepto los {terms} y la {privacy}, y autorizo recibir comunicaciones ocasionales del boletín de AHO. Puedo darme de baja cuando quiera.',
+      consentTermsLabel: 'términos del servicio',
+      consentPrivacyLabel: 'política de privacidad',
+      submit: 'Empezar chat',
+      submitting: 'Iniciando…',
+      errorEmail: 'Introduce un correo electrónico válido.',
+      errorName: 'Dinos cómo te llamas.',
+      errorConsent: 'Acepta los términos antes de continuar.',
+      errorNetwork: 'No se pudo suscribir. Inténtalo de nuevo en un momento.',
+    },
   },
   pl: {
     greeting: (name) => `Cześć! Jestem asystentem AI ${name}. Jak mogę pomóc z tą nieruchomością?`,
@@ -134,6 +179,24 @@ const COPY: Record<WidgetLocale, {
     leadSubmitted: 'Dziękujemy! Wkrótce się odezwiemy.',
     toolStub: (name) => `(sprawdzanie ${name.replace(/_/g, ' ')}…)`,
     errorGeneric: 'Coś poszło nie tak. Spróbuj ponownie za chwilę.',
+    gate: {
+      heading: 'Zanim zaczniemy',
+      sub: 'Powiedz, kim jesteś — agent skontaktuje się, jeśli rozmowa do czegoś doprowadzi.',
+      nameLabel: 'Imię',
+      namePlaceholder: 'Twoje imię i nazwisko',
+      emailLabel: 'E-mail',
+      emailPlaceholder: 'ty@przyklad.com',
+      consentText:
+        'Akceptuję {terms} oraz {privacy} i wyrażam zgodę na okresowe wiadomości z newslettera AHO. Mogę wypisać się w każdej chwili.',
+      consentTermsLabel: 'regulamin',
+      consentPrivacyLabel: 'politykę prywatności',
+      submit: 'Rozpocznij czat',
+      submitting: 'Łączenie…',
+      errorEmail: 'Wpisz poprawny adres e-mail.',
+      errorName: 'Powiedz, jak masz na imię.',
+      errorConsent: 'Zaakceptuj regulamin, aby kontynuować.',
+      errorNetwork: 'Nie udało się zapisać. Spróbuj ponownie za chwilę.',
+    },
   },
   pt: {
     greeting: (name) => `Oi! Sou o assistente IA de ${name}. Como posso ajudar com este imóvel?`,
@@ -151,6 +214,24 @@ const COPY: Record<WidgetLocale, {
     leadSubmitted: 'Obrigado! Em breve entraremos em contato.',
     toolStub: (name) => `(verificando ${name.replace(/_/g, ' ')}…)`,
     errorGeneric: 'Algo deu errado. Tente novamente em instantes.',
+    gate: {
+      heading: 'Antes de começar',
+      sub: 'Diga quem é você para o agente entrar em contato se a conversa exigir.',
+      nameLabel: 'Nome',
+      namePlaceholder: 'Seu nome completo',
+      emailLabel: 'E-mail',
+      emailPlaceholder: 'voce@exemplo.com',
+      consentText:
+        'Aceito os {terms} e a {privacy}, e autorizo o recebimento ocasional de comunicações da newsletter AHO. Posso cancelar a inscrição a qualquer momento.',
+      consentTermsLabel: 'termos de serviço',
+      consentPrivacyLabel: 'política de privacidade',
+      submit: 'Começar chat',
+      submitting: 'Iniciando…',
+      errorEmail: 'Informe um e-mail válido.',
+      errorName: 'Diga seu nome.',
+      errorConsent: 'Aceite os termos para continuar.',
+      errorNetwork: 'Não foi possível inscrever. Tente novamente em instantes.',
+    },
   },
   de: {
     greeting: (name) => `Hallo! Ich bin der KI-Assistent von ${name}. Wie kann ich bei dieser Immobilie helfen?`,
@@ -168,6 +249,24 @@ const COPY: Record<WidgetLocale, {
     leadSubmitted: 'Danke! Wir melden uns bei Ihnen.',
     toolStub: (name) => `(prüfe ${name.replace(/_/g, ' ')}…)`,
     errorGeneric: 'Etwas ist schiefgelaufen. Bitte erneut versuchen.',
+    gate: {
+      heading: 'Bevor wir starten',
+      sub: 'Sagen Sie uns, wer Sie sind, damit der Makler sich melden kann, falls das Gespräch weitergeht.',
+      nameLabel: 'Name',
+      namePlaceholder: 'Ihr vollständiger Name',
+      emailLabel: 'E-Mail',
+      emailPlaceholder: 'sie@beispiel.com',
+      consentText:
+        'Ich akzeptiere die {terms} und die {privacy} und erkläre mich mit gelegentlichen Newsletter-Updates von AHO einverstanden. Ich kann mich jederzeit abmelden.',
+      consentTermsLabel: 'Nutzungsbedingungen',
+      consentPrivacyLabel: 'Datenschutzerklärung',
+      submit: 'Chat starten',
+      submitting: 'Wird gestartet…',
+      errorEmail: 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
+      errorName: 'Bitte nennen Sie Ihren Namen.',
+      errorConsent: 'Bitte akzeptieren Sie die Bedingungen, um fortzufahren.',
+      errorNetwork: 'Anmeldung fehlgeschlagen. Bitte erneut versuchen.',
+    },
   },
   fr: {
     greeting: (name) => `Bonjour ! Je suis l'assistant IA de ${name}. Comment puis-je vous aider avec ce bien ?`,
@@ -185,6 +284,24 @@ const COPY: Record<WidgetLocale, {
     leadSubmitted: 'Merci ! Nous vous recontacterons.',
     toolStub: (name) => `(vérification ${name.replace(/_/g, ' ')}…)`,
     errorGeneric: "Une erreur est survenue. Réessayez dans un instant.",
+    gate: {
+      heading: 'Avant de commencer',
+      sub: "Dites-nous qui vous êtes pour que l'agent puisse vous recontacter si la conversation l'exige.",
+      nameLabel: 'Nom',
+      namePlaceholder: 'Votre nom complet',
+      emailLabel: 'E-mail',
+      emailPlaceholder: 'vous@exemple.com',
+      consentText:
+        "J'accepte les {terms} et la {privacy}, et j'autorise la réception occasionnelle de la newsletter AHO. Je peux me désinscrire à tout moment.",
+      consentTermsLabel: "conditions d'utilisation",
+      consentPrivacyLabel: 'politique de confidentialité',
+      submit: 'Démarrer le chat',
+      submitting: 'Démarrage…',
+      errorEmail: 'Saisissez une adresse e-mail valide.',
+      errorName: "Indiquez votre nom.",
+      errorConsent: "Veuillez accepter les conditions pour continuer.",
+      errorNetwork: "Inscription impossible. Réessayez dans un instant.",
+    },
   },
   it: {
     greeting: (name) => `Ciao! Sono l'assistente IA di ${name}. Come posso aiutarti con questo immobile?`,
@@ -202,6 +319,24 @@ const COPY: Record<WidgetLocale, {
     leadSubmitted: 'Grazie! Ti contatteremo presto.',
     toolStub: (name) => `(verifica ${name.replace(/_/g, ' ')}…)`,
     errorGeneric: 'Qualcosa è andato storto. Riprova tra poco.',
+    gate: {
+      heading: 'Prima di iniziare',
+      sub: 'Dicci chi sei così l\'agente può ricontattarti se la conversazione lo richiede.',
+      nameLabel: 'Nome',
+      namePlaceholder: 'Il tuo nome completo',
+      emailLabel: 'E-mail',
+      emailPlaceholder: 'tu@esempio.com',
+      consentText:
+        'Accetto i {terms} e la {privacy}, e autorizzo a ricevere occasionalmente la newsletter di AHO. Posso disiscrivermi in qualsiasi momento.',
+      consentTermsLabel: 'termini di servizio',
+      consentPrivacyLabel: 'informativa sulla privacy',
+      submit: 'Inizia chat',
+      submitting: 'Avvio…',
+      errorEmail: 'Inserisci un indirizzo e-mail valido.',
+      errorName: 'Dicci come ti chiami.',
+      errorConsent: 'Accetta i termini per continuare.',
+      errorNetwork: 'Iscrizione non riuscita. Riprova tra poco.',
+    },
   },
 };
 
@@ -270,6 +405,17 @@ export function AiChatWidget({
   const [leadPhone, setLeadPhone] = useState('');
   const [leadSending, setLeadSending] = useState(false);
   const [leadDismissed, setLeadDismissed] = useState(false);
+  // Pre-chat gate state. Visitor must provide name + email + accept
+  // T&Cs before the message UI mounts. Initialized from localStorage
+  // on mount (NOT during render — `readStoredAcceptance` touches
+  // window which is undefined during SSR). Returning visitors on the
+  // same device skip the gate transparently.
+  const [gateInfo, setGateInfo] = useState<GateResult | null>(null);
+  const [gateInitialized, setGateInitialized] = useState(false);
+  useEffect(() => {
+    setGateInfo(readStoredAcceptance());
+    setGateInitialized(true);
+  }, []);
 
   const sessionRef = useRef<StoredSession>({ conversationId: null, sessionToken: '' });
   const initialGreeting = useMemo<Message>(
@@ -695,6 +841,20 @@ export function AiChatWidget({
             </button>
           </div>
 
+          {/* Pre-chat gate. Wait for the localStorage probe to settle
+              (gateInitialized) before deciding what to render — this
+              avoids a brief "gate flash" on returning visitors during
+              the first paint. */}
+          {gateInitialized && !gateInfo ? (
+            <div className="flex-1 overflow-y-auto">
+              <PreChatGate
+                onAccepted={(res) => setGateInfo(res)}
+                copy={copy.gate}
+              />
+            </div>
+          ) : (
+            <>
+
           {/* Message list */}
           <div
             ref={scrollRef}
@@ -815,6 +975,8 @@ export function AiChatWidget({
               </button>
             </div>
           </form>
+            </>
+          )}
         </div>
       )}
     </>
