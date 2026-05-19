@@ -2,7 +2,13 @@
 
 > The single place to look for "what's happening." Read this first when you start a session. Type **`status`** to me at the start and I'll read this, propose the next action, and either get your sign-off or redirect.
 >
-> I (Claude) keep this file accurate. Last update: 2026-05-19 (Tier-1 activation done).
+> I (Claude) keep this file accurate. Last update: 2026-05-19 (programmatic SEO blog shipped).
+
+## 🆕 Programmatic SEO blog — shipped 2026-05-19
+
+`workers/blog-publish` cron (09:00 UTC daily, 50% jitter → ~every 2 days) generates a real-estate-marketing article via Anthropic Sonnet, validates the HTML against the spec contract (no Microdata, ToC + breadcrumb + author bio present, anchors map), inserts into `blog_posts`, emails operator with success/failure. Pages at `/[locale]/blog` (index) + `/[locale]/blog/[slug]` (article). JSON-LD BlogPosting + Person(author) + BreadcrumbList in one `@graph`. Sitemap conditionally exposes `/sitemap-blog.xml` once ≥1 post is live. Migration 0075 applied to prod. Worker deployed. Commit `a3a6aa2`.
+
+
 
 ---
 
