@@ -3,6 +3,7 @@ import 'server-only';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import {
   publishToFacebookPage,
+  publishToInstagramBusiness,
   publishToLinkedIn,
   type PublishResult,
 } from '@/lib/social/publish';
@@ -70,6 +71,12 @@ interface DistributeArgs {
     title: string;
     summary: string;
     publicUrl: string;
+    /** Public HTTPS URL of the hero image. Served by the per-slug
+     *  opengraph-image.tsx route (Satori-rendered editorial card).
+     *  Required for IG (the API rejects image-less posts) and used
+     *  to enrich the FB Page post + LinkedIn thumbnail. NULL only
+     *  in degenerate test paths — production cron always passes one. */
+    heroImageUrl: string | null;
   };
   /** Encryption key for the token RPC — sourced from
    *  serverEnv().AHO_TOKEN_ENCRYPTION_KEY by the cron route. */
@@ -125,6 +132,7 @@ export async function distributeBlogPost(args: DistributeArgs): Promise<Distribu
 
   if (!args.enabled) {
     out.push({ channel: 'facebook', status: 'skipped', skip_reason: 'distribution_disabled', at: now() });
+    out.push({ channel: 'instagram', status: 'skipped', skip_reason: 'distribution_disabled', at: now() });
     out.push({ channel: 'linkedin', status: 'skipped', skip_reason: 'distribution_disabled', at: now() });
     return out;
   }
@@ -132,6 +140,7 @@ export async function distributeBlogPost(args: DistributeArgs): Promise<Distribu
   const adminUserId = await findAdminUserId(args.admin);
   if (!adminUserId) {
     out.push({ channel: 'facebook', status: 'skipped', skip_reason: 'no_admin_user', at: now() });
+    out.push({ channel: 'instagram', status: 'skipped', skip_reason: 'no_admin_user', at: now() });
     out.push({ channel: 'linkedin', status: 'skipped', skip_reason: 'no_admin_user', at: now() });
     return out;
   }
@@ -148,6 +157,7 @@ export async function distributeBlogPost(args: DistributeArgs): Promise<Distribu
       message: tokenErr.message,
     });
     out.push({ channel: 'facebook', status: 'failed', error_code: 'token_list_failed', error: tokenErr.message, at: now() });
+    out.push({ channel: 'instagram', status: 'failed', error_code: 'token_list_failed', error: tokenErr.message, at: now() });
     out.push({ channel: 'linkedin', status: 'failed', error_code: 'token_list_failed', error: tokenErr.message, at: now() });
     return out;
   }
@@ -168,6 +178,13 @@ export async function distributeBlogPost(args: DistributeArgs): Promise<Distribu
     summary: args.post.summary,
     url: args.post.publicUrl,
   });
+
+  // The IG token row is identified by external_account_id starting
+  // with 'ig:' (the IG Business account id). The token used is the
+  // PARENT FB Page's token — same shape as /api/social/post.
+  const igToken = tokens.find(
+    (t) => t.platform === 'meta' && t.external_account_id.startsWith('ig:'),
+  );
 
   // ───────── Facebook Page ─────────
   if (fbPageToken) {
@@ -196,6 +213,9 @@ export async function distributeBlogPost(args: DistributeArgs): Promise<Distribu
         post: {
           message: fbMessage,
           link: args.post.publicUrl,
+          // When a hero image is available, FB renders a photo post
+          // with caption + link beneath. Visual richness > link-only.
+          ...(args.post.heroImageUrl ? { imageUrl: args.post.heroImageUrl } : {}),
         },
       });
       out.push({
@@ -209,6 +229,68 @@ export async function distributeBlogPost(args: DistributeArgs): Promise<Distribu
     }
   } else {
     out.push({ channel: 'facebook', status: 'skipped', skip_reason: 'no_facebook_page_token', at: now() });
+  }
+
+  // ───────── Instagram Business ─────────
+  // IG REQUIRES an image — when heroImageUrl is null we skip the
+  // channel rather than fail. The cron always passes one in prod
+  // (rendered by /blog/[slug]/opengraph-image.tsx) so this guard is
+  // belt-and-braces. Uses the PARENT FB Page token (same Meta OAuth
+  // grant covers both surfaces).
+  if (!args.post.heroImageUrl) {
+    out.push({ channel: 'instagram', status: 'skipped', skip_reason: 'no_hero_image', at: now() });
+  } else if (!igToken || !fbPageToken) {
+    out.push({
+      channel: 'instagram',
+      status: 'skipped',
+      skip_reason: igToken ? 'no_parent_fb_token' : 'no_instagram_token',
+      at: now(),
+    });
+  } else {
+    const igId = igToken.external_account_id.slice('ig:'.length);
+    // IG uses the FB Page token, not a separate IG token — we already
+    // decrypted it above. But to keep this block self-contained
+    // (post-only-IG-fail isolation), re-decrypt cleanly.
+    const { data: tokenPlain, error: decErr } = await args.admin.rpc(
+      'get_decrypted_access_token',
+      {
+        p_user_id: adminUserId,
+        p_platform: 'meta',
+        p_external_account_id: fbPageToken.external_account_id,
+        p_key: args.tokenEncryptionKey,
+      },
+    );
+    if (decErr || !tokenPlain) {
+      out.push({
+        channel: 'instagram',
+        status: 'failed',
+        error_code: 'token_decrypt_failed',
+        error: decErr?.message ?? 'decrypt returned null',
+        at: now(),
+      });
+    } else {
+      // IG strips URLs from clickability in captions — include the
+      // URL as plain text so the buyer can copy/paste even though
+      // it isn't auto-linkified. "Link in bio" is the standard
+      // pattern but we don't manage the bio link from here.
+      const igCaption = `${fbMessage}\n\nRead: ${args.post.publicUrl}`;
+      const result: PublishResult = await publishToInstagramBusiness({
+        igId,
+        pageToken: tokenPlain as string,
+        post: {
+          caption: igCaption,
+          imageUrls: [args.post.heroImageUrl],
+        },
+      });
+      out.push({
+        channel: 'instagram',
+        status: result.ok ? 'posted' : 'failed',
+        ...(result.ok && result.externalPostId ? { external_id: result.externalPostId } : {}),
+        ...(result.ok && result.externalPostUrl ? { external_url: result.externalPostUrl } : {}),
+        ...(!result.ok ? { error_code: result.errorCode, error: result.errorMessage } : {}),
+        at: now(),
+      });
+    }
   }
 
   // ───────── LinkedIn ─────────
@@ -244,6 +326,9 @@ export async function distributeBlogPost(args: DistributeArgs): Promise<Distribu
           contentUrl: args.post.publicUrl,
           contentTitle: args.post.title,
           contentDescription: args.post.summary,
+          ...(args.post.heroImageUrl
+            ? { contentThumbnailUrl: args.post.heroImageUrl }
+            : {}),
         },
       });
       out.push({
@@ -258,11 +343,6 @@ export async function distributeBlogPost(args: DistributeArgs): Promise<Distribu
   } else {
     out.push({ channel: 'linkedin', status: 'skipped', skip_reason: 'no_linkedin_token', at: now() });
   }
-
-  // Instagram: explicitly skipped in v1 — blog has no hero images yet,
-  // and IG API rejects image-less posts. Record the skip so the
-  // /admin UI shows IG as a known gap (vs a silent omission).
-  out.push({ channel: 'instagram', status: 'skipped', skip_reason: 'no_hero_image_yet', at: now() });
 
   return out;
 }

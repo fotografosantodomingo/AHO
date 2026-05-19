@@ -224,15 +224,24 @@ async function handle(req: NextRequest): Promise<NextResponse<CronSummary>> {
     isoDay,
   });
 
+  // Hero image — served dynamically by
+  // src/app/[locale]/blog/[slug]/opengraph-image.tsx (Satori), one URL
+  // for all 3 channels (FB Page photo card + IG single-image post +
+  // LinkedIn thumbnail) AND for the in-article <img srcset>. Browser
+  // scales the same 1200x630 source for the srcset variants — good
+  // enough for editorial hero cards in v1.
+  const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
+  const heroImageUrl = `${site}/en/blog/${slug}/opengraph-image.png`;
   const stampedHtml = stampBodyPlaceholders({
     html: result.bodyHtml,
     wordCount: result.wordCount,
     publishedAt,
-    // v1 ships without hero images — the prompt's image tag uses
-    // {HERO_IMG} placeholders which stampBodyPlaceholders strips when
-    // heroImageUrl is null.
-    heroImageUrl: null,
-    heroImageSrcsetByWidth: null,
+    heroImageUrl,
+    heroImageSrcsetByWidth: {
+      400: heroImageUrl,
+      800: heroImageUrl,
+      1200: heroImageUrl,
+    },
   });
 
   // ─── Step 5: dry-run early exit ───────────────────────────────────
@@ -254,6 +263,7 @@ async function handle(req: NextRequest): Promise<NextResponse<CronSummary>> {
     title: result.title,
     summary: result.summary,
     body_html: stampedHtml,
+    hero_image_url: heroImageUrl,
     author_name: result.authorName,
     author_role: result.authorRole,
     author_url: result.authorUrl,
@@ -287,11 +297,10 @@ async function handle(req: NextRequest): Promise<NextResponse<CronSummary>> {
   }
 
   // ─── Step 7: distribution to admin's connected social accounts ────
-  // Run AFTER the insert so the publicUrl resolves to a live page.
-  // Distribution failures DO NOT roll back the post — they're logged
-  // into `blog_posts.distribution` JSONB and reported in the success
-  // email. The post itself is the durable artifact.
-  const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
+  // Run AFTER the insert so the publicUrl + heroImageUrl resolve to a
+  // live page. Distribution failures DO NOT roll back the post —
+  // they're logged into `blog_posts.distribution` JSONB and reported
+  // in the success email. The post itself is the durable artifact.
   const liveUrl = `${site}/en/blog/${slug}`;
   const distributionEnabled = process.env.BLOG_DISTRIBUTION_ENABLED !== 'false';
   const distributionEntries = await distributeBlogPost({
@@ -300,6 +309,7 @@ async function handle(req: NextRequest): Promise<NextResponse<CronSummary>> {
       title: result.title,
       summary: result.summary,
       publicUrl: liveUrl,
+      heroImageUrl,
     },
     tokenEncryptionKey: env.AHO_TOKEN_ENCRYPTION_KEY ?? '',
     enabled: distributionEnabled && Boolean(env.AHO_TOKEN_ENCRYPTION_KEY),
