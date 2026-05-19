@@ -9,6 +9,7 @@ import { LocaleToggle } from '@/components/locale-toggle';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { CurrencyPicker } from '@/components/currency-picker';
 import { MegaMenuClient } from '@/components/mega-menu-client';
+import { AhoLogo } from '@/components/aho-logo';
 
 const CURRENCY_COOKIE = 'aho_currency';
 
@@ -124,10 +125,15 @@ export async function SiteHeader({ locale }: Props) {
         <div className="flex items-center gap-2 sm:gap-3">
           <a
             href={`/${locale}`}
-            className="font-brand text-2xl font-bold tracking-tight transition-colors hover:text-action dark:hover:text-action-dark"
+            className="inline-flex items-center gap-2 font-brand text-2xl font-bold tracking-tight transition-colors hover:text-action dark:hover:text-action-dark"
             aria-label="AHO — Advertise Homes Online"
           >
-            AHO
+            {/* Inline SVG (currentColor) so the leaf-mark inherits the
+                anchor's text color — light-mode ink on warm cream,
+                light ink on the dark surface in dark mode. No
+                separate light/dark assets needed. */}
+            <AhoLogo className="h-7 w-7" ariaLabel="AHO leaf mark" />
+            <span>AHO</span>
           </a>
           <ThemeToggle />
           <LocaleToggle />
