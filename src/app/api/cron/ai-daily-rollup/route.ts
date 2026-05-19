@@ -14,6 +14,20 @@ export const runtime = 'edge';
  * read from. UPSERT pattern keeps the job idempotent — re-running it
  * for the same day overwrites the row, never duplicates.
  *
+ * What's aggregated:
+ *   - From `ai_conversation_events`: conversations / user_messages /
+ *     drafts_pending|approved|edited|auto_sent|rejected / escalations
+ *     / leads_captured / viewings_booked / channel_counts.
+ *   - From `ai_conversation_messages` (joined via the conversation_id
+ *     in the events): intent_counts + risk_flag_counts. The
+ *     classifier writes those onto the assistant turn (see
+ *     /api/ai-chat); the rollup flattens risk_flags[] across turns.
+ *   - `cost_usd_cents` is intentionally left NULL today. Per-org cost
+ *     attribution requires adding `org_id` (or `conversation_id`) to
+ *     `ai_generation_log`; that's a separate migration. The
+ *     /admin/audit-costs view still works because it queries the log
+ *     directly without an org filter.
+ *
  * Auth: bearer token via the shared `checkCronAuth` helper; matched
  * against `CRON_SECRET` server env. Fired by `workers/ai-daily-rollup/`
  * at 02:00 UTC daily.
@@ -81,6 +95,14 @@ interface AggregateRow {
   leads_captured: number;
   viewings_booked: number;
   channel_counts: Record<string, number>;
+  /** intent label → occurrence count (populated from
+   *  ai_conversation_messages.intent for the day's assistant
+   *  messages). Empty when the agent had no classified turns. */
+  intent_counts: Record<string, number>;
+  /** Single risk-flag label → occurrence count (each message's
+   *  risk_flags[] array is flattened — a message with two flags
+   *  bumps two counters). Empty when no flagged turns. */
+  risk_flag_counts: Record<string, number>;
 }
 
 function emptyAgg(): AggregateRow {
@@ -96,7 +118,27 @@ function emptyAgg(): AggregateRow {
     leads_captured: 0,
     viewings_booked: 0,
     channel_counts: {},
+    intent_counts: {},
+    risk_flag_counts: {},
   };
+}
+
+interface MessageRow {
+  conversation_id: string;
+  intent: string | null;
+  risk_flags: string[] | null;
+}
+
+function bumpMessageAgg(agg: AggregateRow, m: MessageRow) {
+  if (m.intent && m.intent.length > 0) {
+    agg.intent_counts[m.intent] = (agg.intent_counts[m.intent] ?? 0) + 1;
+  }
+  if (Array.isArray(m.risk_flags)) {
+    for (const flag of m.risk_flags) {
+      if (flag.length === 0) continue;
+      agg.risk_flag_counts[flag] = (agg.risk_flag_counts[flag] ?? 0) + 1;
+    }
+  }
 }
 
 function bumpAgg(agg: AggregateRow, evt: EventRow) {
@@ -207,6 +249,11 @@ async function handle(req: NextRequest): Promise<NextResponse<RollupSummary>> {
   // dashboard can query either with a single indexed scan.
   const perAgent = new Map<string, AggregateRow>(); // key: `${org_id}::${agent_id}`
   const perOrg = new Map<string, AggregateRow>(); // key: `${org_id}`
+  // conversation_id → { org_id, agent_id } so the message-side pass
+  // (below) can attribute each classified turn to the right bucket.
+  // ai_conversation_messages doesn't carry org_id/agent_id directly;
+  // events do, so we backfill the map here.
+  const convAttribution = new Map<string, { org_id: string; agent_id: string | null }>();
   for (const evt of allRows) {
     const perAgentKey = `${evt.org_id}::${evt.agent_id ?? 'null'}`;
     const perOrgKey = evt.org_id;
@@ -214,6 +261,62 @@ async function handle(req: NextRequest): Promise<NextResponse<RollupSummary>> {
     if (!perOrg.has(perOrgKey)) perOrg.set(perOrgKey, emptyAgg());
     bumpAgg(perAgent.get(perAgentKey)!, evt);
     bumpAgg(perOrg.get(perOrgKey)!, evt);
+    if (!convAttribution.has(evt.conversation_id)) {
+      convAttribution.set(evt.conversation_id, {
+        org_id: evt.org_id,
+        agent_id: evt.agent_id,
+      });
+    }
+  }
+
+  // Second-pass: pull the day's `ai_conversation_messages` with a
+  // classified intent or any risk flag. Each row contributes to
+  // intent_counts + risk_flag_counts on the corresponding org/agent
+  // bucket via convAttribution. This is the data the dashboard
+  // intent-donut + admin risk-mix panels read from.
+  const convIds = Array.from(convAttribution.keys());
+  if (convIds.length > 0) {
+    let msgFrom = 0;
+    const msgPageSize = 1000;
+    // PostgREST in-list cap is generous (default 100); chunk the
+    // conversation IDs so the query stays well within limits.
+    const idChunkSize = 200;
+    for (let chunkStart = 0; chunkStart < convIds.length; chunkStart += idChunkSize) {
+      const chunk = convIds.slice(chunkStart, chunkStart + idChunkSize);
+      msgFrom = 0;
+      while (true) {
+        const { data, error } = await admin
+          .from('ai_conversation_messages')
+          .select('conversation_id, intent, risk_flags')
+          .in('conversation_id', chunk)
+          .gte('created_at', day.toISOString())
+          .lt('created_at', nextDay.toISOString())
+          .range(msgFrom, msgFrom + msgPageSize - 1);
+        if (error) {
+          console.error('[ai-daily-rollup] message fetch error', {
+            code: error.code,
+            message: error.message,
+          });
+          // Soft fail — proceed with empty intent/risk mix rather
+          // than failing the whole rollup. The event counts are still
+          // valid and more important.
+          break;
+        }
+        if (!data || data.length === 0) break;
+        for (const m of data as unknown as MessageRow[]) {
+          const attr = convAttribution.get(m.conversation_id);
+          if (!attr) continue;
+          const perAgentKey = `${attr.org_id}::${attr.agent_id ?? 'null'}`;
+          const perOrgKey = attr.org_id;
+          const agentBucket = perAgent.get(perAgentKey);
+          const orgBucket = perOrg.get(perOrgKey);
+          if (agentBucket) bumpMessageAgg(agentBucket, m);
+          if (orgBucket) bumpMessageAgg(orgBucket, m);
+        }
+        if (data.length < msgPageSize) break;
+        msgFrom += msgPageSize;
+      }
+    }
   }
 
   // Build the UPSERT payloads.
@@ -236,8 +339,8 @@ async function handle(req: NextRequest): Promise<NextResponse<RollupSummary>> {
       leads_captured: agg.leads_captured,
       viewings_booked: agg.viewings_booked,
       channel_counts: agg.channel_counts,
-      intent_counts: {},
-      risk_flag_counts: {},
+      intent_counts: agg.intent_counts,
+      risk_flag_counts: agg.risk_flag_counts,
     });
   }
   // Org-level rows (agent_id = NULL).
@@ -257,8 +360,8 @@ async function handle(req: NextRequest): Promise<NextResponse<RollupSummary>> {
       leads_captured: agg.leads_captured,
       viewings_booked: agg.viewings_booked,
       channel_counts: agg.channel_counts,
-      intent_counts: {},
-      risk_flag_counts: {},
+      intent_counts: agg.intent_counts,
+      risk_flag_counts: agg.risk_flag_counts,
     });
   }
 

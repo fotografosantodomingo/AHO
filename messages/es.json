@@ -696,6 +696,28 @@
       "dismiss": "Cerrar"
     },
     "listingsHeading": "Mis anuncios",
+    "renewError": {
+      "email_required": {
+        "title": "Necesitamos tu correo para procesar la renovación.",
+        "body": "Tu cuenta no tiene un correo registrado. Agrégalo en tu perfil y vuelve a hacer clic en el enlace de renovación."
+      },
+      "lookup_failed": {
+        "title": "No pudimos acceder a la base de datos de anuncios.",
+        "body": "Un error temporal impidió buscar tu anuncio. Vuelve a intentar el enlace de renovación en un momento — si sigue fallando, escribe a info@advertisehomes.online."
+      },
+      "not_found": {
+        "title": "Anuncio no encontrado.",
+        "body": "El anuncio que intentaste renovar ya no está en tu cuenta, o no tienes permiso para renovarlo. Abre el anuncio desde esta página y vuelve a intentarlo."
+      },
+      "not_private": {
+        "title": "Este anuncio está en una suscripción de agente.",
+        "body": "Los anuncios de agente se renuevan desde tu portal de facturación de Stripe, no por el flujo único de $5. Abre Facturación en la barra lateral para gestionar tu suscripción."
+      },
+      "session_create_failed": {
+        "title": "Stripe no pudo abrir la página de pago.",
+        "body": "Algo salió mal al crear la sesión de pago. Vuelve a intentar el enlace de renovación en un momento — si sigue fallando, escribe a info@advertisehomes.online."
+      }
+    },
     "newListing": "Nuevo anuncio",
     "saveAsDraft": "Guardar como borrador",
     "publishListing": "Publicar anuncio",

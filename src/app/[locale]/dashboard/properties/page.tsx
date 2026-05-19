@@ -22,10 +22,30 @@ interface ListingRow {
   updated_at: string;
 }
 
+// Error codes emitted by /api/sell/private/renew/[propertyId] when a
+// $5 private-listing renewal click fails server-side. The route then
+// 302s back here with `?renew_error=<code>` and we render the banner.
+type RenewErrorCode =
+  | 'email_required'
+  | 'lookup_failed'
+  | 'not_found'
+  | 'not_private'
+  | 'session_create_failed';
+
+const RENEW_ERROR_CODES: ReadonlySet<string> = new Set<RenewErrorCode>([
+  'email_required',
+  'lookup_failed',
+  'not_found',
+  'not_private',
+  'session_create_failed',
+]);
+
 export default async function DashboardListingsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ renew_error?: string }>;
 }) {
   const { locale } = await params;
   if (!LOCALES.includes(locale as Locale)) return null;
@@ -34,6 +54,16 @@ export default async function DashboardListingsPage({
 
   const t = await getTranslations({ locale, namespace: 'dashboard' });
   const tStatus = await getTranslations({ locale, namespace: 'dashboard.status' });
+
+  // Normalize the renew_error query param. Anything we don't
+  // recognize gets ignored — protects against ?renew_error=<XSS>
+  // and against drift if the renew endpoint emits a new code without
+  // a translation landing first.
+  const { renew_error: renewErrorRaw } = await searchParams;
+  const renewError: RenewErrorCode | null =
+    renewErrorRaw && RENEW_ERROR_CODES.has(renewErrorRaw)
+      ? (renewErrorRaw as RenewErrorCode)
+      : null;
 
   const supabase = await createServerSupabaseClient();
 
@@ -138,6 +168,17 @@ export default async function DashboardListingsPage({
 
   return (
     <main className="space-y-6">
+      {renewError && (
+        <div
+          role="alert"
+          className="rounded-md border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-800 dark:bg-red-950/30 dark:text-red-200"
+        >
+          <p className="font-semibold">{t(`renewError.${renewError}.title`)}</p>
+          <p className="mt-1 text-red-700/90 dark:text-red-200/85">
+            {t(`renewError.${renewError}.body`)}
+          </p>
+        </div>
+      )}
       <header className="flex items-center justify-between gap-4">
         <h1 className="font-brand text-2xl font-semibold tracking-tight md:text-[26px] md:leading-[1.19]">
           {t('listingsHeading')}

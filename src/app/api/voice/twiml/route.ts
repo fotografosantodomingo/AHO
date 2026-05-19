@@ -1,5 +1,7 @@
 import { type NextRequest } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { countryToMarket } from '@/lib/ai/country-to-market';
+import type { AgentMarket } from '@/lib/ai/agent-prompts';
 
 export const runtime = 'edge';
 
@@ -89,20 +91,6 @@ function selectVoice(market: AgentMarket): string {
     default:
       return 'en-US-Standard-C';
   }
-}
-
-type AgentMarket = 'us' | 'es' | 'pl' | 'pt' | 'de' | 'fr' | 'it';
-
-function countryToMarket(country: string | null | undefined): AgentMarket {
-  if (!country) return 'us';
-  const c = country.toUpperCase();
-  if (c === 'ES') return 'es';
-  if (c === 'PL') return 'pl';
-  if (c === 'PT' || c === 'BR') return 'pt';
-  if (c === 'DE' || c === 'AT' || c === 'CH') return 'de';
-  if (c === 'FR') return 'fr';
-  if (c === 'IT') return 'it';
-  return 'us';
 }
 
 function escapeXml(s: string): string {

@@ -696,6 +696,28 @@
       "dismiss": "Dismiss"
     },
     "listingsHeading": "My Listings",
+    "renewError": {
+      "email_required": {
+        "title": "We need your email to process the renewal.",
+        "body": "Your account doesn't have an email address on file. Add one in your profile, then click the renewal link again."
+      },
+      "lookup_failed": {
+        "title": "We couldn't reach the listings database.",
+        "body": "A temporary error stopped us from looking up your listing. Try the renewal link again in a moment — if it keeps failing, email info@advertisehomes.online."
+      },
+      "not_found": {
+        "title": "Listing not found.",
+        "body": "The listing you tried to renew is no longer in your account, or you don't have permission to renew it. Open the listing from this page and try again."
+      },
+      "not_private": {
+        "title": "This listing is on an agent subscription.",
+        "body": "Agent listings renew via your Stripe billing portal, not the $5 one-time flow. Open Billing from the sidebar to manage your subscription."
+      },
+      "session_create_failed": {
+        "title": "Stripe couldn't open the checkout page.",
+        "body": "Something went wrong while creating the checkout session. Try the renewal link again in a moment — if it keeps failing, email info@advertisehomes.online."
+      }
+    },
     "newListing": "New listing",
     "saveAsDraft": "Save as draft",
     "publishListing": "Publish listing",

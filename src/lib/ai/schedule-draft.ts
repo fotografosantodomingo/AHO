@@ -11,6 +11,7 @@ import { converse, type ConverseMessage } from '@/lib/ai/converse';
 import { classifyAssistantTurn } from '@/lib/ai/gating';
 import { getOrgPlanId, planTierLabel } from '@/lib/billing/plan-gating';
 import { mapBillingTierToAgentTier } from '@/lib/ai/agent-tier';
+import { countryToMarket } from '@/lib/ai/country-to-market';
 import type { Locale } from '@/i18n/config';
 
 /**
@@ -53,24 +54,6 @@ export interface ScheduleDraftResult {
 }
 
 const HISTORY_TURN_LIMIT = 30;
-
-/**
- * Maps the org's headquarters_country to the AgentMarket bucket used
- * by the system prompt. Anything we don't recognize falls back to
- * 'us' (English / pragmatic copy). Mirrors `/api/ai-chat/route.ts`
- * `countryToMarket`.
- */
-function countryToMarket(country: string | null | undefined): AgentMarket {
-  if (!country) return 'us';
-  const c = country.toUpperCase();
-  if (c === 'ES') return 'es';
-  if (c === 'PL') return 'pl';
-  if (c === 'PT' || c === 'BR') return 'pt';
-  if (c === 'DE' || c === 'AT' || c === 'CH') return 'de';
-  if (c === 'FR') return 'fr';
-  if (c === 'IT') return 'it';
-  return 'us';
-}
 
 export async function scheduleDraft(
   args: ScheduleDraftArgs,
