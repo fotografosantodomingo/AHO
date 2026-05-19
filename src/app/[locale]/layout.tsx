@@ -207,20 +207,23 @@ export default async function LocaleLayout({
             <SiteHeader locale={locale as Locale} />
             <div id="main-content">{children}</div>
             <SiteFooter locale={locale as Locale} />
+            {/* AHO platform assistant — answers Q&A about AHO itself
+                (pricing, features, how-to, troubleshooting). Mounted
+                INSIDE the NextIntlClientProvider so its <PreChatGate>
+                child can call useLocale() without throwing.
+                Previously mounted OUTSIDE the provider (before
+                2026-05-19); the widget didn't use next-intl back then
+                so it worked, but adding the gate made it crash with
+                "Application error" — useLocale() throws when context
+                is missing. Skip-list (per-agent surfaces, auth/admin
+                flows) lives in conditional-aho-assistant.tsx. */}
+            <ConditionalAhoAssistant
+              userLocale={locale as Locale}
+              isAuthenticated={isAuthenticated}
+            />
           </ThemeProvider>
         </NextIntlClientProvider>
         <PwaRegister />
-        {/* AHO platform assistant — answers Q&A about AHO itself
-            (pricing, features, how-to, troubleshooting). Mounted
-            site-wide but the wrapper skips per-agent-AI surfaces
-            (/properties/[slug], /agents/[slug]) and single-purpose
-            flows (auth, onboarding, admin, preview). See
-            src/components/chat/conditional-aho-assistant.tsx for the
-            full skip-list. */}
-        <ConditionalAhoAssistant
-          userLocale={locale as Locale}
-          isAuthenticated={isAuthenticated}
-        />
         {/* TawkWidget retired 2026-05-18 — replaced by AIChatWidget on
             listing + agent pages + AhoAssistantWidget on platform
             pages. Component file at src/components/chat/tawk-widget.tsx
