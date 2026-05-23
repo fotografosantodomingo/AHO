@@ -2,7 +2,19 @@
 
 > The single place to look for "what's happening." Read this first when you start a session. Type **`status`** to me at the start and I'll read this, propose the next action, and either get your sign-off or redirect.
 >
-> I (Claude) keep this file accurate. Last update: 2026-05-19 (massive sprint — Tier-1 activation + programmatic SEO blog + multi-locale).
+> I (Claude) keep this file accurate. Last update: 2026-05-21 (blog SEO pipeline unstuck — translated siblings, edge cache, Free Audit CTA).
+
+## 🆕 Blog SEO pipeline unstuck — shipped 2026-05-21
+
+Three bugs the live sitemap surfaced today, all in service of the blog SEO investment finally paying off:
+
+1. **Translation fan-out was silently failing.** The HTML validator required literal `aria-label="Breadcrumb"` — Haiku correctly localizes that to "Brotkrumen", "Migas de pan", etc., so 6 of 6 translated INSERTs per cron run failed validation. Pre-fix sitemap had 3 articles total (all EN, no siblings). Post-fix: every NEW article publishes as 7 sibling rows with reciprocal hreflang. Validator now accepts any non-empty aria-label on a `<nav>` that isn't the ToC. Translator prompt also tightened. (`c441514`)
+2. **Edge cache was off on /blog (and /properties).** `next-intl` was emitting `Set-Cookie: NEXT_LOCALE=en` on every locale-routed response despite `localeDetection: false`, and CF treats any Set-Cookie as uncacheable. Middleware now strips that cookie on anon public requests. Cache-Control header was always being set; this finally lets it engage. (`c441514`)
+3. **Articles had ZERO conversion path.** Cron auto-publishes 7 articles every ~2 days across 7 locales (~25 indexed pages/week) but readers had no way to try the product. Added a per-locale Free Audit CTA aside at the end of every article linking to `/for-agents#free-audit`. (`c441514`)
+
+**Caveat:** the 3 EN-only articles already published (2026-05-19 + 2026-05-22) will NOT auto-backfill — cron's 90-day dedup excludes them. Either delete those 3 rows so the cron re-picks them on the next run, or accept they stay EN-only (≤5% of one month's output).
+
+---
 
 ## 🆕 Programmatic SEO blog — shipped 2026-05-19 (multi-locale)
 
@@ -104,10 +116,13 @@ Effort: S = ≤2 hrs, M = ½ day, L = full day+. Owner: who's blocking.
 
 | # | Item | Why | Effort | Owner |
 |---|---|---|---|---|
-| 7 | **Wire intent_counts + risk_flag_counts + cost_usd_cents into `ai_daily_stats` rollup** | Dashboard AI tab intent-donut + admin cost-effectiveness panel are waiting on these jsonb columns. Rollup writes them as `{}` today. | M | Me |
-| 8 | **Extract `countryToMarket()` duplicates** from `schedule-draft.ts` + `voice/twiml/route.ts` to use the shared `src/lib/ai/country-to-market.ts` (Agent 3 of the AI-agent burst already extracted it but two consumers still have local copies) | Tech-debt cleanup. Mentioned by 2 sub-agents as the obvious 1-line follow-up. | S | Me |
-| 9 | **Add a renewal-error toast on `/dashboard/properties`** when `?renew_error=…` query param is present. Agent 4 returns 5 error codes; the dashboard currently silently swallows them. | UX polish — without it a failed renewal click is invisible to the agent. | S | Me |
-| 10 | **Header `Sell` link copy review** — per-locale string is `t('sell')`; check it reads cleanly in PL/DE/FR/IT after the destination switched from /pricing to /sell. | The verb shifts from "buy a plan" to "advertise a property"; might want a punchier word per market. | S | Me |
+| 7 | **Wire `cost_usd_cents` into `ai_daily_stats` rollup** | `intent_counts` + `risk_flag_counts` are ALREADY wired (verified 2026-05-21 — the message-side pass at `ai-daily-rollup/route.ts:272-320` runs the bumpMessageAgg). `cost_usd_cents` is intentionally deferred pending a migration that adds `org_id` to `ai_generation_log` (see the doc comment in that file). The real outstanding work is the migration + a `logAiCall()` signature change. | M | Me — but warrants a deliberate ship, not a polish slot. |
+| 8 | ~~**Extract `countryToMarket()` duplicates**~~ | ✅ Already done — both consumers import from the shared `@/lib/ai/country-to-market`. STATUS was stale (verified 2026-05-21). |
+| 9 | ~~**Add a renewal-error toast on `/dashboard/properties`**~~ | ✅ Already done — banner + 5 error codes + EN/ES i18n strings shipped. STATUS was stale (verified 2026-05-21). PL/PT/DE/FR/IT fall back to EN as designed (CONTENT_LOCALES = en+es). |
+| 10 | ~~**Header `Sell` link copy review**~~ | ✅ Verified 2026-05-21 — all 7 locales have punchy native verbs (Sell / Vender / Sprzedaj / Vender / Verkaufen / Vendre / Vendi). |
+| 11 | **Remove unused `AgentMarket` import in `schedule-draft.ts`** | ✅ Done 2026-05-21 — was a lint warning from the AI agent burst. |
+
+**Tier-2 audit conclusion (2026-05-21): the queue was largely stale. Real outstanding work is just the `cost_usd_cents` migration in #7 (warrants deliberate ship). All other items resolved or done in earlier commits.**
 
 ### Tier-3 — creds-blocked AI agent channels (do when ready)
 

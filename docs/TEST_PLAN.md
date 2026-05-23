@@ -10,6 +10,32 @@
 
 ## ⏳ Pending your verification
 
+### `blog-translation-pipeline-fix` — translated siblings now actually publish (shipped `c441514` 2026-05-21)
+- **Scope:** HTML validator was silently rejecting all 6 translated sibling inserts per cron run because Haiku localizes `aria-label="Brotkrumen"` etc. and the validator required the literal English string "Breadcrumb". Sitemap pre-fix showed only EN articles. Validator now accepts any non-empty aria-label on a `<nav>` that isn't the ToC (which is identified by class). Translator prompt also hardened to keep `aria-label="Breadcrumb"` verbatim (defense-in-depth).
+- **Do (2 min, after the next cron run fires — daily 09:00 UTC, jitter 50%, so ~every 2 days):**
+  1. Open https://advertisehomes.online/sitemap-blog.xml.
+  2. Find a `<url>` whose `<loc>` includes the NEW article's slug (published after 2026-05-21 14:00 UTC).
+  3. Expect 7 `<xhtml:link rel="alternate">` entries on that `<url>` block (en + es + pl + pt + de + fr + it) plus the `x-default` row.
+- **Expect:** Each NEW article from today onward appears as 7 sibling rows, not 1. Operator email at info@advertisehomes.online should also show 7/7 translation success on the next run.
+- **Background:** The 3 existing EN-only articles (published 2026-05-19 + 2026-05-22) will NOT auto-backfill — the cron's 90-day dedup excludes them. Either delete those 3 rows so the cron re-picks them, or accept they stay EN-only (≤5% of one month's output).
+
+### `blog-edge-cache-fix` — CF edge cache finally engages on /blog (shipped `c441514` 2026-05-21)
+- **Scope:** `next-intl` was emitting `Set-Cookie: NEXT_LOCALE` on every locale-routed response despite `localeDetection: false`, and CF treats any Set-Cookie as uncacheable. Middleware now strips that cookie on anon requests to /blog, /properties, /agents, /properties-in. The Cache-Control header that was always set should finally be respected.
+- **Do (1 min, after the deploy lands — auto-deploys ~2 min from push):**
+  1. `curl -sI https://advertisehomes.online/en/blog | grep -iE 'cache-control|set-cookie|cf-cache'`
+  2. Repeat the curl after 5 seconds.
+- **Expect:** First curl shows `cache-control: public, max-age=300, s-maxage=3600, …`, NO `set-cookie: NEXT_LOCALE` line, and either `cf-cache-status: MISS` (first miss after deploy) or `EXPIRED`. Second curl shows `cf-cache-status: HIT` — that's the proof the edge cache engaged.
+- **Background:** Pre-fix, both curls showed `cf-cache-status: DYNAMIC` + `set-cookie: NEXT_LOCALE=en` + ~1.5s server-bound. Lighthouse Perf on `/en/properties/<slug>` was 53/100 because every request was server-rendered. Expect 90+ once HIT flips.
+
+### `blog-free-audit-cta` — every article now funnels to the wedge (shipped `c441514` 2026-05-21)
+- **Scope:** Articles previously had ZERO conversion path to the product. Now every article (all 7 locales) ends with a green CTA aside: "Try this on your own listing — paste your URL, get 9 ad captions + 3 graphics in 60 seconds." Linked to `/{locale}/for-agents#free-audit` so the click lands directly on the Free Audit widget.
+- **Do (2 min):**
+  1. Open https://advertisehomes.online/en/blog/the-listing-photos-that-actually-convert-backed-by-eye-tracking-data-180d77.
+  2. Scroll to the end. Expect a green "Free in 60 seconds" CTA card with "Get my free audit →" button.
+  3. Click the button. Expect to land on `/en/for-agents` with the page already scrolled to the Free Audit widget (anchor `#free-audit`).
+  4. Repeat #1-3 on `/es/blog/<any>` — expect Spanish copy.
+- **Expect:** CTA renders below the article body. Button click lands on Free Audit widget, NOT the top of /for-agents.
+
 ### `ai-agent-web-chat` — Phase 2 web chat live (shipped `4d44dbc` after `c1f5b10` foundation)
 - **Scope:** AI customer-service agent web-chat surface live on `/properties/[slug]` + `/agents/[slug]`. Replaces Tawk for the agent-conversation slot (Tawk widget intentionally kept during soft-launch — bottom-right; AHO widget is bottom-left). D2=A → every AI draft requires agent approval in `/dashboard/ai-inbox` before the buyer's-side widget shows the "(awaiting review)" badge.
 - **Do (5 min):**

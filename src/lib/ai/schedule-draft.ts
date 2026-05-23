@@ -5,7 +5,6 @@ import { fetchKnowledge } from '@/lib/ai/knowledge';
 import {
   buildAgentSystemPrompt,
   type AgentChannel,
-  type AgentMarket,
 } from '@/lib/ai/agent-prompts';
 import { converse, type ConverseMessage } from '@/lib/ai/converse';
 import { classifyAssistantTurn } from '@/lib/ai/gating';
