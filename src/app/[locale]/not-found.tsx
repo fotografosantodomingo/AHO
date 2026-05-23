@@ -69,7 +69,9 @@ export default async function LocalizedNotFound() {
   const t = await getTranslations({ locale, namespace: 'notFound' });
   const homeHref = `/${locale}`;
   const searchHref = localePath(locale as Locale, '/search');
-  const wedge = WEDGE_COPY[locale] ?? WEDGE_COPY.en;
+  // WEDGE_COPY.en is the fallback contract — it ALWAYS exists. The
+  // non-null assertion satisfies tsconfig's noUncheckedIndexedAccess.
+  const wedge = WEDGE_COPY[locale] ?? WEDGE_COPY.en!;
   const auditHref = `/${locale}${localePath(locale as Locale, '/for-agents')}#free-audit`;
 
   return (
