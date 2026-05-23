@@ -349,6 +349,22 @@ export const PATHNAMES = {
     it: '/vendere/privato/annulla',
   },
 
+  // Founding 50 program — recruitment landing page for soft-beta DR
+  // agents (and global). Custom landing the CEO points the cold-
+  // outreach link at — distinct from /for-agents (generic) so the
+  // applicant lands on the founder-rate pitch directly. Per-locale
+  // slugs because the URL IS the keyword search-shareable.
+  '/founding-agent': {
+    en: '/founding-agent',
+    es: '/agente-fundador',
+    pl: '/agent-zalozyciel',
+    pt: '/agente-fundador',
+    de: '/grunder-makler',
+    fr: '/agent-fondateur',
+    it: '/agente-fondatore',
+  },
+  '/admin/founding-agents': '/admin/founding-agents',
+
   // Documentation hub — written guide for buyers + agents + admins.
   // Per locale because the slug IS what users type and what Google
   // indexes; "documentation" in your own language is the natural URL.
