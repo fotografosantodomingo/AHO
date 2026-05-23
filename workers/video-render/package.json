@@ -1,0 +1,33 @@
+{
+  "name": "aho-video-render",
+  "private": true,
+  "version": "0.1.0",
+  "description": "AHO Phase 4 video render — CF Container + Worker queue consumer",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/server.ts",
+    "dev:server": "tsx watch src/server.ts",
+    "build:worker": "wrangler deploy --dry-run --outdir=dist-worker",
+    "deploy:worker": "wrangler deploy",
+    "deploy:container": "wrangler containers deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.654.0",
+    "@hono/node-server": "^1.13.1",
+    "@remotion/bundler": "^4.0.205",
+    "@remotion/renderer": "^4.0.205",
+    "hono": "^4.6.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.205"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240925.0",
+    "@types/node": "^20.16.5",
+    "@types/react": "^18.3.5",
+    "tsx": "^4.19.1",
+    "typescript": "^5.5.4",
+    "wrangler": "^3.78.0"
+  }
+}

@@ -1,0 +1,81 @@
+# aho-video-render — Cloudflare Worker (queue consumer)
+#
+# Two deployables share this directory:
+#   1. The CF WORKER — defined here. Consumes `q.video-gen` and
+#      proxies render requests to the CF Container via the
+#      `VIDEO_RENDER_CONTAINER` binding.
+#   2. The CF CONTAINER — defined in Dockerfile. Built + pushed via
+#      `wrangler containers deploy` (see README for the full
+#      procedure).
+#
+# Pre-deploy checklist (PO action):
+#   [ ] Cloudflare Containers feature enabled on the account
+#       (currently in private beta — request access at
+#       https://developers.cloudflare.com/containers/)
+#   [ ] R2 bucket `aho-audit-videos` created in the dashboard
+#   [ ] Queue `q.video-gen` created via `wrangler queues create`
+#   [ ] CRON / API secrets set via `wrangler secret put`
+#
+# These are gated on PO opening CF Containers — until then this
+# Worker config compiles cleanly (it's deployable code) but the
+# `[[containers]]` binding will fail to attach.
+
+name = "aho-video-render"
+main = "src/index.ts"
+compatibility_date = "2026-05-01"
+compatibility_flags = ["nodejs_compat"]
+
+# ─── Queue consumer ──────────────────────────────────────────────
+# The main app's /api/audit/[id]/video POST publishes here.
+[[queues.consumers]]
+queue = "video-gen"
+max_batch_size = 1            # one render at a time; container is the bottleneck
+max_batch_timeout = 5         # seconds
+max_retries = 3
+dead_letter_queue = "video-gen-dlq"
+
+# ─── R2 bucket binding ────────────────────────────────────────────
+# Container uploads MP4s here; Worker reads back the key after.
+[[r2_buckets]]
+binding = "AHO_AUDIT_VIDEOS_R2"
+bucket_name = "aho-audit-videos"
+
+# ─── Cloudflare Containers binding ───────────────────────────────
+# Routes Worker.fetch() calls to a warm container instance running
+# this directory's Dockerfile. CF spins up additional instances when
+# queue depth grows; instance count + memory + CPU configured in the
+# dashboard or via `wrangler containers configure`.
+#
+# NOTE: the [[containers]] syntax may differ once CF Containers exits
+# beta. As of 2026-05-21 this is the documented shape; verify
+# against the latest CF docs at deploy time.
+[[containers]]
+binding = "VIDEO_RENDER_CONTAINER"
+image = "aho-video-render:latest"
+instance_type = "standard-1"  # 2 vCPU + 4GB RAM — minimum for Chromium + Remotion
+min_instances = 0             # cold-start tolerated for v1 (~10s first render)
+max_instances = 4             # cap until usage data justifies scaling
+
+# ─── Vars (non-secret) ───────────────────────────────────────────
+[vars]
+AHO_VIDEO_CDN_BASE = "https://videos.advertisehomes.online"
+
+# ─── Secrets (set via `wrangler secret put` — NEVER commit) ──────
+# Required:
+#   SUPABASE_URL
+#   SUPABASE_SERVICE_ROLE_KEY
+#
+# The container itself also needs (set via container env, NOT this
+# wrangler.toml):
+#   AHO_R2_ENDPOINT
+#   AHO_R2_ACCESS_KEY_ID
+#   AHO_R2_SECRET_ACCESS_KEY
+#   AHO_R2_BUCKET (defaults to "aho-audit-videos")
+
+# ─── Observability ───────────────────────────────────────────────
+[observability]
+enabled = true
+
+# Tail consumer for `wrangler tail aho-video-render` during incidents.
+[[tail_consumers]]
+service = "aho-video-render"

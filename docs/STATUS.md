@@ -18,6 +18,8 @@
 | `23d120a` | docs | DR Agent Recruitment Pack — 7 sources + EN/ES pitches + 10-min checklist |
 | `2a6a4b5` | homepage | Agent-wedge strip × 7 locales (between Featured + Pro Automation) |
 | `632212c` | blog cron | Topic pool 12 → 24 (8 new agent + 4 new seller topics) |
+| `d436f34` | docs | STATUS summary |
+| _(this commit)_ | **Phase 4 4a-container** | Dockerfile + Remotion composition + Hono HTTP server + CF Worker queue consumer. 9 files, ~750 LOC. Code complete; deploy gated on PO opening CF Containers. |
 
 **What's NOW live on the site (after deploy):**
 - `/{locale}` homepage: emerald "For real estate agents — paste URL, 60-second campaign" strip
@@ -84,7 +86,7 @@ Auto-video engine slice details preserved below.
 |---|---|---|---|
 | **4d** — Inline connection state on the preview's approval grid + "Connect X →" buttons | ✅ Shipped `9dbea57` |
 | **4a-scaffold** — Migration 0064 audit_videos + buildVideoScript() pure function + /api/audit/[id]/video POST/GET route + workers/video-render/README documenting what 4b plugs in | ✅ Shipped today |
-| **4a-container** — Dockerfile + Remotion composition (`reel-real-estate-v1`) + container HTTP server + queue consumer wiring | L (3-5 days) | Queued — pre-req: PO opens CF Containers + creates R2 bucket + Queue |
+| **4a-container** — Dockerfile + Remotion composition (`reel-real-estate-v1`) + container HTTP server + queue consumer wiring | L (3-5 days) | ✅ **CODE SHIPPED 2026-05-21** (`workers/video-render/`). 9 files, ~750 LOC. Code complete + typechecks. Deploy gated on PO opening CF Containers + creating R2 bucket + queue. Full deploy procedure in `workers/video-render/README.md`. |
 | **4b** — IG Reels + FB Reels publish primitives in `lib/social/publish.ts` (extends today's IG Feed / FB Page primitives — same tokens, different Graph endpoints) | M | Queued — depends on 4a-container ready |
 | **4c** — Approval grid expansion: 3×3 → 3×5 with IG Reel + FB Reel rows | S | Queued — depends on 4b |
 
