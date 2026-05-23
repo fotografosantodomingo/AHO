@@ -4,6 +4,37 @@
 >
 > I (Claude) keep this file accurate. Last update: 2026-05-21 (blog SEO pipeline unstuck — translated siblings, edge cache, Free Audit CTA).
 
+## 🆕 Wedge-funnel sprint — shipped 2026-05-21 (9 commits, all green)
+
+**Single-day summary:** every visitor to the public site now lands at a Free Audit CTA within 1 scroll, and every NEW blog article publishes as 7 sibling rows with reciprocal hreflang (was 1 EN-only per cron). Total cron output capacity doubled (12 → 24 topics). The blog SEO investment that was leaking value for 2 weeks is now compounding cleanly.
+
+| Commit | Layer | Impact |
+|---|---|---|
+| `fcba3b2` | docs | PO #4: auto-video music = royalty-free (Pixabay + YT Audio Library) |
+| `c441514` | blog code | 3-in-1: translation validator + Set-Cookie strip + Free Audit CTA on every article × 7 locales |
+| `3bfd91c` | docs+lint | Tier-2 polish audit (4 of 5 already done) + killed unused AgentMarket import |
+| `16aa325` | docs | CF Pages cache investigation logged → PO_DECISIONS #6 |
+| `25e392b` | docs | PROGRESS.md end-of-session log |
+| `23d120a` | docs | DR Agent Recruitment Pack — 7 sources + EN/ES pitches + 10-min checklist |
+| `2a6a4b5` | homepage | Agent-wedge strip × 7 locales (between Featured + Pro Automation) |
+| `632212c` | blog cron | Topic pool 12 → 24 (8 new agent + 4 new seller topics) |
+
+**What's NOW live on the site (after deploy):**
+- `/{locale}` homepage: emerald "For real estate agents — paste URL, 60-second campaign" strip
+- `/{locale}/blog/<slug>`: emerald Free Audit CTA at end of every article in 7 locales
+- `/{locale}/for-agents#free-audit`: deep link works (anchor wrapper shipped)
+- `/sitemap-blog.xml`: future articles will have 7 sibling URLs each
+- Blog cron: 24-topic pool, ~24 days of unique ground per pickup
+
+**What's NOT yet live (waiting on PO):**
+- CF Pages edge cache (PO #6 — recommended dashboard rule, 5 min)
+- Backfill of 3 stranded EN-only blog articles (delete rows OR accept ≤5% loss)
+- Stripe LIVE flip (15 min + DECISIONS.md entry)
+- Meta App Review submission
+- DR agent recruitment (90-min outreach session, pack ready in repo)
+
+---
+
 ## 🆕 Blog SEO pipeline unstuck — shipped 2026-05-21
 
 Three bugs the live sitemap surfaced today, all in service of the blog SEO investment finally paying off:
