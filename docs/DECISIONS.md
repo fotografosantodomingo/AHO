@@ -12,6 +12,16 @@ One entry per significant choice. Newest on top. Format:
 
 ---
 
+## 2026-05-19 — Auto-video music library: royalty-free only (Pixabay + YouTube Audio Library)
+**Decision:** Phase 4 auto-video Reels/TikTok engine uses royalty-free music libraries only — Pixabay Music (~60k tracks) and YouTube Audio Library as the primary sources. Each rendered video carries an attribution line in the description / on-screen credit per the source's license terms. No paid subscription (Epidemic Sound deferred).
+**Why:** PO directive 2026-05-19 — "only free music." v1 ships at $0 incremental music cost; track quality is acceptable for real-estate Reels (background-bed only, not hero audio). Keeps Phase 4 unit economics clean: render cost (~$0.05/video on Remotion in CF Containers) is the only variable cost line. Avoids fixed-cost commitment before publish-rate data exists.
+**Alternatives considered:**
+- **Epidemic Sound (~$50/mo agency tier).** Rejected for v1 — better quality + safer commercial licensing, but adds a fixed cost line that needs publish-rate justification we don't have yet. Re-enters scope if Pixabay/YT-Audio quality complaints surface in soft-beta or if license clearance edge cases bite.
+- **Hybrid (free default, Super Pro unlocks Epidemic).** Rejected for v1 — tier-gates the music library is feature creep before validating that any of this music is what agents want; revisit after first 50 published Reels.
+**Reconsider if:** > 20% of soft-beta agents object to track quality, OR a license-clearance issue arises with a specific track (Pixabay/YT-Audio terms shift), OR Stage-1 close shows publish-rate strong enough to amortize $50/mo across agent base.
+
+---
+
 ## 2026-05-17 — Free Audit creatives carry a bold "Powered by AHO" footer bar (Phase 2 brand-mark)
 **Decision:** Every generated creative from the Free Audit Creative Factory (FB 1200×630, IG 1080², Pinterest 1000×1500 in Phase 2; auto-video in Phase 4) renders a bold AHO-branded footer bar — wordmark + tagline on the accent-color band, ~10-12% of the canvas height at the bottom. No per-agent toggle.
 **Why:** PO directive 2026-05-17 — the Free Audit is *the* lead-gen wedge. The whole point of giving away 9 captions + 3 graphics + 1 video for free is so the agent's audience sees AHO at the end of the funnel. Subtle watermark blurs that signal; agent-toggleable branding fragments it. Bold footer guarantees attribution every time the asset is published, which compounds AHO's brand reach as agents distribute. Trade-off accepted: some agents may dislike the visual prominence, but those agents are not the wedge target — they're already comfortable producing their own marketing. The wedge is the agent who couldn't do this without us; for them the AHO footer is honest credit, not a logo tax.

@@ -46,20 +46,6 @@
 
 ---
 
-### 4. Auto-video music library (Phase 4 pre-req)
-
-**Question:** Royalty-free only (Pixabay, FMA, YouTube Audio Library) or pay for Epidemic Sound (~$50/mo agency tier)?
-
-**Why I'm stuck:** Music attribution policy + license clearance is the long-pole risk on auto-video shipping. Need decision before I build the music-bed selector.
-
-**Options:**
-- **A — Royalty-free only.** **My recommendation for v1.** Pixabay has ~60k tracks; YouTube Audio Library is broad. Attribution noted on each render. Costs $0. Quality lower than premium libraries but acceptable for real-estate Reels.
-- **B — Epidemic Sound subscription (~$50/mo).** Better quality + safer licensing for commercial use. Adds a fixed cost line; needs ROI justification by Stage 1 close.
-
-**Deadline:** Before Phase 4 ships.
-
----
-
 ### 5. Google Ads OAuth + dev token (Phase 6 pre-req)
 
 **Question:** Open a Google Ads Manager account + start the dev-token approval flow now, or defer until Phase 6 sprint?
@@ -86,6 +72,7 @@
 | 2026-05-17 | Brand mark on every generated creative — bold footer vs subtle watermark vs per-agent toggle? | **Bold "Powered by AHO" footer bar** (recorded in `docs/DECISIONS.md`) |
 | 2026-05-17 | Path A (finish Stage 1 Phase 3 first) vs Path B (start AI agent now)? | **Path A** — Phase 3 shipped same day as `c385f93` |
 | 2026-05-18 | AI Customer-Service Agent — 9 design decisions (D1-D9) | **All defaults (A)** — chat-only v1, always-HITL, 360dialog BSP, shared AHO WABA, AI bundled into Pro Automation, Twilio+ConversationRelay+Claude voice stack, Cloudflare Email Routing inbound, hybrid email address scheme, org-isolated knowledge per agent. Plan accepted in full. |
+| 2026-05-19 | Auto-video music library (Phase 4) — royalty-free (A) vs Epidemic Sound (B)? | **A — Royalty-free only** (Pixabay + YouTube Audio Library). Recorded in `docs/DECISIONS.md`. |
 
 ---
 
