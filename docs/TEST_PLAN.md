@@ -19,13 +19,13 @@
 - **Expect:** Each NEW article from today onward appears as 7 sibling rows, not 1. Operator email at info@advertisehomes.online should also show 7/7 translation success on the next run.
 - **Background:** The 3 existing EN-only articles (published 2026-05-19 + 2026-05-22) will NOT auto-backfill — the cron's 90-day dedup excludes them. Either delete those 3 rows so the cron re-picks them, or accept they stay EN-only (≤5% of one month's output).
 
-### `blog-edge-cache-fix` — CF edge cache finally engages on /blog (shipped `c441514` 2026-05-21)
-- **Scope:** `next-intl` was emitting `Set-Cookie: NEXT_LOCALE` on every locale-routed response despite `localeDetection: false`, and CF treats any Set-Cookie as uncacheable. Middleware now strips that cookie on anon requests to /blog, /properties, /agents, /properties-in. The Cache-Control header that was always set should finally be respected.
-- **Do (1 min, after the deploy lands — auto-deploys ~2 min from push):**
-  1. `curl -sI https://advertisehomes.online/en/blog | grep -iE 'cache-control|set-cookie|cf-cache'`
-  2. Repeat the curl after 5 seconds.
-- **Expect:** First curl shows `cache-control: public, max-age=300, s-maxage=3600, …`, NO `set-cookie: NEXT_LOCALE` line, and either `cf-cache-status: MISS` (first miss after deploy) or `EXPIRED`. Second curl shows `cf-cache-status: HIT` — that's the proof the edge cache engaged.
-- **Background:** Pre-fix, both curls showed `cf-cache-status: DYNAMIC` + `set-cookie: NEXT_LOCALE=en` + ~1.5s server-bound. Lighthouse Perf on `/en/properties/<slug>` was 53/100 because every request was server-rendered. Expect 90+ once HIT flips.
+### `blog-set-cookie-strip` — Set-Cookie removed from anon public responses (partial fix, shipped `c441514` 2026-05-21)
+- **Scope:** Set-Cookie strip is confirmed working — `curl -sI https://advertisehomes.online/en/blog/<slug>` no longer shows `set-cookie: NEXT_LOCALE=en`. **But `cf-cache-status` still reads DYNAMIC.**
+- **Why DYNAMIC still:** Cloudflare Pages Functions (which is what next-on-pages renders into) do NOT auto-respect `Cache-Control` headers for edge caching by default. The function always runs unless you explicitly use the Cache API (`caches.default.put(req, res)`) inside the function OR configure a Cloudflare dashboard Cache Rule that includes the function output. The Cache-Control header IS being set correctly on the response; CF just isn't acting on it.
+- **Next step (PO decision needed):** Either (a) add a CF dashboard Cache Rule for `/en/blog/*` + `/{locale}/properties/*` matching anon requests → cache by URL for 5min, or (b) Claude implements the Cache API pattern in middleware (~1-2 hrs careful work, ships safer). Recommend (a) for v1 — faster, reversible, no code risk. Logged in PO_DECISIONS.md.
+- **Do (1 min, to verify the partial fix):**
+  1. `curl -sI https://advertisehomes.online/en/blog/the-listing-photos-that-actually-convert-backed-by-eye-tracking-data-180d77 | grep -iE 'cache|cookie'`
+- **Expect:** `cache-control: public, max-age=300, s-maxage=3600, …`, NO `set-cookie:` line, `x-middleware-set-cookie: NEXT_LOCALE=; Expires=Thu, 01 Jan 1970 …` (that's the strip working — internal Next.js header, not a real Set-Cookie), `cf-cache-status: DYNAMIC` (will stay DYNAMIC until the cache-rule decision lands).
 
 ### `blog-free-audit-cta` — every article now funnels to the wedge (shipped `c441514` 2026-05-21)
 - **Scope:** Articles previously had ZERO conversion path to the product. Now every article (all 7 locales) ends with a green CTA aside: "Try this on your own listing — paste your URL, get 9 ad captions + 3 graphics in 60 seconds." Linked to `/{locale}/for-agents#free-audit` so the click lands directly on the Free Audit widget.

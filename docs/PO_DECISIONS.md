@@ -46,6 +46,22 @@
 
 ---
 
+### 6. CF Pages edge cache — dashboard rule (A) or Cache API in middleware (B)?
+
+**Question:** After today's Set-Cookie strip (`c441514`), `cf-cache-status` still reads DYNAMIC on `/blog/*` + `/properties/*`. Root cause: CF Pages Functions don't auto-respect `Cache-Control` headers — they need either a dashboard Cache Rule OR explicit Cache API usage in the function. Which approach?
+
+**Why I'm stuck:** A real ROI block. Lighthouse Perf on `/en/properties/<slug>` is 53/100 because every request is server-rendered (~1.5s). Edge caching would put this at 90+ (sub-100ms). The Set-Cookie blocker is now off; only the cache-trigger step remains.
+
+**Options:**
+- **A — Cloudflare dashboard Cache Rule.** **My recommendation.** ~5 min in CF dashboard: add a Cache Rule matching `/{locale}/blog/*` + `/{locale}/properties/*` + `/{locale}/agents/*` + `/{locale}/properties-in/*` (anon — no Cookie header containing `sb-`). Cache for 5 min. Reversible in one click; zero code risk. The Cache-Control header we ship already encodes the right TTL; the dashboard rule just tells CF to honor it.
+- **B — Claude implements Cache API pattern in middleware.** ~1-2 hours careful work: middleware calls `caches.default.match(req)` upstream, returns hit if present; downstream of the Next.js handler, `caches.default.put(req, res.clone())` if anon + has Cache-Control. Same outcome, but harder to revert if it bites + risks introducing subtle bugs in the middleware critical path.
+
+**Deadline:** Block the Lighthouse Perf 90+ goal — needed for the Super Pro pitch deck (publish-rate analytics + investor narrative both reference real Lighthouse scores).
+
+**Action you take if (A):** Cloudflare dashboard → advertisehomes.online → Caching → Cache Rules → Create. Match: hostname=advertisehomes.online, URI Path matches regex `^/[a-z]{2}/(blog|properties|propiedades|agents|properties-in)(/|$)`. Setting: Eligible for cache, Edge TTL: respect origin (which is the Cache-Control we already ship). Paste me the rule ID when done so I can document it in DECISIONS.md.
+
+---
+
 ### 5. Google Ads OAuth + dev token (Phase 6 pre-req)
 
 **Question:** Open a Google Ads Manager account + start the dev-token approval flow now, or defer until Phase 6 sprint?
