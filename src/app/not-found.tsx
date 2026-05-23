@@ -43,6 +43,30 @@ export default function GlobalNotFound() {
               Browse listings
             </Link>
           </div>
+
+          {/* Free Audit wedge — converts otherwise-lost 404 traffic.
+              Same emerald CTA pattern as the blog / homepage / city /
+              country empty states. Real-estate agents who hit a stale
+              URL or a typo still see the wedge before bouncing. */}
+          <aside className="mt-12 w-full rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-left dark:border-emerald-800 dark:bg-emerald-950/30 md:p-8">
+            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+              For real estate agents
+            </p>
+            <h2 className="mt-2 text-xl font-bold text-slate-900 dark:text-slate-100 md:text-2xl">
+              Paste your listing URL. Get a full ad campaign in 60 seconds.
+            </h2>
+            <p className="mt-2 text-sm text-slate-700 dark:text-slate-300 md:text-base">
+              9 captions + 3 graphics ready for Facebook, Instagram, and LinkedIn. Free, no signup.
+            </p>
+            <div className="mt-4">
+              <Link
+                href="/en/for-agents#free-audit"
+                className="inline-flex items-center rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
+              >
+                Try free audit →
+              </Link>
+            </div>
+          </aside>
         </main>
       </body>
     </html>
