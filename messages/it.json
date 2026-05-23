@@ -581,9 +581,9 @@
     "breadcrumbCountries": "Paesi",
     "citiesCount_one": "1 città con annunci attivi",
     "citiesCount_other": "{count} città con annunci attivi",
-    "emptyHeading": "Ancora nessun annuncio in {country}",
-    "emptyBody": "AHO è aperta agli agenti in {country}. Sii tra i primi a pubblicare qui.",
-    "emptyAgentCta": "Pubblica i tuoi immobili",
+    "emptyHeading": "Ancora nessun annuncio in {country} — sii il primo agente qui",
+    "emptyBody": "AHO sta arrivando in {country}. Incolla l'URL del tuo annuncio e ottieni 9 testi pubblicitari + 3 grafiche in 60 secondi — gratis, senza registrazione.",
+    "emptyAgentCta": "Prova l'audit gratuito",
     "browseCountriesCta": "Esplora altri paesi",
     "viewAllInCountry": "Vedi tutti gli annunci in {country}"
   },

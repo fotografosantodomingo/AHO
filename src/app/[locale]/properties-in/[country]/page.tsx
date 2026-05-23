@@ -104,7 +104,10 @@ export default async function CountryLandingPage({
   const cityHref = (citySlug: string) =>
     `${cityStem}/${cc.toLowerCase()}/${citySlug}`;
   const browseHref = `${localePath(typedLocale, '/search')}?country=${cc}`;
-  const pricingHref = localePath(typedLocale, '/pricing');
+  // pricingHref removed 2026-05-21: country-page empty state now
+  // routes to the Free Audit wedge (low-commitment) instead of
+  // /pricing ($99/mo high-commitment), mirroring city-page logic.
+  const freeAuditHref = `/${typedLocale}${localePath(typedLocale, '/for-agents')}#free-audit`;
 
   // JSON-LD nodes — Place (the country) + BreadcrumbList + ItemList of
   // its cities. Mirrors the shape used on the city landing one level
@@ -190,7 +193,7 @@ export default async function CountryLandingPage({
             heading={t('emptyHeading', { country: display })}
             body={t('emptyBody', { country: display })}
             primaryCta={
-              <Link href={pricingHref} className="btn-primary">
+              <Link href={freeAuditHref} className="btn-primary">
                 {t('emptyAgentCta')}
               </Link>
             }

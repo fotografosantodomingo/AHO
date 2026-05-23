@@ -597,9 +597,9 @@
     "citiesCount_few": "{count} miasta z aktywnymi ogłoszeniami",
     "citiesCount_many": "{count} miast z aktywnymi ogłoszeniami",
     "citiesCount_other": "{count} miast z aktywnymi ogłoszeniami",
-    "emptyHeading": "Brak ogłoszeń w {country}",
-    "emptyBody": "AHO jest otwarte dla agentów w {country}. Bądź wśród pierwszych.",
-    "emptyAgentCta": "Wystaw swoje nieruchomości",
+    "emptyHeading": "Brak ogłoszeń w {country} — bądź pierwszym agentem tutaj",
+    "emptyBody": "AHO startuje w {country}. Wklej URL swojej oferty i otrzymaj 9 tekstów reklamowych + 3 grafiki w 60 sekund — bezpłatnie, bez rejestracji.",
+    "emptyAgentCta": "Wypróbuj bezpłatny audyt",
     "browseCountriesCta": "Przeglądaj inne kraje",
     "viewAllInCountry": "Zobacz wszystkie ogłoszenia w {country}"
   },

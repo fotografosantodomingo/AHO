@@ -1113,9 +1113,9 @@
     "breadcrumbCountries": "Länder",
     "citiesCount_one": "1 Stadt mit aktiven Inseraten",
     "citiesCount_other": "{count} Städte mit aktiven Inseraten",
-    "emptyHeading": "Noch keine Inserate in {country}",
-    "emptyBody": "AHO ist offen für Makler in {country}. Seien Sie unter den Ersten, die hier inserieren.",
-    "emptyAgentCta": "Ihre Immobilien inserieren",
+    "emptyHeading": "Noch keine Inserate in {country} — werden Sie der erste Makler hier",
+    "emptyBody": "AHO startet in {country}. Inserat-URL einfügen und 9 Anzeigentexte + 3 Grafiken in 60 Sekunden erhalten — kostenlos, ohne Anmeldung.",
+    "emptyAgentCta": "Kostenlosen Audit testen",
     "browseCountriesCta": "Andere Länder stöbern",
     "viewAllInCountry": "Alle Inserate in {country} ansehen"
   },
