@@ -27,6 +27,14 @@
   1. `curl -sI https://advertisehomes.online/en/blog/the-listing-photos-that-actually-convert-backed-by-eye-tracking-data-180d77 | grep -iE 'cache|cookie'`
 - **Expect:** `cache-control: public, max-age=300, s-maxage=3600, …`, NO `set-cookie:` line, `x-middleware-set-cookie: NEXT_LOCALE=; Expires=Thu, 01 Jan 1970 …` (that's the strip working — internal Next.js header, not a real Set-Cookie), `cf-cache-status: DYNAMIC` (will stay DYNAMIC until the cache-rule decision lands).
 
+### `homepage-agent-wedge-strip` — Free Audit funnel surfaces on the homepage (shipped 2026-05-21)
+- **Scope:** New emerald section between Recently Viewed and Pro Automation on `/{locale}` — "Paste your listing URL. Get a full ad campaign in 60 seconds." Button → `/{locale}/for-agents#free-audit`. Same visual language as the blog-article CTA so cross-surface recognition is automatic. Renders in all 7 locales with native copy. Additive — does NOT replace any existing buyer-side content. Ascending-commitment funnel: visitor browses listings → low-commitment Free Audit → paid Pro Automation pitch.
+- **Do (2 min):**
+  1. Open https://advertisehomes.online/en (incognito). Scroll past Featured + Recently Viewed sections. Expect the emerald strip with "For real estate agents" eyebrow + 60-second pitch + "Try free audit →" button.
+  2. Click the button. Expect to land on `/en/for-agents` with the page scrolled to the Free Audit widget (`#free-audit` anchor).
+  3. Repeat on `/es`, `/de`, `/fr` — expect native copy in each.
+- **Expect:** Strip renders in all 7 locales. Button click lands on widget, not page top. Mobile layout: headline + button stack vertically (md breakpoint).
+
 ### `blog-free-audit-cta` — every article now funnels to the wedge (shipped `c441514` 2026-05-21)
 - **Scope:** Articles previously had ZERO conversion path to the product. Now every article (all 7 locales) ends with a green CTA aside: "Try this on your own listing — paste your URL, get 9 ad captions + 3 graphics in 60 seconds." Linked to `/{locale}/for-agents#free-audit` so the click lands directly on the Free Audit widget.
 - **Do (2 min):**

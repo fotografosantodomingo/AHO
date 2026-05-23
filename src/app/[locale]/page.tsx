@@ -12,6 +12,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getUserFavoriteIds } from '@/lib/listings/favorites';
 import { RecentlyViewed } from '@/components/listings/recently-viewed';
 import { ProAutomationSection } from '@/components/home/pro-automation-section';
+import { AgentWedgeStrip } from '@/components/home/agent-wedge-strip';
 
 export const runtime = 'edge';
 
@@ -205,6 +206,13 @@ export default async function HomePage({
       <section className="mx-auto max-w-6xl px-6 pb-4">
         <RecentlyViewed locale={typedLocale} />
       </section>
+
+      {/* Agent-wedge strip — Free Audit funnel (low-commitment) before
+          the $99/mo Pro Automation pitch (high-commitment). Ascending-
+          commitment funnel: visitor browsed listings → free audit →
+          paid tier. Emerald accent ties visually to the per-locale Free
+          Audit CTA on every blog article. */}
+      <AgentWedgeStrip locale={typedLocale} />
 
       {/* Pro Automation sales section — Phase 2 of the social-distribution
           spec. Always-dark forest-green band (matches the Pro Automation
