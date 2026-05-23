@@ -113,8 +113,27 @@ export function validateBlogHtml(raw: string): HtmlValidationResult {
     return { ok: false, error: 'microdata_present' };
   }
 
-  // 2. Breadcrumb nav present.
-  if (!/<nav\b[^>]*aria-label\s*=\s*["']Breadcrumb["']/i.test(stripped)) {
+  // 2. Breadcrumb nav present. Accept any non-empty aria-label value —
+  // translations legitimately localize the accessibility label
+  // ("Brotkrumen", "Migas de pan", etc.) and rejecting non-English
+  // values silently dropped every translated sibling row pre-2026-05-21.
+  // The structural intent is "a <nav> with an aria-label exists for
+  // breadcrumbs, distinct from the ToC nav (which is identified by
+  // its class attribute)."
+  const navWithAriaLabelRe =
+    /<nav\b([^>]*aria-label\s*=\s*["'][^"']+["'][^>]*)>/gi;
+  let hasBreadcrumbNav = false;
+  let mNav: RegExpExecArray | null;
+  while ((mNav = navWithAriaLabelRe.exec(stripped)) !== null) {
+    const attrs = mNav[1] ?? '';
+    // Skip the ToC nav — identified by class="table-of-contents" / "toc".
+    if (/class\s*=\s*["'][^"']*(?:table-of-contents|toc)[^"']*["']/i.test(attrs)) {
+      continue;
+    }
+    hasBreadcrumbNav = true;
+    break;
+  }
+  if (!hasBreadcrumbNav) {
     return { ok: false, error: 'missing_breadcrumb' };
   }
 

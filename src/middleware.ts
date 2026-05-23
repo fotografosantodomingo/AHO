@@ -146,6 +146,34 @@ export async function middleware(req: NextRequest) {
     }
   }
 
+  // Strip the next-intl NEXT_LOCALE cookie on anon requests for the
+  // public cacheable surfaces. Despite `localeDetection: false` in
+  // i18n/routing.ts, next-intl still emits Set-Cookie: NEXT_LOCALE
+  // on locale-routed responses — and any Set-Cookie kills the CF
+  // edge cache (CDN treats the response as personalized). Without
+  // this strip, the Cache-Control header above is set but ignored
+  // (cf-cache-status stays DYNAMIC instead of flipping to HIT).
+  // Fixed 2026-05-21 after `/en/blog` still showed DYNAMIC + 1.5s
+  // server time on repeat fetches.
+  if (
+    isAnon &&
+    /^\/(?:[a-z]{2}\/)?(?:blog|properties|propiedades|agents|properties-in)(?:\/|$)/.test(
+      pathname,
+    )
+  ) {
+    res.cookies.delete('NEXT_LOCALE');
+    // res.cookies.delete only marks the cookie for deletion with an
+    // expired Max-Age; the original Set-Cookie header may still be
+    // present from next-intl. Sweep the headers list to drop any
+    // NEXT_LOCALE Set-Cookie entries entirely so the response has
+    // ZERO Set-Cookie headers for the CDN to choke on.
+    const remaining = res.headers
+      .getSetCookie?.()
+      ?.filter((c) => !/^NEXT_LOCALE=/.test(c)) ?? [];
+    res.headers.delete('set-cookie');
+    for (const c of remaining) res.headers.append('set-cookie', c);
+  }
+
   return res;
 }
 

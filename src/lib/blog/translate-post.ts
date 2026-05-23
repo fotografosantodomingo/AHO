@@ -117,6 +117,7 @@ export async function translateBlogPost(args: {
     'ALWAYS preserve:',
     '- Every <h2 id="..."> and <h3 id="..."> with its EXACT same id attribute (the in-page ToC links to those ids).',
     '- The <nav aria-label="Breadcrumb">, <nav class="table-of-contents">, and <aside class="author-bio-box"> wrappers verbatim, with translated INNER text where applicable.',
+    '- The literal attribute string `aria-label="Breadcrumb"` STAYS verbatim — do NOT translate that value. (Accessibility validator parses on the English string.) The visible breadcrumb text inside the nav IS translated.',
     '- The <img> tag with its width / height / loading / fetchpriority / decoding attributes verbatim.',
     '- HTML structure 1:1 with the source — same tags, same nesting, same order.',
     '',

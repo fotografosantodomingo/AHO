@@ -96,6 +96,18 @@ describe('validateBlogHtml — required structural blocks', () => {
     if (!r.ok) expect(r.error).toBe('missing_breadcrumb');
   });
 
+  it('accepts breadcrumb nav with a localized aria-label value', () => {
+    // Translated articles legitimately localize the accessibility
+    // label. The validator must accept any non-empty aria-label —
+    // pre-2026-05-21 it rejected any value other than literal
+    // "Breadcrumb", which dropped every translated sibling row.
+    for (const label of ['Brotkrumen', 'Migas de pan', 'Fil d’Ariane', 'Briciole di pane']) {
+      const body = VALID.replace(/aria-label="Breadcrumb"/, `aria-label="${label}"`);
+      const r = validateBlogHtml(body);
+      expect(r.ok).toBe(true);
+    }
+  });
+
   it('rejects missing ToC nav', () => {
     const body = VALID.replace(/<nav class="table-of-contents"[\s\S]*?<\/nav>/, '');
     const r = validateBlogHtml(body);

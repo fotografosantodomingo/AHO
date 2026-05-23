@@ -217,7 +217,9 @@ export default async function ForAgentsPage({
           the first interactive element, not after scrolling past
           the marketing hero. The widget is interactive (client),
           everything below stays server-rendered. */}
-      <FreeAuditWidget />
+      <div id="free-audit" className="scroll-mt-20">
+        <FreeAuditWidget />
+      </div>
       <LandingPage
         copy={copy}
         primaryCtaHref={signupHref}

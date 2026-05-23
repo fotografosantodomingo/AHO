@@ -66,6 +66,69 @@ interface SiblingRow {
   language: string;
 }
 
+// End-of-article Free Audit CTA. The blog is the top-of-funnel
+// distribution surface (cron auto-publishes daily across 7 locales);
+// the funnel was leaking because there was zero conversion path from
+// "agent reads article on Google" to "agent tries the product." This
+// section converts the read into a Free Audit click — the same wedge
+// /for-agents uses, so the agent's journey is read → try → sign up.
+// One copy per locale: per-market voice matters here as much as in
+// the article body itself.
+const FREE_AUDIT_CTA: Record<
+  Locale,
+  { eyebrow: string; headline: string; body: string; button: string; ariaLabel: string }
+> = {
+  en: {
+    eyebrow: 'Free in 60 seconds',
+    headline: 'Try this on your own listing',
+    body: 'Paste your listing URL — get 9 ad captions + 3 graphics ready to publish on Facebook, Instagram, and LinkedIn. No signup to see the preview.',
+    button: 'Get my free audit',
+    ariaLabel: 'Free Audit call to action',
+  },
+  es: {
+    eyebrow: 'Gratis en 60 segundos',
+    headline: 'Pruébalo con tu propio anuncio',
+    body: 'Pega la URL de tu propiedad — obtén 9 textos publicitarios + 3 gráficos listos para publicar en Facebook, Instagram y LinkedIn. Sin registro para ver la vista previa.',
+    button: 'Obtener mi auditoría gratis',
+    ariaLabel: 'Llamada a la acción de auditoría gratis',
+  },
+  pl: {
+    eyebrow: 'Bezpłatnie w 60 sekund',
+    headline: 'Wypróbuj to na własnej ofercie',
+    body: 'Wklej URL swojej oferty — otrzymasz 9 tekstów reklamowych + 3 grafiki gotowe do publikacji na Facebooku, Instagramie i LinkedIn. Bez rejestracji do podglądu.',
+    button: 'Pobierz mój bezpłatny audyt',
+    ariaLabel: 'Wezwanie do bezpłatnego audytu',
+  },
+  pt: {
+    eyebrow: 'Grátis em 60 segundos',
+    headline: 'Experimente no seu próprio anúncio',
+    body: 'Cole o URL do seu anúncio — obtenha 9 textos publicitários + 3 gráficos prontos para publicar no Facebook, Instagram e LinkedIn. Sem registo para ver a pré-visualização.',
+    button: 'Obter a minha auditoria grátis',
+    ariaLabel: 'Chamada para auditoria grátis',
+  },
+  de: {
+    eyebrow: 'Kostenlos in 60 Sekunden',
+    headline: 'Testen Sie es mit Ihrem eigenen Inserat',
+    body: 'Inserat-URL einfügen — Sie erhalten 9 Anzeigentexte + 3 Grafiken, bereit zur Veröffentlichung auf Facebook, Instagram und LinkedIn. Kein Login für die Vorschau erforderlich.',
+    button: 'Meinen kostenlosen Audit holen',
+    ariaLabel: 'Kostenlose Audit-Handlungsaufforderung',
+  },
+  fr: {
+    eyebrow: 'Gratuit en 60 secondes',
+    headline: 'Essayez sur votre propre annonce',
+    body: 'Collez l’URL de votre annonce — recevez 9 textes publicitaires + 3 visuels prêts à publier sur Facebook, Instagram et LinkedIn. Sans inscription pour voir l’aperçu.',
+    button: 'Obtenir mon audit gratuit',
+    ariaLabel: 'Appel à l’action d’audit gratuit',
+  },
+  it: {
+    eyebrow: 'Gratis in 60 secondi',
+    headline: 'Provalo sul tuo annuncio',
+    body: 'Incolla l’URL del tuo annuncio — ottieni 9 testi pubblicitari + 3 grafiche pronte da pubblicare su Facebook, Instagram e LinkedIn. Nessuna registrazione per vedere l’anteprima.',
+    button: 'Ottieni il mio audit gratuito',
+    ariaLabel: 'Invito all’azione per audit gratuito',
+  },
+};
+
 async function loadPost(slug: string, locale: string): Promise<BlogPostRow | null> {
   const admin = createAdminClient();
   // Filter by language AND slug — prevents `/es/blog/<en-slug>`
@@ -208,6 +271,9 @@ export default async function BlogPostPage({
     ]),
   ]);
 
+  const cta = FREE_AUDIT_CTA[typedLocale] ?? FREE_AUDIT_CTA.en;
+  const forAgentsHref = localePath(typedLocale, '/for-agents');
+
   return (
     <>
       <JsonLd node={graph} />
@@ -220,6 +286,26 @@ export default async function BlogPostPage({
           className="aho-blog-prose"
           dangerouslySetInnerHTML={{ __html: post.body_html }}
         />
+        <aside
+          aria-label={cta.ariaLabel}
+          className="aho-blog-cta mt-12 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 md:p-8"
+        >
+          <p className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
+            {cta.eyebrow}
+          </p>
+          <h2 className="mt-2 text-2xl font-bold text-slate-900 md:text-3xl">
+            {cta.headline}
+          </h2>
+          <p className="mt-3 text-base text-slate-700 md:text-lg">{cta.body}</p>
+          <div className="mt-6">
+            <a
+              href={`/${typedLocale}${forAgentsHref}#free-audit`}
+              className="inline-flex items-center rounded-lg bg-emerald-600 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-700"
+            >
+              {cta.button} →
+            </a>
+          </div>
+        </aside>
       </main>
     </>
   );
