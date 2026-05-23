@@ -589,9 +589,9 @@
     "subheading": "Explora anuncios inmobiliarios en {city} de agentes que usan AHO.",
     "resultsCount_one": "1 anuncio en {city}",
     "resultsCount_other": "{count} anuncios en {city}",
-    "emptyHeading": "Aún no hay anuncios en {city}",
-    "emptyBody": "AHO está abierto para agentes en {city}. Sé de los primeros en publicar aquí.",
-    "emptyAgentCta": "Publica tus propiedades",
+    "emptyHeading": "Aún no hay anuncios en {city} — sé el primer agente aquí",
+    "emptyBody": "AHO está lanzando en {city}. Pega la URL de tu anuncio y obtén 9 textos publicitarios + 3 gráficos en 60 segundos — gratis, sin registro.",
+    "emptyAgentCta": "Probar auditoría gratis",
     "viewAllCta": "Ver todos los anuncios",
     "browseAllCta": "Explorar anuncios mundiales"
   },

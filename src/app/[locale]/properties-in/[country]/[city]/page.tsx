@@ -162,7 +162,9 @@ export default async function CityLandingPage({
   const searchHref = localePath(typedLocale, '/search');
   const allListingsHref = `${searchHref}?city=${encodeURIComponent(canonicalCity)}`;
   const browseAllHref = searchHref;
-  const pricingHref = localePath(typedLocale, '/pricing');
+  // pricingHref intentionally removed 2026-05-21: city-page empty
+  // state now routes to /for-agents#free-audit (low-commitment wedge)
+  // instead of /pricing ($99/mo high-commitment).
 
   const homePath = `/${locale}`;
 
@@ -257,11 +259,23 @@ export default async function CityLandingPage({
 
         <div className="mx-auto max-w-6xl space-y-8 px-6 py-12">
         {result.listings.length === 0 ? (
+          // City has zero listings yet. Two realities about who lands
+          // here: (a) BUYERS who Googled the city — for them, "browse
+          // listings worldwide" is the right fallback; (b) AGENTS in
+          // that city who Googled their own market — for them, this
+          // is a recruitment moment. The primary CTA goes to the
+          // Free Audit wedge (low-commitment), not /pricing
+          // (high-commitment $99/mo). Same destination as every other
+          // wedge surface on the site so cross-surface recognition is
+          // automatic. "Browse worldwide" stays as the secondary.
           <EmptyState
             heading={t('emptyHeading', { city: canonicalCity })}
             body={t('emptyBody', { city: canonicalCity })}
             primaryCta={
-              <Link href={pricingHref} className="btn-primary">
+              <Link
+                href={`/${typedLocale}${localePath(typedLocale, '/for-agents')}#free-audit`}
+                className="btn-primary"
+              >
                 {t('emptyAgentCta')}
               </Link>
             }

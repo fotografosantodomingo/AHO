@@ -1124,9 +1124,9 @@
     "subheading": "Stöbern Sie in Immobilienanzeigen in {city} von Maklern, die AHO nutzen.",
     "resultsCount_one": "1 Inserat in {city}",
     "resultsCount_other": "{count} Inserate in {city}",
-    "emptyHeading": "Noch keine Inserate in {city}",
-    "emptyBody": "AHO ist offen für Makler in {city}. Seien Sie unter den Ersten, die hier inserieren.",
-    "emptyAgentCta": "Ihre Immobilien inserieren",
+    "emptyHeading": "Noch keine Inserate in {city} — werden Sie der erste Makler hier",
+    "emptyBody": "AHO startet in {city}. Inserat-URL einfügen und 9 Anzeigentexte + 3 Grafiken in 60 Sekunden erhalten — kostenlos, ohne Anmeldung.",
+    "emptyAgentCta": "Kostenlosen Audit testen",
     "viewAllCta": "Alle Inserate ansehen",
     "browseAllCta": "Inserate weltweit stöbern"
   },
