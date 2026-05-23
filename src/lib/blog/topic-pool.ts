@@ -120,6 +120,94 @@ export const BLOG_TOPIC_POOL: readonly BlogTopic[] = [
       'For agents in markets that attract international buyers (Spain, Portugal, Mexico, DR, Italy). Cover: which languages to translate listings into (data-driven, not all 7), the buyer-journey steps that fall off when language switches mid-flow, currency-display expectations on the listing page, and the legal disclosures non-resident buyers need to see upfront. Mention AHO\'s 7-language auto-translation as one solution but keep the article useful even without it.',
     audience: 'agent',
   },
+
+  // ─── Agent-audience — added 2026-05-21 (pool 12 → 20 agent topics) ───
+  {
+    key: 'video-tour-script',
+    title: 'How to Script a 60-Second Listing Video (For Reels, TikTok, and Shorts)',
+    prompt:
+      'Practical guide for agents on scripting a 60-second vertical listing video — Reels / TikTok / YouTube Shorts. Cover: the 3-act structure (hook in 2 seconds, 3 selling features at 5 sec each, address + CTA at the end), what footage to shoot in what order, how to write captions that hold attention without sound, and which feature wins on each platform (TikTok = lifestyle hook; Reels = aesthetic + price; Shorts = neighborhood). Include a fictional 2-bedroom example script line-by-line.',
+    audience: 'agent',
+  },
+  {
+    key: 'agent-referral-system',
+    title: 'Building a Real Estate Referral Pipeline That Compounds',
+    prompt:
+      'For working agents on building a structured referral system rather than waiting for word-of-mouth. Cover: the 30-day post-close follow-up that turns clients into referrers, the database tag system (raving fan / past client / sphere / community) that segments outreach, the quarterly value drop (market update, not a sales pitch) that keeps you top-of-mind, and the math on why 1 raving fan = 4-7 referrals over 5 years. Concrete templates, not vague advice.',
+    audience: 'agent',
+  },
+  {
+    key: 'follow-up-cadence',
+    title: 'The Follow-Up Cadence That Converts Cold Buyer Leads',
+    prompt:
+      'For agents whose lead conversion rate is dropping despite more lead volume. Cover: the median 3-minute first-response window (post-form-submit), what to send in the first 24 hours vs. days 2-7 vs. days 8-30, the difference between high-intent (saved search + viewing) and low-intent (downloaded a guide), the specific subject lines that get reopened, and when to give up gracefully (NOT after 3 attempts — after 12, spaced over 90 days). Include a sample 8-touch sequence.',
+    audience: 'agent',
+  },
+  {
+    key: 'solo-agent-branding',
+    title: 'Building a Personal Brand as a Solo Real Estate Agent',
+    prompt:
+      'For solo practitioners building a recognizable brand in a crowded market. Cover: the 3 brand pillars that compound over time (specialty / voice / consistency), why posting daily on Instagram is worse than posting twice a week with substance, the local-news / market-data / behind-the-scenes content rotation that earns audience without burnout, and the specific design moves (one font, one accent color, one filter) that signal professionalism on a $0 budget. Honest about how long this takes (18-24 months to compound).',
+    audience: 'agent',
+  },
+  {
+    key: 'drone-photography-rules',
+    title: 'Drone Photography for Real Estate Listings: When to DIY, When to Hire',
+    prompt:
+      'For agents weighing drone footage on listings. Cover: the FAA Part 107 (US) and CAA (UK/EU) certification requirements that determine whether you can fly commercially yourself, the insurance question that 80% of self-flying agents skip, what professional drone photographers actually charge ($150-$400 per listing depending on market), the 3 angles that sell (cul-de-sac aerial, property line walk, neighborhood orientation), and when drone footage hurts a listing (low-end homes, dense urban, weather-dependent).',
+    audience: 'agent',
+  },
+  {
+    key: 'listing-pricing-strategy',
+    title: 'Pricing a Listing: Under, At, or Above Market?',
+    prompt:
+      'For agents on the pricing conversation with sellers. Cover: when under-market (5-10% below comp avg) drives a bidding war vs. when it just leaves money on the table, the data-driven case for "at market" being the highest-EV default in 70% of markets, the trap of pricing above market (3-week DOM threshold after which buyers assume something is wrong), how to read the local absorption rate, and the specific comps-presentation script that gets the seller to agree to a lower number without feeling shorted.',
+    audience: 'agent',
+  },
+  {
+    key: 'agent-content-marketing',
+    title: 'A 12-Month Content Calendar for Real Estate Agents',
+    prompt:
+      'For agents who know they should be posting but don\'t know what about. Cover: a month-by-month calendar tied to the seasonal real-estate cycle (Jan = year-ahead predictions, March = spring-prep guide, July = back-to-school relocation, Oct = year-end market update), the 4-bucket rotation (educational / local / personal / listing — 40/30/20/10), how to repurpose one piece into 6 posts across platforms, and the 90-minute Sunday batch that ships the whole week. Concrete examples for each month.',
+    audience: 'agent',
+  },
+  {
+    key: 'open-house-data',
+    title: 'What Open-House Attendance Data Actually Tells You',
+    prompt:
+      'For agents weighing the time investment of open houses against alternatives. Cover: the median 4-12 visitors per open house in suburban markets, what 0-2 visitors means (mispriced) vs. 15+ means (mispriced low or hot market), the conversion math (3-5% of visitors become clients within 12 months, but mostly for OTHER properties), the sign-in-sheet capture rate (40% if you ask passively, 80% if you stand at the door), and when an open house is wasted time (luxury, vacant rural, anything over $2M).',
+    audience: 'agent',
+  },
+
+  // ─── Seller-audience — added 2026-05-21 (pool 2 → 6 seller topics) ───
+  {
+    key: 'home-staging-budget',
+    title: 'Home Staging on a $500 Budget: What Actually Moves a Listing',
+    prompt:
+      'For private sellers who can\'t justify a professional stager. Cover: the 5 highest-ROI moves on a $500 budget (declutter every flat surface, repaint the front door, fresh white linens in the primary bedroom, hardware swap on the kitchen, fresh mulch on the front bed), what NOT to spend money on (new furniture, custom art, high-end accessories), the $100 hardware-swap that adds $3-5K to perceived value, and how to stage photos differently from in-person showings. Specific products + price ranges.',
+    audience: 'seller',
+  },
+  {
+    key: 'fsbo-pricing-mistakes',
+    title: 'The 3 Pricing Mistakes Private Sellers Make (And How to Avoid Them)',
+    prompt:
+      'For FSBO sellers about to list. Cover: mistake #1 — pricing on what you paid plus improvements (the market doesn\'t care about your costs); mistake #2 — pricing on the highest comp in the neighborhood without adjusting for condition / lot / view differences; mistake #3 — pricing in round numbers ($400K vs. $399K affects search bracketing — $399K shows in <$400K searches, doubling impressions). Concrete pricing-math examples, plus the 3-comp methodology that gets you within 3% of fair value without a professional appraisal.',
+    audience: 'seller',
+  },
+  {
+    key: 'cash-buyer-negotiation',
+    title: 'Negotiating With Cash Buyers: It\'s Not Always the Highest Offer',
+    prompt:
+      'For sellers comparing cash offers vs. financed offers. Cover: when a 5% lower cash offer beats a financed offer at full price (appraisal contingency risk, 30-45 day faster close, no lender-required repairs), the questions to ask a cash buyer to verify funds (proof-of-funds letter, escrow earnest deposit size), the 3 cash-buyer types (institutional / iBuyer / individual investor) and which one wants to lowball you, and when to actually take the higher financed offer (strong appraisal comps + buyer with 20%+ down + lender pre-approval, not pre-qualification).',
+    audience: 'seller',
+  },
+  {
+    key: 'seller-marketing-no-mls',
+    title: 'How to Market a Home Without an MLS Listing',
+    prompt:
+      'For private sellers in markets where MLS access is gated to agents. Cover: the syndication portals that accept FSBO directly (Zillow, Trulia, Realtor.com in the US; idealista, Otodom, Immoscout in Europe), the photo + description checklist that mimics MLS-quality listing standards, the social-proof signals buyers expect (HOA docs, recent improvements with receipts, neighborhood comp letter), the open-house cadence that compensates for lower indexed reach, and the moment FSBO sellers should call an agent (week 4 with no offers, or any offer that requires negotiation skill the seller doesn\'t have).',
+    audience: 'seller',
+  },
 ];
 
 /**
