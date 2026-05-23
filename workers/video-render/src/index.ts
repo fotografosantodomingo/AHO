@@ -1,41 +1,79 @@
 /**
- * Cloudflare Worker — queue consumer for the `q.video-gen` queue.
+ * CF Worker entry — owns BOTH the queue consumer AND the
+ * `VideoRenderContainer` Durable Object class (Cloudflare Containers
+ * unify Worker + Container into one deployable).
  *
- * The main Next.js app's `/api/audit/[id]/video` POST endpoint
- * inserts an `audit_videos` row with status='queued' + enqueues a
- * message on q.video-gen. THIS worker picks up the message, calls
- * the Cloudflare Container's HTTP /render endpoint, then writes the
- * result back to audit_videos (status='ready' + r2_key, or
- * status='failed' + error_code).
+ * Architecture:
+ *   1. Main Next.js app's POST /api/audit/[id]/video inserts an
+ *      audit_videos row + publishes a message to `video-gen` queue.
+ *   2. THIS Worker's `queue()` handler picks up the message,
+ *      idempotency-checks audit_videos.status, then resolves a
+ *      `VideoRenderContainer` instance via `getContainer()`.
+ *   3. The container instance is a Durable Object with a Dockerfile
+ *      attached — first fetch wakes the container; it sleeps after
+ *      `sleepAfter` of idle. The container runs `src/server.ts` on
+ *      port 8080 (Hono HTTP server inside the Docker image).
+ *   4. Worker writes the render result back to audit_videos via
+ *      Supabase REST.
  *
- * Idempotency: the queue message includes the audit_videos.id +
- * job_id. Before calling /render we read the row's current status —
- * if it's already 'ready' or 'failed', we skip the render (the
- * message is being redelivered after a transient ack failure).
+ * Per-audit affinity: we key the container instance by auditId so
+ * sequential renders for the same audit (rare — re-renders) hit the
+ * warm instance. Otherwise distinct auditIds spread across the herd
+ * up to `max_instances`.
  *
- * Retry policy: configured in wrangler.toml — 3 attempts with
- * exponential backoff, then DLQ. Permanent failures (e.g.
- * invalid_script) bail to DLQ immediately by acknowledging the
- * message without retry; transient failures (network) throw to
- * trigger the queue's automatic retry.
+ * Idempotency: queue-message re-delivery short-circuits if
+ * audit_videos.status is already 'ready' or 'failed'.
  */
 
+import { Container, getContainer } from '@cloudflare/containers';
 import type { RenderRequest, RenderResult } from './types';
 
 interface Env {
-  /** CF Container binding — exposes a `fetch()` that proxies to the
-   *  container's HTTP server. */
-  VIDEO_RENDER_CONTAINER: { fetch: (req: Request) => Promise<Response> };
-  /** R2 bucket binding — used by the container, NOT this worker.
-   *  Listed here for the wrangler.toml binding to materialize. */
+  /** Durable Object binding for the container class below. CF
+   *  Containers conventions: the binding is a DO namespace; you
+   *  fetch a specific instance via getContainer(). */
+  VIDEO_RENDER: DurableObjectNamespace;
+  /** R2 bucket binding — used by the container, NOT this worker. */
   AHO_AUDIT_VIDEOS_R2: R2Bucket;
-  /** Supabase service-role key — written into audit_videos. */
   SUPABASE_URL: string;
   SUPABASE_SERVICE_ROLE_KEY: string;
-  /** Public CDN base for the rendered video URL — typically
-   *  https://videos.advertisehomes.online/<r2_key>. Set when
-   *  the R2 bucket's public-read variant is configured. */
+  AHO_R2_ENDPOINT: string;
+  AHO_R2_ACCESS_KEY_ID: string;
+  AHO_R2_SECRET_ACCESS_KEY: string;
+  AHO_R2_BUCKET?: string;
   AHO_VIDEO_CDN_BASE?: string;
+}
+
+/**
+ * Container class — extends @cloudflare/containers `Container` to
+ * declare the Dockerfile, default HTTP port, and idle-sleep policy.
+ *
+ * envVars below are propagated INTO the container's process env at
+ * start time, so src/server.ts can read process.env.AHO_R2_ENDPOINT
+ * etc. without a separate "secrets pull" round-trip.
+ */
+export class VideoRenderContainer extends Container<Env> {
+  defaultPort = 8080;
+  sleepAfter = '5m';
+
+  override envVars = {
+    AHO_R2_ENDPOINT: this.env.AHO_R2_ENDPOINT,
+    AHO_R2_ACCESS_KEY_ID: this.env.AHO_R2_ACCESS_KEY_ID,
+    AHO_R2_SECRET_ACCESS_KEY: this.env.AHO_R2_SECRET_ACCESS_KEY,
+    AHO_R2_BUCKET: this.env.AHO_R2_BUCKET ?? 'aho-audit-videos',
+  };
+
+  override onStart() {
+    console.log('[VideoRenderContainer] started');
+  }
+
+  override onStop() {
+    console.log('[VideoRenderContainer] stopped (idle sleep)');
+  }
+
+  override onError(error: unknown) {
+    console.error('[VideoRenderContainer] error:', error);
+  }
 }
 
 interface QueueMessage {
@@ -53,7 +91,6 @@ export default {
         await handleOne(msg.body, env);
         msg.ack();
       } catch (err) {
-        // Throw triggers CF Queue retry per wrangler.toml settings.
         console.error('[video-render-queue] handler threw', {
           auditId: msg.body.auditId,
           jobId: msg.body.jobId,
@@ -66,13 +103,12 @@ export default {
 } satisfies ExportedHandler<Env, QueueMessage>;
 
 async function handleOne(payload: QueueMessage, env: Env): Promise<void> {
-  // Idempotency check — read current audit_videos row status.
   const current = await readAuditVideo(env, payload.auditVideoId);
   if (!current) {
-    console.warn('[video-render-queue] row not found, dropping message', {
+    console.warn('[video-render-queue] row not found, dropping', {
       auditVideoId: payload.auditVideoId,
     });
-    return; // ack — nothing to do
+    return;
   }
   if (current.status === 'ready' || current.status === 'failed') {
     console.log('[video-render-queue] already terminal, skipping', {
@@ -82,7 +118,6 @@ async function handleOne(payload: QueueMessage, env: Env): Promise<void> {
     return;
   }
 
-  // Mark in-progress so concurrent re-deliveries can short-circuit.
   await updateAuditVideo(env, payload.auditVideoId, { status: 'rendering' });
 
   const renderRequest: RenderRequest = {
@@ -92,10 +127,11 @@ async function handleOne(payload: QueueMessage, env: Env): Promise<void> {
     script: payload.script,
   };
 
-  // Call the container's HTTP /render endpoint via the CF Containers
-  // binding. The binding routes to a warm container instance + spins
-  // one up if none exists.
-  const renderRes = await env.VIDEO_RENDER_CONTAINER.fetch(
+  // Key the container instance by auditId so re-renders of the same
+  // audit reuse the warm container. Distinct auditIds spread across
+  // the herd up to max_instances.
+  const container = getContainer(env.VIDEO_RENDER, payload.auditId);
+  const renderRes = await container.fetch(
     new Request('http://internal/render', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -122,16 +158,8 @@ async function handleOne(payload: QueueMessage, env: Env): Promise<void> {
       error_code: result.error,
       error_detail: result.detail?.slice(0, 280) ?? null,
     });
-    // Don't throw — failure is durable, no retry needed for
-    // application-level errors. The dashboard's failure-state UI
-    // shows the error_code to the agent so they can decide to retry
-    // manually.
   }
 }
-
-// ─── Supabase admin client — manual fetch, no JS SDK to keep the
-//     Worker bundle small. Service-role bypasses RLS so we can write
-//     audit_videos directly. ──────────────────────────────────────
 
 interface AuditVideoRow {
   id: string;

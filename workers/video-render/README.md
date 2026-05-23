@@ -28,52 +28,60 @@ Renders 15-30s vertical 9:16 Reel/TikTok videos for AHO's Free Audit pipeline.
 | `remotion.config.ts` | Remotion CLI config for local dev render |
 | `wrangler.toml` | CF Worker + queue consumer + R2 binding + Containers binding |
 
-## Pre-requisites (PO action — gates deploy)
+## Pre-requisites — STATUS as of 2026-05-21
 
-These must be in place before the deploy procedure below works:
-
-1. **Cloudflare Containers feature enabled on the AHO account** — private beta as of 2026-05-21. Request via [developers.cloudflare.com/containers](https://developers.cloudflare.com/containers/).
-2. **R2 bucket `aho-audit-videos`** — create via dashboard or `wrangler r2 bucket create aho-audit-videos`.
-3. **Queue `video-gen` + DLQ `video-gen-dlq`** — `wrangler queues create video-gen` and `wrangler queues create video-gen-dlq`.
-4. **DNS for the public video CDN** — `videos.advertisehomes.online` → R2 public-read endpoint (or CF Images domain if we route through Images for variant generation). Configurable via `AHO_VIDEO_CDN_BASE` in `wrangler.toml`.
+| Pre-req | Status |
+|---|---|
+| Cloudflare Containers feature | ✅ GA on Workers Paid plan (no beta access needed) |
+| R2 bucket `aho-audit-videos` | ✅ Created 2026-05-21 (region ENAM) |
+| Queue `video-gen` | ✅ Created 2026-05-21 (id `c74f742f69f844228651366d4983a9b1`) |
+| Queue `video-gen-dlq` | ✅ Created 2026-05-21 (id `7f3c83b4282440738bc01e762bec6076`) |
+| Workers Paid plan ($5/mo) | 🟡 Required — verify on the account before deploying |
+| Docker installed on the deploy machine | 🟡 Required — `wrangler deploy` builds the image locally |
+| DNS for `videos.advertisehomes.online` → R2 public-read | 🟡 Optional but recommended for clean CDN URLs |
 
 ## Deploy procedure (one-time setup)
 
+**Run from a machine that has Docker installed.** `wrangler deploy` builds the Docker image locally and pushes it to CF's registry as part of the deploy. Docker Desktop, OrbStack, or any Docker-compatible engine works.
+
 ```bash
 cd workers/video-render
 
-# 1. Install deps
+# 1. Install deps (Worker + container)
 corepack pnpm@9.12.3 install
 
-# 2. Set Worker secrets (sources from .env.local in the main repo)
-wrangler secret put SUPABASE_URL
-wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+# 2. Set Worker + container secrets (the Worker reads them; the
+#    Container class propagates them via `envVars` in src/index.ts).
+#    Values are in the main repo's .env.local — source them before
+#    running these so wrangler picks them up non-interactively.
+set -a && source ../../.env.local && set +a
 
-# 3. Build + push the container image to CF's registry
-wrangler containers deploy
+echo "$NEXT_PUBLIC_SUPABASE_URL" | wrangler secret put SUPABASE_URL
+echo "$SUPABASE_SERVICE_ROLE_KEY" | wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+echo "https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com" | wrangler secret put AHO_R2_ENDPOINT
+echo "$R2_ACCESS_KEY_ID" | wrangler secret put AHO_R2_ACCESS_KEY_ID
+echo "$R2_SECRET_ACCESS_KEY" | wrangler secret put AHO_R2_SECRET_ACCESS_KEY
 
-# 4. Set container env vars (R2 credentials for the S3 SDK)
-wrangler containers env set AHO_R2_ENDPOINT 'https://<account-id>.r2.cloudflarestorage.com'
-wrangler containers env set AHO_R2_ACCESS_KEY_ID '<from R2 dashboard>'
-wrangler containers env set AHO_R2_SECRET_ACCESS_KEY '<from R2 dashboard>'
-
-# 5. Deploy the Worker (queue consumer + Containers binding)
+# 3. Deploy — wrangler does ALL of this in one step:
+#    (a) Builds the Docker image from ./Dockerfile
+#    (b) Pushes it to CF's container registry
+#    (c) Creates / migrates the VideoRenderContainer Durable Object
+#    (d) Wires the queue consumer + R2 binding + DO binding
+#    First run takes ~5-10 minutes (image build is the long-pole;
+#    pulls Chromium + ffmpeg + Node deps). Subsequent runs are faster
+#    thanks to Docker layer caching.
 wrangler deploy
 ```
 
+If deploy errors with "Workers Paid plan required": upgrade at https://dash.cloudflare.com/?to=/:account/billing/subscriptions ($5/mo base).
+
 ## Deploy procedure (subsequent code changes)
+
+`wrangler deploy` is idempotent — same command for every change. Wrangler diffs the local image vs. registry and only rebuilds/pushes if `./Dockerfile` or its inputs changed; composition/worker-only changes ship without rebuilding the base image layers.
 
 ```bash
 cd workers/video-render
-
-# Composition-only changes (src/composition.tsx + dependencies):
-wrangler containers deploy
-
-# Worker-only changes (src/index.ts):
 wrangler deploy
-
-# Both changed:
-wrangler containers deploy && wrangler deploy
 ```
 
 ## Testing locally (without CF Containers)

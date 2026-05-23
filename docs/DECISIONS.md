@@ -12,6 +12,18 @@ One entry per significant choice. Newest on top. Format:
 
 ---
 
+## 2026-05-21 — Phase 4 4a-container scaffolded + R2/queues provisioned on real CF account
+**Decision:** Ship Phase 4 4a-container as a complete deploy-ready scaffold in `workers/video-render/` AND provision the cloud-side resources (R2 bucket `aho-audit-videos`, queue `video-gen`, DLQ `video-gen-dlq`) via the Cloudflare API. All on free-tier thresholds today.
+**Why:** PO directive 2026-05-21 "YOU HAVE ACCESS TO CF SO YOU DO IT" — explicit chat authorization per CLAUDE.md hard rule #9 to create billable infrastructure. Resources created are free-tier-covered at zero current usage: R2 first 10GB storage + 1M Class A ops/mo free, queues first 1M ops/mo free. Marginal cost only kicks in at scale. The remaining deploy step (`wrangler deploy`) requires Docker locally to build the container image — not available on this dev machine, so the actual Worker + Container deploy is gated on the operator running it from a Docker-equipped machine.
+**Architecture note:** Code was first written against the OLD CF Containers private-beta `[[containers]] image="<registry-image>"` syntax, then refactored to the actual GA API (class-based Durable Object extending `@cloudflare/containers`'s `Container`, image built from local `./Dockerfile` at deploy time). Container instance keyed by auditId via `getContainer(env.VIDEO_RENDER, auditId)`. Container is a Durable Object — requires a `[[migrations]] new_sqlite_classes` entry on first deploy.
+**Resources created on the Cloudflare account `5a389e6eea7a4e92999c5f1612eafbcc`:**
+- R2 bucket: `aho-audit-videos` (region ENAM, Standard storage class)
+- Queue: `video-gen` (id `c74f742f69f844228651366d4983a9b1`, retention 96hr)
+- Queue: `video-gen-dlq` (id `7f3c83b4282440738bc01e762bec6076`)
+**Reconsider if:** Phase 4 deploy is descoped, in which case the resources should be deleted to avoid drift. Or if usage exceeds free tier — at that point unit economics tracking (`audit_videos.duration_ms` + `output_size_bytes` already logged) becomes the input to a real cost-attribution decision.
+
+---
+
 ## 2026-05-19 — Auto-video music library: royalty-free only (Pixabay + YouTube Audio Library)
 **Decision:** Phase 4 auto-video Reels/TikTok engine uses royalty-free music libraries only — Pixabay Music (~60k tracks) and YouTube Audio Library as the primary sources. Each rendered video carries an attribution line in the description / on-screen credit per the source's license terms. No paid subscription (Epidemic Sound deferred).
 **Why:** PO directive 2026-05-19 — "only free music." v1 ships at $0 incremental music cost; track quality is acceptable for real-estate Reels (background-bed only, not hero audio). Keeps Phase 4 unit economics clean: render cost (~$0.05/video on Remotion in CF Containers) is the only variable cost line. Avoids fixed-cost commitment before publish-rate data exists.
