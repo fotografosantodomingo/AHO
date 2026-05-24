@@ -1092,7 +1092,8 @@
       "submit": "Send reset link",
       "submitting": "Sending…",
       "checkEmailHeading": "Check your email",
-      "checkEmailBody": "If an account exists for {email}, we just sent it a password-reset link. The link is valid for one hour."
+      "checkEmailBody": "If an account exists for {email}, we just sent it a password-reset link. The link is valid for one hour.",
+      "backToSignIn": "Back to sign in"
     },
     "reset": {
       "heading": "Set a new password",
@@ -2281,6 +2282,14 @@
     "ctaHeading": "Edit your profile now",
     "ctaSub": "You'll be on /dashboard/profile. Save changes — Google re-indexes within hours; visible rank improvements typically land within 1-2 weeks.",
     "ctaButton": "Open profile editor"
+  },
+  "blog": {
+    "indexHeading": "AHO Blog",
+    "indexTagline": "How agents and private sellers compete with portals using multi-channel distribution.",
+    "empty": "No articles published yet.",
+    "readingMin": "{count} min read",
+    "breadcrumbHome": "Home",
+    "breadcrumbBlog": "Blog"
   },
   "freeAudit": {
     "eyebrow": "Free audit",

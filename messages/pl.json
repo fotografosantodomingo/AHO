@@ -1030,7 +1030,8 @@
       "submit": "Wyślij link resetujący",
       "submitting": "Wysyłanie…",
       "checkEmailHeading": "Sprawdź email",
-      "checkEmailBody": "Jeśli istnieje konto dla {email}, właśnie wysłaliśmy link do zresetowania hasła. Link jest ważny przez godzinę."
+      "checkEmailBody": "Jeśli istnieje konto dla {email}, właśnie wysłaliśmy link do zresetowania hasła. Link jest ważny przez godzinę.",
+      "backToSignIn": "Wróć do logowania"
     },
     "reset": {
       "heading": "Ustaw nowe hasło",
@@ -2273,6 +2274,14 @@
     "ctaHeading": "Edytuj profil teraz",
     "ctaSub": "Trafisz na /dashboard/profile. Zapisz zmiany — Google reindeksuje w godzinach; widoczna poprawa pozycji zwykle pojawia się w 1-2 tygodnie.",
     "ctaButton": "Otwórz edytor profilu"
+  },
+  "blog": {
+    "indexHeading": "Blog AHO",
+    "indexTagline": "Jak agenci i właściciele prywatni konkurują z portalami dzięki dystrybucji wielokanałowej.",
+    "empty": "Brak opublikowanych artykułów.",
+    "readingMin": "{count} min czytania",
+    "breadcrumbHome": "Strona główna",
+    "breadcrumbBlog": "Blog"
   },
   "freeAudit": {
     "eyebrow": "Bezpłatny audyt",

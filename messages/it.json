@@ -1051,7 +1051,8 @@
       "submit": "Invia link di reset",
       "submitting": "Invio in corso…",
       "checkEmailHeading": "Controlla la tua email",
-      "checkEmailBody": "Se esiste un account per {email}, abbiamo appena inviato un link di reset password. Il link è valido per un'ora."
+      "checkEmailBody": "Se esiste un account per {email}, abbiamo appena inviato un link di reset password. Il link è valido per un'ora.",
+      "backToSignIn": "Torna ad accedere"
     },
     "reset": {
       "heading": "Imposta una nuova password",
@@ -2233,6 +2234,14 @@
     "ctaHeading": "Modifica il profilo ora",
     "ctaSub": "Atterrerai su /dashboard/profile. Salva le modifiche — Google reindicizza in ore; i miglioramenti di posizionamento visibili arrivano tipicamente in 1-2 settimane.",
     "ctaButton": "Apri editor profilo"
+  },
+  "blog": {
+    "indexHeading": "Blog AHO",
+    "indexTagline": "Come agenti e venditori privati competono con i portali usando la distribuzione multi-canale.",
+    "empty": "Ancora nessun articolo pubblicato.",
+    "readingMin": "{count} min di lettura",
+    "breadcrumbHome": "Home",
+    "breadcrumbBlog": "Blog"
   },
   "freeAudit": {
     "eyebrow": "Audit gratuito",

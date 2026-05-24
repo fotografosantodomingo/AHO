@@ -1051,7 +1051,8 @@
       "submit": "Enviar link de redefinição",
       "submitting": "Enviando…",
       "checkEmailHeading": "Verifique seu e-mail",
-      "checkEmailBody": "Se houver uma conta para {email}, acabamos de enviar um link de redefinição. O link é válido por uma hora."
+      "checkEmailBody": "Se houver uma conta para {email}, acabamos de enviar um link de redefinição. O link é válido por uma hora.",
+      "backToSignIn": "Voltar a iniciar sessão"
     },
     "reset": {
       "heading": "Definir uma nova senha",
@@ -2233,6 +2234,14 @@
     "ctaHeading": "Edite o seu perfil agora",
     "ctaSub": "Vai para /dashboard/profile. Grave as alterações — o Google reindexa em horas; melhorias de posicionamento visíveis normalmente aparecem em 1-2 semanas.",
     "ctaButton": "Abrir editor de perfil"
+  },
+  "blog": {
+    "indexHeading": "Blog AHO",
+    "indexTagline": "Como agentes e proprietários privados competem com os portais usando distribuição multicanal.",
+    "empty": "Ainda não há artigos publicados.",
+    "readingMin": "{count} min de leitura",
+    "breadcrumbHome": "Início",
+    "breadcrumbBlog": "Blog"
   },
   "freeAudit": {
     "eyebrow": "Auditoria grátis",

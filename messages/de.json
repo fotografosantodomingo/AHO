@@ -303,7 +303,8 @@
       "submit": "Reset-Link senden",
       "submitting": "Senden…",
       "checkEmailHeading": "Prüfen Sie Ihren Posteingang",
-      "checkEmailBody": "Falls ein Konto für {email} existiert, haben wir gerade einen Passwort-Reset-Link gesendet. Der Link ist eine Stunde gültig."
+      "checkEmailBody": "Falls ein Konto für {email} existiert, haben wir gerade einen Passwort-Reset-Link gesendet. Der Link ist eine Stunde gültig.",
+      "backToSignIn": "Zurück zur Anmeldung"
     },
     "reset": {
       "heading": "Neues Passwort festlegen",
@@ -2233,6 +2234,14 @@
     "ctaHeading": "Profil jetzt bearbeiten",
     "ctaSub": "Du landest auf /dashboard/profile. Änderungen speichern — Google reindiziert binnen Stunden; sichtbare Rang-Verbesserungen erscheinen typischerweise in 1-2 Wochen.",
     "ctaButton": "Profil-Editor öffnen"
+  },
+  "blog": {
+    "indexHeading": "AHO-Blog",
+    "indexTagline": "Wie Makler und Privatverkäufer mit Multi-Channel-Distribution gegen Portale antreten.",
+    "empty": "Noch keine Artikel veröffentlicht.",
+    "readingMin": "{count} Min. Lesezeit",
+    "breadcrumbHome": "Startseite",
+    "breadcrumbBlog": "Blog"
   },
   "freeAudit": {
     "eyebrow": "Kostenlose Analyse",

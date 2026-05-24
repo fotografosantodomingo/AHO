@@ -1092,7 +1092,8 @@
       "submit": "Enviar enlace de recuperación",
       "submitting": "Enviando…",
       "checkEmailHeading": "Revisa tu correo",
-      "checkEmailBody": "Si existe una cuenta para {email}, acabamos de enviar un enlace de recuperación. El enlace es válido por una hora."
+      "checkEmailBody": "Si existe una cuenta para {email}, acabamos de enviar un enlace de recuperación. El enlace es válido por una hora.",
+      "backToSignIn": "Volver a iniciar sesión"
     },
     "reset": {
       "heading": "Establecer una nueva contraseña",
@@ -2281,6 +2282,14 @@
     "ctaHeading": "Edita tu perfil ahora",
     "ctaSub": "Estarás en /dashboard/profile. Guarda cambios — Google reindexa en horas; las mejoras de posicionamiento visibles suelen aterrizar en 1-2 semanas.",
     "ctaButton": "Abrir editor de perfil"
+  },
+  "blog": {
+    "indexHeading": "Blog de AHO",
+    "indexTagline": "Cómo agentes y propietarios privados compiten con los portales usando distribución multi-canal.",
+    "empty": "Aún no hay artículos publicados.",
+    "readingMin": "{count} min de lectura",
+    "breadcrumbHome": "Inicio",
+    "breadcrumbBlog": "Blog"
   },
   "freeAudit": {
     "eyebrow": "Auditoría gratuita",

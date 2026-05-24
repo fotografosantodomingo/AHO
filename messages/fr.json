@@ -303,7 +303,8 @@
       "submit": "Envoyer le lien de réinitialisation",
       "submitting": "Envoi…",
       "checkEmailHeading": "Vérifiez votre boîte e-mail",
-      "checkEmailBody": "Si un compte existe pour {email}, nous venons de lui envoyer un lien de réinitialisation. Le lien est valable une heure."
+      "checkEmailBody": "Si un compte existe pour {email}, nous venons de lui envoyer un lien de réinitialisation. Le lien est valable une heure.",
+      "backToSignIn": "Retour à la connexion"
     },
     "reset": {
       "heading": "Définir un nouveau mot de passe",
@@ -2233,6 +2234,14 @@
     "ctaHeading": "Modifiez votre profil maintenant",
     "ctaSub": "Vous serez sur /dashboard/profile. Enregistrez les changements — Google réindexe en heures ; les améliorations de classement visibles arrivent généralement en 1-2 semaines.",
     "ctaButton": "Ouvrir l'éditeur de profil"
+  },
+  "blog": {
+    "indexHeading": "Blog AHO",
+    "indexTagline": "Comment les agents et les vendeurs particuliers rivalisent avec les portails grâce à la distribution multicanale.",
+    "empty": "Aucun article publié pour l'instant.",
+    "readingMin": "{count} min de lecture",
+    "breadcrumbHome": "Accueil",
+    "breadcrumbBlog": "Blog"
   },
   "freeAudit": {
     "eyebrow": "Audit gratuit",
