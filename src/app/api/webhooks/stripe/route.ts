@@ -164,7 +164,18 @@ async function rollbackDedup(eventId: string): Promise<void> {
   try {
     const { createAdminClient } = await import('@/lib/supabase/admin');
     const supabase = createAdminClient();
-    await supabase.from('stripe_events_processed').delete().eq('stripe_event_id', eventId);
+    const { error } = await supabase
+      .from('stripe_events_processed')
+      .delete()
+      .eq('stripe_event_id', eventId);
+    if (error) {
+      console.error('[stripe webhook] dedup rollback row-level error for', eventId, {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      });
+    }
   } catch (e) {
     console.error('[stripe webhook] dedup rollback failed for', eventId, e);
   }

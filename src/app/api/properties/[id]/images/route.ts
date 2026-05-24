@@ -143,7 +143,18 @@ export async function POST(
   } catch (e) {
     // Roll back the pending row if signing fails — orphan sweep would handle it,
     // but explicit cleanup keeps the state simpler.
-    await supabase.from('property_images').delete().eq('id', imageId);
+    const { error: rollbackErr } = await supabase
+      .from('property_images')
+      .delete()
+      .eq('id', imageId);
+    if (rollbackErr) {
+      console.error('[properties/images] rollback delete failed', {
+        code: rollbackErr.code,
+        message: rollbackErr.message,
+        details: rollbackErr.details,
+        hint: rollbackErr.hint,
+      });
+    }
     return NextResponse.json(
       { error: 'sign_failed', details: e instanceof Error ? e.message : String(e) },
       { status: 500 },

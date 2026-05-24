@@ -110,7 +110,18 @@ export async function POST(req: NextRequest) {
     if (mapped.status === 'bounced' && ev.reason) {
       update.bounce_reason = ev.reason.slice(0, 500);
     }
-    await admin.from('email_messages').update(update).eq('id', existing.id);
+    const { error: applyErr } = await admin
+      .from('email_messages')
+      .update(update)
+      .eq('id', existing.id);
+    if (applyErr) {
+      console.error('[brevo webhook] email_messages update failed', {
+        code: applyErr.code,
+        message: applyErr.message,
+        details: applyErr.details,
+        hint: applyErr.hint,
+      });
+    }
 
     // Per-campaign counters live on email_campaigns but we don't
     // increment them from the webhook — the /admin/email surface

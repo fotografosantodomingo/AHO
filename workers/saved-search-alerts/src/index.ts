@@ -143,10 +143,18 @@ async function runDigestCycle(env: Env): Promise<RunSummary> {
       const newNotifiedAt = new Date().toISOString();
 
       if (matches.length === 0) {
-        await supabase
+        const { error: emptyBumpErr } = await supabase
           .from('saved_searches')
           .update({ last_notified_at: newNotifiedAt })
           .eq('id', row.id);
+        if (emptyBumpErr) {
+          console.error('[saved-search-alerts] empty-window bump failed', {
+            code: emptyBumpErr.code,
+            message: emptyBumpErr.message,
+            details: emptyBumpErr.details,
+            hint: emptyBumpErr.hint,
+          });
+        }
         continue;
       }
 
@@ -184,10 +192,18 @@ async function runDigestCycle(env: Env): Promise<RunSummary> {
         summary.emailsSent += 1;
       }
 
-      await supabase
+      const { error: bumpErr } = await supabase
         .from('saved_searches')
         .update({ last_notified_at: newNotifiedAt })
         .eq('id', row.id);
+      if (bumpErr) {
+        console.error('[saved-search-alerts] notified-at bump failed', {
+          code: bumpErr.code,
+          message: bumpErr.message,
+          details: bumpErr.details,
+          hint: bumpErr.hint,
+        });
+      }
     } catch (e) {
       summary.errors.push({
         savedSearchId: row.id,

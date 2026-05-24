@@ -51,7 +51,7 @@ export async function handleInvoicePaymentFailed(event: Stripe.Event): Promise<v
   const supabase = createAdminClient();
   const paymentIntentId = paymentIntentIdFromInvoice(invoice);
 
-  await supabase.from('payments').upsert(
+  const { error: payErr } = await supabase.from('payments').upsert(
     {
       subscription_id: subRowId,
       stripe_payment_intent_id: paymentIntentId,
@@ -66,5 +66,13 @@ export async function handleInvoicePaymentFailed(event: Stripe.Event): Promise<v
     },
     { onConflict: 'stripe_payment_intent_id', ignoreDuplicates: true },
   );
+  if (payErr) {
+    console.error('[billing/invoice-payment-failed] payments upsert failed', {
+      code: payErr.code,
+      message: payErr.message,
+      details: payErr.details,
+      hint: payErr.hint,
+    });
+  }
 }
 

@@ -408,10 +408,18 @@ export async function POST(req: NextRequest) {
         };
       }
       const startedAt = new Date().toISOString();
-      await admin
+      const { error: startErr } = await admin
         .from('social_post_attempts')
         .update({ status: 'posting', started_at: startedAt })
         .eq('id', attemptId);
+      if (startErr) {
+        console.error('[social/post] attempt start update failed', {
+          code: startErr.code,
+          message: startErr.message,
+          details: startErr.details,
+          hint: startErr.hint,
+        });
+      }
 
       const { data: tokenPlain, error: tokenErr } = await admin.rpc(
         'get_decrypted_access_token',
@@ -430,7 +438,18 @@ export async function POST(req: NextRequest) {
           error_message: tokenErr?.message ?? 'decrypt returned null',
           finished_at: finishedAt,
         };
-        await admin.from('social_post_attempts').update(update).eq('id', attemptId);
+        const { error: tokenFailErr } = await admin
+          .from('social_post_attempts')
+          .update(update)
+          .eq('id', attemptId);
+        if (tokenFailErr) {
+          console.error('[social/post] token-fail attempt update failed', {
+            code: tokenFailErr.code,
+            message: tokenFailErr.message,
+            details: tokenFailErr.details,
+            hint: tokenFailErr.hint,
+          });
+        }
         return {
           target: t,
           result: {
@@ -520,7 +539,18 @@ export async function POST(req: NextRequest) {
               finished_at: finishedAt,
               used_override: usedOverride,
             };
-      await admin.from('social_post_attempts').update(update).eq('id', attemptId);
+      const { error: finishErr } = await admin
+        .from('social_post_attempts')
+        .update(update)
+        .eq('id', attemptId);
+      if (finishErr) {
+        console.error('[social/post] attempt finish update failed', {
+          code: finishErr.code,
+          message: finishErr.message,
+          details: finishErr.details,
+          hint: finishErr.hint,
+        });
+      }
       return { target: t, result };
     }),
   );

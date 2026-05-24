@@ -63,11 +63,19 @@ export async function POST(req: NextRequest) {
     .eq('external_account_id', verified.user_id);
 
   for (const row of rows ?? []) {
-    await admin
+    const { error: revokeErr } = await admin
       .from('ad_platform_tokens')
       .update({ revoked_at: new Date().toISOString() })
       .eq('user_id', row.user_id as string)
       .eq('platform', 'meta');
+    if (revokeErr) {
+      console.error('[oauth/meta/deauthorize] revoke update failed', {
+        code: revokeErr.code,
+        message: revokeErr.message,
+        details: revokeErr.details,
+        hint: revokeErr.hint,
+      });
+    }
   }
 
   // Confirmation Code URL. Meta will display this to the user as
