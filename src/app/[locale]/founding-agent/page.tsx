@@ -48,12 +48,12 @@ export async function generateMetadata({
   const copy = PAGE_COPY[typedLocale] ?? PAGE_COPY.en;
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
 
-  const canonical = `${site}/${typedLocale}${localePath(typedLocale, '/founding-agent')}`;
+  const canonical = `${site}${localePath(typedLocale, '/founding-agent')}`;
   const languages: Record<string, string> = {};
   for (const loc of LOCALES) {
-    languages[loc] = `${site}/${loc}${localePath(loc, '/founding-agent')}`;
+    languages[loc] = `${site}${localePath(loc, '/founding-agent')}`;
   }
-  languages['x-default'] = `${site}/en${localePath('en', '/founding-agent')}`;
+  languages['x-default'] = `${site}${localePath('en', '/founding-agent')}`;
 
   return {
     title: copy.metaTitle,
@@ -83,7 +83,7 @@ export default async function FoundingAgentPage({
   const formCopy = FORM_COPY[typedLocale] ?? FORM_COPY.en!;
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
 
-  const url = `${site}/${typedLocale}${localePath(typedLocale, '/founding-agent')}`;
+  const url = `${site}${localePath(typedLocale, '/founding-agent')}`;
   const homeUrl = `${site}/${typedLocale}`;
   const graph = buildGraph([
     buildWebPage({
