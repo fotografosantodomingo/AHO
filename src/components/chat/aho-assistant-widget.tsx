@@ -25,6 +25,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ChatMessageBody } from './render-message';
+import { ChatModePicker, type ChatModePickerCopy } from './chat-mode-picker';
+import { VoiceControls, type VoiceControlsCopy, isVoiceSupported } from './voice-controls';
 import {
   PreChatGate,
   readStoredAcceptance,
@@ -106,6 +108,19 @@ function sendTranscriptBeacon(payload: unknown): void {
   }
 }
 
+/** Map our app locale codes to BCP-47 tags the Web Speech API expects
+ *  for SR + TTS. Browser voice catalogs vary by OS; the API picks the
+ *  closest match if the exact tag isn't installed. */
+const USER_LOCALE_TO_BCP47: Record<string, string> = {
+  en: 'en-US',
+  es: 'es-DO',  // Spanish (Dominican Republic) — falls back to es-ES
+  pl: 'pl-PL',
+  pt: 'pt-PT',
+  de: 'de-DE',
+  fr: 'fr-FR',
+  it: 'it-IT',
+};
+
 const COPY: Record<AhoAssistantLocale, {
   greeting: string;
   placeholder: string;
@@ -114,6 +129,10 @@ const COPY: Record<AhoAssistantLocale, {
   close: string;
   errorGeneric: string;
   toolStub: (name: string) => string;
+  modePicker: ChatModePickerCopy;
+  voice: VoiceControlsCopy;
+  switchToText: string;
+  switchToVoice: string;
 }> = {
   en: {
     greeting: "Hi! I'm the AHO assistant. Ask me about pricing, features, or how to get started.",
@@ -123,6 +142,28 @@ const COPY: Record<AhoAssistantLocale, {
     close: 'Close chat',
     errorGeneric: 'Something went wrong. Try again in a moment.',
     toolStub: (name) => `(checking ${name.replace(/_/g, ' ')}…)`,
+    modePicker: {
+      heading: 'How would you like to chat?',
+      sub: 'You can switch any time from the top of the chat.',
+      textLabel: 'Text',
+      textHint: 'Type your questions',
+      voiceLabel: 'Voice',
+      voiceHint: 'Talk hands-free',
+      voiceUnsupported: 'Not supported in this browser',
+    },
+    voice: {
+      tapToSpeak: 'Tap to speak',
+      tapToStop: 'Tap to stop',
+      listening: 'Listening…',
+      thinking: 'Thinking…',
+      speaking: 'Speaking',
+      tapToInterrupt: 'Tap to interrupt',
+      permissionDenied: "Mic permission denied. Switching to text.",
+      unsupported: 'Voice is not supported in this browser. Use text instead.',
+      switchToText: 'Switch to text',
+    },
+    switchToText: 'Text',
+    switchToVoice: 'Voice',
   },
   es: {
     greeting: '¡Hola! Soy el asistente de AHO. Pregúntame sobre precios, funciones o cómo empezar.',
@@ -132,6 +173,28 @@ const COPY: Record<AhoAssistantLocale, {
     close: 'Cerrar chat',
     errorGeneric: 'Algo salió mal. Inténtalo de nuevo.',
     toolStub: (name) => `(consultando ${name.replace(/_/g, ' ')}…)`,
+    modePicker: {
+      heading: '¿Cómo prefieres chatear?',
+      sub: 'Puedes cambiar en cualquier momento desde la parte superior del chat.',
+      textLabel: 'Texto',
+      textHint: 'Escribe tus preguntas',
+      voiceLabel: 'Voz',
+      voiceHint: 'Habla sin manos',
+      voiceUnsupported: 'No disponible en este navegador',
+    },
+    voice: {
+      tapToSpeak: 'Toca para hablar',
+      tapToStop: 'Toca para detener',
+      listening: 'Escuchando…',
+      thinking: 'Pensando…',
+      speaking: 'Hablando',
+      tapToInterrupt: 'Toca para interrumpir',
+      permissionDenied: 'Permiso de micrófono denegado. Cambiando a texto.',
+      unsupported: 'La voz no está disponible en este navegador. Usa texto en su lugar.',
+      switchToText: 'Cambiar a texto',
+    },
+    switchToText: 'Texto',
+    switchToVoice: 'Voz',
   },
   pl: {
     greeting: 'Cześć! Jestem asystentem AHO. Zapytaj o ceny, funkcje lub jak zacząć.',
@@ -141,6 +204,28 @@ const COPY: Record<AhoAssistantLocale, {
     close: 'Zamknij czat',
     errorGeneric: 'Coś poszło nie tak. Spróbuj ponownie.',
     toolStub: (name) => `(sprawdzanie ${name.replace(/_/g, ' ')}…)`,
+    modePicker: {
+      heading: 'Jak chcesz rozmawiać?',
+      sub: 'Możesz to zmienić w dowolnej chwili u góry czatu.',
+      textLabel: 'Tekst',
+      textHint: 'Wpisuj pytania',
+      voiceLabel: 'Głos',
+      voiceHint: 'Rozmawiaj bez rąk',
+      voiceUnsupported: 'Nieobsługiwane w tej przeglądarce',
+    },
+    voice: {
+      tapToSpeak: 'Dotknij, aby mówić',
+      tapToStop: 'Dotknij, aby zatrzymać',
+      listening: 'Słucham…',
+      thinking: 'Myślę…',
+      speaking: 'Mówię',
+      tapToInterrupt: 'Dotknij, aby przerwać',
+      permissionDenied: 'Brak dostępu do mikrofonu. Przełączam na tekst.',
+      unsupported: 'Głos nie jest obsługiwany w tej przeglądarce. Użyj tekstu.',
+      switchToText: 'Przełącz na tekst',
+    },
+    switchToText: 'Tekst',
+    switchToVoice: 'Głos',
   },
   pt: {
     greeting: 'Oi! Sou o assistente da AHO. Pergunte sobre preços, recursos ou como começar.',
@@ -150,6 +235,28 @@ const COPY: Record<AhoAssistantLocale, {
     close: 'Fechar chat',
     errorGeneric: 'Algo deu errado. Tente novamente.',
     toolStub: (name) => `(consultando ${name.replace(/_/g, ' ')}…)`,
+    modePicker: {
+      heading: 'Como prefere conversar?',
+      sub: 'Pode mudar a qualquer momento no topo do chat.',
+      textLabel: 'Texto',
+      textHint: 'Escreva as suas perguntas',
+      voiceLabel: 'Voz',
+      voiceHint: 'Fale sem mãos',
+      voiceUnsupported: 'Não suportado neste navegador',
+    },
+    voice: {
+      tapToSpeak: 'Toque para falar',
+      tapToStop: 'Toque para parar',
+      listening: 'A escutar…',
+      thinking: 'A pensar…',
+      speaking: 'A falar',
+      tapToInterrupt: 'Toque para interromper',
+      permissionDenied: 'Permissão do microfone negada. A mudar para texto.',
+      unsupported: 'A voz não é suportada neste navegador. Use texto.',
+      switchToText: 'Mudar para texto',
+    },
+    switchToText: 'Texto',
+    switchToVoice: 'Voz',
   },
   de: {
     greeting: 'Hallo! Ich bin der AHO-Assistent. Frag mich nach Preisen, Funktionen oder wie du loslegst.',
@@ -159,6 +266,28 @@ const COPY: Record<AhoAssistantLocale, {
     close: 'Chat schließen',
     errorGeneric: 'Etwas ist schiefgegangen. Bitte erneut versuchen.',
     toolStub: (name) => `(prüfe ${name.replace(/_/g, ' ')}…)`,
+    modePicker: {
+      heading: 'Wie möchten Sie chatten?',
+      sub: 'Sie können jederzeit oben im Chat wechseln.',
+      textLabel: 'Text',
+      textHint: 'Fragen eingeben',
+      voiceLabel: 'Sprache',
+      voiceHint: 'Freihändig sprechen',
+      voiceUnsupported: 'In diesem Browser nicht unterstützt',
+    },
+    voice: {
+      tapToSpeak: 'Tippen zum Sprechen',
+      tapToStop: 'Tippen zum Stoppen',
+      listening: 'Höre zu…',
+      thinking: 'Denke nach…',
+      speaking: 'Spreche',
+      tapToInterrupt: 'Tippen zum Unterbrechen',
+      permissionDenied: 'Mikrofon-Berechtigung verweigert. Wechsel zu Text.',
+      unsupported: 'Sprache wird in diesem Browser nicht unterstützt. Verwenden Sie Text.',
+      switchToText: 'Zu Text wechseln',
+    },
+    switchToText: 'Text',
+    switchToVoice: 'Sprache',
   },
   fr: {
     greeting: "Bonjour ! Je suis l'assistant AHO. Posez-moi des questions sur les tarifs, fonctionnalités ou démarrage.",
@@ -168,6 +297,28 @@ const COPY: Record<AhoAssistantLocale, {
     close: 'Fermer le chat',
     errorGeneric: "Une erreur s'est produite. Réessayez.",
     toolStub: (name) => `(vérification ${name.replace(/_/g, ' ')}…)`,
+    modePicker: {
+      heading: 'Comment voulez-vous discuter ?',
+      sub: 'Vous pouvez changer à tout moment depuis le haut du chat.',
+      textLabel: 'Texte',
+      textHint: 'Tapez vos questions',
+      voiceLabel: 'Voix',
+      voiceHint: 'Parlez sans les mains',
+      voiceUnsupported: 'Non pris en charge dans ce navigateur',
+    },
+    voice: {
+      tapToSpeak: 'Appuyez pour parler',
+      tapToStop: 'Appuyez pour arrêter',
+      listening: 'En écoute…',
+      thinking: 'Réflexion…',
+      speaking: 'Parle',
+      tapToInterrupt: 'Appuyez pour interrompre',
+      permissionDenied: 'Accès au micro refusé. Passage au texte.',
+      unsupported: "La voix n'est pas prise en charge dans ce navigateur. Utilisez le texte.",
+      switchToText: 'Passer au texte',
+    },
+    switchToText: 'Texte',
+    switchToVoice: 'Voix',
   },
   it: {
     greeting: "Ciao! Sono l'assistente AHO. Chiedi di prezzi, funzioni o come iniziare.",
@@ -177,6 +328,28 @@ const COPY: Record<AhoAssistantLocale, {
     close: 'Chiudi chat',
     errorGeneric: 'Qualcosa è andato storto. Riprova.',
     toolStub: (name) => `(controllo ${name.replace(/_/g, ' ')}…)`,
+    modePicker: {
+      heading: 'Come vuoi chattare?',
+      sub: 'Puoi cambiare in qualsiasi momento dalla parte alta della chat.',
+      textLabel: 'Testo',
+      textHint: 'Scrivi le tue domande',
+      voiceLabel: 'Voce',
+      voiceHint: 'Parla a mani libere',
+      voiceUnsupported: 'Non supportato in questo browser',
+    },
+    voice: {
+      tapToSpeak: 'Tocca per parlare',
+      tapToStop: 'Tocca per fermare',
+      listening: 'In ascolto…',
+      thinking: 'Sto pensando…',
+      speaking: 'Sto parlando',
+      tapToInterrupt: 'Tocca per interrompere',
+      permissionDenied: 'Permesso microfono negato. Passaggio al testo.',
+      unsupported: 'La voce non è supportata in questo browser. Usa il testo.',
+      switchToText: 'Passa al testo',
+    },
+    switchToText: 'Testo',
+    switchToVoice: 'Voce',
   },
 };
 
@@ -196,6 +369,41 @@ export function AhoAssistantWidget({
   const [sending, setSending] = useState(false);
   const [draft, setDraft] = useState('');
   const [error, setError] = useState<string | null>(null);
+  // Chat mode (text vs voice). null = the mode picker is showing.
+  // Once the user picks, this persists for the session via localStorage
+  // so reloads don't re-prompt. The header toggle re-writes it.
+  const [chatMode, setChatMode] = useState<'text' | 'voice' | null>(null);
+  const [chatModeInitialized, setChatModeInitialized] = useState(false);
+  // BCP-47 locale for SR + TTS. Maps userLocale → regional voice tag.
+  const voiceLocale = useMemo(() => USER_LOCALE_TO_BCP47[userLocale] ?? 'en-US', [userLocale]);
+  // The text the voice controls should speak next (typically the most
+  // recent assistant message in voice mode). When VoiceControls calls
+  // onSpeakDone, we mark this ID as spoken so we don't re-speak it.
+  const [voicePendingText, setVoicePendingText] = useState<string>('');
+  const [voiceSpokenIds] = useState<Set<string>>(() => new Set());
+
+  // Persist mode across reloads in the same session.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const stored = window.localStorage.getItem('aho:assistant-mode:v1');
+      if (stored === 'text' || stored === 'voice') {
+        setChatMode(stored);
+      }
+    } catch {
+      /* private mode / storage disabled */
+    }
+    setChatModeInitialized(true);
+  }, []);
+  const pickMode = useCallback((m: 'text' | 'voice') => {
+    setChatMode(m);
+    try {
+      window.localStorage.setItem('aho:assistant-mode:v1', m);
+    } catch {
+      /* noop */
+    }
+  }, []);
+
   // Pre-chat gate state. Same localStorage key as the per-agent
   // widget so a visitor who consented on /properties/[slug] doesn't
   // see the gate again on /pricing or /sell.
@@ -230,6 +438,37 @@ export function AhoAssistantWidget({
   useEffect(() => {
     messagesRef.current = messages;
   }, [messages]);
+
+  // VOICE MODE: when a new assistant message lands AND we're in voice
+  // mode AND that message hasn't been spoken yet, feed its body to
+  // VoiceControls for TTS. Skip the greeting (it'd play on every
+  // open) and skip streaming-incomplete rows (wait for the full body).
+  useEffect(() => {
+    if (chatMode !== 'voice' || messages.length === 0) return;
+    const latest = messages[messages.length - 1];
+    if (!latest) return;
+    if (latest.role !== 'assistant') return;
+    if (latest.streaming) return;          // still streaming; wait
+    if (latest.id === 'greeting') return;  // don't re-greet on every open
+    if (voiceSpokenIds.has(latest.id)) return;
+    setVoicePendingText(latest.body);
+  }, [messages, chatMode, voiceSpokenIds]);
+
+  const handleSpeakDone = useCallback(() => {
+    // Mark the just-spoken message as consumed.
+    const latest = messages[messages.length - 1];
+    if (latest?.id) voiceSpokenIds.add(latest.id);
+    setVoicePendingText('');
+  }, [messages, voiceSpokenIds]);
+
+  const handleVoiceFallback = useCallback(
+    (_reason: 'unsupported' | 'permission_denied') => {
+      // Either no browser support OR mic permission denied.
+      // Fall back to text mode + persist so we don't re-prompt.
+      pickMode('text');
+    },
+    [pickMode],
+  );
 
   // Helper: build the payload + ship it. No-op when the visitor
   // didn't send a single message (just opened the chat + closed).
@@ -425,10 +664,48 @@ export function AhoAssistantWidget({
       className="fixed bottom-5 right-5 z-40 flex h-[560px] w-[380px] flex-col overflow-hidden rounded-card border border-border bg-surface shadow-2xl dark:border-border-strong/40 dark:bg-surface-deep"
     >
       <header className="flex items-center justify-between gap-2 border-b border-border bg-surface-muted/60 px-4 py-3 dark:border-border-strong/40 dark:bg-surface-deep">
-        <div>
+        <div className="min-w-0 flex-1">
           <p className="font-brand text-sm font-semibold tracking-tight">AHO assistant</p>
           <p className="text-xs text-helper">Platform Q&amp;A · {userLocale.toUpperCase()}</p>
         </div>
+        {/* Mode-switch toggle. Only shown once the gate is passed AND
+            a mode has been picked; before that the picker handles
+            selection. */}
+        {gateInfo && chatMode && (
+          <div
+            role="tablist"
+            aria-label="Chat mode"
+            className="flex items-center rounded-full border border-border bg-surface p-0.5 text-xs dark:border-border-strong/40 dark:bg-surface-deep"
+          >
+            <button
+              type="button"
+              role="tab"
+              aria-selected={chatMode === 'text'}
+              onClick={() => pickMode('text')}
+              className={`rounded-full px-2.5 py-1 font-semibold transition ${
+                chatMode === 'text'
+                  ? 'bg-emerald-600 text-white'
+                  : 'text-ink-muted hover:bg-black/5 dark:text-ink-inverse-muted dark:hover:bg-white/5'
+              }`}
+            >
+              {copy.switchToText}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={chatMode === 'voice'}
+              onClick={() => pickMode('voice')}
+              disabled={!isVoiceSupported()}
+              className={`rounded-full px-2.5 py-1 font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
+                chatMode === 'voice'
+                  ? 'bg-emerald-600 text-white'
+                  : 'text-ink-muted hover:bg-black/5 dark:text-ink-inverse-muted dark:hover:bg-white/5'
+              }`}
+            >
+              {copy.switchToVoice}
+            </button>
+          </div>
+        )}
         <button
           type="button"
           onClick={() => {
@@ -447,6 +724,12 @@ export function AhoAssistantWidget({
             onAccepted={(res) => setGateInfo(res)}
             copy={gateCopy}
           />
+        </div>
+      ) : gateInitialized && chatModeInitialized && !chatMode ? (
+        // Gate passed but no mode picked yet → show the picker.
+        // Persists the selection in localStorage so reloads skip this.
+        <div className="flex-1 overflow-y-auto">
+          <ChatModePicker copy={copy.modePicker} onPick={pickMode} />
         </div>
       ) : (
         <>
@@ -472,29 +755,43 @@ export function AhoAssistantWidget({
           </p>
         )}
       </div>
-      <form
-        className="flex items-center gap-2 border-t border-border bg-surface px-3 py-3 dark:border-border-strong/40 dark:bg-surface-deep"
-        onSubmit={(e) => {
-          e.preventDefault();
-          void sendMessage(draft);
-        }}
-      >
-        <input
-          type="text"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder={copy.placeholder}
-          disabled={sending}
-          className="flex-1 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-ink outline-hidden focus:border-action disabled:opacity-60 dark:border-border-strong/40 dark:bg-surface-dark dark:text-ink-inverse"
-        />
-        <button
-          type="submit"
-          disabled={sending || draft.trim().length === 0}
-          className="btn-primary inline-flex h-9 items-center px-3 text-sm font-semibold disabled:opacity-60"
+      {chatMode === 'voice' ? (
+        <div className="border-t border-border bg-surface dark:border-border-strong/40 dark:bg-surface-deep">
+          <VoiceControls
+            voiceLocale={voiceLocale}
+            onUserTranscript={(text) => void sendMessage(text)}
+            speakText={voicePendingText}
+            onSpeakDone={handleSpeakDone}
+            disabled={sending}
+            onUnrecoverable={handleVoiceFallback}
+            copy={copy.voice}
+          />
+        </div>
+      ) : (
+        <form
+          className="flex items-center gap-2 border-t border-border bg-surface px-3 py-3 dark:border-border-strong/40 dark:bg-surface-deep"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void sendMessage(draft);
+          }}
         >
-          {copy.send}
-        </button>
-      </form>
+          <input
+            type="text"
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder={copy.placeholder}
+            disabled={sending}
+            className="flex-1 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-ink outline-hidden focus:border-action disabled:opacity-60 dark:border-border-strong/40 dark:bg-surface-dark dark:text-ink-inverse"
+          />
+          <button
+            type="submit"
+            disabled={sending || draft.trim().length === 0}
+            className="btn-primary inline-flex h-9 items-center px-3 text-sm font-semibold disabled:opacity-60"
+          >
+            {copy.send}
+          </button>
+        </form>
+      )}
         </>
       )}
     </div>
