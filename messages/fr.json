@@ -23,7 +23,8 @@
     "savedProperties": "Favoris",
     "currency": "Devise",
     "openMenu": "Ouvrir le menu",
-    "closeMenu": "Fermer le menu"
+    "closeMenu": "Fermer le menu",
+    "primaryAria": "Principale"
   },
   "currencyPicker": {
     "label": "Devise d'affichage"

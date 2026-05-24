@@ -23,7 +23,8 @@
     "savedProperties": "Favoritos",
     "currency": "Moeda",
     "openMenu": "Abrir menu",
-    "closeMenu": "Fechar menu"
+    "closeMenu": "Fechar menu",
+    "primaryAria": "Principal"
   },
   "currencyPicker": {
     "label": "Moeda de exibição"

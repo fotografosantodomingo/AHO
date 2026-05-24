@@ -23,7 +23,8 @@
     "closeMenu": "Cerrar menú",
     "savedSearches": "Búsquedas guardadas",
     "savedProperties": "Inmuebles guardados",
-    "currency": "Moneda"
+    "currency": "Moneda",
+    "primaryAria": "Principal"
   },
   "currencyPicker": {
     "label": "Moneda de visualización"

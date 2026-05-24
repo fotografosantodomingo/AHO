@@ -23,7 +23,8 @@
     "savedProperties": "Ulubione",
     "currency": "Waluta",
     "openMenu": "Otwórz menu",
-    "closeMenu": "Zamknij menu"
+    "closeMenu": "Zamknij menu",
+    "primaryAria": "Główne"
   },
   "currencyPicker": {
     "label": "Wybierz walutę"

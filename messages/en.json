@@ -23,7 +23,8 @@
     "savedProperties": "Saved properties",
     "currency": "Currency",
     "openMenu": "Open menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "primaryAria": "Primary"
   },
   "currencyPicker": {
     "label": "Display currency"
