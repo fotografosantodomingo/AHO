@@ -221,10 +221,18 @@ async function tryClaimFounderRate({
   // `customer.subscription.updated` event from the price change will also
   // converge on this state via the helper's plan-resolution lookup; doing
   // it here closes the inconsistency window.
-  await supabase
+  const { error: planErr } = await supabase
     .from('subscriptions')
     .update({ plan_id: 'aho_agent_founder_monthly' })
     .eq('id', ourSubscriptionId);
+  if (planErr) {
+    console.error('[billing/checkout-completed] founder plan_id update failed', {
+      code: planErr.code,
+      message: planErr.message,
+      details: planErr.details,
+      hint: planErr.hint,
+    });
+  }
 }
 
 // Slug uniqueness moved into the materialize_subscription_from_checkout
