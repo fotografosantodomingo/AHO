@@ -1,6 +1,8 @@
+import Link from 'next/link';
 import { setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { resolveEffectivePlanId, planTierLabel } from '@/lib/billing/plan-gating';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -22,6 +24,9 @@ interface AdminOrg {
   created_at: string;
   member_count: number;
   active_listing_count: number;
+  current_plan_id: string | null;
+  manual_plan_id: string | null;
+  manual_plan_expires_at: string | null;
 }
 
 /**
@@ -47,7 +52,7 @@ export default async function AdminOrgsPage({
   const { data: rows, error } = await supabase
     .from('organizations')
     .select(
-      'id, name, slug, public_slug, type, headquarters_country, headquarters_city, listing_cap, created_at',
+      'id, name, slug, public_slug, type, headquarters_country, headquarters_city, listing_cap, created_at, current_plan_id, manual_plan_id, manual_plan_expires_at',
     )
     .order('created_at', { ascending: false })
     .limit(500);
@@ -121,7 +126,9 @@ export default async function AdminOrgsPage({
                   'Members',
                   'Active listings',
                   'Listing cap',
+                  'Plan',
                   'Created',
+                  '',
                 ].map((label) => (
                   <th
                     key={label}
@@ -180,8 +187,55 @@ export default async function AdminOrgsPage({
                     <td className="px-3 py-2 text-right tabular-nums">
                       {org.listing_cap ?? '∞'}
                     </td>
+                    <td className="px-3 py-2">
+                      {(() => {
+                        const effective = resolveEffectivePlanId({
+                          currentPlanId: org.current_plan_id,
+                          manualPlanId: org.manual_plan_id,
+                          manualPlanExpiresAt: org.manual_plan_expires_at,
+                        });
+                        const tier = planTierLabel(effective);
+                        const isOverride =
+                          !!org.manual_plan_id &&
+                          (org.manual_plan_expires_at === null ||
+                            Date.parse(org.manual_plan_expires_at) > Date.now());
+                        return (
+                          <span className="inline-flex items-center gap-1">
+                            <span
+                              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                                tier === 'pro_automation'
+                                  ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200'
+                                  : tier === 'plus'
+                                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                                    : tier === 'agent'
+                                      ? 'bg-slate-200 text-slate-800 dark:bg-slate-700 dark:text-slate-200'
+                                      : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
+                              }`}
+                            >
+                              {tier.replace('_', ' ')}
+                            </span>
+                            {isOverride && (
+                              <span
+                                title="Admin override"
+                                className="inline-flex items-center rounded-full bg-emerald-600/10 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-300"
+                              >
+                                🎁
+                              </span>
+                            )}
+                          </span>
+                        );
+                      })()}
+                    </td>
                     <td className="px-3 py-2 text-helper">
                       {dateFormatter.format(new Date(org.created_at))}
+                    </td>
+                    <td className="px-3 py-2">
+                      <Link
+                        href={`/${locale}/admin/orgs/${org.id}/plan`}
+                        className="text-xs font-semibold text-emerald-700 hover:underline dark:text-emerald-400"
+                      >
+                        Manage plan →
+                      </Link>
                     </td>
                   </tr>
                 );

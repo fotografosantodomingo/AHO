@@ -47,21 +47,66 @@ export const ANY_PAID_PLAN_IDS = [
   'aho_pro_automation_annual',
 ] as const;
 
-/** Returns the org's current_plan_id, or null if no subscription. */
+/**
+ * Returns the org's EFFECTIVE plan id, or null if no plan.
+ *
+ * Precedence:
+ *   1. `manual_plan_id` (admin-granted comp) if non-NULL AND
+ *      (manual_plan_expires_at IS NULL OR > now()) — i.e. active
+ *      override. This is how the operator comps founding agents +
+ *      soft-beta agents without going through Stripe.
+ *   2. `current_plan_id` — the Stripe-derived plan from the
+ *      subscription webhook (source of truth for paid customers).
+ *
+ * NULL when neither applies (truly no plan).
+ *
+ * Implementation: a single SELECT pulls both fields. Override
+ * eligibility resolves in JS — `now()` is the request's wall clock,
+ * which is fine since plan checks are not nanosecond-sensitive.
+ */
 export async function getOrgPlanId(
   supabase: SupabaseClient,
   orgId: string,
 ): Promise<string | null> {
   const { data, error } = await supabase
     .from('organizations')
-    .select('current_plan_id')
+    .select('current_plan_id, manual_plan_id, manual_plan_expires_at')
     .eq('id', orgId)
     .maybeSingle();
   if (error) {
     console.warn('[plan-gating] org plan lookup failed', error);
     return null;
   }
-  return (data?.current_plan_id as string | null) ?? null;
+  return resolveEffectivePlanId({
+    currentPlanId: (data?.current_plan_id as string | null) ?? null,
+    manualPlanId: (data?.manual_plan_id as string | null) ?? null,
+    manualPlanExpiresAt: (data?.manual_plan_expires_at as string | null) ?? null,
+  });
+}
+
+/**
+ * Pure function: given the three plan fields on `organizations`,
+ * return the effective plan id. Extracted from getOrgPlanId so it
+ * can be unit-tested without a Supabase client.
+ */
+export function resolveEffectivePlanId(args: {
+  currentPlanId: string | null;
+  manualPlanId: string | null;
+  /** ISO 8601 timestamp string OR null (permanent override). */
+  manualPlanExpiresAt: string | null;
+}): string | null {
+  if (args.manualPlanId) {
+    if (args.manualPlanExpiresAt === null) {
+      // Permanent override — used for Founding 50 founder rates.
+      return args.manualPlanId;
+    }
+    const expires = Date.parse(args.manualPlanExpiresAt);
+    if (Number.isFinite(expires) && expires > Date.now()) {
+      return args.manualPlanId;
+    }
+    // Override expired — fall through to Stripe-derived plan.
+  }
+  return args.currentPlanId;
 }
 
 /** True if the org's current plan is Pro Automation (monthly OR annual). */
