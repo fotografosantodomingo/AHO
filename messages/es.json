@@ -226,7 +226,9 @@
     "paginationAria": "Paginación"
   },
   "card": {
-    "viewListing": "Ver anuncio"
+    "viewListing": "Ver anuncio",
+    "bedShort": "hab",
+    "bathShort": "baños"
   },
   "favorite": {
     "add": "Guardar en favoritos",

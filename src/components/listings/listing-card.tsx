@@ -77,8 +77,8 @@ export function ListingCard({
   const transactionLabel = t(`transactionType.${listing.transactionType as 'sale'}`);
 
   const specs = [
-    listing.bedrooms != null && { value: listing.bedrooms, suffix: 'bd' },
-    listing.bathrooms != null && { value: listing.bathrooms, suffix: 'ba' },
+    listing.bedrooms != null && { value: listing.bedrooms, suffix: tCard('bedShort') },
+    listing.bathrooms != null && { value: listing.bathrooms, suffix: tCard('bathShort') },
     listing.areaSqm != null && { value: listing.areaSqm, suffix: 'm²' },
   ].filter(Boolean) as Array<{ value: number; suffix: string }>;
 

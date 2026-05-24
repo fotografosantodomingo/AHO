@@ -393,7 +393,9 @@
     "approximateInLabel": "Etwa {value} in Ihrer gewählten Währung"
   },
   "card": {
-    "viewListing": "Inserat ansehen"
+    "viewListing": "Inserat ansehen",
+    "bedShort": "Zi",
+    "bathShort": "Bad"
   },
   "favorite": {
     "add": "Zu Favoriten hinzufügen",

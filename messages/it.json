@@ -226,7 +226,9 @@
     "paginationAria": "Paginazione"
   },
   "card": {
-    "viewListing": "Vedi annuncio"
+    "viewListing": "Vedi annuncio",
+    "bedShort": "cam",
+    "bathShort": "bag"
   },
   "favorite": {
     "add": "Salva nei preferiti",

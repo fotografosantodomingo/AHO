@@ -226,7 +226,9 @@
     "paginationAria": "Paginação"
   },
   "card": {
-    "viewListing": "Ver anúncio"
+    "viewListing": "Ver anúncio",
+    "bedShort": "quartos",
+    "bathShort": "WC"
   },
   "favorite": {
     "add": "Adicionar aos favoritos",

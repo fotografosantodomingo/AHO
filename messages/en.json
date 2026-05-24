@@ -226,7 +226,9 @@
     "paginationAria": "Pagination"
   },
   "card": {
-    "viewListing": "View listing"
+    "viewListing": "View listing",
+    "bedShort": "bd",
+    "bathShort": "ba"
   },
   "favorite": {
     "add": "Save to favorites",

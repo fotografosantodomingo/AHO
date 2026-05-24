@@ -393,7 +393,9 @@
     "approximateInLabel": "Environ {value} dans votre devise sélectionnée"
   },
   "card": {
-    "viewListing": "Voir l'annonce"
+    "viewListing": "Voir l'annonce",
+    "bedShort": "ch",
+    "bathShort": "sdb"
   },
   "favorite": {
     "add": "Ajouter aux favoris",

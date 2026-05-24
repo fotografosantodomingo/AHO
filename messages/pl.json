@@ -230,7 +230,9 @@
     "paginationAria": "Paginacja"
   },
   "card": {
-    "viewListing": "Zobacz ogłoszenie"
+    "viewListing": "Zobacz ogłoszenie",
+    "bedShort": "pok",
+    "bathShort": "łaz"
   },
   "favorite": {
     "add": "Dodaj do ulubionych",
