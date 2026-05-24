@@ -218,7 +218,7 @@ export async function SiteFooter({ locale }: Props) {
         {/* Bottom strip — copyright + legal + locale mirror. */}
         <div className="mt-10 flex flex-col gap-4 border-t border-white/10 pt-6 text-xs text-ink-inverse-muted md:mt-14 md:flex-row md:items-center md:justify-between">
           <p>© {new Date().getFullYear()} AHO. {t('rights')}</p>
-          <nav className="flex flex-wrap items-center gap-x-5 gap-y-1" aria-label="Legal">
+          <nav className="flex flex-wrap items-center gap-x-5 gap-y-1" aria-label={t('legalAria')}>
             <a
               href={privacyHref}
               className="footer-link inline-flex min-h-11 items-center md:min-h-0"
