@@ -187,13 +187,21 @@ export async function POST(req: NextRequest) {
     // Bump heartbeat so the dashboard "active devices" list later shows
     // recency. Best-effort; ignore failures.
     if (trustedRowId) {
-      await admin
+      const { error: touchErr } = await admin
         .from('auth_trusted_devices')
         .update({
           last_seen_at: new Date().toISOString(),
           country_last_seen: country,
         })
         .eq('id', trustedRowId);
+      if (touchErr) {
+        console.error('[auth/signin] trusted-device heartbeat failed', {
+          code: touchErr.code,
+          message: touchErr.message,
+          details: touchErr.details,
+          hint: touchErr.hint,
+        });
+      }
     }
     await pruneAuthFailures(email);
     return NextResponse.json<SignInSuccessBody>({ ok: true }, { status: 200 });
