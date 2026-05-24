@@ -1038,6 +1038,7 @@
     "notFoundBody": "L'annonce que vous cherchez n'est plus disponible ou a été retirée."
   },
   "agentProfile": {
+    "breadcrumbAgents": "Agents",
     "headingTemplate": "{name}",
     "subheadingTemplate": "Agent immobilier · {location}",
     "subheadingNoLocation": "Agent immobilier sur AHO",
@@ -2525,6 +2526,7 @@
         }
       ]
     },
+    "coverageSrHeading": "Couverture du plan",
     "included": {
       "heading": "Ce que vous obtenez",
       "items": [
@@ -2579,7 +2581,10 @@
     "success": {
       "heading": "Paiement reçu — publions votre annonce",
       "body": "Votre paiement de 5 $ est passé. Vous avez 90 jours de durée d'annonce devant vous — mettons-la en ligne. L'étape suivante est un court formulaire (prix, chambres, photos, canal social). Compter environ 5 minutes.",
-      "cta": "Créer votre annonce"
+      "cta": "Créer votre annonce",
+      "sessionLabel": "Session de paiement",
+      "confirmed": "confirmé",
+      "back": "Retour"
     },
     "cancel": {
       "heading": "Paiement annulé",
@@ -2590,7 +2595,9 @@
       "heading": "Votre bien",
       "submit": "Publier mon annonce",
       "gateMissing": "Vous devez finaliser le paiement avant de créer une annonce.",
-      "gateCta": "Aller au paiement"
+      "gateCta": "Aller au paiement",
+      "creditExpires": "Votre crédit d'annonce expire le {date}.",
+      "back": "← Retour"
     }
   }
 }

@@ -77,6 +77,7 @@ export default async function SellPrivateLandingPage({
   setRequestLocale(typedLocale);
 
   const t = await getTranslations({ locale, namespace: 'sellPrivate' });
+  const tNav = await getTranslations({ locale, namespace: 'nav' });
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
   const alts = buildLandingAlternates({
     pathKey: '/sell/private',
@@ -108,9 +109,9 @@ export default async function SellPrivateLandingPage({
 
   // JSON-LD: single @graph with WebPage + Product + Offer + FAQPage + BreadcrumbList.
   const breadcrumb = buildBreadcrumbList([
-    { name: typedLocale === 'es' ? 'Inicio' : 'Home', url: homeUrl },
+    { name: tNav('home'), url: homeUrl },
     {
-      name: typedLocale === 'es' ? 'Vender' : 'Sell',
+      name: tNav('sell'),
       url: sellUrl,
     },
     {
@@ -233,7 +234,7 @@ export default async function SellPrivateLandingPage({
           className="mt-16 grid gap-8 md:mt-24 md:grid-cols-2"
         >
           <h2 id="sell-private-coverage" className="sr-only">
-            {typedLocale === 'es' ? 'Cobertura del plan' : 'Plan coverage'}
+            {t('coverageSrHeading')}
           </h2>
 
           <div className="rounded-card border border-border bg-surface p-6 shadow-whisper dark:border-border-strong/40 dark:bg-surface-deep md:p-8">

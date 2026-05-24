@@ -1038,6 +1038,7 @@
     "notFoundBody": "Das gesuchte Inserat ist nicht mehr verfügbar oder wurde entfernt."
   },
   "agentProfile": {
+    "breadcrumbAgents": "Makler",
     "headingTemplate": "{name}",
     "subheadingTemplate": "Immobilienmakler · {location}",
     "subheadingNoLocation": "Immobilienmakler auf AHO",
@@ -2525,6 +2526,7 @@
         }
       ]
     },
+    "coverageSrHeading": "Leistungsumfang",
     "included": {
       "heading": "Was Sie bekommen",
       "items": [
@@ -2579,7 +2581,10 @@
     "success": {
       "heading": "Zahlung erhalten — lassen Sie uns Ihr Inserat veröffentlichen",
       "body": "Ihre $5-Zahlung wurde verarbeitet. Sie haben 90 Tage Inseratszeit vor sich — bringen wir das Inserat online. Der nächste Schritt ist ein kurzes Formular (Preis, Schlafzimmer, Fotos, Social-Kanal). Dauert etwa 5 Minuten.",
-      "cta": "Inserat erstellen"
+      "cta": "Inserat erstellen",
+      "sessionLabel": "Zahlungssitzung",
+      "confirmed": "bestätigt",
+      "back": "Zurück"
     },
     "cancel": {
       "heading": "Zahlung abgebrochen",
@@ -2590,7 +2595,9 @@
       "heading": "Ihre Immobilie",
       "submit": "Mein Inserat veröffentlichen",
       "gateMissing": "Sie müssen die Zahlung abschließen, bevor Sie ein Inserat erstellen.",
-      "gateCta": "Zur Zahlung"
+      "gateCta": "Zur Zahlung",
+      "creditExpires": "Ihr Inseratsguthaben läuft am {date} ab.",
+      "back": "← Zurück"
     }
   }
 }

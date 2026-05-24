@@ -506,6 +506,7 @@
     "notFoundBody": "The listing you’re looking for is no longer available or has been removed."
   },
   "agentProfile": {
+    "breadcrumbAgents": "Agents",
     "headingTemplate": "{name}",
     "subheadingTemplate": "Real estate agent · {location}",
     "subheadingNoLocation": "Real estate agent on AHO",
@@ -2573,6 +2574,7 @@
         }
       ]
     },
+    "coverageSrHeading": "Plan coverage",
     "included": {
       "heading": "What you get",
       "items": [
@@ -2627,7 +2629,10 @@
     "success": {
       "heading": "Payment received — let's publish your listing",
       "body": "Your $5 payment went through. You have 90 days of listing time waiting for you — let's get the listing live. The next step is a short form (price, beds, photos, social channel). Should take about 5 minutes.",
-      "cta": "Create your listing"
+      "cta": "Create your listing",
+      "sessionLabel": "Payment session",
+      "confirmed": "confirmed",
+      "back": "Back"
     },
     "cancel": {
       "heading": "Payment cancelled",
@@ -2638,7 +2643,9 @@
       "heading": "Your property",
       "submit": "Publish my listing",
       "gateMissing": "You need to complete payment before creating a listing.",
-      "gateCta": "Go to payment"
+      "gateCta": "Go to payment",
+      "creditExpires": "Your listing credit expires on {date}.",
+      "back": "← Back"
     }
   }
 }

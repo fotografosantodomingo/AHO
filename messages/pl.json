@@ -519,6 +519,7 @@
     "notFoundBody": "Ogłoszenie, którego szukasz, jest niedostępne lub zostało usunięte."
   },
   "agentProfile": {
+    "breadcrumbAgents": "Agenci",
     "headingTemplate": "{name}",
     "subheadingTemplate": "Agent nieruchomości · {location}",
     "subheadingNoLocation": "Agent nieruchomości w AHO",
@@ -2565,6 +2566,7 @@
         }
       ]
     },
+    "coverageSrHeading": "Zakres planu",
     "included": {
       "heading": "Co otrzymujesz",
       "items": [
@@ -2619,7 +2621,10 @@
     "success": {
       "heading": "Płatność otrzymana — opublikujmy Twoje ogłoszenie",
       "body": "Twoja płatność $5 przeszła. Masz 90 dni czasu ogłoszenia — opublikujmy je. Następny krok to krótki formularz (cena, sypialnie, zdjęcia, kanał społecznościowy). Powinno zająć około 5 minut.",
-      "cta": "Utwórz ogłoszenie"
+      "cta": "Utwórz ogłoszenie",
+      "sessionLabel": "Sesja płatności",
+      "confirmed": "potwierdzona",
+      "back": "Wróć"
     },
     "cancel": {
       "heading": "Płatność anulowana",
@@ -2630,7 +2635,9 @@
       "heading": "Twoja nieruchomość",
       "submit": "Opublikuj ogłoszenie",
       "gateMissing": "Musisz zakończyć płatność, zanim utworzysz ogłoszenie.",
-      "gateCta": "Przejdź do płatności"
+      "gateCta": "Przejdź do płatności",
+      "creditExpires": "Twój czas ogłoszenia wygasa {date}.",
+      "back": "← Wróć"
     }
   }
 }

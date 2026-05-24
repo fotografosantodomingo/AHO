@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { localePath } from '@/i18n/routing';
 import { publicEnv } from '@/lib/env';
@@ -82,6 +82,7 @@ export default async function FoundingAgentPage({
   const copy = PAGE_COPY[typedLocale] ?? PAGE_COPY.en!;
   const formCopy = FORM_COPY[typedLocale] ?? FORM_COPY.en!;
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
+  const tNav = await getTranslations({ locale: typedLocale, namespace: 'nav' });
 
   const url = `${site}${localePath(typedLocale, '/founding-agent')}`;
   const homeUrl = `${site}/${typedLocale}`;
@@ -93,7 +94,7 @@ export default async function FoundingAgentPage({
       inLanguage: typedLocale,
     }),
     buildBreadcrumbList([
-      { name: typedLocale === 'es' ? 'Inicio' : 'Home', url: homeUrl },
+      { name: tNav('home'), url: homeUrl },
       { name: copy.eyebrow, url },
     ]),
   ]);

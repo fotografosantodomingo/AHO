@@ -88,6 +88,7 @@ export default async function SellPage({
   setRequestLocale(typedLocale);
 
   const t = await getTranslations({ locale, namespace: 'sell' });
+  const tNav = await getTranslations({ locale, namespace: 'nav' });
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
   const alts = buildLandingAlternates({
     pathKey: '/sell',
@@ -113,7 +114,7 @@ export default async function SellPage({
   // ─── JSON-LD bundle ───────────────────────────────────────────────
   // Single @graph: WebPage + Service + FAQPage + BreadcrumbList.
   const breadcrumbNode = buildBreadcrumbList([
-    { name: typedLocale === 'es' ? 'Inicio' : 'Home', url: homeUrl },
+    { name: tNav('home'), url: homeUrl },
     { name: t('hero.eyebrow'), url: alts.canonical },
   ]);
   const webPageNode = buildWebPage({

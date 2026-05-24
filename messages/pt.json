@@ -506,6 +506,7 @@
     "notFoundBody": "O anúncio que você procura não está mais disponível ou foi removido."
   },
   "agentProfile": {
+    "breadcrumbAgents": "Agentes",
     "headingTemplate": "{name}",
     "subheadingTemplate": "Corretor de imóveis · {location}",
     "subheadingNoLocation": "Corretor de imóveis no AHO",
@@ -2525,6 +2526,7 @@
         }
       ]
     },
+    "coverageSrHeading": "Cobertura do plano",
     "included": {
       "heading": "O que recebe",
       "items": [
@@ -2579,7 +2581,10 @@
     "success": {
       "heading": "Pagamento recebido — vamos publicar o seu anúncio",
       "body": "O seu pagamento de $5 foi aceite. Tem 90 dias de tempo de anúncio à sua espera — vamos colocá-lo no ar. O próximo passo é um formulário curto (preço, quartos, fotos, canal social). Deve demorar cerca de 5 minutos.",
-      "cta": "Criar o seu anúncio"
+      "cta": "Criar o seu anúncio",
+      "sessionLabel": "Sessão de pagamento",
+      "confirmed": "confirmado",
+      "back": "Voltar"
     },
     "cancel": {
       "heading": "Pagamento cancelado",
@@ -2590,7 +2595,9 @@
       "heading": "A sua propriedade",
       "submit": "Publicar o meu anúncio",
       "gateMissing": "Tem de concluir o pagamento antes de criar um anúncio.",
-      "gateCta": "Ir para o pagamento"
+      "gateCta": "Ir para o pagamento",
+      "creditExpires": "O seu tempo de anúncio expira em {date}.",
+      "back": "← Voltar"
     }
   }
 }

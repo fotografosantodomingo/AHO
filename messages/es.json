@@ -532,6 +532,7 @@
     "restore": "Restaurar"
   },
   "agentProfile": {
+    "breadcrumbAgents": "Agentes",
     "headingTemplate": "{name}",
     "subheadingTemplate": "Agente inmobiliario · {location}",
     "subheadingNoLocation": "Agente inmobiliario en AHO",
@@ -2573,6 +2574,7 @@
         }
       ]
     },
+    "coverageSrHeading": "Cobertura del plan",
     "included": {
       "heading": "Qué incluye",
       "items": [
@@ -2627,7 +2629,10 @@
     "success": {
       "heading": "Pago recibido — publiquemos tu anuncio",
       "body": "Tu pago de $5 se procesó correctamente. Tienes 90 días de anuncio esperándote — ahora vamos a activar el anuncio. El siguiente paso es un formulario corto (precio, habitaciones, fotos, canal social). Unos 5 minutos.",
-      "cta": "Crear mi anuncio"
+      "cta": "Crear mi anuncio",
+      "sessionLabel": "Sesión de pago",
+      "confirmed": "confirmado",
+      "back": "Volver"
     },
     "cancel": {
       "heading": "Pago cancelado",
@@ -2638,7 +2643,9 @@
       "heading": "Tu propiedad",
       "submit": "Publicar mi anuncio",
       "gateMissing": "Debes completar el pago antes de crear un anuncio.",
-      "gateCta": "Ir al pago"
+      "gateCta": "Ir al pago",
+      "creditExpires": "Tu cupo de anuncio expira el {date}.",
+      "back": "← Volver"
     }
   }
 }
