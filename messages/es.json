@@ -23,7 +23,8 @@
     "closeMenu": "Cerrar menú",
     "savedSearches": "Búsquedas guardadas",
     "savedProperties": "Inmuebles guardados",
-    "currency": "Moneda"
+    "currency": "Moneda",
+    "primaryAria": "Principal"
   },
   "currencyPicker": {
     "label": "Moneda de visualización"
@@ -159,6 +160,7 @@
     "tabBuy": "Compra",
     "tabRent": "Alquiler",
     "tabAny": "Cualquiera",
+    "transactionTabsLabel": "Tipo de transacción",
     "selectCountry": "Cualquier país",
     "selectCity": "Cualquier ciudad",
     "selectCityDisabled": "Elige un país primero",
@@ -219,10 +221,14 @@
     "viewList": "Lista",
     "viewMap": "Mapa",
     "bboxActive": "Mostrando anuncios en esta área del mapa.",
-    "resetBbox": "Restablecer a todos los resultados"
+    "resetBbox": "Restablecer a todos los resultados",
+    "mapAria": "Mapa de propiedades",
+    "paginationAria": "Paginación"
   },
   "card": {
-    "viewListing": "Ver anuncio"
+    "viewListing": "Ver anuncio",
+    "bedShort": "hab",
+    "bathShort": "baños"
   },
   "favorite": {
     "add": "Guardar en favoritos",
@@ -264,6 +270,7 @@
     "linkBlog": "Blog",
     "linkSignUp": "Crear cuenta de agente",
     "linkSignIn": "Iniciar sesión",
+    "legalAria": "Legal",
     "newsletter": {
       "body": "Anuncios nuevos, notas de mercado y novedades del producto — aproximadamente una vez al mes.",
       "label": "Correo electrónico",
@@ -525,6 +532,7 @@
     "restore": "Restaurar"
   },
   "agentProfile": {
+    "breadcrumbAgents": "Agentes",
     "headingTemplate": "{name}",
     "subheadingTemplate": "Agente inmobiliario · {location}",
     "subheadingNoLocation": "Agente inmobiliario en AHO",
@@ -960,6 +968,7 @@
     "statusUploading": "Subiendo…",
     "statusConfirmed": "Subida",
     "statusError": "Falló",
+    "removeImage": "Quitar",
     "r2NotConfigured": "El almacenamiento de imágenes aún no está activo en la cuenta. Los endpoints existen; empezaremos a aceptar fotos cuando Cloudflare R2 esté configurado."
   },
   "imageEditor": {
@@ -1083,7 +1092,8 @@
       "submit": "Enviar enlace de recuperación",
       "submitting": "Enviando…",
       "checkEmailHeading": "Revisa tu correo",
-      "checkEmailBody": "Si existe una cuenta para {email}, acabamos de enviar un enlace de recuperación. El enlace es válido por una hora."
+      "checkEmailBody": "Si existe una cuenta para {email}, acabamos de enviar un enlace de recuperación. El enlace es válido por una hora.",
+      "backToSignIn": "Volver a iniciar sesión"
     },
     "reset": {
       "heading": "Establecer una nueva contraseña",
@@ -2273,6 +2283,14 @@
     "ctaSub": "Estarás en /dashboard/profile. Guarda cambios — Google reindexa en horas; las mejoras de posicionamiento visibles suelen aterrizar en 1-2 semanas.",
     "ctaButton": "Abrir editor de perfil"
   },
+  "blog": {
+    "indexHeading": "Blog de AHO",
+    "indexTagline": "Cómo agentes y propietarios privados compiten con los portales usando distribución multi-canal.",
+    "empty": "Aún no hay artículos publicados.",
+    "readingMin": "{count} min de lectura",
+    "breadcrumbHome": "Inicio",
+    "breadcrumbBlog": "Blog"
+  },
   "freeAudit": {
     "eyebrow": "Auditoría gratuita",
     "widgetHeading": "Pega cualquier URL de anuncio — recibe una campaña completa en 60 segundos.",
@@ -2468,6 +2486,7 @@
     },
     "trust": {
       "heading": "Confianza en todo el mundo",
+      "ariaLabel": "Señales de confianza",
       "pills": [
         "7 idiomas",
         "Anuncios en todo el mundo",
@@ -2479,6 +2498,9 @@
       "heading": "Lo que recibes",
       "colPrivate": "Particular $5",
       "colAgent": "Agente $29-99/mes",
+      "included": "Incluido",
+      "notIncluded": "No incluido",
+      "featureCol": "Característica",
       "rows": [
         { "feature": "Número de anuncios", "private": "1 anuncio", "agent": "Ilimitados" },
         { "feature": "Duración del anuncio", "private": "90 días", "agent": "Activo mientras estés suscrito" },
@@ -2561,6 +2583,7 @@
         }
       ]
     },
+    "coverageSrHeading": "Cobertura del plan",
     "included": {
       "heading": "Qué incluye",
       "items": [
@@ -2615,7 +2638,10 @@
     "success": {
       "heading": "Pago recibido — publiquemos tu anuncio",
       "body": "Tu pago de $5 se procesó correctamente. Tienes 90 días de anuncio esperándote — ahora vamos a activar el anuncio. El siguiente paso es un formulario corto (precio, habitaciones, fotos, canal social). Unos 5 minutos.",
-      "cta": "Crear mi anuncio"
+      "cta": "Crear mi anuncio",
+      "sessionLabel": "Sesión de pago",
+      "confirmed": "confirmado",
+      "back": "Volver"
     },
     "cancel": {
       "heading": "Pago cancelado",
@@ -2626,7 +2652,9 @@
       "heading": "Tu propiedad",
       "submit": "Publicar mi anuncio",
       "gateMissing": "Debes completar el pago antes de crear un anuncio.",
-      "gateCta": "Ir al pago"
+      "gateCta": "Ir al pago",
+      "creditExpires": "Tu cupo de anuncio expira el {date}.",
+      "back": "← Volver"
     }
   }
 }

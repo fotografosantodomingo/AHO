@@ -29,23 +29,33 @@ export interface TierComparisonProps {
   colPrivate: string;
   /** Header label for the second plan column (e.g. "Agent $29-99/mo"). */
   colAgent: string;
+  /** Localized header label for the leftmost "Feature" column. */
+  featureColLabel: string;
+  /** Localized sr-only label for the included (✓) cell. */
+  includedLabel: string;
+  /** Localized aria-label for the "not included" (—) cell. */
+  notIncludedLabel: string;
   /** Feature rows in display order. */
   rows: TierComparisonRow[];
 }
 
-function renderCell(v: string | boolean): ReactNode {
+function renderCell(
+  v: string | boolean,
+  includedLabel: string,
+  notIncludedLabel: string,
+): ReactNode {
   if (v === true) {
     return (
       <span className="inline-flex items-center gap-2 text-sm">
         <CheckIcon />
-        <span className="sr-only">Included</span>
+        <span className="sr-only">{includedLabel}</span>
       </span>
     );
   }
   if (v === false) {
     return (
       <span
-        aria-label="Not included"
+        aria-label={notIncludedLabel}
         className="text-helper"
       >
         —
@@ -80,6 +90,9 @@ export function TierComparison({
   heading,
   colPrivate,
   colAgent,
+  featureColLabel,
+  includedLabel,
+  notIncludedLabel,
   rows,
 }: TierComparisonProps) {
   return (
@@ -104,7 +117,7 @@ export function TierComparison({
                   scope="col"
                   className="px-5 py-4 font-brand text-[13px] font-semibold uppercase tracking-[0.13em] text-helper"
                 >
-                  Feature
+                  {featureColLabel}
                 </th>
                 <th
                   scope="col"
@@ -133,10 +146,10 @@ export function TierComparison({
                     {row.feature}
                   </th>
                   <td className="px-5 py-4 align-top text-ink-muted dark:text-ink-inverse-muted">
-                    {renderCell(row.private)}
+                    {renderCell(row.private, includedLabel, notIncludedLabel)}
                   </td>
                   <td className="px-5 py-4 align-top text-ink-muted dark:text-ink-inverse-muted">
-                    {renderCell(row.agent)}
+                    {renderCell(row.agent, includedLabel, notIncludedLabel)}
                   </td>
                 </tr>
               ))}
@@ -158,7 +171,7 @@ export function TierComparison({
                     {colPrivate}
                   </dt>
                   <dd className="mt-1 text-ink-muted dark:text-ink-inverse-muted">
-                    {renderCell(row.private)}
+                    {renderCell(row.private, includedLabel, notIncludedLabel)}
                   </dd>
                 </div>
                 <div>
@@ -166,7 +179,7 @@ export function TierComparison({
                     {colAgent}
                   </dt>
                   <dd className="mt-1 text-ink-muted dark:text-ink-inverse-muted">
-                    {renderCell(row.agent)}
+                    {renderCell(row.agent, includedLabel, notIncludedLabel)}
                   </dd>
                 </div>
               </dl>

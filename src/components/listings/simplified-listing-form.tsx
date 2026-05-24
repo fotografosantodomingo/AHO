@@ -606,7 +606,7 @@ export function SimplifiedListingForm({
                       <button
                         type="button"
                         onClick={() => removeStaged(s.clientId)}
-                        aria-label="Remove"
+                        aria-label={tUploader('removeImage')}
                         className="absolute right-2 top-2 inline-flex h-6 w-6 items-center justify-center rounded-md bg-surface/90 text-xs text-ink shadow-whisper hover:bg-surface dark:bg-surface-dark/90 dark:text-ink-inverse"
                       >
                         ×

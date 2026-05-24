@@ -124,6 +124,7 @@ export default async function AgentProfilePage({
   }
 
   const t = await getTranslations({ locale, namespace: 'agentProfile' });
+  const tNav = await getTranslations({ locale, namespace: 'nav' });
 
   // Reviews — only fetch when we have an agent userId. The section
   // renders a "no reviews yet" empty state when count is 0.
@@ -275,13 +276,13 @@ export default async function AgentProfilePage({
       {
         '@type': 'ListItem',
         position: 1,
-        name: typedLocale === 'es' ? 'Inicio' : 'Home',
+        name: tNav('home'),
         item: `${site}/${locale}`,
       },
       {
         '@type': 'ListItem',
         position: 2,
-        name: typedLocale === 'es' ? 'Agentes' : 'Agents',
+        name: t('breadcrumbAgents'),
         item: agentsDirHref,
       },
       {

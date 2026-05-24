@@ -23,7 +23,8 @@
     "savedProperties": "Favoris",
     "currency": "Devise",
     "openMenu": "Ouvrir le menu",
-    "closeMenu": "Fermer le menu"
+    "closeMenu": "Fermer le menu",
+    "primaryAria": "Principale"
   },
   "currencyPicker": {
     "label": "Devise d'affichage"
@@ -44,6 +45,7 @@
     "tabBuy": "Acheter",
     "tabRent": "Louer",
     "tabAny": "Tout",
+    "transactionTabsLabel": "Type de transaction",
     "selectCountry": "Tous les pays",
     "selectCity": "Toutes les villes",
     "selectCityDisabled": "Choisissez d'abord un pays",
@@ -216,7 +218,9 @@
     "viewList": "Liste",
     "viewMap": "Carte",
     "bboxActive": "Affichage des annonces dans cette zone de la carte.",
-    "resetBbox": "Revenir à tous les résultats"
+    "resetBbox": "Revenir à tous les résultats",
+    "mapAria": "Carte des annonces immobilières",
+    "paginationAria": "Pagination"
   },
   "footer": {
     "privacy": "Confidentialité",
@@ -241,6 +245,7 @@
     "linkBlog": "Blog",
     "linkSignUp": "Créer un compte agent",
     "linkSignIn": "Se connecter",
+    "legalAria": "Informations légales",
     "newsletter": {
       "body": "Nouvelles annonces, notes de marché et mises à jour produit — environ une fois par mois.",
       "label": "Adresse e-mail",
@@ -298,7 +303,8 @@
       "submit": "Envoyer le lien de réinitialisation",
       "submitting": "Envoi…",
       "checkEmailHeading": "Vérifiez votre boîte e-mail",
-      "checkEmailBody": "Si un compte existe pour {email}, nous venons de lui envoyer un lien de réinitialisation. Le lien est valable une heure."
+      "checkEmailBody": "Si un compte existe pour {email}, nous venons de lui envoyer un lien de réinitialisation. Le lien est valable une heure.",
+      "backToSignIn": "Retour à la connexion"
     },
     "reset": {
       "heading": "Définir un nouveau mot de passe",
@@ -388,7 +394,9 @@
     "approximateInLabel": "Environ {value} dans votre devise sélectionnée"
   },
   "card": {
-    "viewListing": "Voir l'annonce"
+    "viewListing": "Voir l'annonce",
+    "bedShort": "ch",
+    "bathShort": "sdb"
   },
   "favorite": {
     "add": "Ajouter aux favoris",
@@ -1031,6 +1039,7 @@
     "notFoundBody": "L'annonce que vous cherchez n'est plus disponible ou a été retirée."
   },
   "agentProfile": {
+    "breadcrumbAgents": "Agents",
     "headingTemplate": "{name}",
     "subheadingTemplate": "Agent immobilier · {location}",
     "subheadingNoLocation": "Agent immobilier sur AHO",
@@ -1404,6 +1413,7 @@
     "statusUploading": "Téléversement…",
     "statusConfirmed": "Téléversée",
     "statusError": "Échec",
+    "removeImage": "Retirer",
     "r2NotConfigured": "Le stockage d'images n'est pas encore activé sur le compte. Les endpoints API existent ; nous accepterons les téléversements dès que Cloudflare R2 sera branché."
   },
   "listingForm": {
@@ -1513,7 +1523,51 @@
       "featHistory": "Historique des publications + retry en cas d'échec"
     },
     "upgradeCta": "Passer à Pro Automation",
-    "upgradeNote": "99 $/mois ou 990 $/an"
+    "upgradeNote": "99 $/mois ou 990 $/an",
+    "share": {
+      "heading": "Partager sur mes réseaux",
+      "body": "Publiez cette annonce sur vos Pages Facebook et comptes Instagram Business connectés en un clic.",
+      "willPost": "{count, plural, =0 {Aucun compte sélectionné} =1 {Sera publié sur 1 compte} other {Sera publié sur # comptes}}.",
+      "accountSelectionLegend": "Choisissez sur quels comptes connectés publier",
+      "accountSelectionHint": "Décochez tout compte sur lequel vous ne souhaitez pas publier cette fois-ci.",
+      "accountSelectAll": "Tout sélectionner",
+      "accountSelectNone": "Tout effacer",
+      "selectAtLeastOne": "Sélectionnez au moins un compte d'abord.",
+      "shareNow": "Partager maintenant",
+      "posting": "Publication…",
+      "retryFailed": "Réessayer les échecs",
+      "emptyHeading": "Connectez Facebook pour publier",
+      "emptyBody": "Vous n'avez encore connecté aucun compte social. Connectez Facebook pour publier vos annonces sur vos Pages et comptes Instagram Business associés.",
+      "connectFirst": "Connecter Facebook",
+      "draftNotice": "Cette annonce n'est pas encore publiée. Publiez-la d'abord pour pouvoir la partager.",
+      "outcome": {
+        "succeeded": "Publié",
+        "failed": "Échec",
+        "skipped": "Ignoré"
+      },
+      "viewPost": "Voir la publication",
+      "errorPrefix": "Motif",
+      "unexpectedError": "Erreur inattendue",
+      "serverErrorCode": "Erreur serveur : {code}",
+      "errorRefLabel": "Référence d'erreur",
+      "copyError": "Copier l'erreur",
+      "copyErrorCopied": "Copié",
+      "emailSupport": "Écrire au support",
+      "mailtoSubject": "Échec du partage AHO — {ref}",
+      "mailtoBody": "Bonjour support AHO,\n\nMon partage sur les réseaux a échoué.\nRéférence d'erreur : {ref}\nPlateforme : {platform}\nCompte : {account}\nAnnonce : {listingUrl}\n\nMerci pour votre aide.",
+      "generateDraft": "Générer un brouillon IA",
+      "regenerateDraft": "Régénérer le brouillon IA",
+      "generating": "Génération…",
+      "reviewBeforeShare": "Relisez et modifiez chaque brouillon avant de partager. Les brouillons vides utilisent le modèle par défaut.",
+      "resetDraft": "Revenir au brouillon IA",
+      "useTemplate": "Utiliser le modèle",
+      "aiUnavailable": "Brouillon IA indisponible — vous pouvez partager avec le modèle par défaut ou réessayer dans un instant.",
+      "platformDraftLabel": {
+        "facebook": "Brouillon Facebook",
+        "instagram": "Brouillon Instagram",
+        "linkedin": "Brouillon LinkedIn"
+      }
+    }
   },
   "analytics": {
     "heading": "Performance",
@@ -2181,6 +2235,14 @@
     "ctaSub": "Vous serez sur /dashboard/profile. Enregistrez les changements — Google réindexe en heures ; les améliorations de classement visibles arrivent généralement en 1-2 semaines.",
     "ctaButton": "Ouvrir l'éditeur de profil"
   },
+  "blog": {
+    "indexHeading": "Blog AHO",
+    "indexTagline": "Comment les agents et les vendeurs particuliers rivalisent avec les portails grâce à la distribution multicanale.",
+    "empty": "Aucun article publié pour l'instant.",
+    "readingMin": "{count} min de lecture",
+    "breadcrumbHome": "Accueil",
+    "breadcrumbBlog": "Blog"
+  },
   "freeAudit": {
     "eyebrow": "Audit gratuit",
     "widgetHeading": "Collez n'importe quelle URL d'annonce — une campagne complète en 60 secondes.",
@@ -2295,5 +2357,256 @@
     "finalHeading": "Prêt à publier sur Instagram ?",
     "finalBody": "Connectez ou reconnectez Meta sur votre tableau de bord, puis créez une nouvelle publication — Instagram devrait apparaître dans la liste des cases à cocher.",
     "finalCta": "Ouvrir /dashboard/social"
+  },
+  "sell": {
+    "meta": {
+      "title": "Vendre ou louer sur AHO — 5 $ pour les particuliers, 29-99 $/mois pour les agents",
+      "description": "Annoncez votre bien dans le monde entier sur AHO. Les propriétaires privés paient 5 $ pour une annonce de 90 jours ; les agents professionnels s'abonnent à partir de 29 $/mois pour des annonces illimitées, l'automatisation multicanale, une boîte de réception IA et une page de profil personnalisée."
+    },
+    "hero": {
+      "eyebrow": "Vendre ou louer sur AHO",
+      "heading": "Annoncez votre bien dans le monde entier.",
+      "sub": "Annonces propulsées par IA + automatisation des réseaux sociaux en 7 langues."
+    },
+    "identity": {
+      "heading": "Comment souhaitez-vous annoncer ?"
+    },
+    "cardPrivate": {
+      "tag": "Propriétaire / bailleur",
+      "heading": "Annoncez votre bien vous-même",
+      "perfectFor": "Idéal pour",
+      "bullets": [
+        "Vendre une maison ou un appartement, une seule fois",
+        "Louer une résidence de vacances ou courte durée",
+        "Bailleur avec 1-2 biens en location longue durée",
+        "Vendeurs particuliers (FSBO) ne voulant pas d'agent"
+      ],
+      "includesLabel": "Inclut",
+      "includes": [
+        "1 annonce, en ligne pendant 90 jours",
+        "Légendes IA en 7 langues",
+        "Publication sociale sur 1 canal (Facebook ou Instagram)",
+        "Captation de contacts via WhatsApp + e-mail",
+        "Jusqu'à 25 photos par annonce"
+      ],
+      "price": "5 $ USD par annonce",
+      "priceNote": "paiement unique",
+      "cta": "Commencer l'annonce"
+    },
+    "cardAgent": {
+      "tag": "Agent professionnel",
+      "heading": "Automatisation multi-annonces",
+      "bullets": [
+        "Agents immobiliers indépendants",
+        "Courtiers gérant un portefeuille personnel",
+        "Agences boutique (2-20 agents)",
+        "Promoteurs commercialisant des constructions neuves"
+      ],
+      "includes": [
+        "Annonces illimitées",
+        "Publication automatique sur Facebook + Instagram + LinkedIn",
+        "Boîte de réception IA avec règles de routage",
+        "Tableau de bord d'analyse par annonce",
+        "Avis vérifiés d'anciens clients",
+        "Page de profil d'agent personnalisée et référencée"
+      ],
+      "priceNote": "À partir de 29 $/mois · annulation à tout moment",
+      "cta": "Voir les plans"
+    },
+    "how": {
+      "heading": "Du collage à la publication en moins de 5 minutes.",
+      "private": {
+        "title": "Pour les propriétaires",
+        "steps": [
+          "Payez 5 $ via Stripe — paiement unique, sans abonnement, sans renouvellement automatique.",
+          "Collez l'URL d'une annonce d'un autre portail ou remplissez le court formulaire : prix, chambres, surface, ville, jusqu'à 25 photos.",
+          "Claude rédige des légendes adaptées à chaque plateforme en 7 langues ; visuels sociaux brandés générés automatiquement.",
+          "Choisissez Facebook ou Instagram comme canal de publication.",
+          "L'annonce est en ligne pendant 90 jours ; les contacts vous parviennent via WhatsApp et le formulaire de contact."
+        ]
+      },
+      "agent": {
+        "title": "Pour les agents",
+        "steps": [
+          "Abonnez-vous à un plan agent — Standard 29 $/mois, Pro Automation 99 $/mois, annulable à tout moment.",
+          "Configurez votre profil d'agent : photo, bio, langues parlées, zone d'intervention, badges.",
+          "Ajoutez votre première annonce par dictée vocale, URL ou formulaire.",
+          "Connectez Facebook, Instagram et LinkedIn via OAuth ; AHO publie des variantes par canal.",
+          "Gérez les contacts dans une boîte IA ; analysez la performance par annonce et par canal dans le tableau de bord."
+        ]
+      }
+    },
+    "trust": {
+      "heading": "Adopté dans le monde entier",
+      "ariaLabel": "Signaux de confiance",
+      "pills": [
+        "7 langues",
+        "Annonces mondiales",
+        "Partenaire Meta Business"
+      ],
+      "realOnly": "AHO ne publie pas d'annonces fictives ni de photos d'archive. Chaque bien est réel."
+    },
+    "compare": {
+      "heading": "Ce que vous obtenez",
+      "colPrivate": "Privé 5 $",
+      "colAgent": "Agent 29-99 $/mois",
+      "included": "Inclus",
+      "notIncluded": "Non inclus",
+      "featureCol": "Fonctionnalité",
+      "rows": [
+        { "feature": "Nombre d'annonces", "private": "1 annonce", "agent": "Illimité" },
+        { "feature": "Durée de l'annonce", "private": "90 jours", "agent": "Active tant que l'abonnement est en cours" },
+        { "feature": "Légendes IA en 7 langues", "private": true, "agent": true },
+        { "feature": "Visuels sociaux brandés", "private": true, "agent": true },
+        { "feature": "Publication sociale — Facebook OU Instagram", "private": true, "agent": true },
+        { "feature": "Publication multicanale (FB + IG + LinkedIn)", "private": false, "agent": true },
+        { "feature": "Boîte IA avec règles de routage", "private": false, "agent": true },
+        { "feature": "Page de profil d'agent personnalisée", "private": false, "agent": true },
+        { "feature": "Avis clients vérifiés", "private": false, "agent": true },
+        { "feature": "Tableau de bord d'analyse par annonce", "private": false, "agent": true },
+        { "feature": "Facturation", "private": "5 $ unique", "agent": "Abonnement mensuel" }
+      ]
+    },
+    "faq": {
+      "heading": "Questions fréquentes",
+      "items": [
+        {
+          "q": "Je veux juste vendre une maison — ai-je besoin d'un abonnement ?",
+          "a": "Non. Le plan unique à 5 $ est conçu exactement pour cela. Un paiement, annonce de 90 jours, légendes IA, publication sociale sur un canal. Pas d'abonnement, pas de renouvellement automatique. Si vous décidez d'annoncer plus de biens plus tard, vous pouvez payer 5 $ par annonce ou passer à un plan mensuel d'agent."
+        },
+        {
+          "q": "Je suis agent en activité — le plan à 5 $ suffit-il pour mon portefeuille ?",
+          "a": "Pas vraiment. 5 $ couvre une annonce pendant 90 jours avec publication sur un seul canal. Les plans agent vous offrent des annonces illimitées, la publication multicanale (Facebook + Instagram + LinkedIn), une boîte IA qui trie les contacts entrants, et une page de profil référencée. Si vous publiez plus de 2-3 annonces par an, l'abonnement est mathématiquement plus avantageux."
+        },
+        {
+          "q": "Mon annonce se renouvelle-t-elle automatiquement après 90 jours ?",
+          "a": "Non. Le paiement de 5 $ est unique. Nous vous envoyons un e-mail au jour 82 avec un lien de renouvellement en un clic (5 $ pour 90 jours de plus). Si vous ne renouvelez pas, l'annonce passe à expirée et disparaît des recherches ; vos données restent pour un renouvellement ultérieur."
+        },
+        {
+          "q": "Puis-je passer de 5 $ à un plan agent plus tard ?",
+          "a": "Oui, à tout moment. Vos annonces existantes migrent vers le compte agent et vous accédez immédiatement aux annonces illimitées, à la publication multicanale et à la boîte IA. Les paiements de 5 $ ne sont pas remboursés mais la durée d'annonce déjà payée reste."
+        },
+        {
+          "q": "Y a-t-il des remboursements ?",
+          "a": "Remboursement complet sous 7 jours pour le plan 5 $, sans questions, tant que l'annonce n'a pas reçu de contacts. Les abonnements agent sont facturés à l'avance ; vous pouvez annuler à tout moment depuis le Customer Portal Stripe et conservez l'accès jusqu'à la fin de la période en cours."
+        }
+      ]
+    },
+    "cta": {
+      "heading": "Encore hésitant ?",
+      "sub": "L'assistant AHO (en bas à droite) peut répondre à vos questions.",
+      "private": "Commencer comme propriétaire — 5 $",
+      "agent": "Voir les plans agent"
+    }
+  },
+  "sellPrivate": {
+    "meta": {
+      "title": "5 $ pour publier votre bien dans le monde entier — annonce 90 jours sur AHO",
+      "description": "Un bien, un paiement, 90 jours en ligne. Légendes générées par IA en 7 langues, publication sociale sur Facebook ou Instagram en un clic, contacts via WhatsApp + e-mail. Sans abonnement."
+    },
+    "hero": {
+      "eyebrow": "Propriétaire · bailleur",
+      "heading": "5 $ pour publier votre bien dans le monde entier.",
+      "sub": "Annonce 90 jours. Légendes IA en 7 langues. Publication sociale en un clic.",
+      "cta": "Payer 5 $ →"
+    },
+    "process": {
+      "heading": "5 minutes du collage à la publication",
+      "steps": [
+        {
+          "title": "Payer 5 $",
+          "body": "Checkout Stripe sécurisé. Paiement unique — sans abonnement, sans renouvellement automatique. TVA incluse affichée pour les acheteurs UE."
+        },
+        {
+          "title": "Coller une URL ou télécharger photos + infos",
+          "body": "Collez une URL d'un autre portail (nous importons les détails) ou remplissez le court formulaire : prix, chambres, surface, ville, jusqu'à 25 photos."
+        },
+        {
+          "title": "L'IA rédige légendes + visuels",
+          "body": "Claude rédige des légendes sociales adaptées à chaque plateforme en 7 langues — anglais, espagnol, polonais, portugais, allemand, français, italien. Cartes visuelles brandées générées automatiquement."
+        },
+        {
+          "title": "Choisir Facebook ou Instagram",
+          "body": "Choisissez où publier en premier. Le plan 5 $ publie sur un canal social — choisissez celui que votre audience utilise vraiment."
+        },
+        {
+          "title": "Publier · annonce en ligne 90 jours",
+          "body": "L'annonce passe en ligne sur advertisehomes.online avec une URL permanente. Les contacts vous parviennent via le formulaire, WhatsApp et e-mail."
+        }
+      ]
+    },
+    "coverageSrHeading": "Couverture du plan",
+    "included": {
+      "heading": "Ce que vous obtenez",
+      "items": [
+        "1 annonce, en ligne pendant 90 jours",
+        "Légendes IA en 7 langues (EN/ES/PL/PT/DE/FR/IT)",
+        "Visuels sociaux brandés générés par IA",
+        "Publication sociale sur 1 canal (Facebook ou Instagram)",
+        "Contacts via WhatsApp + formulaire e-mail",
+        "Page d'annonce avec jusqu'à 25 photos et URL permanente"
+      ]
+    },
+    "excluded": {
+      "heading": "Ce que vous n'obtenez pas",
+      "items": [
+        "Annonces illimitées (ici c'est un bien, un paiement)",
+        "Publication multicanale (Facebook + Instagram + LinkedIn simultanément)",
+        "Réponses IA automatiques aux contacts entrants",
+        "Page de profil d'agent personnalisée avec avis et SEO"
+      ],
+      "upgradeCta": "Besoin de cela ? Voir les plans agent →"
+    },
+    "faq": {
+      "heading": "Questions fréquentes",
+      "items": [
+        {
+          "q": "Mon annonce se renouvelle-t-elle automatiquement ?",
+          "a": "Non. Le paiement de 5 $ est unique et l'annonce expire après 90 jours. Nous vous envoyons un e-mail au jour 82 avec un lien de renouvellement en un clic (5 $ pour 90 jours de plus). Si vous ne renouvelez pas, l'annonce passe à expirée et disparaît des recherches ; vos données restent pour un renouvellement ultérieur."
+        },
+        {
+          "q": "Quelle est la politique de remboursement ?",
+          "a": "Remboursement complet sous 7 jours, sans questions, tant que l'annonce n'a pas reçu de contacts. Envoyez un e-mail à info@advertisehomes.online avec votre reçu Stripe. Au-delà de 7 jours, le paiement est définitif (l'annonce a déjà été en ligne et indexée)."
+        },
+        {
+          "q": "Que se passe-t-il après 90 jours ?",
+          "a": "L'annonce passe à expirée et disparaît des résultats de recherche. La page d'annonce reste à la même URL (les liens entrants continuent de fonctionner) mais avec une bannière \"Cette annonce a expiré\" et un bouton de renouvellement. Payez 5 $ pour la réactiver pendant 90 jours de plus."
+        },
+        {
+          "q": "Qui gère la vente ou la location ?",
+          "a": "Vous. AHO est la plateforme publicitaire — nous publions votre annonce, générons les légendes et visuels, et acheminons les contacts vers votre WhatsApp et votre e-mail. La conversation, la visite, les démarches et la conclusion se font entre vous et l'acheteur ou le locataire. Si vous voulez qu'un agent gère la vente, parcourez la page Trouver un agent."
+        }
+      ]
+    },
+    "ctaRepeat": {
+      "heading": "Prêt à publier ?",
+      "button": "Payer 5 $ et démarrer"
+    },
+    "authGate": {
+      "note": "D'abord un compte rapide — pour que nous puissions enregistrer votre annonce et vous envoyer les contacts. Cela prend 30 secondes.",
+      "signIn": "Se connecter",
+      "createAccount": "Créer un compte"
+    },
+    "success": {
+      "heading": "Paiement reçu — publions votre annonce",
+      "body": "Votre paiement de 5 $ est passé. Vous avez 90 jours de durée d'annonce devant vous — mettons-la en ligne. L'étape suivante est un court formulaire (prix, chambres, photos, canal social). Compter environ 5 minutes.",
+      "cta": "Créer votre annonce",
+      "sessionLabel": "Session de paiement",
+      "confirmed": "confirmé",
+      "back": "Retour"
+    },
+    "cancel": {
+      "heading": "Paiement annulé",
+      "body": "Aucun débit. Vous pouvez revenir à tout moment — votre emplacement d'annonce est à un clic.",
+      "cta": "Retour à la page privée"
+    },
+    "form": {
+      "heading": "Votre bien",
+      "submit": "Publier mon annonce",
+      "gateMissing": "Vous devez finaliser le paiement avant de créer une annonce.",
+      "gateCta": "Aller au paiement",
+      "creditExpires": "Votre crédit d'annonce expire le {date}.",
+      "back": "← Retour"
+    }
   }
 }

@@ -116,6 +116,7 @@ export default async function HomePage({
             submitLabel={t('searchSubmit')}
             tabBuyLabel={t('tabBuy')}
             tabRentLabel={t('tabRent')}
+            transactionTabsLabel={t('transactionTabsLabel')}
             agentLinkLabel={t('ctaForAgents')}
             countryPlaceholder={t('selectCountry')}
             cityPlaceholder={t('selectCity')}

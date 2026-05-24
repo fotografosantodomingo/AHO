@@ -26,6 +26,8 @@ interface Props {
   submitLabel: string;
   tabBuyLabel: string;
   tabRentLabel: string;
+  /** Localized aria-label for the Buy/Rent tablist. */
+  transactionTabsLabel: string;
   agentLinkLabel: string;
   countryPlaceholder: string;
   cityPlaceholder: string;
@@ -53,6 +55,7 @@ export function HeroSearchForm({
   submitLabel,
   tabBuyLabel,
   tabRentLabel,
+  transactionTabsLabel,
   agentLinkLabel,
   countryPlaceholder,
   cityPlaceholder,
@@ -129,7 +132,7 @@ export function HeroSearchForm({
     >
       <div
         role="tablist"
-        aria-label="Transaction type"
+        aria-label={transactionTabsLabel}
         className="mb-3 inline-flex rounded-lg border border-border bg-surface/80 p-1 shadow-whisper backdrop-blur-sm dark:bg-surface-dark/80"
       >
         {tabs.map((tab) => {

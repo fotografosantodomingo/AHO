@@ -23,7 +23,8 @@
     "savedProperties": "Saved properties",
     "currency": "Currency",
     "openMenu": "Open menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "primaryAria": "Primary"
   },
   "currencyPicker": {
     "label": "Display currency"
@@ -159,6 +160,7 @@
     "tabBuy": "Buy",
     "tabRent": "Rent",
     "tabAny": "Any",
+    "transactionTabsLabel": "Transaction type",
     "selectCountry": "Any country",
     "selectCity": "Any city",
     "selectCityDisabled": "Select a country first",
@@ -219,10 +221,14 @@
     "viewList": "List",
     "viewMap": "Map",
     "bboxActive": "Showing listings in this map area.",
-    "resetBbox": "Reset to all results"
+    "resetBbox": "Reset to all results",
+    "mapAria": "Map of property listings",
+    "paginationAria": "Pagination"
   },
   "card": {
-    "viewListing": "View listing"
+    "viewListing": "View listing",
+    "bedShort": "bd",
+    "bathShort": "ba"
   },
   "favorite": {
     "add": "Save to favorites",
@@ -264,6 +270,7 @@
     "linkBlog": "Blog",
     "linkSignUp": "Create an agent account",
     "linkSignIn": "Sign in",
+    "legalAria": "Legal",
     "newsletter": {
       "body": "New listings, market notes, and product updates — about once a month.",
       "label": "Email address",
@@ -499,6 +506,7 @@
     "notFoundBody": "The listing you’re looking for is no longer available or has been removed."
   },
   "agentProfile": {
+    "breadcrumbAgents": "Agents",
     "headingTemplate": "{name}",
     "subheadingTemplate": "Real estate agent · {location}",
     "subheadingNoLocation": "Real estate agent on AHO",
@@ -960,6 +968,7 @@
     "statusUploading": "Uploading…",
     "statusConfirmed": "Uploaded",
     "statusError": "Failed",
+    "removeImage": "Remove",
     "r2NotConfigured": "Image storage isn't enabled on the account yet. The upload API endpoints exist; we'll start accepting uploads once Cloudflare R2 is wired up."
   },
   "imageEditor": {
@@ -1083,7 +1092,8 @@
       "submit": "Send reset link",
       "submitting": "Sending…",
       "checkEmailHeading": "Check your email",
-      "checkEmailBody": "If an account exists for {email}, we just sent it a password-reset link. The link is valid for one hour."
+      "checkEmailBody": "If an account exists for {email}, we just sent it a password-reset link. The link is valid for one hour.",
+      "backToSignIn": "Back to sign in"
     },
     "reset": {
       "heading": "Set a new password",
@@ -2273,6 +2283,14 @@
     "ctaSub": "You'll be on /dashboard/profile. Save changes — Google re-indexes within hours; visible rank improvements typically land within 1-2 weeks.",
     "ctaButton": "Open profile editor"
   },
+  "blog": {
+    "indexHeading": "AHO Blog",
+    "indexTagline": "How agents and private sellers compete with portals using multi-channel distribution.",
+    "empty": "No articles published yet.",
+    "readingMin": "{count} min read",
+    "breadcrumbHome": "Home",
+    "breadcrumbBlog": "Blog"
+  },
   "freeAudit": {
     "eyebrow": "Free audit",
     "widgetHeading": "Paste any listing URL — get a full campaign in 60 seconds.",
@@ -2468,6 +2486,7 @@
     },
     "trust": {
       "heading": "Trusted worldwide",
+      "ariaLabel": "Trust signals",
       "pills": [
         "7 languages",
         "Worldwide listings",
@@ -2479,6 +2498,9 @@
       "heading": "What you get",
       "colPrivate": "Private $5",
       "colAgent": "Agent $29-99/mo",
+      "included": "Included",
+      "notIncluded": "Not included",
+      "featureCol": "Feature",
       "rows": [
         { "feature": "Number of listings", "private": "1 listing", "agent": "Unlimited" },
         { "feature": "Listing duration", "private": "90 days", "agent": "Active while subscribed" },
@@ -2561,6 +2583,7 @@
         }
       ]
     },
+    "coverageSrHeading": "Plan coverage",
     "included": {
       "heading": "What you get",
       "items": [
@@ -2615,7 +2638,10 @@
     "success": {
       "heading": "Payment received — let's publish your listing",
       "body": "Your $5 payment went through. You have 90 days of listing time waiting for you — let's get the listing live. The next step is a short form (price, beds, photos, social channel). Should take about 5 minutes.",
-      "cta": "Create your listing"
+      "cta": "Create your listing",
+      "sessionLabel": "Payment session",
+      "confirmed": "confirmed",
+      "back": "Back"
     },
     "cancel": {
       "heading": "Payment cancelled",
@@ -2626,7 +2652,9 @@
       "heading": "Your property",
       "submit": "Publish my listing",
       "gateMissing": "You need to complete payment before creating a listing.",
-      "gateCta": "Go to payment"
+      "gateCta": "Go to payment",
+      "creditExpires": "Your listing credit expires on {date}.",
+      "back": "← Back"
     }
   }
 }

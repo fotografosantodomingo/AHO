@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { setRequestLocale } from 'next-intl/server';
+import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { localePath } from '@/i18n/routing';
 import { createAdminClient } from '@/lib/supabase/admin';
@@ -233,6 +233,7 @@ export default async function BlogPostPage({
   if (!LOCALES.includes(locale as Locale)) return null;
   const typedLocale = locale as Locale;
   setRequestLocale(typedLocale);
+  const tBlog = await getTranslations({ locale: typedLocale, namespace: 'blog' });
 
   const post = await loadPost(slug, typedLocale);
   if (!post) notFound();
@@ -265,8 +266,8 @@ export default async function BlogPostPage({
       wordCount: post.word_count,
     }),
     buildBreadcrumbList([
-      { name: typedLocale === 'es' ? 'Inicio' : 'Home', url: homeUrl },
-      { name: typedLocale === 'es' ? 'Blog' : 'Blog', url: blogIndexUrl },
+      { name: tBlog('breadcrumbHome'), url: homeUrl },
+      { name: tBlog('breadcrumbBlog'), url: blogIndexUrl },
       { name: post.title, url },
     ]),
   ]);

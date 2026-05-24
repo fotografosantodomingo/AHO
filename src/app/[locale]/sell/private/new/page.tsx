@@ -107,9 +107,9 @@ export default async function SellPrivateNewListingPage({
           {t('form.heading')}
         </h1>
         <p className="mt-3 text-sm text-ink-muted dark:text-ink-inverse-muted">
-          {typedLocale === 'es'
-            ? `Tu cupo de anuncio expira el ${new Date(purchase.expires_at).toLocaleDateString('es')}.`
-            : `Your listing credit expires on ${new Date(purchase.expires_at).toLocaleDateString('en')}.`}
+          {t('form.creditExpires', {
+            date: new Date(purchase.expires_at).toLocaleDateString(typedLocale),
+          })}
         </p>
       </header>
 
@@ -126,7 +126,7 @@ export default async function SellPrivateNewListingPage({
           href={localePath(typedLocale, '/sell/private')}
           className="underline-offset-4 hover:underline"
         >
-          {typedLocale === 'es' ? '← Volver' : '← Back'}
+          {t('form.back')}
         </Link>
       </p>
     </main>

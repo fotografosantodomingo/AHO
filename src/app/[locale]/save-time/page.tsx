@@ -55,6 +55,7 @@ export default async function SaveTimePage({
   setRequestLocale(typedLocale);
 
   const t = await getTranslations({ locale, namespace: 'saveTime' });
+  const tNav = await getTranslations({ locale, namespace: 'nav' });
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
   const alts = buildLandingAlternates({
     pathKey: '/save-time',
@@ -112,7 +113,7 @@ export default async function SaveTimePage({
       {
         '@type': 'ListItem',
         position: 1,
-        name: typedLocale === 'es' ? 'Inicio' : 'Home',
+        name: tNav('home'),
         item: homeUrl,
       },
       {

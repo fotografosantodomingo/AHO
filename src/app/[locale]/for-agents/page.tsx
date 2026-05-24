@@ -57,6 +57,7 @@ export default async function ForAgentsPage({
   setRequestLocale(typedLocale);
 
   const t = await getTranslations({ locale, namespace: 'forAgents' });
+  const tNav = await getTranslations({ locale, namespace: 'nav' });
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
   const alts = buildLandingAlternates({
     pathKey: '/for-agents',
@@ -134,7 +135,7 @@ export default async function ForAgentsPage({
       {
         '@type': 'ListItem',
         position: 1,
-        name: typedLocale === 'es' ? 'Inicio' : 'Home',
+        name: tNav('home'),
         item: homeUrl,
       },
       {

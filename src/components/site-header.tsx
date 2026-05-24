@@ -145,7 +145,7 @@ export async function SiteHeader({ locale }: Props) {
             mt-* on the panel keep the hover path contiguous so the
             cursor doesn't slip into a dead gap and dismiss the menu. */}
         <nav
-          aria-label="Primary"
+          aria-label={t('primaryAria')}
           className="hidden flex-1 items-center justify-center gap-5 text-sm md:flex"
         >
           {navItems.map((item) =>

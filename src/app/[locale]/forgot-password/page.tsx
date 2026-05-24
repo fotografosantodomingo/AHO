@@ -67,7 +67,7 @@ export default async function ForgotPasswordPage({
               className="text-helper underline-offset-2 hover:text-action hover:underline dark:hover:text-action-dark"
               href={signInPath}
             >
-              ← {locale === 'es' ? 'Volver a iniciar sesión' : 'Back to sign in'}
+              ← {t('backToSignIn')}
             </a>
           </p>
         </div>

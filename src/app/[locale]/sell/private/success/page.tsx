@@ -90,13 +90,13 @@ export default async function SellPrivateSuccessPage({
         </p>
         {sessionId && (
           <p className="mt-2 text-xs text-helper">
-            {typedLocale === 'es' ? 'Sesión de pago' : 'Payment session'}:{' '}
+            {t('success.sessionLabel')}:{' '}
             <code className="rounded bg-surface-muted px-1 py-0.5 font-mono text-[11px] dark:bg-surface-dark">
               {sessionId.slice(0, 20)}…
             </code>
             {purchaseConfirmed && (
               <span className="ml-2 text-emerald-700 dark:text-emerald-300">
-                ✓ {typedLocale === 'es' ? 'confirmado' : 'confirmed'}
+                ✓ {t('success.confirmed')}
               </span>
             )}
           </p>
@@ -112,7 +112,7 @@ export default async function SellPrivateSuccessPage({
             href={privateLandingHref}
             className="inline-flex h-12 items-center rounded-lg border border-border-strong bg-surface px-5 text-sm font-medium transition hover:bg-black/5 dark:bg-surface-deep dark:hover:bg-white/5"
           >
-            {typedLocale === 'es' ? 'Volver' : 'Back'}
+            {t('success.back')}
           </Link>
         </div>
       </div>

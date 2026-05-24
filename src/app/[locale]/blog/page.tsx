@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { setRequestLocale } from 'next-intl/server';
+import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { localePath } from '@/i18n/routing';
 import { createAdminClient } from '@/lib/supabase/admin';
@@ -71,6 +71,7 @@ export default async function BlogIndexPage({
   if (!LOCALES.includes(locale as Locale)) return null;
   const typedLocale = locale as Locale;
   setRequestLocale(typedLocale);
+  const tBlog = await getTranslations({ locale: typedLocale, namespace: 'blog' });
 
   const { NEXT_PUBLIC_SITE_URL: site } = publicEnv();
   const alts = buildLandingAlternates({
@@ -102,16 +103,10 @@ export default async function BlogIndexPage({
   }
   const rows = (data ?? []) as unknown as BlogIndexRow[];
 
-  const heading =
-    typedLocale === 'es' ? 'Blog de AHO' : 'AHO Blog';
-  const tagline =
-    typedLocale === 'es'
-      ? 'Cómo agentes y propietarios privados compiten con los portales usando distribución multi-canal.'
-      : 'How agents and private sellers compete with portals using multi-channel distribution.';
-  const emptyLabel =
-    typedLocale === 'es' ? 'Aún no hay artículos publicados.' : 'No articles published yet.';
-  const readingMinLabel = (mins: number) =>
-    typedLocale === 'es' ? `${mins} min de lectura` : `${mins} min read`;
+  const heading = tBlog('indexHeading');
+  const tagline = tBlog('indexTagline');
+  const emptyLabel = tBlog('empty');
+  const readingMinLabel = (mins: number) => tBlog('readingMin', { count: mins });
 
   // JSON-LD: CollectionPage + BreadcrumbList.
   const homeUrl = `${site}/${typedLocale}`;
@@ -123,7 +118,7 @@ export default async function BlogIndexPage({
       inLanguage: typedLocale,
     }),
     buildBreadcrumbList([
-      { name: typedLocale === 'es' ? 'Inicio' : 'Home', url: homeUrl },
+      { name: tBlog('breadcrumbHome'), url: homeUrl },
       { name: heading, url: alts.canonical },
     ]),
   ]);
