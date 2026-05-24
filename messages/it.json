@@ -1203,7 +1203,51 @@
       "featHistory": "Storico pubblicazioni + retry in caso di errore"
     },
     "upgradeCta": "Passa a Pro Automation",
-    "upgradeNote": "99 $/mese o 990 $/anno"
+    "upgradeNote": "99 $/mese o 990 $/anno",
+    "share": {
+      "heading": "Condividi sui miei social",
+      "body": "Pubblica questo annuncio sulle tue Pagine Facebook e sugli account Instagram Business collegati con un clic.",
+      "willPost": "{count, plural, =0 {Nessun account selezionato} =1 {Verrà pubblicato su 1 account} other {Verrà pubblicato su # account}}.",
+      "accountSelectionLegend": "Scegli su quali account collegati pubblicare",
+      "accountSelectionHint": "Deseleziona qualsiasi account su cui non vuoi pubblicare questa volta.",
+      "accountSelectAll": "Seleziona tutto",
+      "accountSelectNone": "Pulisci tutto",
+      "selectAtLeastOne": "Seleziona prima almeno un account.",
+      "shareNow": "Condividi ora",
+      "posting": "Pubblicazione in corso…",
+      "retryFailed": "Riprova i falliti",
+      "emptyHeading": "Collega Facebook per pubblicare",
+      "emptyBody": "Non hai ancora collegato nessun account social. Collega Facebook per pubblicare i tuoi annunci sulle tue Pagine e sugli account Instagram Business associati.",
+      "connectFirst": "Collega Facebook",
+      "draftNotice": "Questo annuncio non è ancora pubblicato. Pubblicalo prima per condividerlo.",
+      "outcome": {
+        "succeeded": "Pubblicato",
+        "failed": "Fallito",
+        "skipped": "Saltato"
+      },
+      "viewPost": "Vedi post",
+      "errorPrefix": "Motivo",
+      "unexpectedError": "Errore inatteso",
+      "serverErrorCode": "Errore server: {code}",
+      "errorRefLabel": "Riferimento errore",
+      "copyError": "Copia errore",
+      "copyErrorCopied": "Copiato",
+      "emailSupport": "Scrivi al supporto",
+      "mailtoSubject": "Condivisione AHO fallita — {ref}",
+      "mailtoBody": "Ciao supporto AHO,\n\nLa mia condivisione social è fallita.\nRiferimento errore: {ref}\nPiattaforma: {platform}\nAccount: {account}\nAnnuncio: {listingUrl}\n\nGrazie per l'aiuto.",
+      "generateDraft": "Genera bozza IA",
+      "regenerateDraft": "Rigenera bozza IA",
+      "generating": "Generazione…",
+      "reviewBeforeShare": "Rivedi e modifica ogni bozza prima di condividere. Le bozze vuote usano il modello predefinito.",
+      "resetDraft": "Torna alla bozza IA",
+      "useTemplate": "Usa il modello",
+      "aiUnavailable": "Bozza IA non disponibile — puoi condividere con il modello predefinito o riprovare tra poco.",
+      "platformDraftLabel": {
+        "facebook": "Bozza Facebook",
+        "instagram": "Bozza Instagram",
+        "linkedin": "Bozza LinkedIn"
+      }
+    }
   },
   "analytics": {
     "heading": "Performance",
@@ -2295,5 +2339,246 @@
     "finalHeading": "Pronto a pubblicare su Instagram?",
     "finalBody": "Collega o ricollega Meta sulla tua dashboard, poi crea un nuovo post — Instagram dovrebbe essere nella lista dei checkbox per account.",
     "finalCta": "Apri /dashboard/social"
+  },
+  "sell": {
+    "meta": {
+      "title": "Vendi o affitta su AHO — 5 $ per i privati, 29-99 $/mese per gli agenti",
+      "description": "Pubblicizza la tua proprietà in tutto il mondo su AHO. I proprietari privati pagano 5 $ per un annuncio di 90 giorni; gli agenti professionisti si abbonano da 29 $/mese per annunci illimitati, automazione multicanale, casella IA e una pagina profilo brandizzata."
+    },
+    "hero": {
+      "eyebrow": "Vendi o affitta su AHO",
+      "heading": "Pubblicizza la tua proprietà in tutto il mondo.",
+      "sub": "Annunci con IA + automazione social in 7 lingue."
+    },
+    "identity": {
+      "heading": "Come vuoi pubblicizzare?"
+    },
+    "cardPrivate": {
+      "tag": "Proprietario / locatore",
+      "heading": "Pubblica l'annuncio da solo",
+      "perfectFor": "Ideale per",
+      "bullets": [
+        "Vendere una casa o un appartamento, una sola volta",
+        "Affittare una casa vacanze o per brevi periodi",
+        "Locatori con 1-2 immobili a lungo termine",
+        "Venditori privati (FSBO) che non vogliono un agente"
+      ],
+      "includesLabel": "Include",
+      "includes": [
+        "1 annuncio, attivo per 90 giorni",
+        "Caption IA in 7 lingue",
+        "Pubblicazione social su 1 canale (Facebook o Instagram)",
+        "Contatti via WhatsApp + e-mail",
+        "Fino a 25 foto per annuncio"
+      ],
+      "price": "5 $ USD per annuncio",
+      "priceNote": "pagamento una tantum",
+      "cta": "Inizia annuncio"
+    },
+    "cardAgent": {
+      "tag": "Agente professionista",
+      "heading": "Automazione multi-annuncio",
+      "bullets": [
+        "Agenti immobiliari indipendenti",
+        "Mediatori con portafoglio personale",
+        "Agenzie boutique (2-20 agenti)",
+        "Costruttori che promuovono nuove costruzioni"
+      ],
+      "includes": [
+        "Annunci illimitati",
+        "Pubblicazione automatica su Facebook + Instagram + LinkedIn",
+        "Casella IA con regole di routing dei contatti",
+        "Dashboard di analisi per annuncio",
+        "Recensioni verificate dai clienti precedenti",
+        "Pagina profilo agente brandizzata con SEO"
+      ],
+      "priceNote": "Da 29 $/mese · cancellazione in qualsiasi momento",
+      "cta": "Vedi i piani"
+    },
+    "how": {
+      "heading": "Dall'incollaggio alla pubblicazione in meno di 5 minuti.",
+      "private": {
+        "title": "Per i proprietari",
+        "steps": [
+          "Paga 5 $ con Stripe — una tantum, senza abbonamento, senza rinnovo automatico.",
+          "Incolla l'URL di un annuncio da un altro portale oppure compila il modulo breve: prezzo, camere, superficie, città, fino a 25 foto.",
+          "Claude scrive caption adatte a ogni piattaforma in 7 lingue; grafiche social brandizzate generate automaticamente.",
+          "Scegli Facebook o Instagram come canale di pubblicazione.",
+          "L'annuncio resta attivo per 90 giorni; i contatti ti arrivano via WhatsApp e modulo di contatto."
+        ]
+      },
+      "agent": {
+        "title": "Per gli agenti",
+        "steps": [
+          "Abbonati a un piano agente — Standard 29 $/mese, Pro Automation 99 $/mese, cancellabile sempre.",
+          "Configura il tuo profilo agente brandizzato: foto, bio, lingue parlate, area di lavoro, badge.",
+          "Aggiungi il primo annuncio via dettatura vocale, URL o modulo.",
+          "Collega Facebook, Instagram e LinkedIn via OAuth; AHO pubblica varianti per canale.",
+          "Gestisci i contatti da un'unica casella IA; analizza la performance per annuncio e canale dalla dashboard."
+        ]
+      }
+    },
+    "trust": {
+      "heading": "Affidabile in tutto il mondo",
+      "pills": [
+        "7 lingue",
+        "Annunci in tutto il mondo",
+        "Meta Business Partner"
+      ],
+      "realOnly": "AHO non pubblica annunci demo né foto stock. Ogni proprietà è reale."
+    },
+    "compare": {
+      "heading": "Cosa ottieni",
+      "colPrivate": "Privato 5 $",
+      "colAgent": "Agente 29-99 $/mese",
+      "rows": [
+        { "feature": "Numero di annunci", "private": "1 annuncio", "agent": "Illimitati" },
+        { "feature": "Durata dell'annuncio", "private": "90 giorni", "agent": "Attivo mentre l'abbonamento è in corso" },
+        { "feature": "Caption IA in 7 lingue", "private": true, "agent": true },
+        { "feature": "Grafiche social brandizzate", "private": true, "agent": true },
+        { "feature": "Pubblicazione social — Facebook O Instagram", "private": true, "agent": true },
+        { "feature": "Pubblicazione multicanale (FB + IG + LinkedIn)", "private": false, "agent": true },
+        { "feature": "Casella IA con regole di routing", "private": false, "agent": true },
+        { "feature": "Pagina profilo agente brandizzata", "private": false, "agent": true },
+        { "feature": "Recensioni clienti verificate", "private": false, "agent": true },
+        { "feature": "Dashboard di analisi per annuncio", "private": false, "agent": true },
+        { "feature": "Fatturazione", "private": "5 $ una tantum", "agent": "Abbonamento mensile" }
+      ]
+    },
+    "faq": {
+      "heading": "Domande frequenti",
+      "items": [
+        {
+          "q": "Voglio vendere solo una casa — mi serve un abbonamento?",
+          "a": "No. Il piano una tantum a 5 $ è pensato esattamente per questo. Un pagamento, annuncio di 90 giorni, caption IA, pubblicazione social su un canale. Senza abbonamento, senza rinnovo automatico. Se più avanti decidi di pubblicare più immobili, puoi pagare 5 $ per annuncio o passare a un piano mensile da agente."
+        },
+        {
+          "q": "Sono un agente attivo — il piano da 5 $ basta per il mio portafoglio?",
+          "a": "Non proprio. 5 $ è un annuncio per 90 giorni con pubblicazione su un solo canale. I piani agente offrono annunci illimitati, pubblicazione multicanale (Facebook + Instagram + LinkedIn), una casella IA che smista i contatti in entrata e una pagina profilo brandizzata che si posiziona nelle ricerche. Se pubblichi più di 2-3 immobili l'anno, l'abbonamento conviene."
+        },
+        {
+          "q": "Il mio annuncio si rinnova automaticamente dopo 90 giorni?",
+          "a": "No. L'addebito di 5 $ è una tantum. Ti inviamo un'e-mail il giorno 82 con un link di rinnovo a un clic (5 $ per altri 90 giorni). Se non rinnovi, l'annuncio passa a scaduto e smette di apparire nelle ricerche; i dati restano salvati per un eventuale rinnovo successivo."
+        },
+        {
+          "q": "Posso passare dal piano 5 $ a un piano agente in seguito?",
+          "a": "Sì, in qualsiasi momento. Gli annunci esistenti migrano sull'account agente e ottieni subito annunci illimitati, pubblicazione multicanale e casella IA. I pagamenti di 5 $ non sono rimborsabili ma il tempo di annuncio già pagato resta."
+        },
+        {
+          "q": "Ci sono rimborsi?",
+          "a": "Rimborso totale entro 7 giorni per il piano 5 $, senza domande, finché l'annuncio non ha ricevuto contatti. Gli abbonamenti agente sono fatturati in anticipo; puoi cancellare in qualsiasi momento dal Customer Portal di Stripe e mantieni l'accesso fino alla fine del ciclo corrente."
+        }
+      ]
+    },
+    "cta": {
+      "heading": "Stai ancora decidendo?",
+      "sub": "L'assistente AHO (in basso a destra) risponde alle tue domande.",
+      "private": "Inizia come proprietario — 5 $",
+      "agent": "Vedi i piani agente"
+    }
+  },
+  "sellPrivate": {
+    "meta": {
+      "title": "5 $ per pubblicare il tuo immobile in tutto il mondo — annuncio 90 giorni su AHO",
+      "description": "Un immobile, un pagamento, 90 giorni online. Caption generate dall'IA in 7 lingue, pubblicazione social su Facebook o Instagram in un clic, contatti via WhatsApp + e-mail. Nessun abbonamento."
+    },
+    "hero": {
+      "eyebrow": "Proprietario · locatore",
+      "heading": "5 $ per pubblicare il tuo immobile in tutto il mondo.",
+      "sub": "Annuncio 90 giorni. Caption IA in 7 lingue. Pubblicazione social in un clic.",
+      "cta": "Paga 5 $ →"
+    },
+    "process": {
+      "heading": "5 minuti dall'incollaggio alla pubblicazione",
+      "steps": [
+        {
+          "title": "Paga 5 $",
+          "body": "Checkout Stripe sicuro. Addebito una tantum — niente abbonamento, niente rinnovo automatico. IVA inclusa mostrata per gli acquirenti UE."
+        },
+        {
+          "title": "Incolla un URL o carica foto + dati",
+          "body": "Incolla un URL da un altro portale (importiamo i dettagli) o compila il modulo breve: prezzo, camere, superficie, città, fino a 25 foto."
+        },
+        {
+          "title": "L'IA scrive caption + grafiche",
+          "body": "Claude scrive caption social adatte alla piattaforma in 7 lingue — inglese, spagnolo, polacco, portoghese, tedesco, francese, italiano. Card immagine brandizzate generate automaticamente."
+        },
+        {
+          "title": "Scegli Facebook o Instagram",
+          "body": "Scegli dove pubblicare per primo. Il piano 5 $ pubblica su un canale social — scegli quello che il tuo pubblico usa davvero."
+        },
+        {
+          "title": "Pubblica · annuncio attivo per 90 giorni",
+          "body": "L'annuncio va online su advertisehomes.online con un URL permanente. I contatti ti arrivano via modulo, WhatsApp ed e-mail."
+        }
+      ]
+    },
+    "included": {
+      "heading": "Cosa ottieni",
+      "items": [
+        "1 annuncio, attivo per 90 giorni",
+        "Caption IA in 7 lingue (EN/ES/PL/PT/DE/FR/IT)",
+        "Grafiche social brandizzate generate dall'IA",
+        "Pubblicazione social su 1 canale (Facebook o Instagram)",
+        "Contatti via WhatsApp + modulo e-mail",
+        "Pagina annuncio con fino a 25 foto e URL permanente"
+      ]
+    },
+    "excluded": {
+      "heading": "Cosa non ottieni",
+      "items": [
+        "Annunci illimitati (qui è un immobile, un pagamento)",
+        "Pubblicazione multicanale (Facebook + Instagram + LinkedIn insieme)",
+        "Risposte IA automatiche ai contatti in arrivo",
+        "Pagina profilo agente brandizzata con recensioni e SEO"
+      ],
+      "upgradeCta": "Servono queste cose? Vedi i piani agente →"
+    },
+    "faq": {
+      "heading": "Domande frequenti",
+      "items": [
+        {
+          "q": "Il mio annuncio si rinnova automaticamente?",
+          "a": "No. L'addebito di 5 $ è una tantum e l'annuncio scade dopo 90 giorni. Ti inviamo un'e-mail il giorno 82 con un link di rinnovo a un clic (5 $ per altri 90 giorni). Se non rinnovi, l'annuncio passa a scaduto e smette di apparire nelle ricerche; i dati restano salvati per un eventuale rinnovo successivo."
+        },
+        {
+          "q": "Qual è la politica di rimborso?",
+          "a": "Rimborso totale entro 7 giorni, senza domande, finché l'annuncio non ha ricevuto contatti. Scrivi a info@advertisehomes.online con la ricevuta Stripe. Oltre i 7 giorni l'addebito è definitivo (l'annuncio è già stato online e indicizzato)."
+        },
+        {
+          "q": "Cosa succede dopo 90 giorni?",
+          "a": "L'annuncio passa a scaduto e scompare dai risultati di ricerca. La pagina dell'annuncio resta allo stesso URL (i link in entrata continuano a funzionare) ma con un banner \"Questo annuncio è scaduto\" e un pulsante di rinnovo. Paga 5 $ per riattivarlo per altri 90 giorni."
+        },
+        {
+          "q": "Chi gestisce la vendita o l'affitto?",
+          "a": "Tu. AHO è la piattaforma pubblicitaria — pubblichiamo l'annuncio, generiamo caption e grafiche e ti inoltriamo i contatti su WhatsApp ed e-mail. Conversazione, visita, pratiche e chiusura sono tra te e l'acquirente o l'inquilino. Se vuoi che un agente gestisca la vendita, sfoglia la pagina Trova un agente."
+        }
+      ]
+    },
+    "ctaRepeat": {
+      "heading": "Pronto a pubblicare?",
+      "button": "Paga 5 $ e inizia"
+    },
+    "authGate": {
+      "note": "Prima un account veloce — così possiamo salvare l'annuncio e inoltrarti i contatti. Bastano 30 secondi.",
+      "signIn": "Accedi",
+      "createAccount": "Crea account"
+    },
+    "success": {
+      "heading": "Pagamento ricevuto — pubblichiamo il tuo annuncio",
+      "body": "Il tuo pagamento di 5 $ è andato a buon fine. Hai davanti 90 giorni di durata annuncio — mettiamolo online. Il prossimo passo è un modulo breve (prezzo, camere, foto, canale social). Servono circa 5 minuti.",
+      "cta": "Crea il tuo annuncio"
+    },
+    "cancel": {
+      "heading": "Pagamento annullato",
+      "body": "Nessun addebito. Puoi tornare quando vuoi — il tuo posto annuncio è a un clic.",
+      "cta": "Torna alla pagina privata"
+    },
+    "form": {
+      "heading": "Il tuo immobile",
+      "submit": "Pubblica il mio annuncio",
+      "gateMissing": "Devi completare il pagamento prima di creare un annuncio.",
+      "gateCta": "Vai al pagamento"
+    }
   }
 }
