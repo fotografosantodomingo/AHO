@@ -1203,7 +1203,51 @@
       "featHistory": "Histórico de posts + retry em caso de falha"
     },
     "upgradeCta": "Mudar para Pro Automation",
-    "upgradeNote": "$99/mês ou $990/ano"
+    "upgradeNote": "$99/mês ou $990/ano",
+    "share": {
+      "heading": "Partilhar nas minhas redes",
+      "body": "Publique este anúncio nas suas Páginas do Facebook e contas Instagram Business conectadas com um clique.",
+      "willPost": "{count, plural, =0 {Nenhuma conta selecionada} =1 {Será publicado em 1 conta} other {Será publicado em # contas}}.",
+      "accountSelectionLegend": "Escolha em quais contas conectadas publicar",
+      "accountSelectionHint": "Desmarque qualquer conta na qual não queira publicar desta vez.",
+      "accountSelectAll": "Selecionar tudo",
+      "accountSelectNone": "Limpar tudo",
+      "selectAtLeastOne": "Selecione pelo menos uma conta primeiro.",
+      "shareNow": "Partilhar agora",
+      "posting": "A publicar…",
+      "retryFailed": "Repetir falhas",
+      "emptyHeading": "Conecte o Facebook para publicar",
+      "emptyBody": "Ainda não conectou nenhuma conta social. Conecte o Facebook para publicar os seus anúncios nas suas Páginas e contas Instagram Business associadas.",
+      "connectFirst": "Conectar Facebook",
+      "draftNotice": "Este anúncio ainda não está publicado. Publique-o primeiro para poder partilhar.",
+      "outcome": {
+        "succeeded": "Publicado",
+        "failed": "Falhou",
+        "skipped": "Ignorado"
+      },
+      "viewPost": "Ver publicação",
+      "errorPrefix": "Motivo",
+      "unexpectedError": "Erro inesperado",
+      "serverErrorCode": "Erro do servidor: {code}",
+      "errorRefLabel": "Referência do erro",
+      "copyError": "Copiar erro",
+      "copyErrorCopied": "Copiado",
+      "emailSupport": "Escrever ao suporte",
+      "mailtoSubject": "Falha ao partilhar no AHO — {ref}",
+      "mailtoBody": "Olá suporte AHO,\n\nA minha partilha para redes sociais falhou.\nReferência do erro: {ref}\nPlataforma: {platform}\nConta: {account}\nAnúncio: {listingUrl}\n\nPor favor ajudem. Obrigado.",
+      "generateDraft": "Gerar rascunho IA",
+      "regenerateDraft": "Regenerar rascunho IA",
+      "generating": "A gerar…",
+      "reviewBeforeShare": "Reveja e edite cada rascunho antes de partilhar. Rascunhos vazios usam o modelo predefinido.",
+      "resetDraft": "Voltar ao rascunho IA",
+      "useTemplate": "Usar modelo",
+      "aiUnavailable": "Rascunho IA indisponível — pode partilhar com o modelo predefinido ou tentar novamente daqui a pouco.",
+      "platformDraftLabel": {
+        "facebook": "Rascunho do Facebook",
+        "instagram": "Rascunho do Instagram",
+        "linkedin": "Rascunho do LinkedIn"
+      }
+    }
   },
   "analytics": {
     "heading": "Desempenho",
@@ -2295,5 +2339,246 @@
     "finalHeading": "Pronto para publicar no Instagram?",
     "finalBody": "Conecte ou reconecte o Meta no seu dashboard, depois crie uma publicação nova — Instagram deve estar na lista de caixas por conta.",
     "finalCta": "Abrir /dashboard/social"
+  },
+  "sell": {
+    "meta": {
+      "title": "Venda ou alugue no AHO — $5 para proprietários, $29-$99/mês para agentes",
+      "description": "Anuncie a sua propriedade em todo o mundo no AHO. Proprietários privados pagam $5 por um anúncio de 90 dias; agentes profissionais subscrevem a partir de $29/mês para anúncios ilimitados, automação multicanal, caixa de entrada com IA e uma página de perfil com marca."
+    },
+    "hero": {
+      "eyebrow": "Venda ou alugue no AHO",
+      "heading": "Anuncie a sua propriedade em todo o mundo.",
+      "sub": "Anúncios com IA + automação de redes sociais em 7 idiomas."
+    },
+    "identity": {
+      "heading": "Como quer anunciar?"
+    },
+    "cardPrivate": {
+      "tag": "Proprietário / senhorio",
+      "heading": "Anuncie a sua propriedade você mesmo",
+      "perfectFor": "Ideal para",
+      "bullets": [
+        "Vender uma casa ou apartamento, uma única vez",
+        "Arrendar uma casa de férias ou estadia curta",
+        "Senhorio com 1-2 imóveis de longa duração",
+        "Vendedores particulares (FSBO) que não querem agente"
+      ],
+      "includesLabel": "Inclui",
+      "includes": [
+        "1 anúncio, ativo por 90 dias",
+        "Legendas IA em 7 idiomas",
+        "Publicação social em 1 canal (Facebook ou Instagram)",
+        "Captação de contactos por WhatsApp + e-mail",
+        "Até 25 fotos por anúncio"
+      ],
+      "price": "$5 USD por anúncio",
+      "priceNote": "pagamento único",
+      "cta": "Começar anúncio"
+    },
+    "cardAgent": {
+      "tag": "Agente profissional",
+      "heading": "Automação multi-anúncio",
+      "bullets": [
+        "Agentes imobiliários independentes",
+        "Mediadores com carteira própria",
+        "Agências boutique (2-20 agentes)",
+        "Promotores a divulgar novas construções"
+      ],
+      "includes": [
+        "Anúncios ilimitados",
+        "Publicação automática no Facebook + Instagram + LinkedIn",
+        "Caixa de entrada IA com regras de encaminhamento",
+        "Painel de análise por anúncio",
+        "Avaliações verificadas de clientes anteriores",
+        "Página de perfil com marca e SEO"
+      ],
+      "priceNote": "A partir de $29/mês · cancele a qualquer momento",
+      "cta": "Ver planos"
+    },
+    "how": {
+      "heading": "Do colar à publicação em menos de 5 minutos.",
+      "private": {
+        "title": "Para proprietários",
+        "steps": [
+          "Pague $5 via Stripe — pagamento único, sem subscrição, sem renovação automática.",
+          "Cole um URL de outro portal ou preencha o formulário curto: preço, quartos, área, cidade, até 25 fotos.",
+          "O Claude escreve legendas adaptadas a cada plataforma em 7 idiomas; gráficos sociais com marca gerados automaticamente.",
+          "Escolha Facebook ou Instagram como canal de publicação.",
+          "O anúncio fica ativo durante 90 dias; os contactos chegam-lhe via WhatsApp e formulário na página."
+        ]
+      },
+      "agent": {
+        "title": "Para agentes",
+        "steps": [
+          "Subscreva um plano de agente — Standard $29/mês, Pro Automation $99/mês, cancele quando quiser.",
+          "Configure o seu perfil de agente com marca: foto, biografia, idiomas, área de atuação, distintivos.",
+          "Adicione o primeiro anúncio por voz, por URL ou no formulário.",
+          "Conecte Facebook, Instagram e LinkedIn via OAuth; o AHO publica variantes por canal.",
+          "Gira os contactos numa caixa de entrada IA; veja o desempenho por anúncio e por canal no painel."
+        ]
+      }
+    },
+    "trust": {
+      "heading": "Confiança em todo o mundo",
+      "pills": [
+        "7 idiomas",
+        "Anúncios em todo o mundo",
+        "Parceiro Meta Business"
+      ],
+      "realOnly": "O AHO não publica anúncios fictícios nem fotos de stock. Cada propriedade é real."
+    },
+    "compare": {
+      "heading": "O que recebe",
+      "colPrivate": "Privado $5",
+      "colAgent": "Agente $29-99/mês",
+      "rows": [
+        { "feature": "Número de anúncios", "private": "1 anúncio", "agent": "Ilimitado" },
+        { "feature": "Duração do anúncio", "private": "90 dias", "agent": "Ativo enquanto a subscrição estiver paga" },
+        { "feature": "Legendas IA em 7 idiomas", "private": true, "agent": true },
+        { "feature": "Gráficos sociais com marca", "private": true, "agent": true },
+        { "feature": "Publicação social — Facebook OU Instagram", "private": true, "agent": true },
+        { "feature": "Publicação multicanal (FB + IG + LinkedIn)", "private": false, "agent": true },
+        { "feature": "Caixa de entrada IA com encaminhamento", "private": false, "agent": true },
+        { "feature": "Página de perfil de agente com marca", "private": false, "agent": true },
+        { "feature": "Avaliações verificadas", "private": false, "agent": true },
+        { "feature": "Painel de análise por anúncio", "private": false, "agent": true },
+        { "feature": "Pagamento", "private": "Único $5", "agent": "Subscrição mensal" }
+      ]
+    },
+    "faq": {
+      "heading": "Perguntas frequentes",
+      "items": [
+        {
+          "q": "Só quero vender uma casa — preciso de subscrição?",
+          "a": "Não. O plano único de $5 foi feito exatamente para isso. Um pagamento, anúncio de 90 dias, legendas IA, publicação social num canal. Sem subscrição, sem renovação automática. Se decidir anunciar mais propriedades depois, pode pagar $5 por cada uma ou passar a um plano mensal de agente."
+        },
+        {
+          "q": "Sou agente em atividade — o plano de $5 chega para a minha carteira?",
+          "a": "Não realmente. $5 é um anúncio durante 90 dias com publicação num único canal. Os planos de agente dão-lhe anúncios ilimitados, publicação multicanal (Facebook + Instagram + LinkedIn), uma caixa de entrada IA que organiza contactos e uma página de perfil que aparece nos motores de busca. Se anuncia mais de 2-3 propriedades por ano, as contas favorecem a subscrição."
+        },
+        {
+          "q": "O meu anúncio renova-se automaticamente após 90 dias?",
+          "a": "Não. A cobrança de $5 é única. Enviamos um e-mail no dia 82 com um link de renovação ($5 por mais 90 dias). Se não renovar, o anúncio passa a expirado e deixa de aparecer nas pesquisas; os dados ficam guardados para renovar depois."
+        },
+        {
+          "q": "Posso passar do plano $5 para um plano de agente mais tarde?",
+          "a": "Sim, a qualquer momento. Os seus anúncios atuais migram para a conta de agente e ganha imediatamente anúncios ilimitados, publicação multicanal e a caixa de entrada IA. As cobranças de $5 não são reembolsáveis, mas o tempo de anúncio já pago mantém-se."
+        },
+        {
+          "q": "Há reembolsos?",
+          "a": "Reembolso total em 7 dias para o plano $5, sem perguntas, desde que o anúncio não tenha recebido contactos. As subscrições de agente são cobradas adiantadas; pode cancelar a qualquer momento no Customer Portal do Stripe e mantém o acesso até ao fim do ciclo atual."
+        }
+      ]
+    },
+    "cta": {
+      "heading": "Ainda a decidir?",
+      "sub": "O assistente AHO (canto inferior direito) pode responder a dúvidas.",
+      "private": "Começar como proprietário — $5",
+      "agent": "Ver planos de agente"
+    }
+  },
+  "sellPrivate": {
+    "meta": {
+      "title": "$5 para publicar a sua propriedade em todo o mundo — anúncio de 90 dias no AHO",
+      "description": "Uma propriedade, um pagamento, 90 dias online. Legendas geradas por IA em 7 idiomas, publicação social no Facebook ou Instagram com um clique, contactos por WhatsApp + e-mail. Sem subscrição."
+    },
+    "hero": {
+      "eyebrow": "Proprietário · senhorio",
+      "heading": "$5 para publicar a sua propriedade em todo o mundo.",
+      "sub": "Anúncio de 90 dias. Legendas IA em 7 idiomas. Publicação social num clique.",
+      "cta": "Pagar $5 →"
+    },
+    "process": {
+      "heading": "5 minutos do colar à publicação",
+      "steps": [
+        {
+          "title": "Pague $5",
+          "body": "Pagamento seguro pelo Stripe. Cobrança única — sem subscrição, sem renovação automática. IVA mostrado de forma inclusiva para compradores na UE."
+        },
+        {
+          "title": "Cole um URL ou carregue fotos + dados",
+          "body": "Cole um URL de outro portal (nós importamos os detalhes) ou preencha o formulário curto: preço, quartos, área, cidade, até 25 fotos."
+        },
+        {
+          "title": "A IA escreve legendas + gráficos",
+          "body": "O Claude escreve legendas sociais adaptadas à plataforma em 7 idiomas — inglês, espanhol, polaco, português, alemão, francês, italiano. Cartões de imagem com marca gerados automaticamente."
+        },
+        {
+          "title": "Escolha Facebook ou Instagram",
+          "body": "Escolha onde publicar primeiro. O plano $5 publica num canal social — escolha aquele que o seu público realmente usa."
+        },
+        {
+          "title": "Publique · anúncio ativo durante 90 dias",
+          "body": "O anúncio fica ativo em advertisehomes.online com URL permanente. Os contactos chegam-lhe pelo formulário, WhatsApp e e-mail."
+        }
+      ]
+    },
+    "included": {
+      "heading": "O que recebe",
+      "items": [
+        "1 anúncio, ativo durante 90 dias",
+        "Legendas IA em 7 idiomas (EN/ES/PL/PT/DE/FR/IT)",
+        "Gráficos sociais com marca gerados por IA",
+        "Publicação social em 1 canal (Facebook ou Instagram)",
+        "Captação de contactos por WhatsApp + formulário e-mail",
+        "Página de anúncio com até 25 fotos e URL permanente"
+      ]
+    },
+    "excluded": {
+      "heading": "O que não recebe",
+      "items": [
+        "Anúncios ilimitados (isto é uma propriedade, um pagamento)",
+        "Publicação multicanal (Facebook + Instagram + LinkedIn ao mesmo tempo)",
+        "Respostas automáticas IA aos contactos",
+        "Página de perfil de agente com marca, avaliações e SEO"
+      ],
+      "upgradeCta": "Precisa disso? Ver planos de agente →"
+    },
+    "faq": {
+      "heading": "Perguntas frequentes",
+      "items": [
+        {
+          "q": "O meu anúncio renova-se automaticamente?",
+          "a": "Não. A cobrança de $5 é única e o anúncio expira após 90 dias. Enviamos um e-mail no dia 82 com um link de renovação ($5 por mais 90 dias). Se não renovar, o anúncio passa a expirado e deixa de aparecer nas pesquisas; os dados ficam guardados para renovar depois."
+        },
+        {
+          "q": "Qual é a política de reembolso?",
+          "a": "Reembolso total em 7 dias, sem perguntas, desde que o anúncio não tenha recebido contactos. Envie e-mail para info@advertisehomes.online com o recibo do Stripe. Após 7 dias a cobrança é final (o anúncio já esteve ativo e indexado)."
+        },
+        {
+          "q": "O que acontece após 90 dias?",
+          "a": "O anúncio passa a expirado e desaparece dos resultados de pesquisa. A página do anúncio fica no mesmo URL (para que os links de entrada continuem a funcionar) mas com um banner \"Este anúncio expirou\" e um botão de renovação. Pague $5 para o reativar por mais 90 dias."
+        },
+        {
+          "q": "Quem trata da venda ou arrendamento?",
+          "a": "Você. O AHO é a plataforma de publicidade — publicamos o anúncio, geramos as legendas e gráficos, e encaminhamos os contactos para o seu WhatsApp e e-mail. A conversa, visita, papelada e fecho ficam entre si e o comprador ou inquilino. Se quiser um agente para tratar da venda, consulte a página Encontrar um agente."
+        }
+      ]
+    },
+    "ctaRepeat": {
+      "heading": "Pronto para publicar?",
+      "button": "Pagar $5 e começar"
+    },
+    "authGate": {
+      "note": "Conta rápida primeiro — para podermos guardar o seu anúncio e enviar-lhe os contactos. Demora 30 segundos.",
+      "signIn": "Iniciar sessão",
+      "createAccount": "Criar conta"
+    },
+    "success": {
+      "heading": "Pagamento recebido — vamos publicar o seu anúncio",
+      "body": "O seu pagamento de $5 foi aceite. Tem 90 dias de tempo de anúncio à sua espera — vamos colocá-lo no ar. O próximo passo é um formulário curto (preço, quartos, fotos, canal social). Deve demorar cerca de 5 minutos.",
+      "cta": "Criar o seu anúncio"
+    },
+    "cancel": {
+      "heading": "Pagamento cancelado",
+      "body": "Nenhuma cobrança feita. Pode voltar quando quiser — o seu lugar de anúncio fica a um clique.",
+      "cta": "Voltar à página privada"
+    },
+    "form": {
+      "heading": "A sua propriedade",
+      "submit": "Publicar o meu anúncio",
+      "gateMissing": "Tem de concluir o pagamento antes de criar um anúncio.",
+      "gateCta": "Ir para o pagamento"
+    }
   }
 }
