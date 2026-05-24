@@ -306,7 +306,7 @@ export function VoiceControls({
         </p>
         {phase === 'listening' && interim && (
           <p className="mt-2 max-w-xs text-xs italic text-slate-500 dark:text-slate-400">
-            "{interim}"
+            &ldquo;{interim}&rdquo;
           </p>
         )}
         {phase === 'speaking' && (

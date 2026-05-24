@@ -186,7 +186,7 @@ export default async function FoundingAgentPage({
           {/* Founder note — signed, casual tone */}
           <aside className="mt-16 rounded-2xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-900/50 md:p-8">
             <p className="text-base italic text-slate-700 dark:text-slate-300 md:text-lg">
-              "{copy.founderQuote}"
+              &ldquo;{copy.founderQuote}&rdquo;
             </p>
             <p className="mt-4 text-sm font-semibold text-slate-900 dark:text-slate-100">
               — Michał Babula

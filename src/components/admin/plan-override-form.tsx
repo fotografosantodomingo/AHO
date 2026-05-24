@@ -168,7 +168,7 @@ export function PlanOverrideForm(props: Props) {
             )}
           </li>
           {props.manualPlanNote && (
-            <li className="mt-2 text-xs italic text-slate-500">"{props.manualPlanNote}"</li>
+            <li className="mt-2 text-xs italic text-slate-500">&ldquo;{props.manualPlanNote}&rdquo;</li>
           )}
         </ul>
       </div>
@@ -295,7 +295,7 @@ export function PlanOverrideForm(props: Props) {
           ) : (
             <>
               <p className="text-sm text-slate-700 dark:text-slate-300">
-                Revoking will clear all manual_* fields. The org's effective
+                Revoking will clear all manual_* fields. The org&rsquo;s effective
                 plan falls back to the Stripe-derived plan ({' '}
                 <span className="font-mono text-xs">{props.currentPlanId ?? 'none'}</span>)
                 on the next plan check.
