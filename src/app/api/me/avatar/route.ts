@@ -141,8 +141,9 @@ export async function POST(req: NextRequest) {
     .update({ avatar_url: avatarUrl })
     .eq('id', userId);
   if (updateErr) {
+    console.error('[POST /api/me/avatar] profile update failed', updateErr);
     return NextResponse.json(
-      { ok: false, errorCode: 'profile_update_failed', details: updateErr.message },
+      { ok: false, errorCode: 'profile_update_failed' },
       { status: 500 },
     );
   }
@@ -164,8 +165,9 @@ export async function DELETE() {
     .update({ avatar_url: null })
     .eq('id', userResult.user.id);
   if (updateErr) {
+    console.error('[DELETE /api/me/avatar] profile update failed', updateErr);
     return NextResponse.json(
-      { ok: false, errorCode: 'profile_update_failed', details: updateErr.message },
+      { ok: false, errorCode: 'profile_update_failed' },
       { status: 500 },
     );
   }

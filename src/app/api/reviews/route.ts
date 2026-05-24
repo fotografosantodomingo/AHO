@@ -135,8 +135,9 @@ export async function POST(req: NextRequest) {
     // an authenticated user tried to review themselves and slipped past
     // the route-layer check (race: signed in mid-request).
     if (insertErr.code === '23514') {
+      console.warn('[POST /api/reviews] check_violation', insertErr.message);
       return NextResponse.json(
-        { ok: false, errorCode: 'check_violation', detail: insertErr.message },
+        { ok: false, errorCode: 'check_violation' },
         { status: 400 },
       );
     }
@@ -145,7 +146,7 @@ export async function POST(req: NextRequest) {
     }
     console.error('[POST /api/reviews] insert failed', insertErr);
     return NextResponse.json(
-      { ok: false, errorCode: 'insert_failed', detail: insertErr.message },
+      { ok: false, errorCode: 'insert_failed' },
       { status: 500 },
     );
   }

@@ -71,8 +71,9 @@ export async function POST(req: NextRequest) {
     .select('id')
     .single();
   if (audErr || !audience) {
+    console.error('[POST /api/admin/email/audiences] audience insert failed', audErr);
     return NextResponse.json(
-      { error: 'audience_insert_failed', message: audErr?.message },
+      { error: 'audience_insert_failed' },
       { status: 500 },
     );
   }
@@ -105,10 +106,10 @@ export async function POST(req: NextRequest) {
         count: 'exact',
       });
     if (insErr) {
+      console.error('[POST /api/admin/email/audiences] contacts insert failed', insErr);
       return NextResponse.json(
         {
           error: 'contacts_insert_failed',
-          message: insErr.message,
           partial: { audienceId: audience.id, inserted },
         },
         { status: 500 },

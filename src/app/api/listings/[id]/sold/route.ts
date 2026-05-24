@@ -97,7 +97,7 @@ export async function POST(
     }
     console.error('[POST /api/listings/:id/sold]', updateErr);
     return NextResponse.json(
-      { ok: false, errorCode: updateErr.message ?? 'db_error' },
+      { ok: false, errorCode: 'db_error' },
       { status: 500 },
     );
   }

@@ -160,8 +160,9 @@ export async function POST(
     if (updateErr.code === '42501') {
       return NextResponse.json({ error: 'forbidden' }, { status: 403 });
     }
+    console.error('[POST images/confirm] update_failed', updateErr);
     return NextResponse.json(
-      { error: 'update_failed', details: updateErr.message },
+      { error: 'update_failed' },
       { status: 500 },
     );
   }

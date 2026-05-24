@@ -96,7 +96,7 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
     }
     console.error('[PUT /api/leads/:id/notes]', error);
     return NextResponse.json(
-      { ok: false, errorCode: error.message ?? 'db_error' },
+      { ok: false, errorCode: 'db_error' },
       { status: 500 },
     );
   }

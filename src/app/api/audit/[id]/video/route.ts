@@ -118,8 +118,9 @@ export async function POST(
     .select('id, status')
     .single();
   if (insertErr || !inserted) {
+    console.error('[audit/video] insert failed', insertErr);
     return NextResponse.json(
-      { ok: false, error: 'db_error', hint: insertErr?.message },
+      { ok: false, error: 'db_error' },
       { status: 500 },
     );
   }

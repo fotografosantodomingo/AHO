@@ -85,7 +85,7 @@ export async function PATCH(
     }
     console.error('[PATCH images/:imageId] update failed', error);
     return NextResponse.json(
-      { ok: false, errorCode: error.message ?? 'db_error' },
+      { ok: false, errorCode: 'db_error' },
       { status: 500 },
     );
   }

@@ -145,8 +145,9 @@ export async function POST(req: NextRequest) {
   });
 
   if (insertErr) {
+    console.error('[POST /api/leads] insert failed', insertErr);
     return NextResponse.json(
-      { error: 'insert_failed', details: insertErr.message },
+      { error: 'insert_failed' },
       { status: 500 },
     );
   }
