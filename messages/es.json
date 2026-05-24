@@ -159,6 +159,7 @@
     "tabBuy": "Compra",
     "tabRent": "Alquiler",
     "tabAny": "Cualquiera",
+    "transactionTabsLabel": "Tipo de transacción",
     "selectCountry": "Cualquier país",
     "selectCity": "Cualquier ciudad",
     "selectCityDisabled": "Elige un país primero",
