@@ -228,12 +228,19 @@ async function runSweep(): Promise<CronSummary> {
         `[cron/photo-import-retry] property lookup failed for ${action.propertyId}: ${propErr?.message ?? 'not found'}`,
       );
       // Bump attempts so we don't loop on a deleted property forever.
-      await supabase.rpc('record_photo_import_failure', {
+      const { error: bumpErr } = await supabase.rpc('record_photo_import_failure', {
         p_property_id: action.propertyId,
         p_source_url: action.sourceUrl,
         p_error_code: 'property_lookup_failed',
         p_attempts: 1,
       });
+      if (bumpErr) {
+        console.warn('[cron/photo-import-retry] attempt-bump RPC failed', {
+          propertyId: action.propertyId,
+          code: bumpErr.code,
+          message: bumpErr.message,
+        });
+      }
       summary.failed += 1;
       continue;
     }

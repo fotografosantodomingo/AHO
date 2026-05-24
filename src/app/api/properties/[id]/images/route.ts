@@ -66,12 +66,18 @@ export async function POST(
   // confirm now — the R2 presigned URL expires at 5min). See
   // migration 0029. Errors are logged but never block the upload.
   try {
-    await supabase.rpc('sweep_stale_pending_images', {
+    const { error: sweepErr } = await supabase.rpc('sweep_stale_pending_images', {
       p_property_id: propertyId,
       p_older_than_minutes: 60,
     });
+    if (sweepErr) {
+      console.warn('[images POST] pending-sweep RPC returned error', {
+        code: sweepErr.code,
+        message: sweepErr.message,
+      });
+    }
   } catch (e) {
-    console.warn('[images POST] pending-sweep failed', e);
+    console.warn('[images POST] pending-sweep threw', e);
   }
 
   // Cap check — count current images (any status) for this property.

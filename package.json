@@ -21,6 +21,7 @@
     "pages:dev": "wrangler pages dev .vercel/output/static --compatibility-flag=nodejs_compat",
     "pages:deploy": "wrangler pages deploy .vercel/output/static --project-name=aho-web --branch=main",
     "lint": "next lint",
+    "lint:write-safety": "tsx scripts/lint-write-safety.ts",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

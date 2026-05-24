@@ -146,7 +146,7 @@ export async function GET(req: NextRequest) {
     null;
   const userAgent = req.headers.get('user-agent') ?? null;
 
-  await admin.rpc('upsert_platform_token', {
+  const { error: tokenUpsertErr } = await admin.rpc('upsert_platform_token', {
     p_user_id: userId,
     p_platform: 'linkedin',
     p_external_account_id: me.sub,
@@ -162,6 +162,13 @@ export async function GET(req: NextRequest) {
     p_ip_address: ipFromHeader,
     p_key: env.AHO_TOKEN_ENCRYPTION_KEY,
   });
+  if (tokenUpsertErr) {
+    console.error('[oauth/linkedin/callback] token upsert failed', {
+      code: tokenUpsertErr.code,
+      message: tokenUpsertErr.message,
+      details: tokenUpsertErr.details,
+    });
+  }
 
   return bounce(`linkedin_oauth=connected&name=${encodeURIComponent(me.name)}`);
 }

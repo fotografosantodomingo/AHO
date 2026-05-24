@@ -313,10 +313,17 @@ export async function importOne(
   }
 
   if (args.resolveOnSuccess) {
-    await deps.supabase.rpc('resolve_photo_import_failure', {
+    const { error: resolveErr } = await deps.supabase.rpc('resolve_photo_import_failure', {
       p_property_id: args.propertyId,
       p_source_url: args.url,
     });
+    if (resolveErr) {
+      console.warn('[photo-import-pipeline] resolve RPC failed', {
+        propertyId: args.propertyId,
+        code: resolveErr.code,
+        message: resolveErr.message,
+      });
+    }
   }
 
   return {

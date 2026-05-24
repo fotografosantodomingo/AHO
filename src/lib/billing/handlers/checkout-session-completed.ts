@@ -202,7 +202,15 @@ async function tryClaimFounderRate({
 
   const stripeItem = stripeSubscription.items.data[0];
   if (!stripeItem) {
-    await supabase.rpc('release_founder_rate_slot', { p_subscription_id: ourSubscriptionId });
+    const { error: releaseErr } = await supabase.rpc('release_founder_rate_slot', {
+      p_subscription_id: ourSubscriptionId,
+    });
+    if (releaseErr) {
+      console.error('[founder] slot release failed (no-items path)', {
+        code: releaseErr.code,
+        message: releaseErr.message,
+      });
+    }
     throw new Error('subscription has no items; cannot apply founder price');
   }
 
@@ -213,7 +221,15 @@ async function tryClaimFounderRate({
     });
   } catch (e) {
     // Roll back: release the slot (deletes/marks grant + decrements counter).
-    await supabase.rpc('release_founder_rate_slot', { p_subscription_id: ourSubscriptionId });
+    const { error: releaseErr } = await supabase.rpc('release_founder_rate_slot', {
+      p_subscription_id: ourSubscriptionId,
+    });
+    if (releaseErr) {
+      console.error('[founder] slot release failed (stripe update rollback)', {
+        code: releaseErr.code,
+        message: releaseErr.message,
+      });
+    }
     throw e;
   }
 

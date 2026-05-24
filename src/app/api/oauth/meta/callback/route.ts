@@ -150,7 +150,7 @@ export async function GET(req: NextRequest) {
   // 5a. The long-lived USER token, keyed on the FB user id. Used for
   // listing pages later if the user adds a new Page after the initial
   // connection.
-  await admin.rpc('upsert_platform_token', {
+  const { error: userTokenErr } = await admin.rpc('upsert_platform_token', {
     p_user_id: userId,
     p_platform: 'meta',
     p_external_account_id: me.id,
@@ -163,11 +163,18 @@ export async function GET(req: NextRequest) {
     p_ip_address: ipFromHeader,
     p_key: env.AHO_TOKEN_ENCRYPTION_KEY,
   });
+  if (userTokenErr) {
+    console.error('[oauth/meta/callback] user token upsert failed', {
+      code: userTokenErr.code,
+      message: userTokenErr.message,
+      details: userTokenErr.details,
+    });
+  }
 
   // 5b. One row per managed FB Page. Page tokens DON'T expire (per
   // FB docs) so we leave expires_at null. external_account_id = page id.
   for (const page of pages) {
-    await admin.rpc('upsert_platform_token', {
+    const { error: pageTokenErr } = await admin.rpc('upsert_platform_token', {
       p_user_id: userId,
       p_platform: 'meta',
       p_external_account_id: `page:${page.id}`,
@@ -180,12 +187,20 @@ export async function GET(req: NextRequest) {
       p_ip_address: ipFromHeader,
       p_key: env.AHO_TOKEN_ENCRYPTION_KEY,
     });
+    if (pageTokenErr) {
+      console.error('[oauth/meta/callback] page token upsert failed', {
+        pageId: page.id,
+        code: pageTokenErr.code,
+        message: pageTokenErr.message,
+        details: pageTokenErr.details,
+      });
+    }
 
     // 5c. If the page has a linked IG Business account, store a
     // pointer row. The publish API uses the page token to publish on
     // IG, so we re-store the same access_token under the IG external id.
     if (page.instagram_business_account?.id) {
-      await admin.rpc('upsert_platform_token', {
+      const { error: igTokenErr } = await admin.rpc('upsert_platform_token', {
         p_user_id: userId,
         p_platform: 'meta',
         p_external_account_id: `ig:${page.instagram_business_account.id}`,
@@ -198,6 +213,14 @@ export async function GET(req: NextRequest) {
         p_ip_address: ipFromHeader,
         p_key: env.AHO_TOKEN_ENCRYPTION_KEY,
       });
+      if (igTokenErr) {
+        console.error('[oauth/meta/callback] IG token upsert failed', {
+          igId: page.instagram_business_account.id,
+          code: igTokenErr.code,
+          message: igTokenErr.message,
+          details: igTokenErr.details,
+        });
+      }
     }
   }
 

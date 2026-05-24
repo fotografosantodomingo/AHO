@@ -201,9 +201,13 @@ export async function POST(
       // crawls without waiting for the next scheduled crawl cycle.
       urls.push(`${pub.NEXT_PUBLIC_SITE_URL}/sitemap-properties-recent.xml`);
       if (urls.length > 0) {
-        // Fire-and-forget — the publish response shouldn't wait on
-        // IndexNow's ~200ms latency.
-        void pingIndexNow(urls);
+        // Awaited (~200ms tail) because Edge runtime cancels any
+        // promise the request handler doesn't await — `void` here
+        // would silently no-op every publish's crawler ping. Per
+        // CLAUDE.md local-dev quirks: `ctx.waitUntil` isn't cleanly
+        // exposed through next-on-pages, so `await` is the
+        // pragmatic fix until the queue offload lands.
+        await pingIndexNow(urls);
       }
     }
   } catch (e) {

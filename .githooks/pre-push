@@ -12,9 +12,9 @@
 #      code (pipe ate the failure); broken code reached main. →
 #      `set -o pipefail` so piped failures bubble up.
 #
-# Wall-clock cost: typecheck ~5s + lint ~3s + tests ~5s = ~13s/push.
-# Cost of a failed CI deploy: 3+ minutes + a red email + the risk of
-# prod sitting broken while you debug.
+# Wall-clock cost: typecheck ~5s + lint ~3s + tests ~5s + write-safety
+# ~1s = ~14s/push. Cost of a failed CI deploy: 3+ minutes + a red email
+# + the risk of prod sitting broken while you debug.
 #
 # Activate once on each developer machine with:
 #   git config core.hooksPath .githooks
@@ -48,7 +48,7 @@ fail() { echo ""; echo "[pre-push] ✗ $1 FAILED. Push aborted."; echo "[pre-pus
 
 # Gate 1 — typecheck. Catches type errors that don't reach runtime
 # until the deploy build runs tsc.
-echo "[pre-push] (1/3) running pnpm typecheck…"
+echo "[pre-push] (1/4) running pnpm typecheck…"
 if ! $PNPM typecheck; then
   fail "typecheck"
 fi
@@ -56,17 +56,32 @@ echo "[pre-push] ✓ typecheck clean."
 
 # Gate 2 — lint. Catches react/no-unescaped-entities and friends
 # that tsc doesn't see but the Next build does.
-echo "[pre-push] (2/3) running pnpm lint…"
+echo "[pre-push] (2/4) running pnpm lint…"
 if ! $PNPM lint; then
   fail "lint"
 fi
 echo "[pre-push] ✓ lint clean."
 
 # Gate 3 — unit tests. The original gate; still load-bearing.
-echo "[pre-push] (3/3) running pnpm test:unit…"
+echo "[pre-push] (3/4) running pnpm test:unit…"
 if ! $PNPM test:unit; then
   fail "unit tests"
 fi
 echo "[pre-push] ✓ unit tests passed."
 
-echo "[pre-push] ✓ all 3 gates passed — pushing."
+# Gate 4 — write-safety scan. Catches two bug classes that have
+# caused real prod incidents and that tsc + ESLint don't see:
+#   (a) supabase-js writes that don't destructure `{ error }` —
+#       silent insert/update/upsert drops with zero log output;
+#   (b) API route response bodies that leak raw error.message text
+#       (SQL fragments, RLS hints, OAuth provider error strings) to
+#       anon callers.
+# Implementation is line-regex with a small ALLOWLIST + skip-list
+# inside the script; tweak there if a real false-positive surfaces.
+echo "[pre-push] (4/4) running pnpm lint:write-safety…"
+if ! $PNPM lint:write-safety; then
+  fail "write-safety scan"
+fi
+echo "[pre-push] ✓ write-safety scan clean."
+
+echo "[pre-push] ✓ all 4 gates passed — pushing."
