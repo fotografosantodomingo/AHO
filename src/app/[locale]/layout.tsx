@@ -159,7 +159,17 @@ export default async function LocaleLayout({
   ]);
 
   return (
-    <html lang={locale} className={inter.variable} suppressHydrationWarning>
+    // translate="no" + <meta name="google" content="notranslate"> below:
+    // visitors land on /{locale}/ because they explicitly chose that
+    // language (LocaleToggle / localized inbound link / search result),
+    // so Chrome / Edge / Safari auto-translate is a regression — they
+    // render the SSR page in the URL's language for ~200ms, then the
+    // browser's translate layer silently rewrites the text to the user's
+    // UI language, producing a Polish-flash-to-English FOUC (reported by
+    // PO 2026-05-24 on /pl). Users who want a different language use the
+    // LocaleToggle which routes to /{other-locale}/ with full SSR
+    // localized chrome — no client-side translation guessing.
+    <html lang={locale} translate="no" className={inter.variable} suppressHydrationWarning>
       <head>
         {/* Facebook / Meta domain verification token. Required for Meta
             Business Verification (sole-prop domain-verify path) so that
@@ -168,6 +178,13 @@ export default async function LocaleLayout({
             and not in a dynamically-injected script. Meta's scraper
             re-reads on demand via the Sharing Debugger if needed. */}
         <meta name="facebook-domain-verification" content="ztd23gv75ztx1kqizjykrk30oeiinn" />
+        {/* Belt-and-suspenders with translate="no" on <html>. Some
+            Chromium builds still honor the legacy meta tag even when
+            the html attribute is present; together they reliably
+            suppress the FOUC where the SSR page renders in the URL's
+            language and the browser's auto-translate then rewrites
+            it to the user's UI language ~200ms later. */}
+        <meta name="google" content="notranslate" />
         {/* Theme color — drives Safari iOS / Chrome address-bar tint
             so the chrome matches the AHO surface band. Light + dark
             variants picked up by the browser via prefers-color-scheme. */}
