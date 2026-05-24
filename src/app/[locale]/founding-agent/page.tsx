@@ -227,18 +227,13 @@ const PAGE_COPY: Partial<Record<Locale, PageCopy>> & { en: PageCopy } = {
   en: {
     metaTitle: 'Founding 50 — AHO',
     metaDescription:
-      'AHO is recruiting 50 founding agents. Permanent founder rate, direct founder access, your voice on the roadmap. Apply in 2 minutes.',
+      'AHO is recruiting 50 founding agents. Direct founder access, your voice on the roadmap, a real partnership while we build. Apply in 2 minutes.',
     eyebrow: 'Founding 50 program',
     scarcityBadge: '50 spots only',
-    headline: "Help us build AHO. We'll lock your founder rate forever.",
+    headline: "Help us build AHO. Be one of the first 50.",
     lead:
-      "We're recruiting 50 working real-estate agents to use AHO before we open to the public. You get the founder rate permanently (it never changes), direct WhatsApp access to me (the founder), and your voice on what we build next.",
+      "We're recruiting 50 working real-estate agents to use AHO before we open to the public. You get direct WhatsApp access to me (the founder), a real partnership while we build the platform, and your voice on what ships next.",
     perks: [
-      {
-        icon: '∞',
-        title: 'Permanent founder rate',
-        body: 'You lock in the discount the day you apply. When we open pricing to the public, your rate stays. Forever.',
-      },
       {
         icon: '↳',
         title: 'Direct founder access',
@@ -249,6 +244,11 @@ const PAGE_COPY: Partial<Record<Locale, PageCopy>> & { en: PageCopy } = {
         title: 'Your voice on the roadmap',
         body: 'Founding 50 agents vote on the next 3 features. You see the shortlist before anyone else; you decide what ships first.',
       },
+      {
+        icon: '★',
+        title: 'A real partnership',
+        body: 'We talk before you sign anything. I want to understand your market, your workflow, your priorities — and then build the right deal for you.',
+      },
     ],
     formHeading: 'Apply for one of the 50 spots',
     formSub:
@@ -258,7 +258,7 @@ const PAGE_COPY: Partial<Record<Locale, PageCopy>> & { en: PageCopy } = {
       { eyebrow: 'Within minutes', text: 'You get a welcome email from me with what to expect next.' },
       { eyebrow: 'Within 24-48 hours', text: 'I WhatsApp you to introduce myself + ask about your market.' },
       { eyebrow: 'Within a week', text: 'We jump on a 20-minute call. I walk you through AHO live.' },
-      { eyebrow: 'When you say yes', text: 'You get your founder-rate plan + a private onboarding session.' },
+      { eyebrow: 'When you say yes', text: 'We agree on what makes sense for you and get you onboarded.' },
     ],
     founderQuote:
       "I'm building AHO because I watched solo agents in DR copy-paste the same Facebook caption to 4 groups every time they got a listing. I thought: there's got to be a better way. So I built one. The Founding 50 are the agents who'll help me make it great before we open it up.",
@@ -267,19 +267,13 @@ const PAGE_COPY: Partial<Record<Locale, PageCopy>> & { en: PageCopy } = {
   es: {
     metaTitle: 'Founding 50 — AHO',
     metaDescription:
-      'AHO está reclutando 50 agentes fundadores. Tarifa de fundador permanente, acceso directo al fundador, tu voz en el roadmap. Aplica en 2 minutos.',
+      'AHO está reclutando 50 agentes fundadores. Acceso directo al fundador, tu voz en el roadmap, una verdadera alianza mientras construimos. Aplica en 2 minutos.',
     eyebrow: 'Programa Founding 50',
     scarcityBadge: 'Solo 50 cupos',
-    headline:
-      'Ayúdanos a construir AHO. Tu tarifa de fundador queda bloqueada para siempre.',
+    headline: 'Ayúdanos a construir AHO. Sé uno de los primeros 50.',
     lead:
-      'Estamos reclutando 50 agentes inmobiliarios activos para usar AHO antes de abrirlo al público. Recibes la tarifa de fundador permanente (nunca cambia), acceso directo por WhatsApp conmigo (el fundador), y tu voz en qué construimos a continuación.',
+      'Estamos reclutando 50 agentes inmobiliarios activos para usar AHO antes de abrirlo al público. Recibes acceso directo por WhatsApp conmigo (el fundador), una verdadera alianza mientras construimos la plataforma, y tu voz en qué construimos a continuación.',
     perks: [
-      {
-        icon: '∞',
-        title: 'Tarifa de fundador permanente',
-        body: 'Bloqueas el descuento el día que aplicas. Cuando abramos los precios al público, tu tarifa se mantiene. Para siempre.',
-      },
       {
         icon: '↳',
         title: 'Acceso directo al fundador',
@@ -290,6 +284,11 @@ const PAGE_COPY: Partial<Record<Locale, PageCopy>> & { en: PageCopy } = {
         title: 'Tu voz en el roadmap',
         body: 'Los 50 agentes fundadores votan las próximas 3 funciones. Ves la lista antes que nadie; tú decides qué se construye primero.',
       },
+      {
+        icon: '★',
+        title: 'Una alianza real',
+        body: 'Conversamos antes de que firmes nada. Quiero entender tu mercado, tu flujo de trabajo, tus prioridades — y entonces armar el acuerdo correcto para ti.',
+      },
     ],
     formHeading: 'Aplica a uno de los 50 cupos',
     formSub:
@@ -299,7 +298,7 @@ const PAGE_COPY: Partial<Record<Locale, PageCopy>> & { en: PageCopy } = {
       { eyebrow: 'En minutos', text: 'Recibes un correo de bienvenida mío con qué esperar a continuación.' },
       { eyebrow: 'En 24-48 horas', text: 'Te escribo por WhatsApp para presentarme y preguntarte sobre tu mercado.' },
       { eyebrow: 'En una semana', text: 'Hacemos una llamada de 20 minutos. Te muestro AHO en vivo.' },
-      { eyebrow: 'Cuando digas sí', text: 'Recibes tu plan de tarifa fundador + una sesión privada de onboarding.' },
+      { eyebrow: 'Cuando digas sí', text: 'Acordamos lo que tiene sentido para ti y te integramos.' },
     ],
     founderQuote:
       'Construyo AHO porque vi a agentes solos en RD copiar y pegar el mismo texto de Facebook a 4 grupos cada vez que conseguían una propiedad. Pensé: tiene que haber una mejor manera. Así que la construí. Los Founding 50 son los agentes que me ayudarán a perfeccionarla antes de abrirla.',

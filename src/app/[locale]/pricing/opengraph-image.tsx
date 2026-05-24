@@ -39,8 +39,6 @@ export default async function OgImage({
     ? 'Mensual o anual. Distribución social en un clic. Cambios en cualquier momento.'
     : 'Monthly or annual. One-click social distribution. Switch any time.';
   const priceLabel = isEs ? 'Agente, mensual' : 'Agent, monthly';
-  const founderLabel = isEs ? 'Tarifa fundadora' : 'Founder rate';
-  const founderTail = isEs ? 'primeros 50 agentes' : 'first 50 agents';
 
   const fonts = await interBoldFontEntry();
 
@@ -174,19 +172,6 @@ export default async function OgImage({
               </div>
               <div style={{ display: 'flex', fontSize: 18, color: '#a1a4ac' }}>
                 /mo
-              </div>
-              <div
-                style={{
-                  display: 'flex',
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: '#10b981',
-                  marginLeft: 8,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
-                }}
-              >
-                {founderLabel} · $19 · {founderTail}
               </div>
             </div>
           </div>

@@ -1,11 +1,24 @@
 /**
- * Founder-rate selection logic — when is the founder window open?
+ * Founder-rate selection logic.
  *
- * Window-open semantics: the env var `AHO_FOUNDER_RATE_WINDOW_END` is a
- * single ISO-8601 timestamp. The window is "open" if the env var is set,
- * parses to a valid date, and the current time is strictly before that date.
- * If the env var is unset or unparseable, the window is closed (defensive
- * default — better to silently miss founder rate than silently grant it).
+ * **2026-05-24 — DEPRECATED.** The $19/mo founder rate offering was
+ * retired per DECISIONS.md ("$19 founder rate killed"). The Founding 50
+ * recruitment program at /founding-agent stays, but pricing is now
+ * decided per-applicant in conversation, NOT advertised publicly.
+ *
+ * This file + its checkout-session-completed callsite + its tests stay
+ * in place because (a) the checkout handler imports `isFounderEligible`
+ * and removing it would require restructuring that handler, (b) the
+ * `aho_agent_founder_monthly` plan ID has been removed from plan-gating's
+ * allowlist so the path is unreachable from any customer flow, and
+ * (c) `process.env.AHO_FOUNDER_RATE_WINDOW_END` is unset in production,
+ * so `isFounderRateOpen()` returns false unconditionally. Defense-in-depth.
+ *
+ * Window-open semantics (still functional for tests): the env var
+ * `AHO_FOUNDER_RATE_WINDOW_END` is a single ISO-8601 timestamp. The window
+ * is "open" if the env var is set, parses to a valid date, and the current
+ * time is strictly before that date. If unset or unparseable, the window
+ * is closed (defensive default).
  *
  * Pure function — no side effects. Unit-testable without the rest of the
  * billing stack.

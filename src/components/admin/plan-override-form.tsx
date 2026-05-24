@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 const PLAN_OPTIONS: { id: PlanId; label: string }[] = [
   { id: 'aho_agent_monthly', label: 'Agent · monthly' },
   { id: 'aho_agent_annual', label: 'Agent · annual' },
-  { id: 'aho_agent_founder_monthly', label: 'Agent · founder monthly ($19)' },
   { id: 'aho_plus_monthly', label: 'Plus · monthly' },
   { id: 'aho_plus_annual', label: 'Plus · annual' },
   { id: 'aho_pro_automation_monthly', label: 'Pro Automation · monthly' },
@@ -18,7 +17,6 @@ type PlanId = (typeof ALLOWED_PLAN_IDS)[number];
 const ALLOWED_PLAN_IDS = [
   'aho_agent_monthly',
   'aho_agent_annual',
-  'aho_agent_founder_monthly',
   'aho_plus_monthly',
   'aho_plus_annual',
   'aho_pro_automation_monthly',

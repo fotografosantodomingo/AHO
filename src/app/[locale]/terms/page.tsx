@@ -155,12 +155,6 @@ function TermsEn() {
           period already paid for.
         </li>
         <li>
-          <strong>Founder rate</strong> — the first 50 Agent-tier monthly subscribers
-          are billed $19/mo (instead of the standard $29/mo) and keep that rate as long
-          as the subscription remains active without lapse. Annual plans, plan changes
-          to non-Agent tiers, and lapsed subscriptions forfeit the founder rate.
-        </li>
-        <li>
           <strong>Plan changes</strong> — upgrades and downgrades apply prorated
           adjustments via Stripe. Refunds are not generally issued for partial periods,
           except where required by consumer-protection law in your jurisdiction.
@@ -450,13 +444,6 @@ function TermsEs() {
           automáticamente cada periodo hasta que canceles. Cancela cuando quieras
           desde el Portal de Cliente de Stripe (vinculado en el panel); conservas el
           acceso hasta el fin del periodo ya pagado.
-        </li>
-        <li>
-          <strong>Tarifa fundadora</strong> — los primeros 50 suscriptores
-          mensuales del nivel Agente pagan $19/mes (en lugar de $29/mes estándar) y
-          mantienen esa tarifa mientras la suscripción siga activa sin lapsos. Los
-          planes anuales, los cambios de plan a niveles distintos de Agente y las
-          suscripciones lapsadas pierden la tarifa fundadora.
         </li>
         <li>
           <strong>Cambios de plan</strong> — las subidas y bajadas aplican ajustes

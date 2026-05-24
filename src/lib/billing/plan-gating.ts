@@ -6,12 +6,17 @@ import type { SupabaseClient } from '@supabase/supabase-js';
  * (feat/pro-automation-social-distribution).
  *
  * Tier model — id-based, NO Stripe restructure:
- *   aho_agent_monthly / aho_agent_annual / aho_agent_founder_monthly
- *     → "Agent" tier ($29 / $290 / $19) — no social automation
+ *   aho_agent_monthly / aho_agent_annual
+ *     → "Agent" tier ($29 / $290) — no social automation
  *   aho_plus_monthly / aho_plus_annual
  *     → "Plus" tier ($49 / $490) — no social automation
  *   aho_pro_automation_monthly / aho_pro_automation_annual
  *     → "Pro Automation" tier ($99 / $990) — UNLOCKED social automation
+ *
+ * The `aho_agent_founder_monthly` plan ($19/mo for first 50 agents) was
+ * retired 2026-05-24 per DECISIONS.md. Founding 50 recruitment still
+ * exists at /founding-agent but pricing is decided per-applicant in
+ * conversation, not advertised publicly.
  *
  * Source of truth: `organizations.current_plan_id` (denormalized from
  * the active subscription via the trigger from migration 0007). Stays
@@ -40,7 +45,6 @@ export const PRO_AUTOMATION_PLAN_IDS = [
 export const ANY_PAID_PLAN_IDS = [
   'aho_agent_monthly',
   'aho_agent_annual',
-  'aho_agent_founder_monthly',
   'aho_plus_monthly',
   'aho_plus_annual',
   'aho_pro_automation_monthly',

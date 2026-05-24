@@ -64,9 +64,9 @@ export function renderFoundingAgentWelcomeEmail(
         <strong>Lo que tienes garantizado al entrar:</strong>
       </p>
       <ul style="margin:0 0 20px 20px;padding:0;color:${COLORS.inkMuted};">
-        <li style="margin:0 0 6px;">Tarifa de fundador <strong>permanente</strong> — no cambia cuando lancemos al público.</li>
         <li style="margin:0 0 6px;">Acceso directo a mí (Michał) por WhatsApp para feedback y soporte.</li>
         <li style="margin:0 0 6px;">Tu voz cuenta en qué construimos a continuación.</li>
+        <li style="margin:0 0 6px;">Conversamos antes de que firmes nada — armamos el acuerdo correcto para tu mercado.</li>
       </ul>
       ${args.whatsappDisplay
         ? `<p style="margin:0 0 20px;color:${COLORS.helper};font-size:13px;">Te contactaré al WhatsApp <strong style="color:${COLORS.ink};">${escapeHtml(args.whatsappDisplay)}</strong>. Si es incorrecto, simplemente responde a este correo con el número correcto.</p>`
@@ -92,9 +92,9 @@ export function renderFoundingAgentWelcomeEmail(
         <strong>What you're locking in:</strong>
       </p>
       <ul style="margin:0 0 20px 20px;padding:0;color:${COLORS.inkMuted};">
-        <li style="margin:0 0 6px;"><strong>Permanent</strong> founder rate — doesn't change when we go public.</li>
         <li style="margin:0 0 6px;">Direct WhatsApp access to me (Michał) for feedback + support.</li>
         <li style="margin:0 0 6px;">Your voice on what we build next.</li>
+        <li style="margin:0 0 6px;">We talk before you sign anything — we'll build the right deal for your market.</li>
       </ul>
       ${args.whatsappDisplay
         ? `<p style="margin:0 0 20px;color:${COLORS.helper};font-size:13px;">I'll reach you on WhatsApp at <strong style="color:${COLORS.ink};">${escapeHtml(args.whatsappDisplay)}</strong>. If that's wrong, just reply to this email with the right number.</p>`
@@ -116,10 +116,10 @@ export function renderFoundingAgentWelcomeEmail(
         '',
         `Te contactaré personalmente por WhatsApp en las próximas 24-48 horas para conocerte y mostrarte AHO en vivo. Sin presión.`,
         '',
-        'Garantizado al entrar:',
-        '- Tarifa de fundador permanente',
+        'Lo que tienes al entrar:',
         '- Acceso directo a mí (Michał) por WhatsApp',
         '- Tu voz en lo que construimos',
+        '- Conversamos antes de cerrar nada — armamos el acuerdo correcto para tu mercado',
         '',
         `Programa: ${args.programUrl}`,
         '',
@@ -134,10 +134,10 @@ export function renderFoundingAgentWelcomeEmail(
         '',
         `I'll reach out personally on WhatsApp within 24-48 hours to get to know you and walk you through AHO live. No pressure.`,
         '',
-        "What you're locking in:",
-        '- Permanent founder rate',
+        "What you get coming in:",
         '- Direct WhatsApp access to me (Michał)',
         '- Your voice on what we build next',
+        "- We talk before you sign anything — we'll build the right deal for your market",
         '',
         `Program: ${args.programUrl}`,
         '',

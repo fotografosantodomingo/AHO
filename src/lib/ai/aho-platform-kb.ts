@@ -65,7 +65,6 @@ export interface AhoPlatformKb {
      *  (the private-owner tier uses `oneTimeUsd` instead). */
     priceMonthlyUsd: number | null;
     priceAnnualUsd: number | null;
-    founderPriceMonthlyUsd?: number | null;
     /** One-time per-listing cost (USD cents → dollar units). Set for
      *  the private-owner tier ($5 = oneTimeUsd: 5); NULL for
      *  subscription tiers. */
@@ -221,7 +220,6 @@ const KB_EN: AhoPlatformKb = {
       status: 'live',
       priceMonthlyUsd: 29,
       priceAnnualUsd: 290,
-      founderPriceMonthlyUsd: 19,
       description:
         'Entry plan for individual agents. Publish listings, capture leads, measure performance.',
       keyFeatures: [
@@ -660,12 +658,8 @@ const KB_EN: AhoPlatformKb = {
       a: 'Yes — ~17% off. Agent $29/mo or $290/yr. Plus $49/mo or $490/yr. Pro Automation $99/mo or $990/yr.',
     },
     {
-      q: 'What is the founder rate?',
-      a: '$19/mo for life on Agent, reserved for the first 50 agents in the founder window. Monthly billing only; closes when filled.',
-    },
-    {
       q: 'Is there a free trial?',
-      a: 'No free trial. AHO has never offered one — never mention 7-day, 14-day, or any trial period because it does not exist. Risk-free signup comes from two things instead: (1) the $5 one-time private-owner listing if you only need one property (no commitment beyond the $5), and (2) the founder-window $19/mo Agent rate locked for life (first 50 agents). Cancel any subscription anytime via the Stripe Customer Portal; listings stay live until the period end.',
+      a: 'No free trial. AHO has never offered one — never mention 7-day, 14-day, or any trial period because it does not exist. Risk-free signup comes from the $5 one-time private-owner listing if you only need one property (no commitment beyond the $5). Cancel any subscription anytime via the Stripe Customer Portal; listings stay live until the period end.',
     },
     {
       q: 'Do buyers pay AHO?',
@@ -764,7 +758,6 @@ const KB_ES: AhoPlatformKb = {
       status: 'live',
       priceMonthlyUsd: 29,
       priceAnnualUsd: 290,
-      founderPriceMonthlyUsd: 19,
       description:
         'Plan inicial para agentes individuales. Publica anuncios, recibe contactos y empieza a medir el rendimiento.',
       keyFeatures: [
@@ -1230,12 +1223,8 @@ const KB_ES: AhoPlatformKb = {
       a: 'Sí — alrededor del 17%. Agente $29/mes o $290/año. Plus $49/mes o $490/año. Pro Automation $99/mes o $990/año.',
     },
     {
-      q: '¿Qué es la tarifa Founder?',
-      a: '$19 al mes de por vida en el plan Agente, reservada para los primeros 50 agentes que se registren dentro de la ventana Founder. Solo facturación mensual; al llenarse, la tarifa se cierra.',
-    },
-    {
       q: '¿Hay periodo de prueba?',
-      a: 'No hay periodo de prueba gratis. AHO nunca lo ha ofrecido — nunca menciones prueba de 7 días, 14 días ni de ningún otro plazo porque no existe. La compra sin riesgo tiene dos caminos: (1) el anuncio único de propietario por $5 (pago único; sin compromiso más allá de los $5), y (2) la tarifa fundador de $19/mes en Agente, congelada de por vida (primeros 50 agentes). Puedes cancelar cualquier suscripción cuando quieras desde el Portal de Cliente de Stripe; los anuncios quedan visibles hasta el final del periodo.',
+      a: 'No hay periodo de prueba gratis. AHO nunca lo ha ofrecido — nunca menciones prueba de 7 días, 14 días ni de ningún otro plazo porque no existe. La compra sin riesgo es el anuncio único de propietario por $5 (pago único; sin compromiso más allá de los $5). Puedes cancelar cualquier suscripción cuando quieras desde el Portal de Cliente de Stripe; los anuncios quedan visibles hasta el final del periodo.',
     },
     {
       q: '¿Los compradores pagan a AHO?',

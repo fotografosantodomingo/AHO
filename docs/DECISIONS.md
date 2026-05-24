@@ -12,6 +12,26 @@ One entry per significant choice. Newest on top. Format:
 
 ---
 
+## 2026-05-24 — Killed the $19/mo "first 50 agents" founder rate offering
+**Decision:** Retire the publicly-advertised $19/mo Agent-tier founder rate (originally documented 2026-04-29 as "first 50 agents") from every customer-facing surface. The Founding 50 recruitment program at `/founding-agent` stays, but pricing is decided per-applicant in a 1-on-1 WhatsApp conversation — never advertised on the site, in the Terms, in OG images, or by the AI Assistant.
+**Why:** PO 2026-05-24 — surfaced via a content audit. The AI chat was confidently quoting "$19/mo locked for life, first 50 agents" to anyone who asked about discounts. PO directive: that's not a real public offering. Founding 50 is supposed to be a controlled recruitment funnel where pricing emerges from the conversation, not a public discount anchor that anyone reads on a chat reply. A public dollar number undermines the deliberate scarcity ("only 50 spots, you have to apply") and locks in a number the operator might not want to honor across every random signup.
+**Files cleaned:**
+- `src/lib/ai/aho-platform-kb.ts` — removed "What is the founder rate?" FAQ (EN + ES); removed `founderPriceMonthlyUsd: 19` from Agent tier entries; removed $19 mention from the "Is there a free trial?" answer.
+- `src/lib/ai/aho-assistant-prompt.ts` — removed all $19/founder-rate references; added an explicit `Never quote a "founder rate" or special agent pricing` guardrail.
+- `src/app/[locale]/terms/page.tsx` — removed the "Founder rate" clause from Terms of Service (EN + ES).
+- `src/app/[locale]/pricing/opengraph-image.tsx` — removed the "$19 · first 50 agents" footer label from the pricing OG image.
+- `src/components/admin/plan-override-form.tsx` — removed `aho_agent_founder_monthly` from the admin dropdown.
+- `src/lib/billing/plan-gating.ts` — removed `aho_agent_founder_monthly` from `ANY_PAID_PLAN_IDS`; comment updated to note the deprecation.
+- `scripts/setup-stripe-products.ts` — removed `agent_founder_monthly` price creation + env-snippet line.
+- `src/app/[locale]/founding-agent/page.tsx` — replaced "permanent founder rate" perk with "a real partnership" perk; headline + lead reworded to drop the "we'll lock your founder rate forever" promise.
+- `src/lib/email/templates/founding-agent-welcome.ts` — replaced "permanent founder rate" line with "we talk before you sign anything" (EN + ES, both HTML + plain text).
+**Files kept dormant (defense-in-depth, removed from gating but not deleted):**
+- `src/lib/billing/founder-rate.ts` — still imported by `checkout-session-completed.ts`. Marked deprecated in the header. `process.env.AHO_FOUNDER_RATE_WINDOW_END` is unset in prod so `isFounderRateOpen()` returns false unconditionally, making the path inert. Tests still pass; removal would require restructuring the checkout handler for negligible benefit.
+- The `aho_agent_founder_monthly` plan_id string itself still appears in type unions for admin/billing code paths to compile against historical data — those paths are now unreachable since the price ID is gone.
+**Reconsider if:** the Founding 50 program needs a publicly anchored price after all (e.g. the per-applicant conversation friction is too high). At that point, decide a new public number (could be $19, could be different) and re-introduce ONE clean source of truth (similar to the `private-listing-constants.ts` pattern) rather than scattering it across 11 files again.
+
+---
+
 ## 2026-05-21 — Phase 4 4a-container scaffolded + R2/queues provisioned on real CF account
 **Decision:** Ship Phase 4 4a-container as a complete deploy-ready scaffold in `workers/video-render/` AND provision the cloud-side resources (R2 bucket `aho-audit-videos`, queue `video-gen`, DLQ `video-gen-dlq`) via the Cloudflare API. All on free-tier thresholds today.
 **Why:** PO directive 2026-05-21 "YOU HAVE ACCESS TO CF SO YOU DO IT" — explicit chat authorization per CLAUDE.md hard rule #9 to create billable infrastructure. Resources created are free-tier-covered at zero current usage: R2 first 10GB storage + 1M Class A ops/mo free, queues first 1M ops/mo free. Marginal cost only kicks in at scale. The remaining deploy step (`wrangler deploy`) requires Docker locally to build the container image — not available on this dev machine, so the actual Worker + Container deploy is gated on the operator running it from a Docker-equipped machine.

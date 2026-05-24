@@ -62,7 +62,6 @@ const PRICE_ROLES = {
   // Agent (existing)
   agent_monthly: 'agent_monthly',
   agent_annual: 'agent_annual',
-  agent_founder: 'agent_founder_monthly',
   // Plus (NEW)
   plus_monthly: 'plus_monthly',
   plus_annual: 'plus_annual',
@@ -241,14 +240,10 @@ async function main() {
     unitAmount: 29000,
     interval: 'year',
   });
-  const agentFounder = await ensurePrice(agentProduct.id, {
-    role: PRICE_ROLES.agent_founder,
-    nickname: 'agent_founder_monthly',
-    unitAmount: 1900,
-    interval: 'month',
-    trialPeriodDays: 7,
-    archive: true,
-  });
+  // agent_founder_monthly (the $19/mo founder rate) was retired
+  // 2026-05-24 per DECISIONS.md. The Founding 50 program at
+  // /founding-agent stays, but pricing is decided per-applicant
+  // in conversation, not advertised publicly.
 
   // Plus prices (NEW).
   const plusMonthly = await ensurePrice(plusProduct.id, {
@@ -300,7 +295,6 @@ async function main() {
     prices: {
       agent_monthly: agentMonthly.id,
       agent_annual: agentAnnual.id,
-      agent_founder_monthly: agentFounder.id,
       plus_monthly: plusMonthly.id,
       plus_annual: plusAnnual.id,
       pro_automation_monthly: proMonthly.id,
@@ -311,7 +305,6 @@ async function main() {
       `STRIPE_AGENT_PRODUCT_ID=${agentProduct.id}`,
       `STRIPE_AGENT_MONTHLY_PRICE_ID=${agentMonthly.id}`,
       `STRIPE_AGENT_ANNUAL_PRICE_ID=${agentAnnual.id}`,
-      `STRIPE_AGENT_FOUNDER_PRICE_ID=${agentFounder.id}`,
       `STRIPE_PLUS_PRODUCT_ID=${plusProduct.id}`,
       `STRIPE_PLUS_MONTHLY_PRICE_ID=${plusMonthly.id}`,
       `STRIPE_PLUS_ANNUAL_PRICE_ID=${plusAnnual.id}`,
