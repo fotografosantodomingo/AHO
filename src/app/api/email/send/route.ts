@@ -116,12 +116,13 @@ export async function POST(req: NextRequest) {
       adminId: user.id,
     });
   } catch (e) {
+    console.error('[POST /api/email/send] segment_resolve_failed', e);
     await admin
       .from('email_campaigns')
       .update({ status: 'failed' })
       .eq('id', campaign.id);
     return NextResponse.json(
-      { error: 'segment_resolve_failed', message: e instanceof Error ? e.message : 'unknown' },
+      { error: 'segment_resolve_failed' },
       { status: 500 },
     );
   }

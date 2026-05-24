@@ -78,8 +78,12 @@ export async function POST(req: NextRequest) {
     else if (/source blocks scraping/i.test(message)) errorCode = 'source_blocks_scraping';
     else if (/source page too large|HTTP 4|HTTP 5|timed out|aborted|fetch failed/i.test(message))
       errorCode = 'fetch_failed';
+    // Don't echo raw exception text — `importFromUrl` errors can include
+    // upstream URLs, fetch-stack internals, or extracted page snippets.
+    // Stable error code is enough for the form to render a friendly
+    // localized message.
     return NextResponse.json(
-      { error: errorCode, message },
+      { error: errorCode },
       { status: errorCode === 'extract_failed' ? 502 : 400 },
     );
   }

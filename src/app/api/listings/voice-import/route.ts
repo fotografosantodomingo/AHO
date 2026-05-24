@@ -133,8 +133,11 @@ export async function POST(req: NextRequest) {
     let errorCode = 'voice_extract_failed';
     if (/Whisper API/i.test(message)) errorCode = 'transcription_failed';
     else if (/Audio file too large/i.test(message)) errorCode = 'file_too_large';
+    // Don't echo raw exception text — Whisper / Claude errors can
+    // include upstream API hints or transcript fragments. Stable code
+    // is enough for the form to render a friendly localized message.
     return NextResponse.json(
-      { error: errorCode, message },
+      { error: errorCode },
       { status: 502 },
     );
   }

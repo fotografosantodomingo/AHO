@@ -183,7 +183,7 @@ export async function PATCH(
     }
     console.error('[PATCH /api/listings/:id]', updateErr);
     return NextResponse.json(
-      { ok: false, errorCode: updateErr.message ?? 'db_error' },
+      { ok: false, errorCode: 'db_error' },
       { status: 500 },
     );
   }
@@ -254,7 +254,7 @@ export async function DELETE(
     }
     console.error('[DELETE /api/listings/:id]', delErr);
     return NextResponse.json(
-      { ok: false, errorCode: delErr.message ?? 'db_error' },
+      { ok: false, errorCode: 'db_error' },
       { status: 500 },
     );
   }

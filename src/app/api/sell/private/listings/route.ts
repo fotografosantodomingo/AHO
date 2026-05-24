@@ -219,7 +219,7 @@ export async function POST(req: NextRequest) {
         details: orgInsertErr?.details,
       });
       return NextResponse.json(
-        { ok: false, errorCode: orgInsertErr?.message ?? 'org_create_failed' },
+        { ok: false, errorCode: 'org_create_failed' },
         { status: 500 },
       );
     }
@@ -243,10 +243,7 @@ export async function POST(req: NextRequest) {
       // rather than orphan the user. They can retry; the next attempt
       // sees the existing org and only writes the membership.
       return NextResponse.json(
-        {
-          ok: false,
-          errorCode: memberInsertErr.message ?? 'member_create_failed',
-        },
+        { ok: false, errorCode: 'member_create_failed' },
         { status: 500 },
       );
     }
@@ -313,7 +310,7 @@ export async function POST(req: NextRequest) {
       hint: insertErr?.hint,
     });
     return NextResponse.json(
-      { ok: false, errorCode: insertErr?.message ?? 'property_create_failed' },
+      { ok: false, errorCode: 'property_create_failed' },
       { status: 500 },
     );
   }

@@ -105,7 +105,7 @@ export async function PUT(req: NextRequest) {
     }
     console.error('[PUT /api/me/profile] update failed', updateErr);
     return NextResponse.json(
-      { ok: false, errorCode: updateErr.message ?? 'db_error' },
+      { ok: false, errorCode: 'db_error' },
       { status: 500 },
     );
   }

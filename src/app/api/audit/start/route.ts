@@ -149,7 +149,7 @@ export async function POST(req: NextRequest) {
 
   if (insertErr) {
     console.error('[audit.start] insert failed', insertErr);
-    return fail(500, 'db_error', insertErr.message);
+    return fail(500, 'db_error');
   }
 
   // Flush the per-call cost rows NOW that the ai_audits row exists

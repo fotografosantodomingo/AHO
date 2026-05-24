@@ -122,8 +122,11 @@ export async function POST(req: NextRequest) {
       );
     }
     console.error('[POST /api/listings] insert failed', insertErr);
+    // Don't surface raw Postgres error.message to the client — it can
+    // include column names / hints that aid recon. Log the full error
+    // for ops; return a stable opaque code.
     return NextResponse.json(
-      { ok: false, errorCode: insertErr.message ?? 'db_error' },
+      { ok: false, errorCode: 'db_error' },
       { status: 500 },
     );
   }

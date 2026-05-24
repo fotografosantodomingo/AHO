@@ -125,8 +125,9 @@ export async function POST(
     if (insertErr.code === '42501') {
       return NextResponse.json({ error: 'forbidden' }, { status: 403 });
     }
+    console.error('[POST images] insert_failed', insertErr);
     return NextResponse.json(
-      { error: 'insert_failed', details: insertErr.message },
+      { error: 'insert_failed' },
       { status: 500 },
     );
   }

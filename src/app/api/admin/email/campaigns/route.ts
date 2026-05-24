@@ -57,8 +57,9 @@ export async function POST(req: NextRequest) {
       .select('id')
       .single();
     if (error || !data) {
+      console.error('[POST /api/admin/email/campaigns] update_failed', error);
       return NextResponse.json(
-        { error: 'update_failed', message: error?.message },
+        { error: 'update_failed' },
         { status: error?.code === 'PGRST116' ? 404 : 500 },
       );
     }
@@ -78,8 +79,9 @@ export async function POST(req: NextRequest) {
     .select('id')
     .single();
   if (error || !data) {
+    console.error('[POST /api/admin/email/campaigns] insert_failed', error);
     return NextResponse.json(
-      { error: 'insert_failed', message: error?.message },
+      { error: 'insert_failed' },
       { status: 500 },
     );
   }

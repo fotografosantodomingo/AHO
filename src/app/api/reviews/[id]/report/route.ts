@@ -92,7 +92,7 @@ export async function POST(
     }
     console.error('[POST /api/reviews/:id/report]', error);
     return NextResponse.json(
-      { ok: false, errorCode: error.message ?? 'db_error' },
+      { ok: false, errorCode: 'db_error' },
       { status: 500 },
     );
   }

@@ -133,8 +133,10 @@ export async function POST(req: NextRequest) {
       subscriberEmail: args.subscriber?.email,
       error: result.error,
     });
+    // Don't echo Brevo's raw error to the anon caller — the client only
+    // needs to know the send failed. Full reason is in server logs.
     return NextResponse.json(
-      { ok: false, errorCode: 'send_failed', error: result.error },
+      { ok: false, errorCode: 'send_failed' },
       { status: 502 },
     );
   }
