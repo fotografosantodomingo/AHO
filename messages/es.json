@@ -2469,6 +2469,7 @@
     },
     "trust": {
       "heading": "Confianza en todo el mundo",
+      "ariaLabel": "Señales de confianza",
       "pills": [
         "7 idiomas",
         "Anuncios en todo el mundo",

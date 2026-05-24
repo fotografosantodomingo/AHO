@@ -2421,6 +2421,7 @@
     },
     "trust": {
       "heading": "Adopté dans le monde entier",
+      "ariaLabel": "Signaux de confiance",
       "pills": [
         "7 langues",
         "Annonces mondiales",

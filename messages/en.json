@@ -2469,6 +2469,7 @@
     },
     "trust": {
       "heading": "Trusted worldwide",
+      "ariaLabel": "Trust signals",
       "pills": [
         "7 languages",
         "Worldwide listings",

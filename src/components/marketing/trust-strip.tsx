@@ -16,12 +16,15 @@ export interface TrustStripProps {
   /** One-line restatement of the no-fake-data policy. Optional but
    *  recommended for the /sell surface. */
   realOnly?: string;
+  /** Localized aria-label for the section landmark. Optional —
+   *  defaults to omitting the label rather than leaking English. */
+  ariaLabel?: string;
 }
 
-export function TrustStrip({ pills, realOnly }: TrustStripProps) {
+export function TrustStrip({ pills, realOnly, ariaLabel }: TrustStripProps) {
   return (
     <section
-      aria-label="Trust signals"
+      aria-label={ariaLabel}
       className="border-b border-border bg-surface-band/40 dark:bg-surface-deep/30"
     >
       <div className="mx-auto max-w-4xl px-6 py-12 md:py-14">

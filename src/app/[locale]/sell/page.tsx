@@ -366,7 +366,7 @@ export default async function SellPage({
         </section>
 
         {/* ───── Trust strip ───── */}
-        <TrustStrip pills={trustPills} realOnly={t('trust.realOnly')} />
+        <TrustStrip pills={trustPills} realOnly={t('trust.realOnly')} ariaLabel={t('trust.ariaLabel')} />
 
         {/* ───── Comparison table ───── */}
         <TierComparison
