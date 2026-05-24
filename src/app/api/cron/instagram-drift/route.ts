@@ -248,11 +248,19 @@ async function handle(req: NextRequest): Promise<NextResponse<CronSummary>> {
         continue;
       }
       // Record notification so we don't email again.
-      await admin.from('meta_drift_notifications').insert({
+      const { error: noteErr } = await admin.from('meta_drift_notifications').insert({
         user_id: row.user_id,
         ig_id: ig.igId,
         ig_username: ig.igUsername,
       });
+      if (noteErr) {
+        console.error('[cron/instagram-drift] notification insert failed', {
+          code: noteErr.code,
+          message: noteErr.message,
+          details: noteErr.details,
+          hint: noteErr.hint,
+        });
+      }
       summary.emailed += 1;
       totalEmailed += 1;
     }
