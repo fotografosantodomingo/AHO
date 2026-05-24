@@ -373,6 +373,9 @@ export default async function SellPage({
           heading={t('compare.heading')}
           colPrivate={t('compare.colPrivate')}
           colAgent={t('compare.colAgent')}
+          featureColLabel={t('compare.featureCol')}
+          includedLabel={t('compare.included')}
+          notIncludedLabel={t('compare.notIncluded')}
           rows={compareRows}
         />
 

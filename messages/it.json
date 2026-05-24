@@ -2432,6 +2432,9 @@
       "heading": "Cosa ottieni",
       "colPrivate": "Privato 5 $",
       "colAgent": "Agente 29-99 $/mese",
+      "included": "Incluso",
+      "notIncluded": "Non incluso",
+      "featureCol": "Funzionalità",
       "rows": [
         { "feature": "Numero di annunci", "private": "1 annuncio", "agent": "Illimitati" },
         { "feature": "Durata dell'annuncio", "private": "90 giorni", "agent": "Attivo mentre l'abbonamento è in corso" },

@@ -2480,6 +2480,9 @@
       "heading": "Lo que recibes",
       "colPrivate": "Particular $5",
       "colAgent": "Agente $29-99/mes",
+      "included": "Incluido",
+      "notIncluded": "No incluido",
+      "featureCol": "Característica",
       "rows": [
         { "feature": "Número de anuncios", "private": "1 anuncio", "agent": "Ilimitados" },
         { "feature": "Duración del anuncio", "private": "90 días", "agent": "Activo mientras estés suscrito" },

@@ -2432,6 +2432,9 @@
       "heading": "Was Sie bekommen",
       "colPrivate": "Privat $5",
       "colAgent": "Makler $29-99/Monat",
+      "included": "Enthalten",
+      "notIncluded": "Nicht enthalten",
+      "featureCol": "Funktion",
       "rows": [
         { "feature": "Anzahl Inserate", "private": "1 Inserat", "agent": "Unbegrenzt" },
         { "feature": "Inseratsdauer", "private": "90 Tage", "agent": "Aktiv während des Abos" },

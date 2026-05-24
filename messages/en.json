@@ -2480,6 +2480,9 @@
       "heading": "What you get",
       "colPrivate": "Private $5",
       "colAgent": "Agent $29-99/mo",
+      "included": "Included",
+      "notIncluded": "Not included",
+      "featureCol": "Feature",
       "rows": [
         { "feature": "Number of listings", "private": "1 listing", "agent": "Unlimited" },
         { "feature": "Listing duration", "private": "90 days", "agent": "Active while subscribed" },

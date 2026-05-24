@@ -2432,6 +2432,9 @@
       "heading": "O que recebe",
       "colPrivate": "Privado $5",
       "colAgent": "Agente $29-99/mês",
+      "included": "Incluído",
+      "notIncluded": "Não incluído",
+      "featureCol": "Recurso",
       "rows": [
         { "feature": "Número de anúncios", "private": "1 anúncio", "agent": "Ilimitado" },
         { "feature": "Duração do anúncio", "private": "90 dias", "agent": "Ativo enquanto a subscrição estiver paga" },

@@ -2472,6 +2472,9 @@
       "heading": "Co otrzymujesz",
       "colPrivate": "Prywatne $5",
       "colAgent": "Agent $29-99/mies.",
+      "included": "Zawarte",
+      "notIncluded": "Niezawarte",
+      "featureCol": "Funkcja",
       "rows": [
         { "feature": "Liczba ogłoszeń", "private": "1 ogłoszenie", "agent": "Nielimitowane" },
         { "feature": "Czas trwania ogłoszenia", "private": "90 dni", "agent": "Aktywne, gdy abonament jest opłacony" },
