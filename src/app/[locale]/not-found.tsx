@@ -72,7 +72,7 @@ export default async function LocalizedNotFound() {
   // WEDGE_COPY.en is the fallback contract — it ALWAYS exists. The
   // non-null assertion satisfies tsconfig's noUncheckedIndexedAccess.
   const wedge = WEDGE_COPY[locale] ?? WEDGE_COPY.en!;
-  const auditHref = `/${locale}${localePath(locale as Locale, '/for-agents')}#free-audit`;
+  const auditHref = `${localePath(locale as Locale, '/for-agents')}#free-audit`;
 
   return (
     <main className="mx-auto flex min-h-[60vh] max-w-xl flex-col items-center justify-center px-6 py-16 text-center">

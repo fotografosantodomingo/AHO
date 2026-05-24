@@ -68,7 +68,7 @@ const COPY: Record<
  */
 export function AgentWedgeStrip({ locale }: Props) {
   const copy = COPY[locale] ?? COPY.en;
-  const forAgentsHref = `/${locale}${localePath(locale, '/for-agents')}#free-audit`;
+  const forAgentsHref = `${localePath(locale, '/for-agents')}#free-audit`;
 
   return (
     <section className="mx-auto max-w-6xl px-6 py-12">

@@ -273,7 +273,7 @@ export default async function CityLandingPage({
             body={t('emptyBody', { city: canonicalCity })}
             primaryCta={
               <Link
-                href={`/${typedLocale}${localePath(typedLocale, '/for-agents')}#free-audit`}
+                href={`${localePath(typedLocale, '/for-agents')}#free-audit`}
                 className="btn-primary"
               >
                 {t('emptyAgentCta')}

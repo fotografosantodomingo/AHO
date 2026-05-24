@@ -107,7 +107,7 @@ export default async function CountryLandingPage({
   // pricingHref removed 2026-05-21: country-page empty state now
   // routes to the Free Audit wedge (low-commitment) instead of
   // /pricing ($99/mo high-commitment), mirroring city-page logic.
-  const freeAuditHref = `/${typedLocale}${localePath(typedLocale, '/for-agents')}#free-audit`;
+  const freeAuditHref = `${localePath(typedLocale, '/for-agents')}#free-audit`;
 
   // JSON-LD nodes — Place (the country) + BreadcrumbList + ItemList of
   // its cities. Mirrors the shape used on the city landing one level

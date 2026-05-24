@@ -299,7 +299,7 @@ export default async function BlogPostPage({
           <p className="mt-3 text-base text-slate-700 md:text-lg">{cta.body}</p>
           <div className="mt-6">
             <a
-              href={`/${typedLocale}${forAgentsHref}#free-audit`}
+              href={`${forAgentsHref}#free-audit`}
               className="inline-flex items-center rounded-lg bg-emerald-600 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-700"
             >
               {cta.button} →
