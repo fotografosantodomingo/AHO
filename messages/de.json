@@ -1513,7 +1513,51 @@
       "featHistory": "Post-Historie + Retry bei Fehlschlag"
     },
     "upgradeCta": "Auf Pro Automation upgraden",
-    "upgradeNote": "$99/Monat oder $990/Jahr"
+    "upgradeNote": "$99/Monat oder $990/Jahr",
+    "share": {
+      "heading": "Auf meinen Social-Kanälen teilen",
+      "body": "Veröffentlichen Sie dieses Inserat mit einem Klick auf Ihren verbundenen Facebook-Seiten und Instagram-Business-Konten.",
+      "willPost": "{count, plural, =0 {Keine Konten ausgewählt} =1 {Wird auf 1 Konto veröffentlicht} other {Wird auf # Konten veröffentlicht}}.",
+      "accountSelectionLegend": "Wählen Sie, auf welchen verbundenen Konten veröffentlicht werden soll",
+      "accountSelectionHint": "Deaktivieren Sie Konten, auf denen Sie diesmal nicht veröffentlichen möchten.",
+      "accountSelectAll": "Alle auswählen",
+      "accountSelectNone": "Alle abwählen",
+      "selectAtLeastOne": "Wählen Sie zuerst mindestens ein Konto.",
+      "shareNow": "Jetzt teilen",
+      "posting": "Wird veröffentlicht…",
+      "retryFailed": "Fehlgeschlagene erneut versuchen",
+      "emptyHeading": "Facebook verbinden, um zu veröffentlichen",
+      "emptyBody": "Sie haben noch keine Social-Konten verbunden. Verbinden Sie Facebook, um Ihre Inserate auf Ihren Seiten und verknüpften Instagram-Business-Konten zu veröffentlichen.",
+      "connectFirst": "Facebook verbinden",
+      "draftNotice": "Dieses Inserat ist noch nicht veröffentlicht. Veröffentlichen Sie es zuerst, um zu teilen.",
+      "outcome": {
+        "succeeded": "Veröffentlicht",
+        "failed": "Fehlgeschlagen",
+        "skipped": "Übersprungen"
+      },
+      "viewPost": "Beitrag ansehen",
+      "errorPrefix": "Grund",
+      "unexpectedError": "Unerwarteter Fehler",
+      "serverErrorCode": "Server-Fehler: {code}",
+      "errorRefLabel": "Fehlerreferenz",
+      "copyError": "Fehler kopieren",
+      "copyErrorCopied": "Kopiert",
+      "emailSupport": "Support anschreiben",
+      "mailtoSubject": "AHO-Teilen fehlgeschlagen — {ref}",
+      "mailtoBody": "Hallo AHO-Support,\n\nmein Social-Teilen ist fehlgeschlagen.\nFehlerreferenz: {ref}\nPlattform: {platform}\nKonto: {account}\nInserat: {listingUrl}\n\nBitte um Hilfe. Danke.",
+      "generateDraft": "KI-Entwurf erzeugen",
+      "regenerateDraft": "KI-Entwurf neu erzeugen",
+      "generating": "Wird erzeugt…",
+      "reviewBeforeShare": "Prüfen und bearbeiten Sie jeden Entwurf vor dem Teilen. Leere Entwürfe nutzen die Standardvorlage.",
+      "resetDraft": "Zurück zum KI-Entwurf",
+      "useTemplate": "Vorlage verwenden",
+      "aiUnavailable": "KI-Entwurf nicht verfügbar — Sie können mit der Standardvorlage teilen oder es in einem Moment erneut versuchen.",
+      "platformDraftLabel": {
+        "facebook": "Facebook-Entwurf",
+        "instagram": "Instagram-Entwurf",
+        "linkedin": "LinkedIn-Entwurf"
+      }
+    }
   },
   "analytics": {
     "heading": "Performance",
@@ -2295,5 +2339,246 @@
     "finalHeading": "Bereit für Instagram-Veröffentlichungen?",
     "finalBody": "Verbinden / neu verbinden Sie Meta im Dashboard, erstellen Sie dann einen neuen Beitrag — Instagram sollte in der Checkbox-Liste auftauchen.",
     "finalCta": "/dashboard/social öffnen"
+  },
+  "sell": {
+    "meta": {
+      "title": "Auf AHO verkaufen oder vermieten — $5 für Eigentümer, $29-$99/Monat für Makler",
+      "description": "Bewerben Sie Ihre Immobilie weltweit auf AHO. Private Eigentümer zahlen $5 für ein 90-Tage-Inserat; professionelle Makler abonnieren ab $29/Monat für unbegrenzte Inserate, Multi-Channel-Automatisierung, KI-Inbox und eine markenkonforme Profilseite."
+    },
+    "hero": {
+      "eyebrow": "Auf AHO verkaufen oder vermieten",
+      "heading": "Bewerben Sie Ihre Immobilie weltweit.",
+      "sub": "KI-gestützte Inserate + Social-Media-Automatisierung in 7 Sprachen."
+    },
+    "identity": {
+      "heading": "Wie möchten Sie inserieren?"
+    },
+    "cardPrivate": {
+      "tag": "Eigentümer / Vermieter",
+      "heading": "Inserieren Sie selbst",
+      "perfectFor": "Ideal für",
+      "bullets": [
+        "Einmaliger Verkauf eines Hauses oder einer Wohnung",
+        "Vermietung eines Ferienhauses oder Kurzzeitobjekts",
+        "Vermieter mit 1-2 Langzeit-Einheiten",
+        "Privatverkäufer (FSBO), die keinen Makler wollen"
+      ],
+      "includesLabel": "Enthält",
+      "includes": [
+        "1 Inserat, 90 Tage online",
+        "KI-Texte in 7 Sprachen",
+        "Social-Veröffentlichung auf 1 Kanal (Facebook oder Instagram)",
+        "Anfragen über WhatsApp + E-Mail",
+        "Bis zu 25 Fotos pro Inserat"
+      ],
+      "price": "$5 USD pro Inserat",
+      "priceNote": "einmalige Zahlung",
+      "cta": "Inserat starten"
+    },
+    "cardAgent": {
+      "tag": "Professioneller Makler",
+      "heading": "Multi-Listing-Automatisierung",
+      "bullets": [
+        "Unabhängige Immobilienmakler",
+        "Makler mit eigenem Kundenstamm",
+        "Boutique-Agenturen (2-20 Makler)",
+        "Bauträger, die Neubauten vermarkten"
+      ],
+      "includes": [
+        "Unbegrenzte Inserate",
+        "Automatische Veröffentlichung auf Facebook + Instagram + LinkedIn",
+        "KI-Inbox mit Lead-Routing-Regeln",
+        "Analyse-Dashboard pro Inserat",
+        "Verifizierte Bewertungen früherer Kunden",
+        "Markenkonforme Makler-Profilseite mit SEO"
+      ],
+      "priceNote": "Ab $29/Monat · jederzeit kündbar",
+      "cta": "Pläne ansehen"
+    },
+    "how": {
+      "heading": "Von Einfügen bis Veröffentlichung in weniger als 5 Minuten.",
+      "private": {
+        "title": "Für Eigentümer",
+        "steps": [
+          "Zahlen Sie $5 via Stripe — einmalig, kein Abo, keine automatische Verlängerung.",
+          "Fügen Sie eine Inserats-URL aus einem anderen Portal ein oder füllen Sie das kurze Formular: Preis, Schlafzimmer, Fläche, Stadt, bis zu 25 Fotos.",
+          "Claude erstellt plattform­optimierte Texte in 7 Sprachen; markenkonforme Social-Grafiken werden automatisch erzeugt.",
+          "Wählen Sie Facebook oder Instagram als Veröffentlichungskanal.",
+          "Das Inserat ist 90 Tage online; Anfragen erreichen Sie via WhatsApp und Kontaktformular."
+        ]
+      },
+      "agent": {
+        "title": "Für Makler",
+        "steps": [
+          "Abonnieren Sie einen Makler-Tarif — Standard $29/Monat, Pro Automation $99/Monat, jederzeit kündbar.",
+          "Richten Sie Ihr Makler-Profil ein: Foto, Bio, Sprachen, Einsatzgebiet, Abzeichen.",
+          "Fügen Sie Ihr erstes Inserat per Spracheingabe, URL oder Formular hinzu.",
+          "Verbinden Sie Facebook, Instagram und LinkedIn via OAuth; AHO veröffentlicht plattformspezifische Varianten.",
+          "Verwalten Sie Anfragen in einer KI-Inbox; analysieren Sie Performance pro Inserat und Kanal im Dashboard."
+        ]
+      }
+    },
+    "trust": {
+      "heading": "Weltweit vertraut",
+      "pills": [
+        "7 Sprachen",
+        "Weltweite Inserate",
+        "Meta-Business-Partner"
+      ],
+      "realOnly": "AHO veröffentlicht keine Demo-Inserate oder Stockfotos. Jede Immobilie ist real."
+    },
+    "compare": {
+      "heading": "Was Sie bekommen",
+      "colPrivate": "Privat $5",
+      "colAgent": "Makler $29-99/Monat",
+      "rows": [
+        { "feature": "Anzahl Inserate", "private": "1 Inserat", "agent": "Unbegrenzt" },
+        { "feature": "Inseratsdauer", "private": "90 Tage", "agent": "Aktiv während des Abos" },
+        { "feature": "KI-Texte in 7 Sprachen", "private": true, "agent": true },
+        { "feature": "Markenkonforme Social-Grafiken", "private": true, "agent": true },
+        { "feature": "Social-Veröffentlichung — Facebook ODER Instagram", "private": true, "agent": true },
+        { "feature": "Multi-Channel-Veröffentlichung (FB + IG + LinkedIn)", "private": false, "agent": true },
+        { "feature": "KI-Inbox mit Lead-Routing", "private": false, "agent": true },
+        { "feature": "Markenkonforme Makler-Profilseite", "private": false, "agent": true },
+        { "feature": "Verifizierte Kundenbewertungen", "private": false, "agent": true },
+        { "feature": "Analyse-Dashboard pro Inserat", "private": false, "agent": true },
+        { "feature": "Abrechnung", "private": "Einmalig $5", "agent": "Monatliches Abo" }
+      ]
+    },
+    "faq": {
+      "heading": "Häufig gestellte Fragen",
+      "items": [
+        {
+          "q": "Ich möchte nur ein Haus verkaufen — brauche ich ein Abo?",
+          "a": "Nein. Der $5-Einmaltarif ist genau dafür gemacht. Eine Zahlung, 90-Tage-Inserat, KI-Texte, Social-Veröffentlichung auf einem Kanal. Kein Abo, keine automatische Verlängerung. Wenn Sie später mehr Immobilien inserieren möchten, können Sie pro Inserat $5 zahlen oder auf einen Monatstarif wechseln."
+        },
+        {
+          "q": "Ich bin aktiver Makler — reicht der $5-Tarif für meinen Bestand?",
+          "a": "Eigentlich nicht. $5 ist ein Inserat für 90 Tage mit Veröffentlichung auf einem Kanal. Die Makler-Tarife bieten unbegrenzte Inserate, Multi-Channel-Veröffentlichung (Facebook + Instagram + LinkedIn), eine KI-Inbox, die eingehende Anfragen sortiert, und eine markenkonforme Profilseite, die in Suchen erscheint. Bei mehr als 2-3 Inseraten pro Jahr lohnt das Abo."
+        },
+        {
+          "q": "Verlängert sich mein Inserat nach 90 Tagen automatisch?",
+          "a": "Nein. Die $5-Zahlung ist einmalig. Wir schicken Ihnen am 82. Tag eine E-Mail mit einem Ein-Klick-Verlängerungslink ($5 für weitere 90 Tage). Verlängern Sie nicht, läuft das Inserat ab und erscheint nicht mehr in der Suche; Ihre Daten bleiben gespeichert, damit Sie später verlängern können."
+        },
+        {
+          "q": "Kann ich später von $5 auf einen Makler-Tarif wechseln?",
+          "a": "Ja, jederzeit. Ihre bestehenden Inserate werden in das Makler-Konto migriert, und Sie haben sofort Zugriff auf unbegrenzte Inserate, Multi-Channel-Veröffentlichung und die KI-Inbox. Die $5-Zahlungen sind nicht erstattbar, aber die bereits bezahlte Inseratszeit bleibt erhalten."
+        },
+        {
+          "q": "Gibt es Rückerstattungen?",
+          "a": "Volle Rückerstattung innerhalb von 7 Tagen für den $5-Tarif, ohne Rückfragen, solange das Inserat keine Anfragen erhalten hat. Makler-Abos werden im Voraus abgerechnet; Sie können jederzeit im Stripe-Customer-Portal kündigen und behalten den Zugriff bis zum Ende der aktuellen Abrechnungsperiode."
+        }
+      ]
+    },
+    "cta": {
+      "heading": "Noch unentschlossen?",
+      "sub": "Der AHO-Assistent (unten rechts) beantwortet Ihre Fragen.",
+      "private": "Als Eigentümer starten — $5",
+      "agent": "Makler-Pläne ansehen"
+    }
+  },
+  "sellPrivate": {
+    "meta": {
+      "title": "$5, um Ihre Immobilie weltweit zu veröffentlichen — 90-Tage-Inserat auf AHO",
+      "description": "Eine Immobilie, eine Zahlung, 90 Tage online. KI-generierte Texte in 7 Sprachen, Social-Veröffentlichung auf Facebook oder Instagram mit einem Klick, Anfragen via WhatsApp + E-Mail. Kein Abo."
+    },
+    "hero": {
+      "eyebrow": "Eigentümer · Vermieter",
+      "heading": "$5, um Ihre Immobilie weltweit zu veröffentlichen.",
+      "sub": "90-Tage-Inserat. KI-Texte in 7 Sprachen. Social-Veröffentlichung mit einem Klick.",
+      "cta": "$5 zahlen →"
+    },
+    "process": {
+      "heading": "5 Minuten vom Einfügen bis zur Veröffentlichung",
+      "steps": [
+        {
+          "title": "$5 zahlen",
+          "body": "Sicherer Stripe-Checkout. Einmalige Abbuchung — kein Abo, keine automatische Verlängerung. MwSt. wird für EU-Käufer inklusive angezeigt."
+        },
+        {
+          "title": "URL einfügen oder Fotos + Daten hochladen",
+          "body": "Fügen Sie eine Inserats-URL aus einem anderen Portal ein (wir importieren die Details) oder füllen Sie das kurze Formular: Preis, Schlafzimmer, Fläche, Stadt, bis zu 25 Fotos."
+        },
+        {
+          "title": "KI schreibt Texte + Grafiken",
+          "body": "Claude erstellt plattform­optimierte Social-Texte in 7 Sprachen — Englisch, Spanisch, Polnisch, Portugiesisch, Deutsch, Französisch, Italienisch. Markenkonforme Bildkarten werden automatisch generiert."
+        },
+        {
+          "title": "Facebook oder Instagram wählen",
+          "body": "Wählen Sie, wo Sie zuerst veröffentlichen. Der $5-Tarif veröffentlicht auf einem Social-Kanal — wählen Sie den, den Ihre Zielgruppe tatsächlich nutzt."
+        },
+        {
+          "title": "Veröffentlichen · Inserat 90 Tage online",
+          "body": "Das Inserat geht unter advertisehomes.online mit einer permanenten URL live. Anfragen erreichen Sie über das Kontaktformular, WhatsApp und E-Mail."
+        }
+      ]
+    },
+    "included": {
+      "heading": "Was Sie bekommen",
+      "items": [
+        "1 Inserat, 90 Tage online",
+        "KI-Texte in 7 Sprachen (EN/ES/PL/PT/DE/FR/IT)",
+        "Markenkonforme Social-Grafiken von der KI",
+        "Social-Veröffentlichung auf 1 Kanal (Facebook oder Instagram)",
+        "Anfragen via WhatsApp + E-Mail-Kontaktformular",
+        "Inseratsseite mit bis zu 25 Fotos und permanenter URL"
+      ]
+    },
+    "excluded": {
+      "heading": "Was Sie nicht bekommen",
+      "items": [
+        "Unbegrenzte Inserate (das hier ist eine Immobilie, eine Zahlung)",
+        "Multi-Channel-Veröffentlichung (Facebook + Instagram + LinkedIn gleichzeitig)",
+        "Automatische KI-Antworten auf eingehende Anfragen",
+        "Markenkonforme Makler-Profilseite mit Bewertungen und SEO"
+      ],
+      "upgradeCta": "Brauchen Sie das? Makler-Pläne ansehen →"
+    },
+    "faq": {
+      "heading": "Häufig gestellte Fragen",
+      "items": [
+        {
+          "q": "Verlängert sich mein Inserat automatisch?",
+          "a": "Nein. Die $5-Zahlung ist einmalig und das Inserat läuft nach 90 Tagen ab. Wir schicken Ihnen am 82. Tag eine E-Mail mit einem Ein-Klick-Verlängerungslink ($5 für weitere 90 Tage). Verlängern Sie nicht, läuft das Inserat ab und erscheint nicht mehr in der Suche; Ihre Daten bleiben gespeichert, damit Sie später verlängern können."
+        },
+        {
+          "q": "Wie ist die Rückerstattungspolitik?",
+          "a": "Volle Rückerstattung innerhalb von 7 Tagen, ohne Rückfragen, solange das Inserat keine Anfragen erhalten hat. Schreiben Sie info@advertisehomes.online mit Ihrem Stripe-Beleg. Nach 7 Tagen ist die Buchung endgültig (das Inserat war bereits online und indexiert)."
+        },
+        {
+          "q": "Was passiert nach 90 Tagen?",
+          "a": "Das Inserat läuft ab und verschwindet aus den Suchergebnissen. Die Inseratsseite bleibt unter derselben URL (damit eingehende Links weiterhin funktionieren), aber mit einem klaren \"Dieses Inserat ist abgelaufen\"-Banner und einem Ein-Klick-Verlängerungsbutton. Zahlen Sie $5, um es für weitere 90 Tage zu reaktivieren."
+        },
+        {
+          "q": "Wer wickelt den Verkauf oder die Vermietung ab?",
+          "a": "Sie selbst. AHO ist die Werbeplattform — wir veröffentlichen Ihr Inserat, generieren die Texte und Grafiken und leiten Anfragen an Ihr WhatsApp und Ihre E-Mail. Gespräch, Besichtigung, Papierkram und Abschluss laufen zwischen Ihnen und dem Käufer oder Mieter. Wenn Sie einen Makler beauftragen möchten, sehen Sie sich die Seite Makler finden an."
+        }
+      ]
+    },
+    "ctaRepeat": {
+      "heading": "Bereit zur Veröffentlichung?",
+      "button": "$5 zahlen und loslegen"
+    },
+    "authGate": {
+      "note": "Erst ein schnelles Konto — damit wir Ihr Inserat speichern und Anfragen an Sie senden können. Dauert 30 Sekunden.",
+      "signIn": "Anmelden",
+      "createAccount": "Konto erstellen"
+    },
+    "success": {
+      "heading": "Zahlung erhalten — lassen Sie uns Ihr Inserat veröffentlichen",
+      "body": "Ihre $5-Zahlung wurde verarbeitet. Sie haben 90 Tage Inseratszeit vor sich — bringen wir das Inserat online. Der nächste Schritt ist ein kurzes Formular (Preis, Schlafzimmer, Fotos, Social-Kanal). Dauert etwa 5 Minuten.",
+      "cta": "Inserat erstellen"
+    },
+    "cancel": {
+      "heading": "Zahlung abgebrochen",
+      "body": "Keine Abbuchung erfolgt. Sie können jederzeit zurückkommen — Ihr Inseratsplatz ist nur einen Klick entfernt.",
+      "cta": "Zurück zur Privatseite"
+    },
+    "form": {
+      "heading": "Ihre Immobilie",
+      "submit": "Mein Inserat veröffentlichen",
+      "gateMissing": "Sie müssen die Zahlung abschließen, bevor Sie ein Inserat erstellen.",
+      "gateCta": "Zur Zahlung"
+    }
   }
 }
