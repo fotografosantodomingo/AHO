@@ -118,10 +118,18 @@ export async function POST(req: NextRequest) {
   }
 
   // --- Update audience contact_count -------------------------------
-  await admin
+  const { error: countErr } = await admin
     .from('email_audiences')
     .update({ contact_count: inserted })
     .eq('id', audience.id);
+  if (countErr) {
+    console.error('[admin/email/audiences] contact_count update failed', {
+      code: countErr.code,
+      message: countErr.message,
+      details: countErr.details,
+      hint: countErr.hint,
+    });
+  }
 
   return NextResponse.json({
     ok: true,
