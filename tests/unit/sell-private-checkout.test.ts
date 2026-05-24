@@ -1,5 +1,6 @@
 import { describe, expect, it, beforeEach, vi } from 'vitest';
 import type Stripe from 'stripe';
+import { PRIVATE_LISTING_DURATION_MS } from '@/lib/billing/private-listing-constants';
 
 /**
  * Unit coverage for the $5 private-owner listing Stripe flow:
@@ -277,10 +278,14 @@ describe('handlePrivateListingPurchase', () => {
     expect(insertedRow.stripe_payment_intent_id).toBe(TEST_PAYMENT_INTENT_ID);
     expect(insertedRow.property_id).toBeNull();
 
-    // expires_at = paid_at + 60 days.
+    // expires_at = paid_at + PRIVATE_LISTING_DURATION_MS. Reads from
+    // the constants module so this test moves with future duration
+    // changes without re-asserting the literal number. Pre-2026-05-24
+    // this hardcoded 60 days, which masked the bug where the billing
+    // handler was 60 but marketing promised 90.
     const paidAt = new Date(insertedRow.paid_at as string).getTime();
     const expiresAt = new Date(insertedRow.expires_at as string).getTime();
-    expect(expiresAt - paidAt).toBe(60 * 24 * 60 * 60 * 1000);
+    expect(expiresAt - paidAt).toBe(PRIVATE_LISTING_DURATION_MS);
   });
 
   it('treats a duplicate-session insert (PG 23505) as success — idempotent', async () => {

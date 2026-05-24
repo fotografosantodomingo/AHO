@@ -1,6 +1,7 @@
 import 'server-only';
 import type Stripe from 'stripe';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { PRIVATE_LISTING_DURATION_MS } from '../private-listing-constants';
 
 /**
  * Handler for `checkout.session.completed` events with
@@ -18,7 +19,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
  *
  * Renewal case: when `metadata.renewal_property_id` is a non-empty
  * uuid, the new purchase row is linked to that property AND the
- * property's expires_at is bumped to paid_at + 60 days, with status
+ * property's expires_at is bumped to paid_at + PRIVATE_LISTING_DURATION_DAYS, with status
  * flipped from 'expired' back to 'active' if applicable.
  *
  * Per docs/SELL_FUNNEL_PLAN.md Track D §3.
@@ -62,7 +63,7 @@ export async function handlePrivateListingPurchase(
 
   const paidAtMs = session.created * 1000;
   const paidAt = new Date(paidAtMs).toISOString();
-  const expiresAt = new Date(paidAtMs + SIXTY_DAYS_MS).toISOString();
+  const expiresAt = new Date(paidAtMs + PRIVATE_LISTING_DURATION_MS).toISOString();
 
   const supabase = createAdminClient();
   const { error: insertErr } = await supabase
@@ -140,4 +141,8 @@ export async function handlePrivateListingPurchase(
   }
 }
 
-const SIXTY_DAYS_MS = 60 * 24 * 60 * 60 * 1000;
+// Duration imported at the top of the file from
+// `src/lib/billing/private-listing-constants.ts` — single source
+// of truth so marketing copy + AI KB + Stripe script + this billing
+// math can't drift. Pre-2026-05-24 this file hardcoded SIXTY_DAYS_MS
+// while marketing promised 90 days; customers were short-changed.

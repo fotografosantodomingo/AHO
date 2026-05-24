@@ -197,9 +197,9 @@ const KB_EN: AhoPlatformKb = {
       priceAnnualUsd: null,
       oneTimeUsd: 5,
       description:
-        'One-time $5 per listing. For homeowners, landlords, vacation-rental owners and FSBO sellers who want to advertise a single property without an agent. 60-day publication window; renewable for another $5.',
+        'One-time $5 per listing. For homeowners, landlords, vacation-rental owners and FSBO sellers who want to advertise a single property without an agent. 90-day publication window; renewable for another $5.',
       keyFeatures: [
-        '1 active listing for 60 days',
+        '1 active listing for 90 days',
         'AI-generated captions in 7 languages',
         'Social publish to ONE channel (Facebook OR Instagram)',
         'WhatsApp + email lead capture on the listing',
@@ -740,9 +740,9 @@ const KB_ES: AhoPlatformKb = {
       priceAnnualUsd: null,
       oneTimeUsd: 5,
       description:
-        'Pago único de $5 por anuncio. Para propietarios particulares, dueños de alquiler vacacional y vendedores sin agente. Ventana de publicación de 60 días; renovable por otros $5.',
+        'Pago único de $5 por anuncio. Para propietarios particulares, dueños de alquiler vacacional y vendedores sin agente. Ventana de publicación de 90 días; renovable por otros $5.',
       keyFeatures: [
-        '1 anuncio activo durante 60 días',
+        '1 anuncio activo durante 90 días',
         'Textos generados por IA en 7 idiomas',
         'Publicación social en UN canal (Facebook O Instagram)',
         'Captura de contactos por WhatsApp + email en el anuncio',

@@ -22,7 +22,8 @@ import { localePath } from '@/i18n/locale-path';
  *
  * Renewal case: when `renewalPropertyId` is set, the resulting purchase
  * row is linked to the existing property at webhook time and the
- * property's `expires_at` is bumped to paid_at + 60 days. First-time
+ * property's `expires_at` is bumped to paid_at + PRIVATE_LISTING_DURATION_DAYS (see
+ * `src/lib/billing/private-listing-constants.ts`). First-time
  * purchases pass null.
  */
 

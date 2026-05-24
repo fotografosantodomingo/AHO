@@ -51,7 +51,7 @@ const PRODUCT_ROLES = {
   agent: 'agent',
   plus: 'plus',
   pro_automation: 'pro_automation',
-  // Private-owner one-time listing ($5 / 60 days) — see
+  // Private-owner one-time listing ($5 / 90 days) — see
   // docs/SELL_FUNNEL_PLAN.md. Distinct product (not a price under an
   // existing subscription product) so its Stripe Tax + receipt copy
   // can be tailored independently.
@@ -103,9 +103,9 @@ const PRODUCTS: ProductSpec[] = [
   },
   {
     role: PRODUCT_ROLES.private_listing_one_time,
-    name: 'AHO — Private listing (60 days)',
+    name: 'AHO — Private listing (90 days)',
     description:
-      'One-time $5 listing for private owners and landlords. Publishes one property worldwide on AHO for 60 days with AI-generated captions. Renewable at the same price.',
+      'One-time $5 listing for private owners and landlords. Publishes one property worldwide on AHO for 90 days with AI-generated captions. Renewable at the same price.',
     // Tag the product so the webhook handler can dispatch based on
     // `event.data.object.metadata.aho_purpose` AND a fallback lookup
     // by product metadata if metadata is ever missing on a session.
