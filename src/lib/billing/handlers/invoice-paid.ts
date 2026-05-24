@@ -74,6 +74,14 @@ export async function handleInvoicePaid(event: Stripe.Event): Promise<void> {
       { onConflict: 'stripe_payment_intent_id', ignoreDuplicates: true },
     )
     .select('id');
+  if (upsertResult.error) {
+    console.error('[billing/invoice-paid] payments upsert failed', {
+      code: upsertResult.error.code,
+      message: upsertResult.error.message,
+      details: upsertResult.error.details,
+      hint: upsertResult.error.hint,
+    });
+  }
 
   // Admin notification — fire only on fresh inserts. With
   // `ignoreDuplicates: true`, a duplicate returns an empty rows array
