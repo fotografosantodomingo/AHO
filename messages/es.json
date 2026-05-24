@@ -965,6 +965,7 @@
     "statusUploading": "Subiendo…",
     "statusConfirmed": "Subida",
     "statusError": "Falló",
+    "removeImage": "Quitar",
     "r2NotConfigured": "El almacenamiento de imágenes aún no está activo en la cuenta. Los endpoints existen; empezaremos a aceptar fotos cuando Cloudflare R2 esté configurado."
   },
   "imageEditor": {

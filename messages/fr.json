@@ -1409,6 +1409,7 @@
     "statusUploading": "Téléversement…",
     "statusConfirmed": "Téléversée",
     "statusError": "Échec",
+    "removeImage": "Retirer",
     "r2NotConfigured": "Le stockage d'images n'est pas encore activé sur le compte. Les endpoints API existent ; nous accepterons les téléversements dès que Cloudflare R2 sera branché."
   },
   "listingForm": {

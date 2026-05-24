@@ -965,6 +965,7 @@
     "statusUploading": "Uploading…",
     "statusConfirmed": "Uploaded",
     "statusError": "Failed",
+    "removeImage": "Remove",
     "r2NotConfigured": "Image storage isn't enabled on the account yet. The upload API endpoints exist; we'll start accepting uploads once Cloudflare R2 is wired up."
   },
   "imageEditor": {

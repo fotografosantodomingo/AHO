@@ -1409,6 +1409,7 @@
     "statusUploading": "Hochladen…",
     "statusConfirmed": "Hochgeladen",
     "statusError": "Fehlgeschlagen",
+    "removeImage": "Entfernen",
     "r2NotConfigured": "Bildspeicherung ist auf dem Konto noch nicht aktiviert. Die Upload-API-Endpunkte existieren; wir nehmen Uploads an, sobald Cloudflare R2 angebunden ist."
   },
   "listingForm": {

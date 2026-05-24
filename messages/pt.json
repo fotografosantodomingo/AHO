@@ -934,6 +934,7 @@
     "statusUploading": "Enviando…",
     "statusConfirmed": "Enviada",
     "statusError": "Falhou",
+    "removeImage": "Remover",
     "r2NotConfigured": "O armazenamento de imagens ainda não está habilitado na conta. Os endpoints da API existem; vamos aceitar uploads assim que o Cloudflare R2 for ligado."
   },
   "listingForm": {

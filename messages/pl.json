@@ -903,6 +903,7 @@
     "statusUploading": "Wgrywanie…",
     "statusConfirmed": "Wgrane",
     "statusError": "Błąd",
+    "removeImage": "Usuń",
     "r2NotConfigured": "Magazyn obrazów nie jest jeszcze włączony na koncie. Endpointy API już istnieją; zaczniemy przyjmować pliki, gdy uruchomione zostanie Cloudflare R2."
   },
   "imageEditor": {

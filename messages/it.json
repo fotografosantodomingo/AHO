@@ -934,6 +934,7 @@
     "statusUploading": "Caricamento…",
     "statusConfirmed": "Caricata",
     "statusError": "Errore",
+    "removeImage": "Rimuovi",
     "r2NotConfigured": "L'archivio immagini non è ancora attivo sull'account. Gli endpoint API per l'upload esistono; inizieremo ad accettare upload non appena Cloudflare R2 sarà collegato."
   },
   "listingForm": {
