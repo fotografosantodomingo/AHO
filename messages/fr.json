@@ -391,9 +391,6 @@
     "viewListing": "Voir l'annonce"
   },
   "favorite": {
-    "save": "Enregistrer",
-    "saved": "Enregistré",
-    "signInToSave": "Connectez-vous pour enregistrer",
     "add": "Ajouter aux favoris",
     "remove": "Retirer des favoris",
     "saveLabel": "Enregistrer",

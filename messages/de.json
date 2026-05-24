@@ -391,9 +391,6 @@
     "viewListing": "Inserat ansehen"
   },
   "favorite": {
-    "save": "Speichern",
-    "saved": "Gespeichert",
-    "signInToSave": "Zum Speichern anmelden",
     "add": "Zu Favoriten hinzufügen",
     "remove": "Aus Favoriten entfernen",
     "saveLabel": "Speichern",

@@ -229,10 +229,7 @@
     "remove": "Rimuovi dai preferiti",
     "saveLabel": "Salva",
     "savedLabel": "Salvato",
-    "error": "Impossibile salvare. Riprova.",
-    "save": "Salva",
-    "saved": "Salvato",
-    "signInToSave": "Accedi per salvare"
+    "error": "Impossibile salvare. Riprova."
   },
   "savedProperties": {
     "heading": "Annunci salvati",

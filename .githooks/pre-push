@@ -1,48 +1,72 @@
 #!/usr/bin/env bash
-# AHO pre-push hook — runs the unit test suite before any push reaches
-# GitHub. Closes the gap where a broken test could ship to main and
-# fail CI silently for hours (which happened 2026-05-17 when the Phase
-# 5 multilingual context engine commit broke an ai-drafter test
-# assertion and every subsequent commit pushed through with red CI).
+# AHO pre-push hook — mirrors the deploy workflow's gates so a local
+# push fails fast on anything CI would reject. Closes three real gaps:
 #
-# Tests run in ~3 seconds on this codebase. The overhead per push is
-# negligible compared to "discover CI failed two hours later via email."
+#   1. 2026-05-17 — Phase 5 commit broke an ai-drafter test; every
+#      subsequent push went red in CI hours later. → run test:unit.
+#   2. 2026-05-23 — react/no-unescaped-entities lint error in JSX
+#      shipped TWO failed deploys (commits 72c6619 + 5de8eb1) before
+#      e3d367d fixed it. `pnpm typecheck` only runs tsc, not ESLint;
+#      the deploy workflow runs both. → run lint.
+#   3. Same day — typecheck via `tsc | tail -3 && ...` lost the exit
+#      code (pipe ate the failure); broken code reached main. →
+#      `set -o pipefail` so piped failures bubble up.
+#
+# Wall-clock cost: typecheck ~5s + lint ~3s + tests ~5s = ~13s/push.
+# Cost of a failed CI deploy: 3+ minutes + a red email + the risk of
+# prod sitting broken while you debug.
 #
 # Activate once on each developer machine with:
 #   git config core.hooksPath .githooks
-# (the README-style command above is also run by ./scripts/setup-git-hooks.sh)
+# (also run by ./scripts/setup-git-hooks.sh)
 #
 # Escape hatch: standard --no-verify on git push skips this hook.
 # Use sparingly; the only legitimate case is hotfixing a non-code
 # change (docs typo, .env-template edit) when CI infrastructure
 # itself is wedged. Anything that touches src/ should not skip.
 
-set -euo pipefail
+set -euo pipefail   # exit on error; unset vars; piped failures bubble
 
-# Allow `git push --no-verify` to bypass (git auto-skips hooks then).
-# Also honor an explicit AHO_SKIP_PRE_PUSH=1 for advanced cases like
-# emergency main rollbacks where running tests against a known-bad
-# state is pointless.
+# Bypass mechanism for emergency rollbacks where running gates against
+# known-bad state is pointless. Standard --no-verify also works.
 if [[ "${AHO_SKIP_PRE_PUSH:-0}" == "1" ]]; then
-  echo "[pre-push] AHO_SKIP_PRE_PUSH=1 set — skipping unit tests."
+  echo "[pre-push] AHO_SKIP_PRE_PUSH=1 set — skipping all gates."
   exit 0
 fi
 
-# pnpm is invoked via corepack here so the version in package.json's
-# packageManager field is the one used — matches the CI workflow's
-# pnpm version exactly. Avoids the "passes locally with one pnpm,
-# fails in CI with another" trap.
+# pnpm is invoked via corepack so the version in package.json's
+# packageManager field is the one used — matches CI exactly. Avoids
+# the "passes locally with one pnpm, fails in CI with another" trap.
 if ! command -v corepack >/dev/null 2>&1; then
-  echo "[pre-push] corepack not found on PATH — skipping unit tests."
-  echo "[pre-push] (install Node ≥16.13 which bundles corepack, or run the suite manually before pushing.)"
+  echo "[pre-push] corepack not found on PATH — skipping all gates."
+  echo "[pre-push] (install Node ≥16.13 which bundles corepack, or run gates manually before pushing.)"
   exit 0
 fi
 
-echo "[pre-push] running pnpm test:unit (skip with --no-verify if you must)…"
-if ! corepack pnpm@9.12.3 test:unit; then
-  echo ""
-  echo "[pre-push] ✗ unit tests FAILED. Push aborted."
-  echo "[pre-push] Fix the failures or bypass with: git push --no-verify"
-  exit 1
+PNPM="corepack pnpm@9.12.3"
+fail() { echo ""; echo "[pre-push] ✗ $1 FAILED. Push aborted."; echo "[pre-push] Fix the failures or bypass with: git push --no-verify"; exit 1; }
+
+# Gate 1 — typecheck. Catches type errors that don't reach runtime
+# until the deploy build runs tsc.
+echo "[pre-push] (1/3) running pnpm typecheck…"
+if ! $PNPM typecheck; then
+  fail "typecheck"
+fi
+echo "[pre-push] ✓ typecheck clean."
+
+# Gate 2 — lint. Catches react/no-unescaped-entities and friends
+# that tsc doesn't see but the Next build does.
+echo "[pre-push] (2/3) running pnpm lint…"
+if ! $PNPM lint; then
+  fail "lint"
+fi
+echo "[pre-push] ✓ lint clean."
+
+# Gate 3 — unit tests. The original gate; still load-bearing.
+echo "[pre-push] (3/3) running pnpm test:unit…"
+if ! $PNPM test:unit; then
+  fail "unit tests"
 fi
 echo "[pre-push] ✓ unit tests passed."
+
+echo "[pre-push] ✓ all 3 gates passed — pushing."

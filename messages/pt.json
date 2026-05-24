@@ -225,9 +225,6 @@
     "viewListing": "Ver anúncio"
   },
   "favorite": {
-    "save": "Salvar",
-    "saved": "Salvo",
-    "signInToSave": "Entre para salvar",
     "add": "Adicionar aos favoritos",
     "remove": "Remover dos favoritos",
     "saveLabel": "Salvar",
