@@ -218,7 +218,9 @@
     "viewList": "Liste",
     "viewMap": "Carte",
     "bboxActive": "Affichage des annonces dans cette zone de la carte.",
-    "resetBbox": "Revenir à tous les résultats"
+    "resetBbox": "Revenir à tous les résultats",
+    "mapAria": "Carte des annonces immobilières",
+    "paginationAria": "Pagination"
   },
   "footer": {
     "privacy": "Confidentialité",

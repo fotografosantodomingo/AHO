@@ -225,7 +225,9 @@
     "viewList": "Lista",
     "viewMap": "Mapa",
     "bboxActive": "Pokazujemy ogłoszenia z tego obszaru mapy.",
-    "resetBbox": "Pokaż wszystkie wyniki"
+    "resetBbox": "Pokaż wszystkie wyniki",
+    "mapAria": "Mapa ofert nieruchomości",
+    "paginationAria": "Paginacja"
   },
   "card": {
     "viewListing": "Zobacz ogłoszenie"

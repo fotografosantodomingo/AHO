@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
+import { useTranslations } from 'next-intl';
 import { ListingCard } from './listing-card';
 import { MapView } from './map-view';
 import type { SearchFilters, SearchListing } from '@/lib/listings/search';
@@ -103,6 +104,7 @@ export function SearchResultsView({
   isAuthed = false,
   resultsCountInAreaTemplate,
 }: SearchResultsViewProps) {
+  const tSearch = useTranslations('search');
   const favoriteSet = new Set(initialFavoriteIds ?? []);
   // Track whether bbox-driven mode is active. While inactive, listings =
   // initialListings (server-rendered for SSR + SEO). While active, listings
@@ -293,7 +295,7 @@ export function SearchResultsView({
           more"). 44px tall on mobile (Apple HIG tap target), 36px on md+. */}
       {!bboxActive && (prevHref || nextHref) && (
         <nav
-          aria-label="Pagination"
+          aria-label={tSearch('paginationAria')}
           className="flex items-center justify-between border-t border-border pt-4"
         >
           {prevHref ? (

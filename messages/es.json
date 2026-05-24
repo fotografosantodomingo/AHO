@@ -221,7 +221,9 @@
     "viewList": "Lista",
     "viewMap": "Mapa",
     "bboxActive": "Mostrando anuncios en esta área del mapa.",
-    "resetBbox": "Restablecer a todos los resultados"
+    "resetBbox": "Restablecer a todos los resultados",
+    "mapAria": "Mapa de propiedades",
+    "paginationAria": "Paginación"
   },
   "card": {
     "viewListing": "Ver anuncio"

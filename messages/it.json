@@ -221,7 +221,9 @@
     "viewList": "Lista",
     "viewMap": "Mappa",
     "bboxActive": "Mostra gli annunci in quest'area della mappa.",
-    "resetBbox": "Ripristina tutti i risultati"
+    "resetBbox": "Ripristina tutti i risultati",
+    "mapAria": "Mappa degli annunci immobiliari",
+    "paginationAria": "Paginazione"
   },
   "card": {
     "viewListing": "Vedi annuncio"

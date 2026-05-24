@@ -218,7 +218,9 @@
     "viewList": "Liste",
     "viewMap": "Karte",
     "bboxActive": "Anzeigen in diesem Kartenausschnitt werden gezeigt.",
-    "resetBbox": "Auf alle Ergebnisse zurücksetzen"
+    "resetBbox": "Auf alle Ergebnisse zurücksetzen",
+    "mapAria": "Karte mit Immobilieninseraten",
+    "paginationAria": "Seitennavigation"
   },
   "footer": {
     "privacy": "Datenschutz",

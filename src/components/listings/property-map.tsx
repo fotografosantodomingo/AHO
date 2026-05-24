@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import type { Map as LeafletMap } from 'leaflet';
 import type { SearchListing } from '@/lib/listings/search';
 import type { Locale } from '@/i18n/config';
@@ -123,6 +124,7 @@ export function PropertyMap({
   fetching,
   initialBbox,
 }: PropertyMapProps) {
+  const t = useTranslations('search');
   const mapEl = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<LeafletMap | null>(null);
   const [ready, setReady] = useState(false);
@@ -478,7 +480,7 @@ export function PropertyMap({
       <div
         ref={mapEl}
         role="application"
-        aria-label="Map of property listings"
+        aria-label={t('mapAria')}
         // `min-h-[420px]` is the load-bearing rule on mobile: iOS Safari
         // had cases where the parent flex layout collapsed `aspect-[4/3]`
         // to a 0-height container, leaving the user with a blank frame
