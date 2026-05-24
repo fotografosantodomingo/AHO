@@ -94,10 +94,18 @@ export async function POST(req: NextRequest) {
   if ((challenge.attempts as number) >= OTP_MAX_ATTEMPTS) {
     // Defensive — phase-2 attempts beyond the cap are also blocked,
     // even if a stale row sneaked past the prior bump.
-    await admin
+    const { error: consumeErr } = await admin
       .from('auth_login_challenges')
       .update({ consumed_at: new Date().toISOString() })
       .eq('id', challengeId);
+    if (consumeErr) {
+      console.error('[auth/verify-device] consume-on-cap failed', {
+        code: consumeErr.code,
+        message: consumeErr.message,
+        details: consumeErr.details,
+        hint: consumeErr.hint,
+      });
+    }
     return NextResponse.json<VerifyErrorBody>(
       { error: 'too_many_attempts' },
       { status: 410 },
@@ -114,7 +122,7 @@ export async function POST(req: NextRequest) {
   if (!constantTimeEqual(submittedHash, storedHash)) {
     const newAttempts = (challenge.attempts as number) + 1;
     const remainingAttempts = OTP_MAX_ATTEMPTS - newAttempts;
-    await admin
+    const { error: bumpErr } = await admin
       .from('auth_login_challenges')
       .update({
         attempts: newAttempts,
@@ -123,6 +131,14 @@ export async function POST(req: NextRequest) {
           : {}),
       })
       .eq('id', challengeId);
+    if (bumpErr) {
+      console.error('[auth/verify-device] attempt-bump failed', {
+        code: bumpErr.code,
+        message: bumpErr.message,
+        details: bumpErr.details,
+        hint: bumpErr.hint,
+      });
+    }
     return NextResponse.json<VerifyErrorBody>(
       {
         error: remainingAttempts <= 0 ? 'too_many_attempts' : 'invalid_code',
@@ -135,10 +151,18 @@ export async function POST(req: NextRequest) {
   // Code matched. Mark consumed before doing anything else so a
   // concurrent retry can't double-spend.
   const userId = challenge.user_id as string;
-  await admin
+  const { error: matchConsumeErr } = await admin
     .from('auth_login_challenges')
     .update({ consumed_at: new Date().toISOString() })
     .eq('id', challengeId);
+  if (matchConsumeErr) {
+    console.error('[auth/verify-device] consume-on-match failed', {
+      code: matchConsumeErr.code,
+      message: matchConsumeErr.message,
+      details: matchConsumeErr.details,
+      hint: matchConsumeErr.hint,
+    });
+  }
 
   // Resolve the user's email so we can mint a magic-link OTP. The
   // admin generateLink → verifyOtp dance turns the admin-issued token
