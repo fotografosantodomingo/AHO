@@ -4,11 +4,75 @@
 >
 > When you've verified a feature, type **`verified: <name>`** (e.g., `verified: free-audit-widget`) and I'll move it from "Pending verification" to "Verified" with the date.
 >
-> I (Claude) keep this file accurate. Last update: 2026-05-18.
+> I (Claude) keep this file accurate. Last update: 2026-05-28.
 
 ---
 
 ## ⏳ Pending your verification
+
+### `founder-rate-killed` — $19/mo "first 50 agents" offering retired (shipped `c036c0a` 2026-05-24)
+- **Scope:** Removed across 11 surfaces: AI KB EN+ES, AI assistant prompt + guardrails, Terms EN+ES, /pricing OG image, admin plan-override dropdown, plan-gating allowlist, Stripe setup script (agent_founder price), Founding 50 page EN+ES (was "lock founder rate forever"), welcome email EN+ES. `src/lib/billing/founder-rate.ts` kept dormant (checkout-session-completed.ts still imports `isFounderEligible` but `process.env.AHO_FOUNDER_RATE_WINDOW_END` is unset in prod so it returns false unconditionally). DECISIONS.md entry "2026-05-24 — Killed the $19/mo first 50 agents founder rate offering" has the full file list + reconsider-if trigger.
+- **Do (1 min):** Open AHO Assistant on https://advertisehomes.online/en/pricing. Ask "any discounts for early agents?" Expect: routed to `/founding-agent`, NO dollar figure quoted.
+- **Expect:** AI says something like "we have the Founding 50 program — pricing is decided per-applicant in conversation. Apply at /founding-agent." Should NOT say "$19/mo" or "first 50" anywhere.
+
+### `founding-50-funnel` — full recruitment funnel shipped (shipped `6cd226a` 2026-05-23)
+- **Scope:** Landing at `/{locale}/founding-agent` (en+es native, en5 fallback for pl/pt/de/fr/it), application form with honeypot + Turnstile, POST → migration 0077 `founding_agent_applications` table, welcome email to applicant + alert email to PO via Brevo, admin moderation queue at `/admin/founding-agents` with accept/reject status form.
+- **Do (3 min):** (1) Open `/en/founding-agent` incognito. Expect headline talking about partnership (NOT founder rate). (2) Fill the form with a real email. Expect: redirect to thank-you OR inline success state; welcome email arrives within 30s. (3) Open `/admin/founding-agents` as admin. Expect: the new row visible with "pending" status, accept/reject buttons functional.
+- **Expect:** Form submission persists to DB, welcome email delivers, admin can move it through pending → accepted | rejected. Migration 0077 was applied in earlier session.
+
+### `plan-override-admin-tool` — manual grant/extend/revoke without Stripe (shipped `72c6619` 2026-05-23)
+- **Scope:** `/admin/orgs/[id]/plan` page + `/api/admin/orgs/[id]/plan-override` POST with grant/extend/revoke actions. Migration `0078_organizations_manual_plan_override.sql` adds manual_plan_id, manual_plan_expires_at, manual_plan_note, manual_plan_granted_by, manual_plan_granted_at columns. `src/lib/billing/plan-gating.ts` resolves effective plan from override first, falls back to Stripe subscription.
+- **🔴 BLOCKED ON PO ACTION:** Migration 0078 is committed but NOT applied to prod. Until it's applied, this page 500s at runtime (column doesn't exist).
+- **Do (2 min, AFTER you apply 0078):** Open `/admin/orgs/<some-org-id>/plan`. Grant a 30-day Plus comp. Expect: org's effective plan flips to Plus immediately (visible in their dashboard); audit log row written. Then revoke. Expect: reverts to Stripe-subscription tier (or none).
+- **Expect:** Override resolves above Stripe; revoke restores Stripe state; audit row in `audit_log` table with actor + action + before/after.
+
+### `voice-mode-aho-assistant` — in-browser voice chat (shipped `5de8eb1` + `e3d367d` 2026-05-23)
+- **Scope:** Web Speech API integration (`SpeechRecognition` + `SpeechSynthesis`). Mode picker (text vs voice) appears after the pre-chat name+email gate. Voice mode shows animated round icon, 4-phase state machine (idle → listening → thinking → speaking). Mobile + desktop. Fallback to text if mic permission denied or browser unsupported. Switch between modes any time via header pill. BCP-47 locale tag passed to SR + TTS so PL agents get pl-PL voice etc.
+- **Do (2 min, desktop Chrome + iOS Safari):** Open AHO Assistant on `/en` (or any page). Enter name + email. Expect: mode picker shows Text + Voice tiles. Click Voice. Expect: round icon appears + "Tap to speak" CTA. Speak something. Expect: transcript appears, AI replies, AI speaks back. Click "Switch to text" pill. Expect: same conversation continues in text mode.
+- **Expect:** Voice works on Chrome desktop + iOS Safari. Permission-denied state shows clean fallback to text. Locale is honored (try `/pl` for Polish voice).
+
+### `private-listing-90-days` — billing math + marketing aligned on 90 (shipped `b7f65f2` 2026-05-23)
+- **Scope:** PO spotted that AI Assistant said "60-day publication window" while marketing said 90. Audit revealed `private-listing-purchase.ts` billing handler had `SIXTY_DAYS_MS = 60 * 24 * 60 * 60 * 1000` — actual consumer-protection bug. New `src/lib/billing/private-listing-constants.ts` single-source-of-truth module exporting `PRIVATE_LISTING_DURATION_DAYS = 90`. AI KB EN+ES updated (4 strings: tier description + keyFeature × 2 locales). New `tests/unit/private-listing-constants.test.ts` 8-test drift-guard suite.
+- **Do (1 min):** Open AHO Assistant. Ask "how long is the private listing valid?" Expect: response says **90 days** (not 60).
+- **Expect:** Every surface saying 90 — landing copy, AI Assistant, Stripe receipt description, expiry email. Test `pnpm test:unit private-listing-constants` is green.
+
+### `polish-fouc-suppress` — `translate="no"` to stop browser auto-translate flicker (shipped `e873998` 2026-05-24)
+- **Scope:** Polish (and any non-EN locale) was flashing for ~200ms then getting overwritten by Chrome/Edge/Safari's auto-translate to the user's UI language. Added `translate="no"` on `<html>` + `<meta name="google" content="notranslate">` in `<head>` of `[locale]/layout.tsx`. Visitors land on /{locale} because they chose it; auto-translate is wrong by definition.
+- **Do (1 min, in a Chrome profile that has "translate Polish to English" enabled):** Open https://advertisehomes.online/pl. Expect: page stays in Polish; no flash to English.
+- **Expect:** Polish text remains stable. Right-click → Translate to English still works if the user explicitly asks.
+
+### `free-audit-href-double-prefix-fix` — `/en/en/for-agents` 404 fixed (shipped `f7bac77` 2026-05-24)
+- **Scope:** 5 callers built Free Audit hrefs as `` `/${locale}${localePath(locale, '/for-agents')}#free-audit` ``, but `localePath('en', '/for-agents')` already returns `/en/for-agents` — result was `/en/en/for-agents#free-audit` → 404. Fixed in `[locale]/not-found.tsx`, `properties-in/[country]/page.tsx`, `properties-in/[country]/[city]/page.tsx`, `blog/[slug]/page.tsx`, `home/agent-wedge-strip.tsx`.
+- **Do (30s):** Click the green "Try free audit" CTA from the homepage agent wedge (any locale). Expect: lands on `/{locale}/for-agents#free-audit` (single locale prefix), Free Audit widget visible.
+- **Expect:** No 404. Same test on a country/city/blog/404-page wedge.
+
+### `security-error-leak-wrap` — 27 sites no longer echo raw error.message to anon (shipped `ec060b4` 2026-05-24)
+- **Scope:** Listings/leads/reviews/admin/me/properties/sell/audit/chat-transcript/email API routes were returning raw Supabase `error.message` (or Whisper/Brevo upstream errors) in response bodies. Anon callers were seeing SQL fragments, RLS hints, OAuth provider error strings. All 27 wrapped to opaque codes (`db_error`, `insert_failed`, etc.); full context preserved in `console.error` for ops via `wrangler tail`.
+- **Do (2 min):** Try to break an anon-accessible form (`/en/founding-agent` with garbage email, or `/api/leads` POST with malformed body). Expect: response is `{ "ok": false, "error": "<opaque>" }` — no SQL fragments, no table names, no RLS hints.
+- **Expect:** No raw upstream error text in the response. Worker tail still shows the full context for debugging.
+
+### `edge-safety-destructure` — 13 silent Supabase write failures now logged (shipped `36c1a3e` 2026-05-24, plus `35bcc91` RPC pass)
+- **Scope:** OAuth deauth, sign-in heartbeat, device-verify (3×), email_audiences contact_count, social_post_attempts (3×), property_images rollback delete, stripe_events_processed rollback delete, brevo email_messages status, meta_drift_notifications insert, founder plan_id update, payment upserts (2×), saved_searches notified_at (2×) — all were `await admin.from('x').insert/update(...)` without `{ error }` destructure. supabase-js doesn't throw on row-level errors, so RLS/CHECK/FK rejections were silently dropping writes with zero log output. All 13 now destructure + log via `console.error`. Plus 8 RPC sites in the follow-up: 4× `upsert_platform_token` (Meta×3, LinkedIn), 2× `release_founder_rate_slot`, `sweep_stale_pending_images`, `record_photo_import_failure`, `resolve_photo_import_failure`.
+- **Do (no manual test needed — autonomous fix; verify via prod tail if curious):** `wrangler pages deployment tail` and exercise a noisy surface (OAuth flow, scheduled cron, leads form). Expect: any RLS denial or CHECK rejection now surfaces in tail as `[oauth/meta/callback] page token upsert failed { code, message, details }` etc.
+- **Expect:** Silent-write-failure class is closed. Gate 4 write-safety scanner in pre-push blocks regressions.
+
+### `revoke-migration-0079` — defense-in-depth REVOKE on service-role-only tables (shipped `36c1a3e` 2026-05-24)
+- **Scope:** `0079_revoke_service_role_only_tables.sql` adds `revoke all on public.<table> from anon, authenticated` on `stripe_events_processed`, `founder_rate_counter`, `auth_login_challenges`, `tawk_events_processed`. RLS-enabled + zero-policy tables already block reads in practice; this is belt-and-suspenders.
+- **🔴 BLOCKED ON PO ACTION:** Migration committed but NOT applied to prod. Until applied, the defense-in-depth REVOKE isn't engaged.
+- **Do (1 min, AFTER you apply 0079):** Run a check query as `anon` JWT against `stripe_events_processed`. Expect: permission denied (RLS-without-policies AND explicit REVOKE both blocking).
+- **Expect:** No anon-or-authenticated read access to any of the 4 tables.
+
+### `i18n-correctness-535-keys` — ~535 native translations backfilled across pl/pt/de/fr/it (shipped `c4c9fc5` 2026-05-24)
+- **Scope:** 107 missing keys in each of pl/pt/de/fr/it under `social.share.*`, `sell.*`, `sellPrivate.*` namespaces. Native translations (not literal substitutes) — e.g. PL: `sell.cardPrivate.heading="Wystaw nieruchomość samodzielnie"`. Plus ~20 hardcoded EN aria-labels / `'es' ? : ''` ternaries replaced with `t()`. Plus 1 double-prefix `/${locale}${localePath(...)}` bug in founding-agent canonical/JSON-LD URLs (4 spots).
+- **Do (2 min):** Open `/pl/sell` + `/pl/sell/private`. Expect: every visible string in native Polish (no English fallbacks). Same on `/de`, `/fr`, `/it`, `/pt`.
+- **Expect:** No mixed-language UI on the sell funnel or share UI in any of the 5 non-EN locales. Listing/agent content still falls back to EN (per the EN+ES-only content rule); only chrome/CTA is fully translated.
+
+### `write-safety-gate-4` — pre-push guard against the 3 bug classes (shipped `35bcc91` 2026-05-24)
+- **Scope:** `scripts/lint-write-safety.ts` scans `src/app/api/**` + `src/lib/**` + `workers/**` for: (1) `void <client>.from/.rpc(...)` (Edge cancels these), (2) `await <client>.from(...).insert|update|upsert|delete(...)` without `{ error }` destructure, (3) raw `<err>.message` in API route response bodies (Category 3 scoped to `src/app/api/**` with `/cron/*` skip-list since consumers are trusted Workers). Wired into `.githooks/pre-push` as Gate 4. Allowlist mechanism inside the script.
+- **Do (no manual test needed):** Try to push a commit that adds an undefended supabase write — expect the push to be blocked.
+- **Expect:** ~14s total pre-push wall-clock (typecheck + lint + tests + write-safety).
+
+---
 
 ### `blog-translation-pipeline-fix` — translated siblings now actually publish (shipped `c441514` 2026-05-21)
 - **Scope:** HTML validator was silently rejecting all 6 translated sibling inserts per cron run because Haiku localizes `aria-label="Brotkrumen"` etc. and the validator required the literal English string "Breadcrumb". Sitemap pre-fix showed only EN articles. Validator now accepts any non-empty aria-label on a `<nav>` that isn't the ToC (which is identified by class). Translator prompt also hardened to keep `aria-label="Breadcrumb"` verbatim (defense-in-depth).

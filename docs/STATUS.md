@@ -2,7 +2,70 @@
 
 > The single place to look for "what's happening." Read this first when you start a session. Type **`status`** to me at the start and I'll read this, propose the next action, and either get your sign-off or redirect.
 >
-> I (Claude) keep this file accurate. Last update: 2026-05-21 (blog SEO pipeline unstuck — translated siblings, edge cache, Free Audit CTA).
+> I (Claude) keep this file accurate. Last update: 2026-05-28 (week of first-agent-experience hardening; founder-rate kill + 3-agent audit + Gate 4 write-safety landed earlier in week).
+
+## 🎯 This week's focus (2026-05-27 → 2026-05-31)
+
+**Theme:** first-agent experience — walk the full DR/PL agent journey end-to-end and fix every rough edge before a recruited agent hits it. Strategic frame: product is over-built relative to distribution; everything between today and first revenue is activation + distribution, not code.
+
+**My autonomous track this week:**
+- Walk the "first 10 minutes" demo path as if I were a recruited agent
+- Fix every friction item as I find it (separate atomic commits)
+- Ship `docs/PATH_TO_1M.md` so the revenue map survives sessions
+
+**Cheap PO wins that compound my work (priority order):**
+1. **CF Pages Cache Rule** (PO_DECISIONS #6, 5 min) — homepage/listing/blog drop from ~2s to <100ms
+2. **Stripe LIVE flip + DECISIONS entry** (15 min) — currently cannot collect a dollar
+3. **Apply migrations 0078 + 0079 to prod** (or authorize me to) — plan-override feature 500s without 0078; defense-in-depth REVOKE doesn't engage without 0079
+
+---
+
+## 🆕 Sprint 2026-05-22 → 2026-05-28 (this session block)
+
+**Single-week summary:** killed the $19/mo "first 50 agents" founder rate across 11 surfaces (PO clarified it wasn't real); shipped the Founding 50 recruitment funnel (landing + form + admin + emails) at `/founding-agent`; added manual plan-override admin tool for free-comp / extend / revoke without Stripe; fixed a 60→90 day private-listing billing/marketing drift via a single-source-of-truth constants module; added in-browser voice chat (Web Speech API) to the AHO Assistant with text/voice mode picker; hardened pre-push hook from 1 gate to 4 (typecheck + lint + tests + write-safety); fixed Polish auto-translate FOUC via `translate="no"`; fixed `/en/en/` double-prefix on 5 Free Audit hrefs.
+
+**Then ran a 3-agent parallel audit (Opus, isolated worktrees):**
+
+| Audit | Headline |
+|---|---|
+| Security | 27 sites where Supabase/Whisper/Brevo raw error text was leaking to anon callers → opaque codes |
+| Edge-runtime safety | 13 silent-write-failure `{ error }` destructure adds; new `0079` REVOKE migration on 4 service-role-only tables |
+| i18n correctness | 1 double-prefix fix; ~20 hardcoded EN aria-labels / ternaries → `t()` calls; ~107 missing keys × 5 non-EN locales backfilled (~535 native translations) |
+
+**Plus follow-up hardening:** 8 RPC sites missing `{ error }` destructure fixed (Meta×3 + LinkedIn `upsert_platform_token`, `release_founder_rate_slot`×2, `sweep_stale_pending_images`, `record_photo_import_failure`, `resolve_photo_import_failure`); `void pingIndexNow` → `await` so Edge doesn't cancel every publish's IndexNow ping; new `scripts/lint-write-safety.ts` + Gate 4 in pre-push so these three bug classes can't regress.
+
+| Commit | Layer | Impact |
+|---|---|---|
+| `35bcc91` | hardening | RPC destructure + Edge gaps + Gate 4 write-safety scanner |
+| `c4c9fc5` | i18n | merge: 1 double-prefix + ~20 EN→t() + ~535 native translations |
+| `36c1a3e` | edge | merge: 13 destructure + new 0079 revoke migration |
+| `ec060b4` | security | merge: 27 error-leak fixes |
+| `e873998` | i18n FOUC | `translate="no"` + `<meta name="google" content="notranslate">` |
+| `f7bac77` | routing | drop `/en/en/` double-prefix on 5 Free Audit hrefs |
+| `c036c0a` | pricing | retire $19/mo "first 50" founder rate (per PO) |
+| `19fdec8` | AI prompt | rewrite Voice section — kill robotic bulleted/numbered lists |
+| `4c9793e` | infra | pre-push: 1 gate → 3 gates (typecheck + lint + tests) |
+| `b7f65f2` | billing | 60→90 day private-listing constants module + drift-guard test |
+| `5de8eb1` + `e3d367d` | chat | in-browser voice mode (Web Speech API) + entity escaping |
+| `72c6619` | admin | manual plan overrides — grant/extend/revoke comps without Stripe |
+| `6cd226a` | recruit | Founding 50 funnel: landing + form + admin + welcome+alert emails |
+
+**Live on prod (verified all 200s as of 2026-05-27 23:00 UTC):**
+- `/en/founding-agent` — Founding 50 recruitment funnel
+- `/en/admin/founding-agents` — moderation queue
+- `/admin/orgs/[id]/plan` — manual plan-override UI (server-side runs, but DB migration 0078 needs PO apply)
+- AHO Assistant on every page with text/voice mode picker
+- All 7 locales fully translated for sell-funnel + social.share namespaces
+
+**NOT yet live (deployed, pending PO action):**
+- Plan-override migration `0078_organizations_manual_plan_override.sql` — committed, needs prod apply
+- Defense-in-depth migration `0079_revoke_service_role_only_tables.sql` — committed, needs prod apply
+- CF Pages edge cache (PO_DECISIONS #6) — still DYNAMIC on /blog/* + /properties/*
+- Stripe LIVE flip
+- Meta App Review submission
+- DR agent recruitment (pack at `docs/DR_AGENT_RECRUITMENT_PACK.md`)
+
+---
 
 ## 🆕 Wedge-funnel sprint — shipped 2026-05-21 (9 commits, all green)
 

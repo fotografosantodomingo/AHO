@@ -10,7 +10,53 @@
 
 ## 🔴 Blocking active work
 
-*(Nothing right now — #5 answered 2026-05-18, see "Recently answered" below. Phase 1 of AI_AGENT_PLAN now in flight.)*
+### 7. Apply migrations 0078 + 0079 to prod Supabase
+
+**Question:** Run `pnpm db:migrate` against prod, or authorize me to do it?
+
+**Why I'm stuck:** Both migrations are committed to `main` but the migration runner only fires when explicitly invoked. Without them:
+- **0078** (`organizations_manual_plan_override.sql`) — the new `/admin/orgs/[id]/plan` page **500s at runtime** because the `manual_plan_id` / `manual_plan_expires_at` etc. columns don't exist. Plan-gating's `resolveEffectivePlanId()` silently falls back to Stripe state, which is the intended graceful degradation BUT means the override feature is non-functional.
+- **0079** (`revoke_service_role_only_tables.sql`) — defense-in-depth REVOKE on `stripe_events_processed`, `founder_rate_counter`, `auth_login_challenges`, `tawk_events_processed`. RLS-without-policies already blocks anon reads in practice, but the explicit REVOKE removes the default grant. Without this applied, the belt-and-suspenders isn't engaged. **Not actively breaking anything.**
+
+**Options:**
+- **A — You run it** (~3 min): `set -a && source .env.local && set +a && corepack pnpm@9.12.3 db:migrate` from repo root. Migrations are idempotent (skip on duplicate).
+- **B — You authorize me to run it.** Same command from this session. Need `SUPABASE_POOLER_URL` (or `DATABASE_URL`) to be valid in `.env.local`; I'll re-verify before firing.
+
+**My recommendation:** B. The migrations are mechanical INSERT/REVOKE statements with no destructive ops; I'll inspect the SQL and post the apply log immediately after.
+
+**Deadline:** Before you actually need to comp/extend an agent's plan manually. Today if you're recruiting Founding 50 agents this week and want to offer "free for 30 days" terms.
+
+---
+
+### 8. Stripe LIVE flip — when?
+
+**Question:** Flip the Stripe TEST → LIVE keys when?
+
+**Why I'm stuck:** Cannot collect a dollar in TEST mode. CLAUDE.md hard rule #9 requires explicit chat authorization PLUS a `docs/DECISIONS.md` entry before any LIVE creation. Today's blockers:
+- LIVE products + prices were archived 2026-04-29 (the early process gap). All current products + IDs are `sk_test_*`.
+- `scripts/setup-stripe-products.ts` has a guardrail that **refuses live keys** — needs to be flipped intentionally with a DECISIONS entry.
+- LIVE `WELCOME5` coupon doesn't exist (TEST-only).
+
+**Options:**
+- **A — Flip now** (15 min): you swap `STRIPE_SECRET_KEY` + `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` in CF Pages env to `sk_live_*` / `pk_live_*`; I run `pnpm stripe:setup` against LIVE (drops the guardrail temporarily per CLAUDE.md #9 explicit-confirmation rule); I write the DECISIONS entry; I create the LIVE `WELCOME5` coupon via dashboard or API. **Risk: TEST-mode subscriptions today don't move; only future signups go LIVE. Zero churn risk because zero paying customers in TEST.**
+- **B — Wait until Founding 50 has the first applicant ready to pay.** Tighter coupling between LIVE-flip event and first-dollar event; less "live but empty" infra time.
+- **C — Wait until Meta App Review approves** (4-8 weeks). The full Pro Automation ($99/mo) value prop requires Meta-approved IG/FB publishing, so charging $99/mo before Meta approval is selling something the platform can't deliver.
+
+**My recommendation:** A, but only if you can recruit a real applicant within ~14 days. Otherwise B — LIVE-without-customers just sits there.
+
+**Deadline:** Coupled to Founding 50 recruitment cadence. Honest: ask me again after you finish the first 3 outreach conversations.
+
+---
+
+### 9. CF Pages Cache Rule — same as #6 but it's been open for a week
+
+**Question:** Did you already apply the rule per #6 below? If not, just bumping it because homepage rendering at ~1.9s is a real conversion drag.
+
+**Why I'm asking again:** I checked prod 2026-05-27 — `cf-cache-status: DYNAMIC` on `/en` homepage; 1.9s server-render. This is the #6 issue still unresolved.
+
+**Action you take if you haven't:** Cloudflare dashboard → advertisehomes.online → Caching → Cache Rules → Create. Match: hostname=advertisehomes.online, URI Path matches regex `^/[a-z]{2}/?(blog|properties|propiedades|agents|properties-in)?(/.*)?$`. Setting: Eligible for cache, Edge TTL: respect origin.
+
+**Deadline:** Highest-leverage 5 minutes available.
 
 ---
 
