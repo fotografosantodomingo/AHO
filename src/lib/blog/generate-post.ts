@@ -283,14 +283,7 @@ export async function generateBlogPost(
   const titleMatch = /<h1\b[^>]*>([\s\S]*?)<\/h1>/i.exec(validation.html);
   const title = titleMatch?.[1]?.replace(/<[^>]+>/g, '').trim() || topic.title;
 
-  const firstParaMatch = /<p\b[^>]*>([\s\S]*?)<\/p>/i.exec(
-    // Skip past the H1 + meta-byline paragraph; first real <p> after
-    // the ToC nav is the article opener.
-    validation.html.replace(/^[\s\S]*?<\/nav>\s*<\/nav>/i, ''),
-  );
-  const summaryRaw = firstParaMatch?.[1]?.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() ?? '';
-  const summary =
-    summaryRaw.length > 180 ? `${summaryRaw.slice(0, 177).trimEnd()}…` : summaryRaw || topic.title;
+  const summary = extractBlogSummary(validation.html) || topic.title;
 
   await logAiCall({
     purpose: 'listing_draft',
@@ -317,6 +310,50 @@ export async function generateBlogPost(
     estimatedCostUsdCents: estimateCostCents(parsed.usage.input_tokens, parsed.usage.output_tokens),
     latencyMs,
   };
+}
+
+/**
+ * Extract the lead-paragraph summary from a validated blog body. Used
+ * for `post.summary` which feeds the meta description, OG description,
+ * Twitter description, and blog-index card preview.
+ *
+ * Bug fixed 2026-05-28: the previous extractor used a regex to strip
+ * "past the breadcrumb-nav + ToC-nav" before grabbing the first <p>,
+ * but the regex (`/^[\s\S]*?<\/nav>\s*<\/nav>/i`) used `\s*` between
+ * the two `</nav>` matches. The article body actually has an `<h1>` +
+ * byline `<p>` BETWEEN the breadcrumb and ToC navs, which `\s*` can't
+ * match. The strip silently no-op'd; the next "first `<p>`" extracted
+ * was the byline paragraph — whose text is literally
+ * "By <author> · ~{N} min read · {today}" (placeholders are stamped
+ * INTO THE BODY by stampBodyPlaceholders before insert, but NEVER
+ * into the summary). Result: `post.summary` saved to the DB contained
+ * raw `{N}` + `{today}` placeholders, which the page rendered as the
+ * meta description — Google indexed "By Michał Babula · ~{N} min
+ * read · {today}" as the SERP snippet.
+ *
+ * The fix walks every <p>, skips byline-shaped ones, and strips any
+ * surviving placeholders as defense-in-depth.
+ */
+export function extractBlogSummary(html: string): string {
+  const allParas = [...html.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi)];
+  let raw = '';
+  for (const m of allParas) {
+    const text = m[1]?.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() ?? '';
+    if (!text) continue;
+    // Skip the byline paragraph (always contains "min read") plus any
+    // editorial-review line ("Reviewed by …").
+    if (/\bmin read\b/i.test(text) || /\breviewed by\b/i.test(text)) continue;
+    raw = text;
+    break;
+  }
+  // Defense-in-depth — strip any placeholder syntax that might survive
+  // a future prompt change.
+  raw = raw
+    .replace(/\{[A-Za-z_]+\}/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (raw.length > 180) return `${raw.slice(0, 177).trimEnd()}…`;
+  return raw;
 }
 
 /**
