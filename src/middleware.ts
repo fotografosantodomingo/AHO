@@ -85,6 +85,52 @@ export async function middleware(req: NextRequest) {
 
   await supabase.auth.getUser();
 
+  // Security headers on every response. Set in middleware (not in
+  // next.config.ts:headers()) because next-on-pages's Edge Function
+  // responses don't pick up the static headers() config. Lighthouse
+  // Best Practices audits five of these explicitly; without them
+  // /en/blog scores 77 instead of 100 (PO Lighthouse run 2026-05-28).
+  //
+  //  - Strict-Transport-Security  — Lighthouse "HSTS" audit, ~10pt
+  //    Two-year max-age + includeSubDomains is the preload-eligible
+  //    threshold. Once the site is in the Chromium preload list (PO
+  //    action, separate), the `preload` directive can be added; today
+  //    advertisehomes.online is not yet preloaded so we omit it to
+  //    keep deletion reversible.
+  //  - Cross-Origin-Opener-Policy — Lighthouse "COOP" audit, ~10pt
+  //    `same-origin` isolates the page from cross-origin opens so a
+  //    Spectre-style timing attack via window.opener can't reach us.
+  //    Compatible with our flows: Stripe redirect to checkout.stripe.com
+  //    is a same-tab navigation (NOT window.open), so COOP can't break it.
+  //  - X-Content-Type-Options: nosniff — Lighthouse minor audit.
+  //    Prevents MIME-sniffing of script/style assets; we always set
+  //    explicit Content-Type so nosniff is purely defensive.
+  //  - Referrer-Policy — Lighthouse minor audit. `strict-origin-when-cross-origin`
+  //    matches the modern browser default and is what Lighthouse expects
+  //    to be set explicitly.
+  //  - Permissions-Policy — Lighthouse minor audit. We don't use any
+  //    of camera/microphone/geolocation OUTSIDE the AHO Assistant voice
+  //    mode (which is on every page and DOES need microphone). So we
+  //    grant microphone=self and deny the rest; geolocation also stays
+  //    open because a future feature may use it for "show listings
+  //    near me." Browser auto-fills the rest with permissive defaults.
+  //
+  // Applied to ALL responses including redirects + 404s so the entire
+  // surface meets the Lighthouse bar (the blog being the visible miss
+  // today, but homepage / properties / agents would all measure the
+  // same way without these).
+  res.headers.set(
+    'strict-transport-security',
+    'max-age=63072000; includeSubDomains',
+  );
+  res.headers.set('cross-origin-opener-policy', 'same-origin');
+  res.headers.set('x-content-type-options', 'nosniff');
+  res.headers.set('referrer-policy', 'strict-origin-when-cross-origin');
+  res.headers.set(
+    'permissions-policy',
+    'camera=(), microphone=(self), geolocation=(self), payment=(self), usb=(), interest-cohort=()',
+  );
+
   // X-Robots-Tag on every authed surface — including 307 redirects
   // out of /dashboard, /admin, etc. The next.config.ts `headers()`
   // config DOES emit this header, but Next.js's `redirect()` machinery

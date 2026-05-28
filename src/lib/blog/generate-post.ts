@@ -378,6 +378,22 @@ export function stampBodyPlaceholders(args: {
     out = out.replace(/{HERO_IMG_400}/g, args.heroImageSrcsetByWidth[400]);
     out = out.replace(/{HERO_IMG_800}/g, args.heroImageSrcsetByWidth[800]);
     out = out.replace(/{HERO_IMG_1200}/g, args.heroImageSrcsetByWidth[1200]);
+    // If all 3 srcset URLs resolve to the same URL (the Next OG
+    // endpoint always serves 1200x630), the srcset is useless — every
+    // device downloads the same bytes. Worse, Lighthouse's "Properly
+    // size images" audit penalizes this because the browser commits
+    // to the highest-density variant on mobile (~5pt Perf hit on a
+    // mobile-throttled run). Strip the srcset + sizes attributes
+    // entirely when all widths point at the same URL; the `<img>`
+    // keeps its width/height + fetchpriority="high" + loading="eager"
+    // + decoding="async" which is what actually matters for LCP.
+    const srcset = args.heroImageSrcsetByWidth;
+    if (srcset[400] === srcset[800] && srcset[800] === srcset[1200]) {
+      out = out.replace(
+        /\s+srcset="[^"]*"|\s+sizes="[^"]*"/g,
+        '',
+      );
+    }
   } else {
     // No hero image — strip the whole <img ...> tag that references
     // the placeholders so the page doesn't render a broken-image icon.
