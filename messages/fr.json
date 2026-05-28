@@ -64,7 +64,7 @@
     "howStep1Title": "Abonnez-vous + créez votre annonce",
     "howStep1Body": "29 $/mois, annulable à tout moment via le Portail Client Stripe.",
     "howStep2Title": "Publiez vos annonces",
-    "howStep2Body": "Titre, photos, prix, localisation — bilingue EN/ES. Jusqu'à 5 annonces actives sur le plan Agent.",
+    "howStep2Body": "Titre, photos, prix, emplacement. AHO publie l'annonce et la traduit pour les acheteurs qui recherchent dans d'autres langues. Jusqu'à 5 annonces actives sur le plan Agent.",
     "howStep3Title": "Atteignez les acheteurs partout",
     "howStep3Body": "Les annonces se publient automatiquement sur votre profil AHO, la page de la ville et vos canaux sociaux.",
     "howCta": "Voir les tarifs",
@@ -580,8 +580,8 @@
   },
   "forAgents": {
     "meta": {
-      "title": "AHO pour agents immobiliers — de la note vocale à 21 publications sociales en un clic",
-      "description": "Arrêtez de publier vos biens plateforme par plateforme. Dictez une note vocale — AHO la transforme en annonce bilingue et 21 publications sociales adaptées à chaque plateforme, toutes avec votre lien AHO. Pro Automation 99 $/mois. Annulable à tout moment."
+      "title": "AHO pour agents immobiliers — publiez une fois, atteignez des acheteurs partout",
+      "description": "Votre annonce sur AHO est automatiquement traduite pour que les acheteurs de chaque marché la trouvent. Vos publications sociales sortent dans votre langue principale — un clic, chaque plateforme, toutes renvoient vers vous. Pro Automation $99/mois. Annulez quand vous voulez."
     },
     "hero": {
       "eyebrow": "Pour agents immobiliers",
@@ -599,8 +599,8 @@
       ]
     },
     "solution": {
-      "heading": "Voix en entrée. Annonce bilingue. 21 publications. 60 secondes.",
-      "body": "AHO est un hub intelligent de distribution de contenu pour les professionnels de l'immobilier. Appuyez sur le micro, décrivez le bien dans votre propre langue. Whisper transcrit, Claude extrait les faits structurés, et le brouillon de votre annonce est sur advertisehomes.online avant même que vous arriviez à votre voiture. Puis un toucher génère 21 publications sociales adaptées à chaque plateforme et à chaque langue — Facebook, Instagram, LinkedIn × sept langues — chacune avec l'URL de votre annonce AHO intégrée."
+      "heading": "Parlez. Traduit pour les acheteurs. Publié dans votre langue. 60 secondes.",
+      "body": "AHO est un hub intelligent de distribution de contenu pour les professionnels de l'immobilier. Touchez le micro, décrivez le bien dans votre propre langue. Whisper transcrit, Claude extrait les faits structurés, et votre brouillon d'annonce est sur advertisehomes.online avant d'atteindre la voiture. L'annonce sur la plateforme est traduite automatiquement pour que les acheteurs qui recherchent dans n'importe quelle langue la trouvent. Puis un tap génère des textes prêts pour chaque réseau social connecté — Facebook, Instagram, LinkedIn — tous dans votre langue principale, chacun avec le lien vers votre annonce AHO."
     },
     "features": {
       "heading": "Trois choses qui rendent AHO différent",
@@ -620,7 +620,7 @@
       ]
     },
     "howItWorks": {
-      "heading": "De la note vocale à 21 publications sociales en 60 secondes",
+      "heading": "De la note vocale à une annonce active et traduite en 60 secondes",
       "steps": [
         {
           "title": "Décrivez le bien à voix",
@@ -628,11 +628,11 @@
         },
         {
           "title": "Vérifiez et publiez",
-          "body": "AHO renvoie un brouillon d'annonce pré-rempli en moins de 30 secondes. Modifiez ce que vous voulez, ajoutez les photos, appuyez sur Publier. Votre annonce est en ligne sur advertisehomes.online avec une URL permanente — bilingue quand les deux langues sont écrites, monolingue avec un signal clair « traduction en attente » sinon."
+          "body": "AHO renvoie un brouillon pré-rempli en moins de 30 secondes. Modifiez tout, ajoutez des photos, cliquez sur Publier. Votre annonce est en ligne sur advertisehomes.online et automatiquement traduite vers les langues de la plateforme pour que les acheteurs d'autres marchés la trouvent via la recherche."
         },
         {
-          "title": "Générez 21 publications sociales",
-          "body": "Touchez « Générer publications sociales. » AHO produit 21 variantes adaptées — trois plateformes (Facebook, Instagram, LinkedIn) × sept langues (EN/ES/PL/PT/DE/FR/IT). Chaque variante respecte les limites de caractères de la plateforme, utilise la voix d'un marketer natif pour la langue, et intègre l'URL de votre annonce AHO. Aujourd'hui : copier-coller ; bientôt : publication en un clic dès que Meta App Review approuve l'intégration."
+          "title": "Générer des publications optimisées par plateforme",
+          "body": "Touchez \"Générer publications sociales.\" AHO produit une variante optimisée pour chaque réseau connecté — Facebook, Instagram, LinkedIn — toutes dans votre langue principale (définie sur votre profil). Chaque publication respecte les limites de caractères, utilise une voix de marketing native et inclut l'URL de votre annonce AHO. Copier-coller aujourd'hui; publication en un clic dès que Meta approuve la revue."
         }
       ]
     },
@@ -665,7 +665,7 @@
         },
         {
           "q": "Quelles plateformes prenez-vous en charge ?",
-          "a": "v1 génère des publications pour Facebook, Instagram (feed + Reels) et LinkedIn — trois plateformes en sept langues, 21 variantes par annonce. Aujourd'hui : copier-coller dans vos comptes. Bientôt (après Meta App Review) : publication en un clic vers Page Facebook, Instagram Business et WhatsApp Business. TikTok et YouTube Shorts sur la feuille de route."
+          "a": "v1 génère des publications pour Facebook, Instagram (feed + Reels) et LinkedIn — une publication par plateforme connectée, toutes dans votre langue principale (définie sur votre profil). Aujourd'hui : copier-coller. Bientôt (après revue Meta) : publication en un clic sur Facebook Page, Instagram Business et WhatsApp Business. TikTok et YouTube Shorts sur la roadmap."
         },
         {
           "q": "Où AHO opère-t-il ?",
@@ -878,7 +878,7 @@
         "Temps économisé : ~10 heures par semaine, par agent",
         "Auto-publication vers FB + IG + WhatsApp Business",
         "Une boîte, tous les canaux",
-        "Annonces illimitées + profil agent + SEO bilingue",
+        "Annonces illimitées + profil d'agent + traduction multilingue de l'annonce",
         "Annulable à tout moment via le Portail Client Stripe"
       ],
       "cta": "S'abonner — 99 $/mois"
@@ -1378,7 +1378,18 @@
     "addCustomLanguage": "Ajouter une langue…",
     "websiteUrl": "Site web personnel",
     "saveChanges": "Enregistrer les modifications",
-    "saved": "Profil enregistré."
+    "saved": "Profil enregistré.",
+    "preferredLanguage": "Langue principale pour IA et e-mails",
+    "preferredLanguageHelp": "Utilisée pour les brouillons de publications sociales et les e-mails système. Différente de la liste \"langues que je parle\" ci-dessus, qui apparaît aux clients sur votre profil public.",
+    "preferredLanguageOption": {
+      "en": "Anglais",
+      "es": "Espagnol",
+      "pl": "Polonais",
+      "pt": "Portugais",
+      "de": "Allemand",
+      "fr": "Français",
+      "it": "Italien"
+    }
   },
   "dangerZone": {
     "heading": "Zone sensible",
@@ -1899,7 +1910,7 @@
           "id": "agents-social",
           "title": "Grille sociale et tons",
           "body": [
-            "Sur Pro Automation, la page Social affiche une grille 3 × 7 : trois plateformes (Facebook, Instagram, LinkedIn) par sept langues. Pour chaque nouvelle annonce, AHO génère une variante adaptée à la plateforme et native de la langue dans chaque case — 21 publications au total.",
+            "Sur Pro Automation, la page Social affiche une ligne de brouillons optimisés par plateforme : Facebook, Instagram, LinkedIn — un par réseau connecté. AHO génère chaque variante dans votre langue principale (définie sur le profil), adaptée au ton et à la limite de caractères de cette plateforme.",
             "Chaque variante est éditable. Vous pouvez choisir un ton différent (chaleureux, factuel, hype, professionnel) par plateforme ; nous gardons votre dernier choix comme défaut pour la prochaine annonce sur cette plateforme.",
             "Les publications incluent l'URL de votre annonce AHO afin que les contacts reviennent dans votre boîte. En attendant la validation Meta App Review, la publication se fait par copier-coller ; la publication en un clic s'allume automatiquement dès que la validation est accordée sur un canal connecté."
           ],

@@ -179,7 +179,7 @@
     "howStep1Title": "Iscriviti + crea il tuo annuncio",
     "howStep1Body": "$29 al mese, cancella quando vuoi dal Portale Cliente Stripe.",
     "howStep2Title": "Pubblica i tuoi annunci",
-    "howStep2Body": "Titolo, foto, prezzo, posizione — bilingue EN/ES. Fino a 5 annunci attivi sul piano Agent.",
+    "howStep2Body": "Titolo, foto, prezzo, posizione. AHO pubblica l'annuncio e lo traduce per acquirenti che cercano in altre lingue. Fino a 5 annunci attivi nel piano Agent.",
     "howStep3Title": "Raggiungi acquirenti ovunque",
     "howStep3Body": "Gli annunci si pubblicano automaticamente sul tuo profilo AHO, sulla pagina della città e sui tuoi canali social.",
     "howCta": "Vedi prezzi",
@@ -902,7 +902,18 @@
     "addCustomLanguage": "Aggiungi una lingua…",
     "websiteUrl": "Sito web personale",
     "saveChanges": "Salva modifiche",
-    "saved": "Profilo salvato."
+    "saved": "Profilo salvato.",
+    "preferredLanguage": "Lingua principale per IA ed e-mail",
+    "preferredLanguageHelp": "Usata per le bozze di post social e per le e-mail di sistema. Diversa dall'elenco \"lingue parlate\" sopra, che è visibile ai clienti sul tuo profilo pubblico.",
+    "preferredLanguageOption": {
+      "en": "Inglese",
+      "es": "Spagnolo",
+      "pl": "Polacco",
+      "pt": "Portoghese",
+      "de": "Tedesco",
+      "fr": "Francese",
+      "it": "Italiano"
+    }
   },
   "dangerZone": {
     "heading": "Zona pericolosa",
@@ -1357,8 +1368,8 @@
   },
   "forAgents": {
     "meta": {
-      "title": "AHO per agenti immobiliari — dalla nota vocale a 21 post social con un clic",
-      "description": "Smetti di pubblicare gli immobili una piattaforma alla volta. Detta una nota vocale: AHO la trasforma in un annuncio bilingue e in 21 post social adattati a ciascuna piattaforma, tutti con il tuo link AHO. Pro Automation 99$/mese. Cancella in qualsiasi momento."
+      "title": "AHO per agenti immobiliari — pubblica una volta, raggiungi acquirenti nel mondo",
+      "description": "Il tuo annuncio su AHO viene tradotto automaticamente per essere trovato da acquirenti di ogni mercato. I tuoi post social escono nella tua lingua principale — un clic, ogni piattaforma, tutti rimandano a te. Pro Automation $99/mese. Cancelli quando vuoi."
     },
     "hero": {
       "eyebrow": "Per agenti immobiliari",
@@ -1376,8 +1387,8 @@
       ]
     },
     "solution": {
-      "heading": "Voce in entrata. Annuncio bilingue. 21 post. 60 secondi.",
-      "body": "AHO è un hub intelligente di distribuzione contenuti per i professionisti dell'immobiliare. Tocca il microfono, racconta l'immobile nella tua lingua. Whisper trascrive, Claude estrae i fatti strutturati, e la bozza del tuo annuncio è su advertisehomes.online prima che tu raggiunga l'auto. Poi un tocco genera 21 post social adattati alla piattaforma e alla lingua — Facebook, Instagram, LinkedIn × sette lingue — ciascuno con l'URL del tuo annuncio AHO incorporata."
+      "heading": "Parla. Tradotto per acquirenti. Pubblicato nella tua lingua. 60 secondi.",
+      "body": "AHO è un hub intelligente di distribuzione di contenuti per professionisti immobiliari. Tocca il microfono, descrivi l'immobile nella tua lingua. Whisper trascrive, Claude estrae i dati strutturati, e la tua bozza di annuncio è su advertisehomes.online prima che tu raggiunga l'auto. L'annuncio sulla piattaforma viene tradotto automaticamente in modo che acquirenti che cercano in qualsiasi lingua lo trovino. Poi un tocco genera testi pronti per ogni piattaforma social collegata — Facebook, Instagram, LinkedIn — tutti nella tua lingua principale, ognuno con il link al tuo annuncio AHO."
     },
     "features": {
       "heading": "Tre cose che rendono AHO diversa",
@@ -1397,7 +1408,7 @@
       ]
     },
     "howItWorks": {
-      "heading": "Dalla nota vocale a 21 post social in 60 secondi",
+      "heading": "Da nota vocale a annuncio attivo e tradotto in 60 secondi",
       "steps": [
         {
           "title": "Racconta l'immobile",
@@ -1405,11 +1416,11 @@
         },
         {
           "title": "Verifica e pubblica",
-          "body": "AHO ti restituisce una bozza precompilata in meno di 30 secondi. Modifica ciò che vuoi, aggiungi le foto, premi Pubblica. Il tuo annuncio è online su advertisehomes.online con un URL permanente — bilingue quando entrambe le lingue sono scritte, monolingue con un chiaro flag \"traduzione in corso\" quando no."
+          "body": "AHO restituisce una bozza precompilata in meno di 30 secondi. Modifica tutto, aggiungi foto, premi Pubblica. Il tuo annuncio è online su advertisehomes.online e viene tradotto automaticamente nelle lingue della piattaforma in modo che acquirenti di altri mercati lo scoprano tramite la ricerca."
         },
         {
-          "title": "Genera 21 post social",
-          "body": "Tocca \"Genera post social.\" AHO produce 21 varianti calibrate — tre piattaforme (Facebook, Instagram, LinkedIn) × sette lingue (EN/ES/PL/PT/DE/FR/IT). Ogni variante rispetta i limiti di caratteri della piattaforma, usa la voce di un marketer locale per la lingua e incorpora l'URL del tuo annuncio AHO. Oggi: copia-incolla; presto: pubblicazione in un clic non appena Meta App Review approverà l'integrazione."
+          "title": "Genera post ottimizzati per piattaforma",
+          "body": "Tocca \"Genera post social.\" AHO produce una variante ottimizzata per ogni rete collegata — Facebook, Instagram, LinkedIn — tutte nella tua lingua principale (impostata sul profilo). Ogni post rispetta i limiti di caratteri, usa voce di marketing nativa e include l'URL del tuo annuncio AHO. Copia-incolla oggi; pubblicazione in un clic appena Meta approva la revisione."
         }
       ]
     },
@@ -1442,7 +1453,7 @@
         },
         {
           "q": "Quali piattaforme supportate?",
-          "a": "v1 genera post per Facebook, Instagram (feed + Reels) e LinkedIn — tre piattaforme in sette lingue, 21 varianti per annuncio. Oggi: copia-incolla nei tuoi account. Presto (dopo Meta App Review): pubblicazione in un clic su Pagina Facebook, Instagram Business e WhatsApp Business. TikTok e YouTube Shorts in roadmap."
+          "a": "v1 genera post per Facebook, Instagram (feed + Reels) e LinkedIn — un post per piattaforma collegata, tutti nella tua lingua principale (impostata sul profilo). Oggi: copia-incolla. Presto (dopo la revisione Meta): pubblicazione con un clic su Facebook Page, Instagram Business e WhatsApp Business. TikTok e YouTube Shorts sono in roadmap."
         },
         {
           "q": "Dove opera AHO?",
@@ -1655,7 +1666,7 @@
         "Tempo risparmiato: ~10 ore a settimana, per agente",
         "Auto-pubblicazione su FB + IG + WhatsApp Business",
         "Una casella, tutti i canali",
-        "Annunci illimitati + profilo agente + SEO bilingue",
+        "Annunci illimitati + profilo agente + traduzione multilingue dell'annuncio",
         "Cancella in qualsiasi momento dal Portale Cliente Stripe"
       ],
       "cta": "Abbonati — 99$/mese"
@@ -1899,7 +1910,7 @@
           "id": "agents-social",
           "title": "Griglia social e tonalità",
           "body": [
-            "Su Pro Automation la pagina Social mostra una griglia 3 × 7: tre piattaforme (Facebook, Instagram, LinkedIn) per sette lingue. Per ogni nuovo annuncio AHO genera una variante calibrata per piattaforma e nativa per lingua in ogni cella — 21 post in totale.",
+            "Su Pro Automation, la pagina Social mostra una riga di bozze ottimizzate per piattaforma: Facebook, Instagram, LinkedIn — una per rete collegata. AHO genera ogni variante nella tua lingua principale (impostata sul profilo), adattata al tono e al limite di caratteri di quella piattaforma.",
             "Ogni variante è modificabile. Può scegliere una tonalità diversa (calda, fattuale, hype, professionale) per piattaforma; teniamo la Sua ultima scelta come predefinita per il prossimo annuncio su quella piattaforma.",
             "I post includono il link al Suo annuncio AHO così i contatti tornano nella Sua casella. Finché non arriva l'approvazione Meta App Review la pubblicazione è copia-incolla; la pubblicazione in un clic si attiva automaticamente quando l'approvazione viene concessa per un canale collegato."
           ],

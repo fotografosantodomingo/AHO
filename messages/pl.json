@@ -179,7 +179,7 @@
     "howStep1Title": "Subskrybuj i utwórz ogłoszenie",
     "howStep1Body": "$29 miesięcznie, anuluj kiedy chcesz przez Portal Klienta Stripe.",
     "howStep2Title": "Opublikuj swoje ogłoszenia",
-    "howStep2Body": "Tytuł, zdjęcia, cena, lokalizacja — dwujęzycznie EN/ES. Do 5 aktywnych ogłoszeń na planie Agent.",
+    "howStep2Body": "Tytuł, zdjęcia, cena, lokalizacja. AHO publikuje ofertę i tłumaczy ją dla klientów szukających w innych językach. Do 5 aktywnych ofert w planie Agent.",
     "howStep3Title": "Dotrzyj do kupujących wszędzie",
     "howStep3Body": "Ogłoszenia automatycznie publikują się na Twoim profilu AHO, stronach miast i Twoich kanałach społecznościowych.",
     "howCta": "Zobacz cennik",
@@ -871,7 +871,18 @@
     "addCustomLanguage": "Dodaj język…",
     "websiteUrl": "Strona osobista",
     "saveChanges": "Zapisz zmiany",
-    "saved": "Profil zapisany."
+    "saved": "Profil zapisany.",
+    "preferredLanguage": "Główny język dla AI i e-maili",
+    "preferredLanguageHelp": "Używany w roboczych wersjach postów do mediów społecznościowych i w e-mailach systemowych. To inna sprawa niż lista \"języków, którymi mówię\" powyżej, która jest widoczna dla klientów na Twoim profilu publicznym.",
+    "preferredLanguageOption": {
+      "en": "angielski",
+      "es": "hiszpański",
+      "pl": "polski",
+      "pt": "portugalski",
+      "de": "niemiecki",
+      "fr": "francuski",
+      "it": "włoski"
+    }
   },
   "dangerZone": {
     "heading": "Strefa zagrożenia",
@@ -1340,8 +1351,8 @@
   },
   "forAgents": {
     "meta": {
-      "title": "AHO dla agentów nieruchomości — z notatki głosowej do 21 postów społecznościowych",
-      "description": "Przestań publikować ogłoszenia na każdej platformie z osobna. Podyktuj notatkę głosową — AHO zamieni ją w dwujęzyczne ogłoszenie i 21 dopasowanych postów społecznościowych z linkiem do Twojej oferty. Pro Automation $99/mies. Anuluj kiedy chcesz."
+      "title": "AHO dla agentów nieruchomości — opublikuj raz, dotrzyj do klientów na całym świecie",
+      "description": "Twoja oferta na AHO jest automatycznie tłumaczona, aby znaleźli ją klienci z każdego rynku. Posty do mediów społecznościowych wychodzą w Twoim głównym języku — jedno kliknięcie, każda platforma, każdy post prowadzi z powrotem do Ciebie. Pro Automation $99/mies. Anulujesz kiedy chcesz."
     },
     "hero": {
       "eyebrow": "Dla agentów nieruchomości",
@@ -1359,8 +1370,8 @@
       ]
     },
     "solution": {
-      "heading": "Głos na wejściu. Dwujęzyczne ogłoszenie. 21 postów. 60 sekund.",
-      "body": "AHO to inteligentny hub dystrybucji treści dla profesjonalistów rynku nieruchomości. Naciśnij mikrofon, opowiedz o nieruchomości w swoim języku. Whisper transkrybuje, Claude wyciąga uporządkowane fakty, a szkic Twojego ogłoszenia jest na advertisehomes.online, zanim dojdziesz do auta. Potem jednym dotknięciem generujesz 21 dopasowanych do platformy i języka postów społecznościowych — Facebook, Instagram, LinkedIn × siedem języków — każdy z linkiem do Twojej oferty AHO."
+      "heading": "Mów. Tłumaczone dla klientów. Publikowane w Twoim języku. 60 sekund.",
+      "body": "AHO to inteligentne centrum dystrybucji treści dla agentów nieruchomości. Stuknij w mikrofon, opowiedz o ofercie we własnym języku. Whisper transkrybuje, Claude wyciąga ustrukturyzowane dane, a roboczy projekt oferty jest na advertisehomes.online zanim dotrzesz do samochodu. Oferta na platformie jest automatycznie tłumaczona, aby klienci szukający w dowolnym języku ją znaleźli. Następnie jednym dotknięciem generujesz gotowe teksty dla każdej podłączonej platformy społecznościowej — Facebook, Instagram, LinkedIn — wszystkie w Twoim głównym języku, każdy z linkiem do Twojej oferty w AHO."
     },
     "features": {
       "heading": "Trzy rzeczy, które wyróżniają AHO",
@@ -1380,7 +1391,7 @@
       ]
     },
     "howItWorks": {
-      "heading": "Od notatki głosowej do 21 postów w 60 sekund",
+      "heading": "Od notatki głosowej do opublikowanej i przetłumaczonej oferty w 60 sekund",
       "steps": [
         {
           "title": "Opowiedz nieruchomość",
@@ -1388,11 +1399,11 @@
         },
         {
           "title": "Sprawdź i opublikuj",
-          "body": "AHO zwraca wstępnie wypełniony szkic ogłoszenia w mniej niż 30 sekund. Edytuj, co chcesz, dodaj zdjęcia, naciśnij Publikuj. Twoje ogłoszenie pojawia się na advertisehomes.online z trwałym URL — dwujęzycznie, gdy obie wersje są napisane, lub w jednym języku z wyraźną flagą \"tłumaczenie w toku\", gdy nie."
+          "body": "AHO zwraca wstępnie wypełniony projekt oferty w mniej niż 30 sekund. Edytuj wszystko, dodaj zdjęcia, kliknij Publikuj. Oferta pojawia się na advertisehomes.online i jest automatycznie tłumaczona na języki platformy, aby klienci z innych rynków odnajdywali ją przez wyszukiwanie."
         },
         {
-          "title": "Wygeneruj 21 postów społecznościowych",
-          "body": "Naciśnij \"Generuj posty społecznościowe.\" AHO produkuje 21 dopasowanych wariantów — trzy platformy (Facebook, Instagram, LinkedIn) × siedem języków (EN/ES/PL/PT/DE/FR/IT). Każdy wariant respektuje limity znaków platformy, używa głosu lokalnego marketera dla danego języka i osadza URL Twojego ogłoszenia AHO. Dziś: kopiuj-wklej; wkrótce: publikacja jednym kliknięciem, gdy Meta App Review zatwierdzi integrację."
+          "title": "Generuj posty dostosowane do platform",
+          "body": "Stuknij \"Generuj posty społecznościowe.\" AHO tworzy wariant dopasowany do każdej podłączonej platformy — Facebook, Instagram, LinkedIn — wszystkie w Twoim głównym języku (ustawionym w profilu). Każdy post szanuje limity znaków platformy, używa naturalnego języka marketingu i zawiera URL Twojej oferty w AHO. Kopiuj i wklejaj dziś; publikacja jednym kliknięciem, gdy Meta zatwierdzi weryfikację."
         }
       ]
     },
@@ -1402,7 +1413,7 @@
       "period": "/ miesiąc",
       "features": [
         "Nielimitowane ogłoszenia, import głosowy + URL + ręczny",
-        "21 wariantów postów społecznościowych na ogłoszenie (3 platformy × 7 języków)",
+        "Gotowy do publikacji tekst dla każdej podłączonej platformy społecznościowej, w Twoim głównym języku",
         "Centralna skrzynka leadów + panel wyników na ogłoszenie",
         "Anuluj kiedy chcesz z Portalu Klienta Stripe"
       ],
@@ -1425,7 +1436,7 @@
         },
         {
           "q": "Jakie platformy obsługujecie?",
-          "a": "v1 generuje posty na Facebooka, Instagrama (feed + Reels) i LinkedIn — trzy platformy w siedmiu językach, 21 wariantów na ogłoszenie. Dziś: kopiuj-wklej do swoich kont. Wkrótce (po Meta App Review): publikacja jednym kliknięciem na Stronę Facebook, Instagram Business i WhatsApp Business. TikTok i YouTube Shorts są na roadmapie."
+          "a": "v1 generuje posty na Facebooka, Instagrama (feed + Reels) i LinkedIn — jeden post na podłączoną platformę, wszystkie w Twoim głównym języku (ustawionym w profilu). Dziś: kopiuj-wklej do swoich kont. Wkrótce (po zatwierdzeniu przez Meta): publikacja jednym kliknięciem na Facebook Page, Instagram Business i WhatsApp Business. TikTok i YouTube Shorts są w planach."
         },
         {
           "q": "Gdzie działa AHO?",
@@ -1882,7 +1893,7 @@
           "id": "agents-social",
           "title": "Siatka społecznościowa i tony",
           "body": [
-            "W planie Pro Automation strona Social pokazuje siatkę 3 × 7: trzy platformy (Facebook, Instagram, LinkedIn) razy siedem języków. Dla każdej nowej oferty AHO generuje wariant dopasowany do platformy i języka w każdej komórce — łącznie 21 postów.",
+            "W Pro Automation strona Social pokazuje rząd dostosowanych do platform projektów postów: Facebook, Instagram, LinkedIn — jeden na podłączoną platformę. AHO generuje każdy wariant w Twoim głównym języku (ustawionym w profilu), dopasowany do tonu i limitu znaków tej platformy.",
             "Każdy wariant jest edytowalny. Możesz wybrać inny ton (ciepły, faktograficzny, hype, profesjonalny) dla każdej platformy; zapamiętujemy ostatni wybór jako domyślny dla kolejnej oferty na tej samej platformie.",
             "Posty zawierają twój link do oferty AHO, więc kontakty wracają do twojej skrzynki. Do czasu zatwierdzenia w Meta App Review publikacja działa metodą kopiuj-wklej; jednoklikowa publikacja włącza się automatycznie po zatwierdzeniu na podłączonym kanale."
           ],

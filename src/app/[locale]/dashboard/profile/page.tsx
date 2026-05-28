@@ -46,7 +46,7 @@ export default async function ProfilePage({
   const { data: profile } = await supabase
     .from('profiles')
     .select(
-      'full_name, phone, whatsapp_phone, avatar_url, bio, website_url, facebook_url, instagram_url, linkedin_url, specialties, languages_spoken, city, country_code',
+      'full_name, phone, whatsapp_phone, avatar_url, bio, website_url, facebook_url, instagram_url, linkedin_url, specialties, languages_spoken, city, country_code, preferred_language',
     )
     .eq('id', userResult.user.id)
     .maybeSingle();
@@ -67,6 +67,7 @@ export default async function ProfilePage({
     languages_spoken: (profile?.languages_spoken as string[] | null) ?? [],
     city: profile?.city ?? null,
     country_code: profile?.country_code ?? null,
+    preferred_language: (profile?.preferred_language as string | null) ?? 'en',
   };
 
   const userEmail = userResult.user.email ?? '';

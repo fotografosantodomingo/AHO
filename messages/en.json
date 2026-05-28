@@ -179,7 +179,7 @@
     "howStep1Title": "Subscribe + create your ad",
     "howStep1Body": "$29 a month. Cancel anytime in the Stripe Customer Portal — billing stops at the end of the current period.",
     "howStep2Title": "Publish your listings",
-    "howStep2Body": "Title, photos, price, location — bilingual EN/ES. Up to 5 active listings on the Agent plan.",
+    "howStep2Body": "Title, photos, price, location. AHO publishes the listing and translates it for buyers searching in other languages. Up to 5 active listings on the Agent plan.",
     "howStep3Title": "Reach buyers everywhere",
     "howStep3Body": "Listings auto-publish to your AHO profile, the city landing page, and your social channels.",
     "howCta": "See pricing",
@@ -933,7 +933,18 @@
     "addCustomLanguage": "Add a language…",
     "websiteUrl": "Personal website",
     "saveChanges": "Save changes",
-    "saved": "Profile saved."
+    "saved": "Profile saved.",
+    "preferredLanguage": "Main language for AI captions + emails",
+    "preferredLanguageHelp": "Used for social-post drafts and platform emails sent to you. Different from the \"languages I speak\" list above, which is shown to potential clients on your public profile.",
+    "preferredLanguageOption": {
+      "en": "English",
+      "es": "Spanish",
+      "pl": "Polish",
+      "pt": "Portuguese",
+      "de": "German",
+      "fr": "French",
+      "it": "Italian"
+    }
   },
   "dangerZone": {
     "heading": "Danger zone",
@@ -1405,8 +1416,8 @@
   },
   "forAgents": {
     "meta": {
-      "title": "AHO for real estate agents — voice in, 21 social posts out, in one click",
-      "description": "Stop posting listings one platform at a time. Dictate a voice note, AHO turns it into a bilingual listing plus 21 platform-tuned social posts that all link back to you. Pro Automation $99/mo. Cancel any time."
+      "title": "AHO for real estate agents — list once, reach buyers worldwide",
+      "description": "Your listing on AHO is automatically translated so buyers from every market find it. Your social posts go out in your main language — one click, every platform, every post links back to you. Pro Automation $99/mo. Cancel any time."
     },
     "hero": {
       "eyebrow": "For real estate agents",
@@ -1424,8 +1435,8 @@
       ]
     },
     "solution": {
-      "heading": "Voice in. Bilingual listing. 21 posts. 60 seconds.",
-      "body": "AHO is an intelligent content-distribution hub for real-estate professionals. Tap the mic, speak the property in your own language. Whisper transcribes, Claude extracts the structured facts, and your listing draft is on advertisehomes.online before you reach your car. Then one tap generates 21 platform-tuned, locale-native social posts — Facebook, Instagram, LinkedIn × seven languages — every single one with your AHO listing URL embedded."
+      "heading": "Speak it. Translated for buyers. Posted in your language. 60 seconds.",
+      "body": "AHO is an intelligent content-distribution hub for real-estate professionals. Tap the mic, speak the property in your own language. Whisper transcribes, Claude extracts the structured facts, and your listing draft is on advertisehomes.online before you reach your car. The platform listing is automatically translated so buyers searching in any language find it. Then one tap generates ready-to-publish captions for every social platform you've connected — Facebook, Instagram, LinkedIn — all in your main language, each one linking back to your AHO listing."
     },
     "features": {
       "heading": "Three things that make AHO different",
@@ -1445,7 +1456,7 @@
       ]
     },
     "howItWorks": {
-      "heading": "From voice note to 21 social posts in 60 seconds",
+      "heading": "From voice note to a live, translated listing in 60 seconds",
       "steps": [
         {
           "title": "Speak the property",
@@ -1453,11 +1464,11 @@
         },
         {
           "title": "Review and publish",
-          "body": "AHO returns a pre-filled listing draft in under 30 seconds. Edit anything, add photos, hit Publish. Your listing goes live at advertisehomes.online with a permanent URL — bilingual content where both languages are written, single-language with a clear translation flag where they aren't."
+          "body": "AHO returns a pre-filled listing draft in under 30 seconds. Edit anything, add photos, hit Publish. Your listing goes live at advertisehomes.online and is automatically translated for the languages on the platform so buyers across markets discover it through search."
         },
         {
-          "title": "Generate 21 social posts",
-          "body": "Tap \"Generate social posts.\" AHO produces 21 platform-tuned variants — three platforms (Facebook, Instagram, LinkedIn) × seven languages (EN/ES/PL/PT/DE/FR/IT). Each variant respects platform character budgets, uses native marketer voice for its locale, and embeds your AHO listing URL. Copy-paste today; one-click publish as Meta App Review approves."
+          "title": "Generate platform-tuned social posts",
+          "body": "Tap \"Generate social posts.\" AHO produces a platform-tuned variant for every social channel you've connected — Facebook, Instagram, LinkedIn — all in your main language (set on your profile). Each post respects platform character budgets, uses native marketer voice, and embeds your AHO listing URL. Copy-paste today; one-click publish as Meta App Review approves."
         }
       ]
     },
@@ -1467,7 +1478,7 @@
       "period": "/ month",
       "features": [
         "Unlimited listings, voice + URL + manual import",
-        "21 social-post variants per listing (3 platforms × 7 locales)",
+        "A ready-to-publish caption per connected social platform, in your main language",
         "Centralized lead inbox + per-listing performance dashboard",
         "Cancel any time from the Stripe Customer Portal"
       ],
@@ -1490,7 +1501,7 @@
         },
         {
           "q": "Which platforms do you support?",
-          "a": "v1 generates posts for Facebook, Instagram (feed + Reels) and LinkedIn — three platforms across seven locales for 21 variants per listing. Today: copy-paste to your accounts. Soon (post Meta App Review): one-click publish to Facebook Page, Instagram Business, and WhatsApp Business. TikTok and YouTube Shorts are on the roadmap."
+          "a": "v1 generates posts for Facebook, Instagram (feed + Reels) and LinkedIn — one post per connected platform, all in your main language (set on your profile). Today: copy-paste to your accounts. Soon (post Meta App Review): one-click publish to Facebook Page, Instagram Business, and WhatsApp Business. TikTok and YouTube Shorts are on the roadmap."
         },
         {
           "q": "Where does AHO operate?",
@@ -1703,7 +1714,7 @@
         "Time saved: ~10 hours a week, per agent",
         "Auto-publish to FB + IG + WhatsApp Business",
         "One inbox, every channel",
-        "Unlimited listings + agent profile + bilingual SEO",
+        "Unlimited listings + agent profile + multilingual listing translation",
         "Cancel any time from the Stripe Customer Portal"
       ],
       "cta": "Subscribe — $99/mo"
@@ -1850,7 +1861,7 @@
     },
     "agents": {
       "heading": "For agents",
-      "intro": "Agents subscribe to publish listings. The lowest tier puts you on the platform; the higher tiers unlock the social-distribution automation that turns one listing into 21 platform-tuned posts. Everything below assumes you've signed up — see the pricing page if you haven't yet.",
+      "intro": "Agents subscribe to publish listings. The lowest tier puts you on the platform; the higher tiers unlock the social-distribution automation that turns one listing into platform-tuned posts in your main language. Everything below assumes you've signed up — see the pricing page if you haven't yet.",
       "sections": [
         {
           "id": "agents-setup",
@@ -1913,7 +1924,7 @@
           "id": "agents-edit-flow",
           "title": "Editing a listing",
           "body": [
-            "Open a listing from the Properties page in your dashboard. The edit screen mirrors the new-listing form: language tabs (EN / ES) on top, photo grid below, and structured fields for price, address, attributes, and bilingual descriptions.",
+            "Open a listing from the Properties page in your dashboard. The edit screen mirrors the new-listing form: photo grid, structured fields for price, address, attributes, and the listing description that gets auto-translated for the platform's other languages.",
             "Saves are immediate. Every save bumps the public listing's updated_at, which signals search and the social-distribution scheduler that the content is fresh.",
             "Archive a listing when it's no longer for sale but you want to keep the history. Archived listings stay in your dashboard for 90 days, then are deleted unless restored."
           ],
@@ -1947,7 +1958,7 @@
           "id": "agents-social",
           "title": "Social grid and tones",
           "body": [
-            "On Pro Automation, the Social page shows a 3 × 7 grid: three platforms (Facebook, Instagram, LinkedIn) by seven languages. For each new listing, AHO generates a platform-tuned, locale-native variant in every cell — 21 posts in total.",
+            "On Pro Automation, the Social page shows a row of platform-tuned post drafts: Facebook, Instagram, LinkedIn — one per connected platform. AHO generates each variant in your main language (set on your profile), tuned to that platform's tone and character budget.",
             "Each variant is editable. You can pick a different tone (warm, factual, hype, professional) per platform; we keep your last choice as the default for the next listing on that platform.",
             "Posts include your AHO listing URL so leads route back to your inbox. Until Meta App Review approval lands, publishing is copy-paste; one-click publish lights up automatically once approval is granted on a connected channel."
           ],

@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { AvatarUploader } from './avatar-uploader';
 import { CountrySelect } from '@/components/forms/country-select';
-import type { Locale } from '@/i18n/config';
+import { LOCALES, type Locale } from '@/i18n/config';
 
 export interface ProfileFormInitial {
   full_name: string | null;
@@ -21,6 +21,11 @@ export interface ProfileFormInitial {
   languages_spoken: string[];
   city: string | null;
   country_code: string | null;
+  /** Agent's main language for AI-drafted social posts + lifecycle
+   *  emails. Distinct from `languages_spoken` (the languages the agent
+   *  serves clients in — public-facing on the agent profile). One of
+   *  the 7 supported locales. */
+  preferred_language: string;
 }
 
 interface Props {
@@ -76,6 +81,9 @@ export function ProfileForm({ initial }: Props) {
   const [languages, setLanguages] = useState<string[]>(initial.languages_spoken ?? []);
   const [city, setCity] = useState(initial.city ?? '');
   const [countryCode, setCountryCode] = useState(initial.country_code ?? '');
+  const [preferredLanguage, setPreferredLanguage] = useState<Locale>(
+    (initial.preferred_language as Locale) ?? 'en',
+  );
 
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -125,6 +133,7 @@ export function ProfileForm({ initial }: Props) {
         languages_spoken: languages,
         city: nullify(city),
         country_code: nullify(countryCode),
+        preferred_language: preferredLanguage,
       };
       const res = await fetch('/api/me/profile', {
         method: 'PUT',
@@ -320,6 +329,32 @@ export function ProfileForm({ initial }: Props) {
             ))}
           </div>
           <CustomTagInput onAdd={addLanguage} placeholder={t('addCustomLanguage')} />
+        </Field>
+
+        {/* Main social-publish language. Distinct from `languages_spoken`
+            above (which is the public list of languages the agent serves
+            clients in). This drives AI-drafted captions + lifecycle
+            emails. PO directive 2026-05-28: an agent posts to their own
+            social media in their main language — never multilingual on
+            social. The AHO platform listing stays multilingual for
+            buyer-side SEO reach (handled per-listing, not per-agent). */}
+        <Field>
+          <label htmlFor="pf-preferred-language" className={labelClass}>
+            {t('preferredLanguage')}
+          </label>
+          <p className="mt-1 text-xs text-helper">{t('preferredLanguageHelp')}</p>
+          <select
+            id="pf-preferred-language"
+            value={preferredLanguage}
+            onChange={(e) => setPreferredLanguage(e.target.value as Locale)}
+            className={inputClass}
+          >
+            {LOCALES.map((l) => (
+              <option key={l} value={l}>
+                {t(`preferredLanguageOption.${l}` as 'preferredLanguageOption.en')}
+              </option>
+            ))}
+          </select>
         </Field>
       </Section>
 

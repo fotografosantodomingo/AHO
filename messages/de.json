@@ -64,7 +64,7 @@
     "howStep1Title": "Abonnieren + Inserat erstellen",
     "howStep1Body": "$29 pro Monat, jederzeit kündbar im Stripe Customer Portal.",
     "howStep2Title": "Inserate veröffentlichen",
-    "howStep2Body": "Titel, Fotos, Preis, Standort — zweisprachig EN/ES. Bis zu 5 aktive Inserate im Makler-Tarif.",
+    "howStep2Body": "Titel, Fotos, Preis, Lage. AHO veröffentlicht das Inserat und übersetzt es für Käufer, die in anderen Sprachen suchen. Bis zu 5 aktive Inserate im Agent-Plan.",
     "howStep3Title": "Käufer überall erreichen",
     "howStep3Body": "Inserate werden automatisch auf Ihrem AHO-Profil, der Stadt-Landingpage und Ihren Social-Kanälen veröffentlicht.",
     "howCta": "Preise ansehen",
@@ -580,8 +580,8 @@
   },
   "forAgents": {
     "meta": {
-      "title": "AHO für Immobilienmakler — von der Sprachnotiz zu 21 Social-Posts mit einem Klick",
-      "description": "Schluss damit, Inserate Plattform für Plattform zu posten. Diktieren Sie eine Sprachnotiz — AHO macht daraus ein zweisprachiges Inserat und 21 plattformgerechte Social-Posts, alle mit Ihrem AHO-Link. Pro Automation $99/Monat. Jederzeit kündbar."
+      "title": "AHO für Immobilienmakler — einmal inserieren, Käufer weltweit erreichen",
+      "description": "Ihr Inserat auf AHO wird automatisch übersetzt, damit Käufer aus jedem Markt es finden. Ihre Social-Media-Posts gehen in Ihrer Hauptsprache raus — ein Klick, jede Plattform, jeder Post verlinkt zurück zu Ihnen. Pro Automation $99/Mon. Jederzeit kündbar."
     },
     "hero": {
       "eyebrow": "Für Immobilienmakler",
@@ -599,8 +599,8 @@
       ]
     },
     "solution": {
-      "heading": "Sprache rein. Zweisprachiges Inserat. 21 Posts. 60 Sekunden.",
-      "body": "AHO ist ein intelligenter Content-Distribution-Hub für Immobilienprofis. Tippen Sie aufs Mikrofon, beschreiben Sie das Objekt in Ihrer eigenen Sprache. Whisper transkribiert, Claude extrahiert die strukturierten Fakten, und Ihr Inserat-Entwurf liegt auf advertisehomes.online, bevor Sie das Auto erreicht haben. Dann erzeugt ein Tipp 21 plattform- und sprachgenau zugeschnittene Social-Posts — Facebook, Instagram, LinkedIn × sieben Sprachen — jeder einzelne mit der URL Ihres AHO-Inserats."
+      "heading": "Sprechen. Für Käufer übersetzt. In Ihrer Sprache veröffentlicht. 60 Sekunden.",
+      "body": "AHO ist ein intelligenter Content-Distribution-Hub für Immobilienprofis. Tippen Sie auf das Mikrofon, sprechen Sie die Immobilie in Ihrer eigenen Sprache. Whisper transkribiert, Claude extrahiert die strukturierten Fakten, und Ihr Inserat-Entwurf ist auf advertisehomes.online, bevor Sie das Auto erreichen. Das Inserat auf der Plattform wird automatisch übersetzt, damit Käufer, die in jeder Sprache suchen, es finden. Dann erzeugt ein Tippen veröffentlichungsbereite Texte für jeden angebundenen Social-Kanal — Facebook, Instagram, LinkedIn — alle in Ihrer Hauptsprache, jeder mit Link zurück zu Ihrem AHO-Inserat."
     },
     "features": {
       "heading": "Drei Dinge, die AHO unterscheiden",
@@ -620,7 +620,7 @@
       ]
     },
     "howItWorks": {
-      "heading": "Von der Sprachnotiz zu 21 Social-Posts in 60 Sekunden",
+      "heading": "Von der Sprachnotiz zum aktiven, übersetzten Inserat in 60 Sekunden",
       "steps": [
         {
           "title": "Sprechen Sie das Objekt ein",
@@ -628,11 +628,11 @@
         },
         {
           "title": "Prüfen und veröffentlichen",
-          "body": "AHO liefert in unter 30 Sekunden einen vorbefüllten Inserat-Entwurf. Bearbeiten Sie, was Sie wollen, fügen Sie Fotos hinzu, drücken Sie Veröffentlichen. Ihr Inserat geht auf advertisehomes.online mit dauerhafter URL live — zweisprachig, wenn beide Sprachen geschrieben sind, einsprachig mit klarer \"Übersetzung folgt\"-Markierung, wenn nicht."
+          "body": "AHO liefert einen vorausgefüllten Inserat-Entwurf in unter 30 Sekunden. Alles bearbeiten, Fotos hinzufügen, Veröffentlichen drücken. Ihr Inserat geht live auf advertisehomes.online und wird automatisch in die Plattform-Sprachen übersetzt, damit Käufer aus anderen Märkten es per Suche entdecken."
         },
         {
-          "title": "21 Social-Posts erzeugen",
-          "body": "Tippen Sie auf \"Social-Posts erzeugen.\" AHO produziert 21 zugeschnittene Varianten — drei Plattformen (Facebook, Instagram, LinkedIn) × sieben Sprachen (EN/ES/PL/PT/DE/FR/IT). Jede Variante respektiert die Zeichenlimits der Plattform, nutzt die Stimme eines lokalen Marketers für die jeweilige Sprache und bettet die URL Ihres AHO-Inserats ein. Heute: kopieren-einfügen; bald: Ein-Klick-Veröffentlichung, sobald Meta App Review die Integration freigibt."
+          "title": "Plattform-optimierte Social-Posts generieren",
+          "body": "Tippen Sie auf \"Social-Posts generieren.\" AHO erzeugt eine plattform-optimierte Variante für jeden angebundenen Kanal — Facebook, Instagram, LinkedIn — alle in Ihrer Hauptsprache (im Profil festgelegt). Jeder Post hält Zeichenlimits ein, nutzt Marketing-Sprache und enthält die URL zu Ihrem AHO-Inserat. Heute Copy-Paste; Ein-Klick-Veröffentlichung sobald Meta die App-Prüfung freigibt."
         }
       ]
     },
@@ -642,7 +642,7 @@
       "period": "/ Monat",
       "features": [
         "Unbegrenzte Inserate, Sprach- + URL- + manueller Import",
-        "21 Social-Post-Varianten pro Inserat (3 Plattformen × 7 Sprachen)",
+        "Ein veröffentlichungsbereiter Text pro angebundenem Social-Kanal, in Ihrer Hauptsprache",
         "Zentraler Lead-Posteingang + Performance-Dashboard pro Inserat",
         "Jederzeit kündbar im Stripe Customer Portal"
       ],
@@ -665,7 +665,7 @@
         },
         {
           "q": "Welche Plattformen werden unterstützt?",
-          "a": "v1 erzeugt Posts für Facebook, Instagram (Feed + Reels) und LinkedIn — drei Plattformen in sieben Sprachen, 21 Varianten pro Inserat. Heute: kopieren-einfügen in Ihre Konten. Bald (nach Meta App Review): Ein-Klick-Veröffentlichung an Facebook-Seite, Instagram Business und WhatsApp Business. TikTok und YouTube Shorts auf der Roadmap."
+          "a": "v1 erstellt Posts für Facebook, Instagram (Feed + Reels) und LinkedIn — ein Post pro angebundenem Kanal, alle in Ihrer Hauptsprache (im Profil festgelegt). Heute: Copy-Paste in Ihre Konten. Bald (nach Meta-Prüfung): Ein-Klick-Veröffentlichung auf Facebook Page, Instagram Business und WhatsApp Business. TikTok und YouTube Shorts sind in der Roadmap."
         },
         {
           "q": "Wo ist AHO im Einsatz?",
@@ -878,7 +878,7 @@
         "Eingesparte Zeit: ~10 Stunden pro Woche, pro Makler",
         "Auto-Veröffentlichung an FB + IG + WhatsApp Business",
         "Ein Posteingang, alle Kanäle",
-        "Unbegrenzte Inserate + Maklerprofil + mehrsprachiges SEO",
+        "Unbegrenzte Inserate + Maklerprofil + mehrsprachige Inserat-Übersetzung",
         "Jederzeit kündbar im Stripe Customer Portal"
       ],
       "cta": "Abonnieren — $99/Monat"
@@ -1378,7 +1378,18 @@
     "addCustomLanguage": "Sprache hinzufügen…",
     "websiteUrl": "Persönliche Webseite",
     "saveChanges": "Änderungen speichern",
-    "saved": "Profil gespeichert."
+    "saved": "Profil gespeichert.",
+    "preferredLanguage": "Hauptsprache für KI-Texte + E-Mails",
+    "preferredLanguageHelp": "Wird für Social-Media-Entwürfe und System-E-Mails verwendet. Unterscheidet sich von der Liste \"Sprachen, die ich spreche\" oben, die für Kunden auf Ihrem öffentlichen Profil sichtbar ist.",
+    "preferredLanguageOption": {
+      "en": "Englisch",
+      "es": "Spanisch",
+      "pl": "Polnisch",
+      "pt": "Portugiesisch",
+      "de": "Deutsch",
+      "fr": "Französisch",
+      "it": "Italienisch"
+    }
   },
   "dangerZone": {
     "heading": "Gefahrenzone",
@@ -1899,7 +1910,7 @@
           "id": "agents-social",
           "title": "Social-Raster und Tonalitäten",
           "body": [
-            "Im Pro Automation zeigt die Social-Seite ein 3 × 7-Raster: drei Plattformen (Facebook, Instagram, LinkedIn) mal sieben Sprachen. Für jede neue Anzeige erzeugt AHO eine plattformspezifische, sprachnahe Variante in jeder Zelle — insgesamt 21 Posts.",
+            "Bei Pro Automation zeigt die Social-Seite eine Reihe plattform-optimierter Post-Entwürfe: Facebook, Instagram, LinkedIn — einer pro angebundenem Kanal. AHO generiert jede Variante in Ihrer Hauptsprache (im Profil festgelegt), abgestimmt auf Tonalität und Zeichenlimit dieser Plattform.",
             "Jede Variante ist editierbar. Sie können je Plattform eine andere Tonalität wählen (warm, sachlich, hype, professionell); wir merken uns Ihre letzte Wahl als Standard für die nächste Anzeige auf dieser Plattform.",
             "Die Posts enthalten den Link zu Ihrer AHO-Anzeige, sodass Anfragen in Ihrem Posteingang ankommen. Bis das Meta App Review durch ist, läuft das Veröffentlichen per Copy-Paste; Ein-Klick-Veröffentlichung schaltet sich automatisch frei, sobald die Freigabe für einen verbundenen Kanal vorliegt."
           ],

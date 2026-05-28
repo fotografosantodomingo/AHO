@@ -42,7 +42,11 @@ const ProfileUpdateSchema = z.object({
     .regex(/^[A-Z]{2}$/)
     .optional()
     .nullable(),
-  preferred_language: z.enum(['en', 'es']).optional(),
+  // 7 locales since 2026-05-28 — was en/es only at launch. The agent's
+  // main social-publish language; platform listings stay multilingual
+  // (translated for buyer-side SEO reach) but each social post fires in
+  // exactly this language. DB CHECK constraint matches via 0081.
+  preferred_language: z.enum(['en', 'es', 'pl', 'pt', 'de', 'fr', 'it']).optional(),
   preferred_currency: z
     .string()
     .trim()

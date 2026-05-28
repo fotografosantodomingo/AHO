@@ -179,7 +179,7 @@
     "howStep1Title": "Assine e crie seu anúncio",
     "howStep1Body": "$29 por mês, cancele quando quiser pelo Portal do Cliente Stripe.",
     "howStep2Title": "Publique seus anúncios",
-    "howStep2Body": "Título, fotos, preço, localização — bilíngue EN/ES. Até 5 anúncios ativos no plano Corretor.",
+    "howStep2Body": "Título, fotos, preço, localização. O AHO publica o anúncio e traduz para compradores que pesquisem noutros idiomas. Até 5 anúncios ativos no plano Agente.",
     "howStep3Title": "Alcance compradores em todo lugar",
     "howStep3Body": "Anúncios são publicados automaticamente no seu perfil AHO, na página da cidade e nos seus canais sociais.",
     "howCta": "Ver preços",
@@ -902,7 +902,18 @@
     "addCustomLanguage": "Adicionar um idioma…",
     "websiteUrl": "Site pessoal",
     "saveChanges": "Salvar alterações",
-    "saved": "Perfil salvo."
+    "saved": "Perfil salvo.",
+    "preferredLanguage": "Idioma principal para IA e e-mails",
+    "preferredLanguageHelp": "Usado nos rascunhos de publicações para redes sociais e nos e-mails do sistema. Diferente da lista \"idiomas que falo\" acima, que aparece para clientes no seu perfil público.",
+    "preferredLanguageOption": {
+      "en": "Inglês",
+      "es": "Espanhol",
+      "pl": "Polaco",
+      "pt": "Português",
+      "de": "Alemão",
+      "fr": "Francês",
+      "it": "Italiano"
+    }
   },
   "dangerZone": {
     "heading": "Zona de risco",
@@ -1357,8 +1368,8 @@
   },
   "forAgents": {
     "meta": {
-      "title": "AHO para corretores de imóveis — da nota de voz a 21 posts sociais com um clique",
-      "description": "Pare de publicar imóveis plataforma por plataforma. Dite uma nota de voz: AHO transforma em anúncio bilíngue e 21 posts sociais ajustados a cada plataforma, todos com seu link AHO. Pro Automation $99/mês. Cancele quando quiser."
+      "title": "AHO para corretores imobiliários — publique uma vez, alcance compradores no mundo todo",
+      "description": "O seu anúncio no AHO é traduzido automaticamente para que compradores de cada mercado o encontrem. As publicações nas redes sociais saem no seu idioma principal — um clique, cada plataforma, todas remetem para si. Pro Automation $99/mês. Cancela quando quiser."
     },
     "hero": {
       "eyebrow": "Para corretores de imóveis",
@@ -1376,8 +1387,8 @@
       ]
     },
     "solution": {
-      "heading": "Voz na entrada. Anúncio bilíngue. 21 posts. 60 segundos.",
-      "body": "AHO é um hub inteligente de distribuição de conteúdo para profissionais imobiliários. Toque no microfone, fale o imóvel no seu idioma. O Whisper transcreve, o Claude extrai os fatos estruturados e o rascunho do seu anúncio aparece em advertisehomes.online antes de você chegar ao carro. Depois, um toque gera 21 posts sociais ajustados — Facebook, Instagram, LinkedIn × sete idiomas — cada um com a URL do seu anúncio AHO embutida."
+      "heading": "Fala. Traduzido para compradores. Publicado no seu idioma. 60 segundos.",
+      "body": "O AHO é um hub inteligente de distribuição de conteúdo para profissionais imobiliários. Toque no microfone, fale o imóvel no seu próprio idioma. O Whisper transcreve, o Claude extrai os dados estruturados, e o seu rascunho do anúncio está em advertisehomes.online antes de chegar ao carro. O anúncio na plataforma é traduzido automaticamente para que compradores que pesquisem em qualquer idioma o encontrem. Depois um toque gera textos prontos para cada plataforma social conectada — Facebook, Instagram, LinkedIn — todos no seu idioma principal, cada um com o link para o seu anúncio no AHO."
     },
     "features": {
       "heading": "Três coisas que tornam a AHO diferente",
@@ -1397,7 +1408,7 @@
       ]
     },
     "howItWorks": {
-      "heading": "De nota de voz a 21 posts sociais em 60 segundos",
+      "heading": "De nota de voz a um anúncio ativo e traduzido em 60 segundos",
       "steps": [
         {
           "title": "Fale o imóvel",
@@ -1405,11 +1416,11 @@
         },
         {
           "title": "Revise e publique",
-          "body": "AHO devolve um rascunho pré-preenchido em menos de 30 segundos. Edite o que quiser, adicione fotos, toque em Publicar. Seu anúncio entra no ar em advertisehomes.online com URL permanente — bilíngue quando os dois idiomas estão escritos, em um idioma com flag clara de \"tradução pendente\" quando não."
+          "body": "O AHO devolve um rascunho preenchido em menos de 30 segundos. Edite o que quiser, adicione fotos, clique em Publicar. O anúncio fica ativo em advertisehomes.online e é traduzido automaticamente para os idiomas da plataforma para que compradores de outros mercados o descubram pela pesquisa."
         },
         {
-          "title": "Gere 21 posts sociais",
-          "body": "Toque em \"Gerar posts sociais.\" AHO produz 21 variantes ajustadas — três plataformas (Facebook, Instagram, LinkedIn) × sete idiomas (EN/ES/PL/PT/DE/FR/IT). Cada variante respeita os limites de caracteres da plataforma, usa a voz de marketer nativo do idioma e embute a URL do seu anúncio AHO. Hoje: copiar e colar; em breve, publicação em um clique assim que a Meta App Review aprovar a integração."
+          "title": "Gerar publicações otimizadas por plataforma",
+          "body": "Toque em \"Gerar publicações sociais.\" O AHO produz uma variante otimizada para cada rede social conectada — Facebook, Instagram, LinkedIn — todas no seu idioma principal (definido no perfil). Cada publicação respeita os limites de caracteres da plataforma, usa voz nativa de marketing e inclui o URL do seu anúncio no AHO. Copie e cole hoje; publicação com um clique assim que a Meta aprovar a revisão."
         }
       ]
     },
@@ -1442,7 +1453,7 @@
         },
         {
           "q": "Quais plataformas vocês suportam?",
-          "a": "v1 gera posts para Facebook, Instagram (feed + Reels) e LinkedIn — três plataformas em sete idiomas, 21 variantes por anúncio. Hoje: copiar e colar nas suas contas. Em breve (após Meta App Review): publicação em um clique para Página Facebook, Instagram Business e WhatsApp Business. TikTok e YouTube Shorts no roadmap."
+          "a": "v1 gera publicações para Facebook, Instagram (feed + Reels) e LinkedIn — uma publicação por plataforma conectada, todas no seu idioma principal (definido no perfil). Hoje: copiar e colar. Em breve (após a revisão da Meta): publicação com um clique no Facebook Page, Instagram Business e WhatsApp Business. TikTok e YouTube Shorts estão no roadmap."
         },
         {
           "q": "Onde a AHO opera?",
@@ -1899,7 +1910,7 @@
           "id": "agents-social",
           "title": "Grade social e tons",
           "body": [
-            "No Pro Automation, a página Social mostra uma grade 3 × 7: três plataformas (Facebook, Instagram, LinkedIn) por sete idiomas. Para cada anúncio novo, o AHO gera uma variante ajustada à plataforma e nativa do idioma em cada célula — 21 posts no total.",
+            "No Pro Automation, a página Social mostra uma linha de rascunhos afinados por plataforma: Facebook, Instagram, LinkedIn — um por rede conectada. O AHO gera cada variante no seu idioma principal (definido no perfil), adaptada ao tom e limite de caracteres dessa plataforma.",
             "Cada variante é editável. Você escolhe um tom diferente (caloroso, factual, hype, profissional) por plataforma; guardamos sua última escolha como padrão para o próximo anúncio nessa plataforma.",
             "Os posts incluem o link do seu anúncio AHO para que os contatos voltem para sua caixa. Até a aprovação no Meta App Review, a publicação é copiar-e-colar; a publicação em um clique liga automaticamente quando a aprovação for concedida em um canal conectado."
           ],
