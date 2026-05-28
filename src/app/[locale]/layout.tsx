@@ -7,8 +7,20 @@ import { LOCALES, type Locale } from '@/i18n/config';
 import { ThemeProvider } from '@/components/theme-provider';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/footer/site-footer';
-import { PwaRegister } from '@/components/pwa-register';
+// `dynamicImport` alias avoids collision with the existing
+// `export const dynamic = 'force-dynamic'` at the bottom of this file
+// (the Next.js Segment Config option, not the runtime helper).
+import dynamicImport from 'next/dynamic';
 import { ConditionalAhoAssistant } from '@/components/chat/conditional-aho-assistant';
+
+// PwaRegister is mount-only side-effect (registers the service worker
+// on production deploys); never renders visible content. Defer it so
+// the small client-component JS doesn't sit in the initial bundle on
+// every page, including /blog where Lighthouse measures the load.
+const PwaRegister = dynamicImport(
+  () => import('@/components/pwa-register').then((m) => ({ default: m.PwaRegister })),
+  { ssr: false, loading: () => null },
+);
 import { JsonLd } from '@/components/seo/JsonLd';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { buildOrganization, buildWebSite, buildGraph } from '@/lib/seo/jsonld';

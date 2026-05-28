@@ -22,8 +22,24 @@
  * the right primitive for that.
  */
 
+import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
-import { AhoAssistantWidget, type AhoAssistantLocale, type AhoAssistantSurface } from './aho-assistant-widget';
+import type { AhoAssistantLocale, AhoAssistantSurface } from './aho-assistant-widget';
+
+// Lazy-load AhoAssistantWidget so its bundle (Web Speech API + chat
+// history + 7-locale COPY object + mode picker — ~280 KB minified)
+// only ships on pages where the widget actually renders. On /blog
+// the skip-check below returns null before the widget mounts, so the
+// chunk is never requested. PO Lighthouse run 2026-05-28 saw Perf 70
+// on /blog because the widget code was in the initial bundle even
+// though it was instantly skipped; this defers it.
+const AhoAssistantWidget = dynamic(
+  () =>
+    import('./aho-assistant-widget').then((m) => ({
+      default: m.AhoAssistantWidget,
+    })),
+  { ssr: false, loading: () => null },
+);
 
 interface Props {
   userLocale: AhoAssistantLocale;
