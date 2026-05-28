@@ -2294,7 +2294,7 @@
   "freeAudit": {
     "eyebrow": "Auditoría gratuita",
     "widgetHeading": "Pega cualquier URL de anuncio — recibe una campaña completa en 60 segundos.",
-    "widgetSub": "Pon un enlace de idealista, otodom, Zillow, Rightmove, ImmoScout, Leboncoin — o cualquier portal. Generaremos 9 captions listos para publicar en Facebook, Instagram y LinkedIn en tres idiomas. Sin registro.",
+    "widgetSub": "Pega un enlace de otodom, idealista, Zillow, Rightmove, ImmoScout, Leboncoin — o cualquier portal. Generaremos 3 textos listos para publicar en Facebook, Instagram y LinkedIn en el idioma que elijas abajo. Sin registro.",
     "inputLabel": "URL del anuncio",
     "inputPlaceholder": "https://www.idealista.com/inmueble/...",
     "submitButton": "Generar mi campaña",
@@ -2312,7 +2312,7 @@
       "internal_error": "Algo salió mal. Vuelve a intentarlo o prueba con otra URL."
     },
     "heading": "Tu campaña IA — lista para publicar",
-    "subheading": "Abajo están los 9 captions que redactamos de tu anuncio — 3 plataformas × 3 idiomas. Regístrate para publicarlos en Facebook + Instagram con un clic.",
+    "subheading": "A continuación 3 textos que redactamos desde tu anuncio — uno por plataforma, en el idioma que elegiste. Regístrate para publicarlos con un clic.",
     "sourceLink": "Abrir anuncio fuente",
     "previewListing": "Tu anuncio",
     "factPrice": "Precio",
@@ -2358,7 +2358,21 @@
       "audit_not_found": "Auditoría no encontrada.",
       "invalid_input": "Selección inválida. Recarga e inténtalo de nuevo.",
       "token_key_not_configured": "La encriptación de tokens no está configurada."
-    }
+    },
+    "targetLocaleLabel": "Idioma de la campaña",
+    "targetLocaleOption": {
+      "en": "Inglés",
+      "es": "Español",
+      "pl": "Polaco",
+      "pt": "Portugués",
+      "de": "Alemán",
+      "fr": "Francés",
+      "it": "Italiano"
+    },
+    "localePt": "Portugués",
+    "localeDe": "Alemán",
+    "localeFr": "Francés",
+    "localeIt": "Italiano"
   },
   "instagramSetup": {
     "metaTitle": "Activa la publicación en Instagram en 5 minutos",
@@ -2502,17 +2516,61 @@
       "notIncluded": "No incluido",
       "featureCol": "Característica",
       "rows": [
-        { "feature": "Número de anuncios", "private": "1 anuncio", "agent": "Ilimitados" },
-        { "feature": "Duración del anuncio", "private": "90 días", "agent": "Activo mientras estés suscrito" },
-        { "feature": "Subtítulos IA en 7 idiomas", "private": true, "agent": true },
-        { "feature": "Gráficos sociales con marca", "private": true, "agent": true },
-        { "feature": "Publicación social — Facebook O Instagram", "private": true, "agent": true },
-        { "feature": "Publicación multicanal (FB + IG + LinkedIn)", "private": false, "agent": true },
-        { "feature": "Bandeja IA con reglas de enrutamiento", "private": false, "agent": true },
-        { "feature": "Página de perfil de agente con marca", "private": false, "agent": true },
-        { "feature": "Reseñas verificadas de clientes", "private": false, "agent": true },
-        { "feature": "Panel de analítica por anuncio", "private": false, "agent": true },
-        { "feature": "Facturación", "private": "Pago único $5", "agent": "Suscripción mensual" }
+        {
+          "feature": "Número de anuncios",
+          "private": "1 anuncio",
+          "agent": "Ilimitados"
+        },
+        {
+          "feature": "Duración del anuncio",
+          "private": "90 días",
+          "agent": "Activo mientras estés suscrito"
+        },
+        {
+          "feature": "Subtítulos IA en 7 idiomas",
+          "private": true,
+          "agent": true
+        },
+        {
+          "feature": "Gráficos sociales con marca",
+          "private": true,
+          "agent": true
+        },
+        {
+          "feature": "Publicación social — Facebook O Instagram",
+          "private": true,
+          "agent": true
+        },
+        {
+          "feature": "Publicación multicanal (FB + IG + LinkedIn)",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Bandeja IA con reglas de enrutamiento",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Página de perfil de agente con marca",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Reseñas verificadas de clientes",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Panel de analítica por anuncio",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Facturación",
+          "private": "Pago único $5",
+          "agent": "Suscripción mensual"
+        }
       ]
     },
     "faq": {

@@ -2286,7 +2286,7 @@
   "freeAudit": {
     "eyebrow": "Bezpłatny audyt",
     "widgetHeading": "Wklej dowolny URL ogłoszenia — odbierz pełną kampanię w 60 sekund.",
-    "widgetSub": "Wrzuć link z Otodom, Idealisty, Zillow, Rightmove, ImmoScout, Leboncoin — lub dowolnego portalu. Wygenerujemy 9 gotowych postów na Facebook, Instagram i LinkedIn w trzech językach. Bez rejestracji.",
+    "widgetSub": "Wklej link z otodom, idealista, Zillow, Rightmove, ImmoScout, Leboncoin — lub dowolnego portalu. Wygenerujemy 3 gotowe do publikacji teksty na Facebooka, Instagrama i LinkedIn w wybranym przez Ciebie języku. Bez rejestracji.",
     "inputLabel": "URL ogłoszenia",
     "inputPlaceholder": "https://www.otodom.pl/pl/oferta/...",
     "submitButton": "Wygeneruj kampanię",
@@ -2304,7 +2304,7 @@
       "internal_error": "Coś poszło nie tak. Spróbuj ponownie lub wklej inny URL."
     },
     "heading": "Twoja kampania AI — gotowa do publikacji",
-    "subheading": "Poniżej 9 postów napisanych z Twojego ogłoszenia — 3 platformy × 3 języki. Zarejestruj się, by opublikować je na Facebook + Instagram jednym kliknięciem.",
+    "subheading": "Poniżej znajdują się 3 teksty wygenerowane z Twojego ogłoszenia — jeden na platformę, w wybranym języku. Zarejestruj się, aby opublikować je jednym kliknięciem.",
     "sourceLink": "Otwórz źródłowe ogłoszenie",
     "previewListing": "Twoje ogłoszenie",
     "factPrice": "Cena",
@@ -2350,7 +2350,21 @@
       "audit_not_found": "Nie znaleziono audytu.",
       "invalid_input": "Nieprawidłowy wybór. Odśwież i spróbuj ponownie.",
       "token_key_not_configured": "Szyfrowanie tokenów nie jest skonfigurowane."
-    }
+    },
+    "targetLocaleLabel": "Język kampanii",
+    "targetLocaleOption": {
+      "en": "angielski",
+      "es": "hiszpański",
+      "pl": "polski",
+      "pt": "portugalski",
+      "de": "niemiecki",
+      "fr": "francuski",
+      "it": "włoski"
+    },
+    "localePt": "portugalski",
+    "localeDe": "niemiecki",
+    "localeFr": "francuski",
+    "localeIt": "włoski"
   },
   "instagramSetup": {
     "metaTitle": "Włącz publikację na Instagramie w 5 minut",
@@ -2494,17 +2508,61 @@
       "notIncluded": "Niezawarte",
       "featureCol": "Funkcja",
       "rows": [
-        { "feature": "Liczba ogłoszeń", "private": "1 ogłoszenie", "agent": "Nielimitowane" },
-        { "feature": "Czas trwania ogłoszenia", "private": "90 dni", "agent": "Aktywne, gdy abonament jest opłacony" },
-        { "feature": "Opisy AI w 7 językach", "private": true, "agent": true },
-        { "feature": "Markowe grafiki społecznościowe", "private": true, "agent": true },
-        { "feature": "Publikacja społeczna — Facebook LUB Instagram", "private": true, "agent": true },
-        { "feature": "Wielokanałowa publikacja (FB + IG + LinkedIn)", "private": false, "agent": true },
-        { "feature": "Skrzynka AI z regułami przypisywania", "private": false, "agent": true },
-        { "feature": "Markowa strona profilu agenta", "private": false, "agent": true },
-        { "feature": "Zweryfikowane opinie klientów", "private": false, "agent": true },
-        { "feature": "Panel analityczny per ogłoszenie", "private": false, "agent": true },
-        { "feature": "Płatność", "private": "Jednorazowe $5", "agent": "Subskrypcja miesięczna" }
+        {
+          "feature": "Liczba ogłoszeń",
+          "private": "1 ogłoszenie",
+          "agent": "Nielimitowane"
+        },
+        {
+          "feature": "Czas trwania ogłoszenia",
+          "private": "90 dni",
+          "agent": "Aktywne, gdy abonament jest opłacony"
+        },
+        {
+          "feature": "Opisy AI w 7 językach",
+          "private": true,
+          "agent": true
+        },
+        {
+          "feature": "Markowe grafiki społecznościowe",
+          "private": true,
+          "agent": true
+        },
+        {
+          "feature": "Publikacja społeczna — Facebook LUB Instagram",
+          "private": true,
+          "agent": true
+        },
+        {
+          "feature": "Wielokanałowa publikacja (FB + IG + LinkedIn)",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Skrzynka AI z regułami przypisywania",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Markowa strona profilu agenta",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Zweryfikowane opinie klientów",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Panel analityczny per ogłoszenie",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Płatność",
+          "private": "Jednorazowe $5",
+          "agent": "Subskrypcja miesięczna"
+        }
       ]
     },
     "faq": {

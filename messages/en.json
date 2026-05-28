@@ -2294,7 +2294,7 @@
   "freeAudit": {
     "eyebrow": "Free audit",
     "widgetHeading": "Paste any listing URL — get a full campaign in 60 seconds.",
-    "widgetSub": "Drop a link from otodom, idealista, Zillow, Rightmove, ImmoScout, Leboncoin — or any portal. We'll generate 9 ready-to-publish captions for Facebook, Instagram and LinkedIn in three languages. No signup.",
+    "widgetSub": "Drop a link from otodom, idealista, Zillow, Rightmove, ImmoScout, Leboncoin — or any portal. We'll generate 3 ready-to-publish captions for Facebook, Instagram and LinkedIn in the language you choose below. No signup.",
     "inputLabel": "Listing URL",
     "inputPlaceholder": "https://www.otodom.pl/pl/oferta/...",
     "submitButton": "Get my campaign",
@@ -2312,7 +2312,7 @@
       "internal_error": "Something went wrong. Try again, or try a different URL."
     },
     "heading": "Your AI campaign — ready to publish",
-    "subheading": "Below are 9 captions we drafted from your listing — 3 platforms × 3 languages. Sign up to publish them on Facebook + Instagram in one click.",
+    "subheading": "Below are 3 captions we drafted from your listing — one per platform, in the language you chose. Sign up to publish them in one click.",
     "sourceLink": "Open source listing",
     "previewListing": "Your listing",
     "factPrice": "Price",
@@ -2358,7 +2358,21 @@
       "audit_not_found": "Audit not found.",
       "invalid_input": "Bad selection. Reload and try again.",
       "token_key_not_configured": "Token encryption isn't configured."
-    }
+    },
+    "targetLocaleLabel": "Campaign language",
+    "targetLocaleOption": {
+      "en": "English",
+      "es": "Spanish",
+      "pl": "Polish",
+      "pt": "Portuguese",
+      "de": "German",
+      "fr": "French",
+      "it": "Italian"
+    },
+    "localePt": "Portuguese",
+    "localeDe": "German",
+    "localeFr": "French",
+    "localeIt": "Italian"
   },
   "instagramSetup": {
     "metaTitle": "Enable Instagram publishing in 5 minutes",
@@ -2502,17 +2516,61 @@
       "notIncluded": "Not included",
       "featureCol": "Feature",
       "rows": [
-        { "feature": "Number of listings", "private": "1 listing", "agent": "Unlimited" },
-        { "feature": "Listing duration", "private": "90 days", "agent": "Active while subscribed" },
-        { "feature": "AI captions in 7 languages", "private": true, "agent": true },
-        { "feature": "Branded social graphics", "private": true, "agent": true },
-        { "feature": "Social publish — Facebook OR Instagram", "private": true, "agent": true },
-        { "feature": "Multi-channel auto-publish (FB + IG + LinkedIn)", "private": false, "agent": true },
-        { "feature": "AI inbox with lead-routing rules", "private": false, "agent": true },
-        { "feature": "Branded agent profile page", "private": false, "agent": true },
-        { "feature": "Verified client reviews", "private": false, "agent": true },
-        { "feature": "Per-listing analytics dashboard", "private": false, "agent": true },
-        { "feature": "Billing", "private": "One-time $5", "agent": "Monthly subscription" }
+        {
+          "feature": "Number of listings",
+          "private": "1 listing",
+          "agent": "Unlimited"
+        },
+        {
+          "feature": "Listing duration",
+          "private": "90 days",
+          "agent": "Active while subscribed"
+        },
+        {
+          "feature": "AI captions in 7 languages",
+          "private": true,
+          "agent": true
+        },
+        {
+          "feature": "Branded social graphics",
+          "private": true,
+          "agent": true
+        },
+        {
+          "feature": "Social publish — Facebook OR Instagram",
+          "private": true,
+          "agent": true
+        },
+        {
+          "feature": "Multi-channel auto-publish (FB + IG + LinkedIn)",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "AI inbox with lead-routing rules",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Branded agent profile page",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Verified client reviews",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Per-listing analytics dashboard",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Billing",
+          "private": "One-time $5",
+          "agent": "Monthly subscription"
+        }
       ]
     },
     "faq": {

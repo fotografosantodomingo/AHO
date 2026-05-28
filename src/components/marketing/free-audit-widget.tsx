@@ -2,19 +2,24 @@
 
 import { useState, type FormEvent } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
+import { LOCALES, type Locale } from '@/i18n/config';
 
 /**
  * Free Audit hero widget — Phase 1 of
  * docs/SUPER_PRO_STAGE_1_PLAN.md.
  *
  * Anonymous visitor pastes a portal listing URL (otodom.pl,
- * idealista.com, zillow.com, ...), hits "Get my campaign". We POST
- * to /api/audit/start which scrapes the source + drafts 9 captions
- * (3 platforms × 3 locales), then redirect to /[locale]/preview/[id].
+ * idealista.com, zillow.com, ...), picks a target language from the
+ * dropdown (defaults to their current page locale), hits "Get my
+ * campaign". We POST to /api/audit/start which scrapes the source +
+ * drafts 3 captions (3 platforms × 1 chosen locale) — was 9 (× 3
+ * locales) before 2026-05-28; PO clarified the agent already knows
+ * their target market, so generating the others wasted ~$0.007/audit
+ * + cluttered the preview. Then we redirect to /[locale]/preview/[id].
  *
  * Heavy lifting — Anthropic round-trips, DB insert — happens in the
- * route handler. This widget only owns the input field, the loading
- * state, and the error-banner rendering.
+ * route handler. This widget only owns the input field, the locale
+ * picker, the loading state, and the error-banner rendering.
  *
  * Failure paths surfaced to the user (mapped from the route's error
  * codes):
@@ -31,6 +36,7 @@ export function FreeAuditWidget() {
   const t = useTranslations('freeAudit');
   const locale = useLocale();
   const [url, setUrl] = useState('');
+  const [targetLocale, setTargetLocale] = useState<Locale>(locale as Locale);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<{
     code: string;
@@ -52,7 +58,7 @@ export function FreeAuditWidget() {
       const res = await fetch('/api/audit/start', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ url: trimmed }),
+        body: JSON.stringify({ url: trimmed, targetLocale }),
       });
       const json = (await res.json()) as
         | { ok: true; auditId: string }
@@ -128,6 +134,34 @@ export function FreeAuditWidget() {
             >
               {submitting ? `${t('submitLoading')}…` : t('submitButton')}
             </button>
+          </div>
+
+          {/* Target-language picker. The agent always knows what
+              language they'll publish in; the previous 3-locale fanout
+              (en/es/pl) cluttered the preview with content they'd
+              never use. Defaults to the agent's current page locale —
+              an agent browsing /pl/for-agents almost always wants
+              Polish output. They can override before submitting. */}
+          <div className="flex flex-col gap-1 sm:max-w-sm">
+            <label
+              htmlFor="audit-target-locale"
+              className="text-xs font-semibold uppercase tracking-wide text-helper"
+            >
+              {t('targetLocaleLabel')}
+            </label>
+            <select
+              id="audit-target-locale"
+              value={targetLocale}
+              onChange={(e) => setTargetLocale(e.target.value as Locale)}
+              disabled={submitting}
+              className="h-11 rounded-lg border border-border-strong bg-surface px-3 text-sm text-ink shadow-whisper focus:border-action focus:outline-none focus:ring-2 focus:ring-action/30 disabled:opacity-50 dark:bg-surface-deep dark:text-ink-inverse"
+            >
+              {LOCALES.map((l) => (
+                <option key={l} value={l}>
+                  {t(`targetLocaleOption.${l}` as 'targetLocaleOption.en')}
+                </option>
+              ))}
+            </select>
           </div>
 
           {submitting && (

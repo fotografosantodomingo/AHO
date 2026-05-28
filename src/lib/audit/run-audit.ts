@@ -35,18 +35,32 @@ const HAIKU_MODEL = 'claude-haiku-4-5-20251001';
  * partial captions still render on the preview page.
  */
 
-/** Locales we draft captions in for the Free Audit preview. Per the
- *  plan's Phase 1 deliverable: "9 captions = 3 platforms × 3 locales
- *  (EN / ES / PL)". PL drafts currently fall back to EN content per
- *  the drafter's `narrowContentLocale` rule — Phase 5 (Multilingual
- *  Context Engine) replaces that with real per-market PL prompts. */
-export const AUDIT_DRAFT_LOCALES: readonly Locale[] = ['en', 'es', 'pl'] as const;
+/** Locales the agent can pick as the target language for a Free Audit.
+ *  Single locale per audit since 2026-05-28 (PO directive) — was a
+ *  fanout of 3 (en/es/pl) which wasted ~$0.01/audit + showed the agent
+ *  languages they wouldn't publish in. The dropdown defaults to the
+ *  agent's current page locale; they can switch before submitting. */
+export const AUDIT_TARGET_LOCALES: readonly Locale[] = [
+  'en',
+  'es',
+  'pl',
+  'pt',
+  'de',
+  'fr',
+  'it',
+] as const;
 
-export type AuditDraftLocale = (typeof AUDIT_DRAFT_LOCALES)[number];
+export type AuditTargetLocale = (typeof AUDIT_TARGET_LOCALES)[number];
 
 export interface AuditResult {
   facts: ImportedFacts;
-  drafts: Record<AuditDraftLocale, DrafterResult>;
+  /** Drafts keyed by the agent's chosen target locale. Exactly one
+   *  entry as of 2026-05-28; preview iterates `Object.keys(drafts)` so
+   *  pre-migration audits with 3-locale fanouts still render. */
+  drafts: Partial<Record<Locale, DrafterResult>>;
+  /** The locale the agent picked. Persisted to ai_audits.target_locale
+   *  so the preview page can render the matching single-locale block. */
+  targetLocale: AuditTargetLocale;
   usage: { inputTokens: number; outputTokens: number };
   /** Per-Anthropic-call cost rows the caller should flush to
    *  ai_generation_log AFTER inserting the ai_audits row. We can't
@@ -82,6 +96,10 @@ export async function runAudit(args: {
    *  handler after runAudit returns. Optional for backward compat;
    *  when omitted the logs land with audit_id=NULL. */
   auditId?: string;
+  /** Agent-chosen target locale for captions + title + creative
+   *  overlay. Required since 2026-05-28 — was a fixed 3-locale fanout
+   *  before. Validated by the route handler against AUDIT_TARGET_LOCALES. */
+  targetLocale: AuditTargetLocale;
 }): Promise<AuditResult> {
   const importResult = await importFromUrl({ url: args.url });
   const facts = importResult.facts;
@@ -108,69 +126,69 @@ export async function runAudit(args: {
   let inputTokens = importResult.usage.inputTokens;
   let outputTokens = importResult.usage.outputTokens;
 
-  // Pick title per locale — facts.titleEn / titleEs come from the
-  // import step (Claude already translated). For PL we fall back to EN
-  // because the importer doesn't translate to PL today.
-  function titleFor(locale: AuditDraftLocale): string {
-    if (locale === 'es') return facts.titleEs ?? facts.titleEn ?? 'Listing';
+  // Pick the title for the agent's chosen target locale. For EN/ES the
+  // importer already wrote both columns; for PL/PT/DE/FR/IT we fall
+  // back to the EN title — the drafter prompt is per-market and will
+  // adapt the caption tone regardless, and the title is rendered as
+  // a label, not as ad copy, so EN-as-fallback reads as acceptable.
+  // (A real Claude-translated title is a Phase 2 polish item; the
+  // single Haiku call cost would be ~$0.0002 so it's noise, but it's
+  // an extra round-trip we can defer until users ask for it.)
+  function titleForTarget(): string {
+    if (args.targetLocale === 'es') return facts.titleEs ?? facts.titleEn ?? 'Listing';
     return facts.titleEn ?? facts.titleEs ?? 'Listing';
   }
 
-  const drafts = {} as Record<AuditDraftLocale, DrafterResult>;
+  const drafts: Partial<Record<Locale, DrafterResult>> = {};
 
-  // Sequential rather than parallel. Three locales × ~3-4 KB of JSON
-  // payload per call would otherwise burst Anthropic's rate limiter
-  // for cold accounts. Total wall time ≈ 6-9s, which still keeps the
-  // whole audit under the 60s acceptance bar in the plan.
-  for (const locale of AUDIT_DRAFT_LOCALES) {
-    const priceCents = facts.priceCents ?? 0;
-    const currency = facts.currency ?? 'USD';
-    const priceFormatted =
-      priceCents > 0 ? formatPrice(priceCents, currency, locale) : '';
+  const priceCents = facts.priceCents ?? 0;
+  const currency = facts.currency ?? 'USD';
+  const priceFormatted =
+    priceCents > 0 ? formatPrice(priceCents, currency, args.targetLocale) : '';
 
-    // city + countryDisplay are required strings on PostInput/DrafterInput
-    // even though the source might be missing them; pass empty so the
-    // drafter prompt's "omit null fields" rule kicks in cleanly.
-    const startedAt = Date.now();
-    const result = await generateDrafts(
-      {
-        title: titleFor(locale),
-        city: facts.city ?? '',
-        countryDisplay: facts.countryCode ?? '',
-        priceCents,
-        currency,
-        priceFormatted,
-        bedrooms: facts.bedrooms ?? null,
-        bathrooms: facts.bathrooms ?? null,
-        areaSqm: facts.areaSqm ?? null,
-        url: args.url,
-        locale,
-      },
-      ['facebook', 'instagram', 'linkedin'],
-      args.apiKey,
-    );
-    const latencyMs = Date.now() - startedAt;
-    drafts[locale] = result;
-    if (result.usage) {
-      inputTokens += result.usage.inputTokens;
-      outputTokens += result.usage.outputTokens;
-    }
-    // Buffer for post-insert flush — see note at the audit_import push above.
-    pendingLogs.push({
-      auditId: args.auditId ?? null,
-      purpose: 'audit_draft',
-      model: HAIKU_MODEL,
-      market: localeToMarket(locale),
-      inputTokens: result.usage?.inputTokens ?? 0,
-      outputTokens: result.usage?.outputTokens ?? 0,
-      latencyMs,
-      errorCode: result.errorCode ?? null,
-    });
+  // Single drafter call for the agent's chosen target locale. Was a
+  // 3-locale fanout (en/es/pl) before 2026-05-28; PO clarified the
+  // agent always knows what language they'll publish in, so generating
+  // the other two wastes ~$0.007/audit and clutters the preview.
+  const startedAt = Date.now();
+  const result = await generateDrafts(
+    {
+      title: titleForTarget(),
+      city: facts.city ?? '',
+      countryDisplay: facts.countryCode ?? '',
+      priceCents,
+      currency,
+      priceFormatted,
+      bedrooms: facts.bedrooms ?? null,
+      bathrooms: facts.bathrooms ?? null,
+      areaSqm: facts.areaSqm ?? null,
+      url: args.url,
+      locale: args.targetLocale,
+    },
+    ['facebook', 'instagram', 'linkedin'],
+    args.apiKey,
+  );
+  const latencyMs = Date.now() - startedAt;
+  drafts[args.targetLocale] = result;
+  if (result.usage) {
+    inputTokens += result.usage.inputTokens;
+    outputTokens += result.usage.outputTokens;
   }
+  pendingLogs.push({
+    auditId: args.auditId ?? null,
+    purpose: 'audit_draft',
+    model: HAIKU_MODEL,
+    market: localeToMarket(args.targetLocale),
+    inputTokens: result.usage?.inputTokens ?? 0,
+    outputTokens: result.usage?.outputTokens ?? 0,
+    latencyMs,
+    errorCode: result.errorCode ?? null,
+  });
 
   return {
     facts,
     drafts,
+    targetLocale: args.targetLocale,
     usage: { inputTokens, outputTokens },
     pendingLogs,
   };

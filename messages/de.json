@@ -2246,7 +2246,7 @@
   "freeAudit": {
     "eyebrow": "Kostenlose Analyse",
     "widgetHeading": "Beliebige Inserat-URL einfügen — komplette Kampagne in 60 Sekunden.",
-    "widgetSub": "Link aus ImmoScout24, Idealista, Zillow, Rightmove, Otodom, Leboncoin — oder einem beliebigen Portal. Wir erstellen 9 publikationsbereite Captions für Facebook, Instagram und LinkedIn in drei Sprachen. Keine Anmeldung.",
+    "widgetSub": "Fügen Sie einen Link von otodom, idealista, Zillow, Rightmove, ImmoScout, Leboncoin oder einem beliebigen Portal ein. Wir erstellen 3 veröffentlichungsbereite Anzeigentexte für Facebook, Instagram und LinkedIn in der unten gewählten Sprache. Keine Anmeldung.",
     "inputLabel": "Inserat-URL",
     "inputPlaceholder": "https://www.immobilienscout24.de/expose/...",
     "submitButton": "Meine Kampagne erhalten",
@@ -2264,7 +2264,7 @@
       "internal_error": "Etwas ist schiefgelaufen. Erneut versuchen oder andere URL einfügen."
     },
     "heading": "Ihre KI-Kampagne — bereit zur Veröffentlichung",
-    "subheading": "Unten sind die 9 Captions, die wir aus Ihrem Inserat verfasst haben — 3 Plattformen × 3 Sprachen. Melden Sie sich an, um sie mit einem Klick auf Facebook + Instagram zu veröffentlichen.",
+    "subheading": "Unten finden Sie 3 Texte, die wir aus Ihrem Inserat entworfen haben — einen pro Plattform, in der gewählten Sprache. Registrieren Sie sich, um sie mit einem Klick zu veröffentlichen.",
     "sourceLink": "Quellinserat öffnen",
     "previewListing": "Ihr Inserat",
     "factPrice": "Preis",
@@ -2310,7 +2310,21 @@
       "audit_not_found": "Analyse nicht gefunden.",
       "invalid_input": "Ungültige Auswahl. Bitte neu laden und erneut versuchen.",
       "token_key_not_configured": "Token-Verschlüsselung ist nicht konfiguriert."
-    }
+    },
+    "targetLocaleLabel": "Kampagnensprache",
+    "targetLocaleOption": {
+      "en": "Englisch",
+      "es": "Spanisch",
+      "pl": "Polnisch",
+      "pt": "Portugiesisch",
+      "de": "Deutsch",
+      "fr": "Französisch",
+      "it": "Italienisch"
+    },
+    "localePt": "Portugiesisch",
+    "localeDe": "Deutsch",
+    "localeFr": "Französisch",
+    "localeIt": "Italienisch"
   },
   "instagramSetup": {
     "metaTitle": "Instagram-Veröffentlichung in 5 Minuten aktivieren",
@@ -2454,17 +2468,61 @@
       "notIncluded": "Nicht enthalten",
       "featureCol": "Funktion",
       "rows": [
-        { "feature": "Anzahl Inserate", "private": "1 Inserat", "agent": "Unbegrenzt" },
-        { "feature": "Inseratsdauer", "private": "90 Tage", "agent": "Aktiv während des Abos" },
-        { "feature": "KI-Texte in 7 Sprachen", "private": true, "agent": true },
-        { "feature": "Markenkonforme Social-Grafiken", "private": true, "agent": true },
-        { "feature": "Social-Veröffentlichung — Facebook ODER Instagram", "private": true, "agent": true },
-        { "feature": "Multi-Channel-Veröffentlichung (FB + IG + LinkedIn)", "private": false, "agent": true },
-        { "feature": "KI-Inbox mit Lead-Routing", "private": false, "agent": true },
-        { "feature": "Markenkonforme Makler-Profilseite", "private": false, "agent": true },
-        { "feature": "Verifizierte Kundenbewertungen", "private": false, "agent": true },
-        { "feature": "Analyse-Dashboard pro Inserat", "private": false, "agent": true },
-        { "feature": "Abrechnung", "private": "Einmalig $5", "agent": "Monatliches Abo" }
+        {
+          "feature": "Anzahl Inserate",
+          "private": "1 Inserat",
+          "agent": "Unbegrenzt"
+        },
+        {
+          "feature": "Inseratsdauer",
+          "private": "90 Tage",
+          "agent": "Aktiv während des Abos"
+        },
+        {
+          "feature": "KI-Texte in 7 Sprachen",
+          "private": true,
+          "agent": true
+        },
+        {
+          "feature": "Markenkonforme Social-Grafiken",
+          "private": true,
+          "agent": true
+        },
+        {
+          "feature": "Social-Veröffentlichung — Facebook ODER Instagram",
+          "private": true,
+          "agent": true
+        },
+        {
+          "feature": "Multi-Channel-Veröffentlichung (FB + IG + LinkedIn)",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "KI-Inbox mit Lead-Routing",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Markenkonforme Makler-Profilseite",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Verifizierte Kundenbewertungen",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Analyse-Dashboard pro Inserat",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Abrechnung",
+          "private": "Einmalig $5",
+          "agent": "Monatliches Abo"
+        }
       ]
     },
     "faq": {

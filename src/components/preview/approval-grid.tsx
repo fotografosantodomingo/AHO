@@ -27,7 +27,7 @@ import type { DrafterResult } from '@/lib/social/ai-drafter';
  * whole submission as failed.
  */
 
-type Locale = 'en' | 'es' | 'pl';
+type Locale = 'en' | 'es' | 'pl' | 'pt' | 'de' | 'fr' | 'it';
 type Platform = 'facebook' | 'instagram' | 'linkedin';
 
 interface PublishedResult {
@@ -61,7 +61,11 @@ interface Props {
    *  /dashboard/social fallback path so Connect → bounces back to
    *  this exact preview after OAuth completes. */
   locale: 'en' | 'es' | 'pl' | 'pt' | 'de' | 'fr' | 'it';
-  drafts: Record<Locale, DrafterResult>;
+  /** Drafts keyed by locale. Since 2026-05-28 has exactly one entry
+   *  (the agent-chosen target locale persisted on ai_audits.target_locale);
+   *  pre-migration audits have up to 3 (en/es/pl fanout). The grid
+   *  renders rows for whatever keys are present. */
+  drafts: Partial<Record<Locale, DrafterResult>>;
   publishedResults: PublishedResult[];
   /** Per-platform connection state (Phase 4 slice 4d / easier OAuth UX).
    *  When a platform isn't connected, the grid surfaces an inline
@@ -70,12 +74,23 @@ interface Props {
   connections: PlatformConnection[];
 }
 
-const LOCALES: Locale[] = ['en', 'es', 'pl'];
 const PLATFORMS: Platform[] = ['facebook', 'instagram', 'linkedin'];
-const LOCALE_LABEL_KEY: Record<Locale, 'localeEn' | 'localeEs' | 'localePl'> = {
+type LocaleLabelKey =
+  | 'localeEn'
+  | 'localeEs'
+  | 'localePl'
+  | 'localePt'
+  | 'localeDe'
+  | 'localeFr'
+  | 'localeIt';
+const LOCALE_LABEL_KEY: Record<Locale, LocaleLabelKey> = {
   en: 'localeEn',
   es: 'localeEs',
   pl: 'localePl',
+  pt: 'localePt',
+  de: 'localeDe',
+  fr: 'localeFr',
+  it: 'localeIt',
 };
 
 function cellKey(locale: Locale, platform: Platform): string {
@@ -376,7 +391,7 @@ export function ApprovalGrid({
             </tr>
           </thead>
           <tbody>
-            {LOCALES.map((loc) => (
+            {(Object.keys(drafts) as Locale[]).map((loc) => (
               <tr key={loc} className="rounded-lg bg-surface">
                 <td className="rounded-l-lg px-3 py-3 font-medium">
                   {t(LOCALE_LABEL_KEY[loc])}

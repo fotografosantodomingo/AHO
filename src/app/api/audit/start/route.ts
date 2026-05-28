@@ -2,7 +2,11 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { serverEnv } from '@/lib/env';
-import { runAudit, flushAuditLogs } from '@/lib/audit/run-audit';
+import {
+  runAudit,
+  flushAuditLogs,
+  AUDIT_TARGET_LOCALES,
+} from '@/lib/audit/run-audit';
 import { checkRateLimit } from '@/lib/rate-limit/kv';
 
 export const runtime = 'edge';
@@ -36,6 +40,12 @@ export const runtime = 'edge';
 
 const BodySchema = z.object({
   url: z.string().url('Must be a valid URL').max(2048),
+  // Agent-chosen target language for the captions + creative overlay +
+  // title. Required since 2026-05-28 (PO directive). Validated against
+  // the 7-locale set; widget defaults to the agent's current page locale.
+  targetLocale: z.enum(
+    AUDIT_TARGET_LOCALES as readonly string[] as [string, ...string[]],
+  ),
 });
 
 type ErrorCode =
@@ -111,6 +121,7 @@ export async function POST(req: NextRequest) {
       url: body.url,
       apiKey: env.ANTHROPIC_API_KEY,
       auditId,
+      targetLocale: body.targetLocale as (typeof AUDIT_TARGET_LOCALES)[number],
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
@@ -140,6 +151,7 @@ export async function POST(req: NextRequest) {
       id: auditId,
       source_url: body.url,
       source_locale: auditResult.facts.detectedLanguage,
+      target_locale: auditResult.targetLocale,
       facts: auditResult.facts,
       drafts: auditResult.drafts,
       input_tokens: auditResult.usage.inputTokens,

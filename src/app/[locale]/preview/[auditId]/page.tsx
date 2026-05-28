@@ -69,7 +69,7 @@ export default async function PreviewPage({
   const admin = createAdminClient();
   const { data: audit } = await admin
     .from('ai_audits')
-    .select('id, source_url, facts, drafts, created_at, expires_at, claimed_by_user_id, published_results')
+    .select('id, source_url, facts, drafts, target_locale, created_at, expires_at, claimed_by_user_id, published_results')
     .eq('id', auditId)
     .maybeSingle();
 
@@ -164,8 +164,19 @@ export default async function PreviewPage({
   }
 
   const facts = audit.facts as ImportedFacts;
-  const drafts = audit.drafts as Record<'en' | 'es' | 'pl', DrafterResult>;
+  // `drafts` is keyed by locale. Since 2026-05-28 there's exactly one
+  // entry (the agent-chosen target locale, persisted on
+  // ai_audits.target_locale). Pre-migration rows have 3 entries
+  // (en/es/pl); we iterate Object.keys() so both shapes render.
+  const drafts = (audit.drafts ?? {}) as Partial<Record<Locale, DrafterResult>>;
   const publishedResults = (audit.published_results as PublishedResult[] | null) ?? [];
+  // Resolve the locale this audit was generated for. New rows have
+  // target_locale set; old rows fall back to whatever drafts keys
+  // exist (preferring the URL locale, then EN as last resort).
+  const draftKeys = Object.keys(drafts) as Locale[];
+  const auditTargetLocale: Locale =
+    (audit.target_locale as Locale | null) ??
+    (draftKeys.includes(typedLocale) ? typedLocale : draftKeys[0] ?? 'en');
 
   // Connection state for the approval grid (Phase 4 slice 4d /
   // "easier OAuth UX"). When owner = self, pull their ad_platform_tokens
@@ -215,10 +226,14 @@ export default async function PreviewPage({
   const t = await getTranslations({ locale, namespace: 'freeAudit' });
   const signupHref = localePath(typedLocale, '/signup');
 
-  // Title — prefer the user's locale, fall back across the available
-  // facts.titleEn / titleEs (importer always writes both).
+  // Title — prefer the audit's target locale (the agent's choice when
+  // they submitted the URL). For ES we have a translated column from
+  // the importer; for EN we have the canonical column; PL/PT/DE/FR/IT
+  // fall back to EN until the importer learns to translate the title
+  // for the agent's target market (Phase 2 polish — single Haiku call
+  // adds ~$0.0002/audit, deferred as not blocking the UX win).
   const title =
-    (typedLocale === 'es' ? facts.titleEs : facts.titleEn) ??
+    (auditTargetLocale === 'es' ? facts.titleEs : facts.titleEn) ??
     facts.titleEn ??
     facts.titleEs ??
     t('previewListing');
@@ -242,11 +257,21 @@ export default async function PreviewPage({
     { key: 'linkedin', label: 'LinkedIn', emoji: '💼' },
   ];
 
-  const draftLocales: Array<{ key: 'en' | 'es' | 'pl'; label: string }> = [
-    { key: 'en', label: t('localeEn') },
-    { key: 'es', label: t('localeEs') },
-    { key: 'pl', label: t('localePl') },
-  ];
+  // Captions block iterates whatever locale keys the audit actually
+  // has — exactly one for new audits (target_locale chosen by the
+  // agent), up to 3 for pre-migration ones (en/es/pl fanout).
+  const draftLocaleLabels: Record<Locale, string> = {
+    en: t('localeEn'),
+    es: t('localeEs'),
+    pl: t('localePl'),
+    pt: t('localePt' as 'localeEn'),
+    de: t('localeDe' as 'localeEn'),
+    fr: t('localeFr' as 'localeEn'),
+    it: t('localeIt' as 'localeEn'),
+  };
+  const draftLocales: Array<{ key: Locale; label: string }> = draftKeys.map(
+    (k) => ({ key: k, label: draftLocaleLabels[k] }),
+  );
 
   return (
     // Force-light theme on the preview page — this is a marketing /
@@ -365,7 +390,7 @@ export default async function PreviewPage({
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={`/api/audit/${auditId}/creative/${fmt}?locale=${typedLocale}`}
+                src={`/api/audit/${auditId}/creative/${fmt}?locale=${auditTargetLocale}`}
                 alt={t(`creativeAlt.${fmt}` as 'creativeAlt.fb')}
                 loading="lazy"
                 className="block w-full bg-surface-muted"
@@ -373,7 +398,7 @@ export default async function PreviewPage({
               <figcaption className="flex items-center justify-between px-3 py-2 text-xs text-helper">
                 <span>{t(`creativeLabel.${fmt}` as 'creativeLabel.fb')}</span>
                 <a
-                  href={`/api/audit/${auditId}/creative/${fmt}?locale=${typedLocale}`}
+                  href={`/api/audit/${auditId}/creative/${fmt}?locale=${auditTargetLocale}`}
                   download={`aho-${fmt}.png`}
                   className="font-medium text-action underline-offset-2 hover:underline"
                 >

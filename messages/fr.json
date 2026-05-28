@@ -2246,7 +2246,7 @@
   "freeAudit": {
     "eyebrow": "Audit gratuit",
     "widgetHeading": "Collez n'importe quelle URL d'annonce — une campagne complète en 60 secondes.",
-    "widgetSub": "Mettez un lien depuis Leboncoin, SeLoger, Idealista, Zillow, Rightmove, ImmoScout — ou tout portail. Nous générons 9 légendes prêtes à publier pour Facebook, Instagram et LinkedIn dans trois langues. Sans inscription.",
+    "widgetSub": "Collez un lien d'otodom, idealista, Zillow, Rightmove, ImmoScout, Leboncoin — ou de n'importe quel portail. Nous générerons 3 textes prêts à publier pour Facebook, Instagram et LinkedIn dans la langue que vous choisissez ci-dessous. Sans inscription.",
     "inputLabel": "URL de l'annonce",
     "inputPlaceholder": "https://www.leboncoin.fr/ad/...",
     "submitButton": "Obtenir ma campagne",
@@ -2264,7 +2264,7 @@
       "internal_error": "Quelque chose s'est mal passé. Réessayez ou collez une autre URL."
     },
     "heading": "Votre campagne IA — prête à publier",
-    "subheading": "Voici les 9 légendes que nous avons rédigées de votre annonce — 3 plateformes × 3 langues. Inscrivez-vous pour les publier sur Facebook + Instagram en un clic.",
+    "subheading": "Ci-dessous, 3 textes rédigés à partir de votre annonce — un par plateforme, dans la langue choisie. Inscrivez-vous pour les publier en un clic.",
     "sourceLink": "Ouvrir l'annonce source",
     "previewListing": "Votre annonce",
     "factPrice": "Prix",
@@ -2310,7 +2310,21 @@
       "audit_not_found": "Audit introuvable.",
       "invalid_input": "Sélection invalide. Rechargez et réessayez.",
       "token_key_not_configured": "Le chiffrement des jetons n'est pas configuré."
-    }
+    },
+    "targetLocaleLabel": "Langue de la campagne",
+    "targetLocaleOption": {
+      "en": "Anglais",
+      "es": "Espagnol",
+      "pl": "Polonais",
+      "pt": "Portugais",
+      "de": "Allemand",
+      "fr": "Français",
+      "it": "Italien"
+    },
+    "localePt": "Portugais",
+    "localeDe": "Allemand",
+    "localeFr": "Français",
+    "localeIt": "Italien"
   },
   "instagramSetup": {
     "metaTitle": "Activez la publication Instagram en 5 minutes",
@@ -2454,17 +2468,61 @@
       "notIncluded": "Non inclus",
       "featureCol": "Fonctionnalité",
       "rows": [
-        { "feature": "Nombre d'annonces", "private": "1 annonce", "agent": "Illimité" },
-        { "feature": "Durée de l'annonce", "private": "90 jours", "agent": "Active tant que l'abonnement est en cours" },
-        { "feature": "Légendes IA en 7 langues", "private": true, "agent": true },
-        { "feature": "Visuels sociaux brandés", "private": true, "agent": true },
-        { "feature": "Publication sociale — Facebook OU Instagram", "private": true, "agent": true },
-        { "feature": "Publication multicanale (FB + IG + LinkedIn)", "private": false, "agent": true },
-        { "feature": "Boîte IA avec règles de routage", "private": false, "agent": true },
-        { "feature": "Page de profil d'agent personnalisée", "private": false, "agent": true },
-        { "feature": "Avis clients vérifiés", "private": false, "agent": true },
-        { "feature": "Tableau de bord d'analyse par annonce", "private": false, "agent": true },
-        { "feature": "Facturation", "private": "5 $ unique", "agent": "Abonnement mensuel" }
+        {
+          "feature": "Nombre d'annonces",
+          "private": "1 annonce",
+          "agent": "Illimité"
+        },
+        {
+          "feature": "Durée de l'annonce",
+          "private": "90 jours",
+          "agent": "Active tant que l'abonnement est en cours"
+        },
+        {
+          "feature": "Légendes IA en 7 langues",
+          "private": true,
+          "agent": true
+        },
+        {
+          "feature": "Visuels sociaux brandés",
+          "private": true,
+          "agent": true
+        },
+        {
+          "feature": "Publication sociale — Facebook OU Instagram",
+          "private": true,
+          "agent": true
+        },
+        {
+          "feature": "Publication multicanale (FB + IG + LinkedIn)",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Boîte IA avec règles de routage",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Page de profil d'agent personnalisée",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Avis clients vérifiés",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Tableau de bord d'analyse par annonce",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Facturation",
+          "private": "5 $ unique",
+          "agent": "Abonnement mensuel"
+        }
       ]
     },
     "faq": {

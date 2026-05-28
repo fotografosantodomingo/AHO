@@ -2246,7 +2246,7 @@
   "freeAudit": {
     "eyebrow": "Audit gratuito",
     "widgetHeading": "Incolla qualsiasi URL di annuncio — campagna completa in 60 secondi.",
-    "widgetSub": "Metti un link da Immobiliare.it, idealista, Zillow, Rightmove, ImmoScout, Leboncoin — o qualsiasi portale. Genereremo 9 didascalie pronte per Facebook, Instagram e LinkedIn in tre lingue. Senza registrazione.",
+    "widgetSub": "Incolla un link da otodom, idealista, Zillow, Rightmove, ImmoScout, Leboncoin — o da qualunque portale. Genereremo 3 testi pronti da pubblicare su Facebook, Instagram e LinkedIn nella lingua che scegli qui sotto. Senza registrazione.",
     "inputLabel": "URL dell'annuncio",
     "inputPlaceholder": "https://www.immobiliare.it/annunci/...",
     "submitButton": "Ottieni la mia campagna",
@@ -2264,7 +2264,7 @@
       "internal_error": "Qualcosa è andato storto. Riprova o incolla un altro URL."
     },
     "heading": "La tua campagna IA — pronta da pubblicare",
-    "subheading": "Qui sotto le 9 didascalie che abbiamo scritto dal tuo annuncio — 3 piattaforme × 3 lingue. Registrati per pubblicarle su Facebook + Instagram con un clic.",
+    "subheading": "Di seguito 3 testi redatti dal tuo annuncio — uno per piattaforma, nella lingua che hai scelto. Registrati per pubblicarli con un clic.",
     "sourceLink": "Apri annuncio sorgente",
     "previewListing": "Il tuo annuncio",
     "factPrice": "Prezzo",
@@ -2310,7 +2310,21 @@
       "audit_not_found": "Audit non trovato.",
       "invalid_input": "Selezione non valida. Ricarica e riprova.",
       "token_key_not_configured": "La crittografia dei token non è configurata."
-    }
+    },
+    "targetLocaleLabel": "Lingua della campagna",
+    "targetLocaleOption": {
+      "en": "Inglese",
+      "es": "Spagnolo",
+      "pl": "Polacco",
+      "pt": "Portoghese",
+      "de": "Tedesco",
+      "fr": "Francese",
+      "it": "Italiano"
+    },
+    "localePt": "Portoghese",
+    "localeDe": "Tedesco",
+    "localeFr": "Francese",
+    "localeIt": "Italiano"
   },
   "instagramSetup": {
     "metaTitle": "Attiva la pubblicazione su Instagram in 5 minuti",
@@ -2454,17 +2468,61 @@
       "notIncluded": "Non incluso",
       "featureCol": "Funzionalità",
       "rows": [
-        { "feature": "Numero di annunci", "private": "1 annuncio", "agent": "Illimitati" },
-        { "feature": "Durata dell'annuncio", "private": "90 giorni", "agent": "Attivo mentre l'abbonamento è in corso" },
-        { "feature": "Caption IA in 7 lingue", "private": true, "agent": true },
-        { "feature": "Grafiche social brandizzate", "private": true, "agent": true },
-        { "feature": "Pubblicazione social — Facebook O Instagram", "private": true, "agent": true },
-        { "feature": "Pubblicazione multicanale (FB + IG + LinkedIn)", "private": false, "agent": true },
-        { "feature": "Casella IA con regole di routing", "private": false, "agent": true },
-        { "feature": "Pagina profilo agente brandizzata", "private": false, "agent": true },
-        { "feature": "Recensioni clienti verificate", "private": false, "agent": true },
-        { "feature": "Dashboard di analisi per annuncio", "private": false, "agent": true },
-        { "feature": "Fatturazione", "private": "5 $ una tantum", "agent": "Abbonamento mensile" }
+        {
+          "feature": "Numero di annunci",
+          "private": "1 annuncio",
+          "agent": "Illimitati"
+        },
+        {
+          "feature": "Durata dell'annuncio",
+          "private": "90 giorni",
+          "agent": "Attivo mentre l'abbonamento è in corso"
+        },
+        {
+          "feature": "Caption IA in 7 lingue",
+          "private": true,
+          "agent": true
+        },
+        {
+          "feature": "Grafiche social brandizzate",
+          "private": true,
+          "agent": true
+        },
+        {
+          "feature": "Pubblicazione social — Facebook O Instagram",
+          "private": true,
+          "agent": true
+        },
+        {
+          "feature": "Pubblicazione multicanale (FB + IG + LinkedIn)",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Casella IA con regole di routing",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Pagina profilo agente brandizzata",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Recensioni clienti verificate",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Dashboard di analisi per annuncio",
+          "private": false,
+          "agent": true
+        },
+        {
+          "feature": "Fatturazione",
+          "private": "5 $ una tantum",
+          "agent": "Abbonamento mensile"
+        }
       ]
     },
     "faq": {
