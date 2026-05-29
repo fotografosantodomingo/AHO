@@ -1128,7 +1128,14 @@
       }
     },
     "passwordShow": "Pokaż hasło",
-    "passwordHide": "Ukryj hasło"
+    "passwordHide": "Ukryj hasło",
+    "resendEmailCta": "Wyślij ponownie e-mail z potwierdzeniem",
+    "resendingEmail": "Wysyłanie…",
+    "resendEmailSent": "Nowy link potwierdzający jest w drodze. Sprawdź skrzynkę za chwilę.",
+    "resendEmailError": "Nie udało się ponownie wysłać. Spróbuj za chwilę.",
+    "resendEmailCooldown": "Możesz wysłać ponownie za {seconds}s",
+    "wrongEmailHint": "Zły adres e-mail?",
+    "wrongEmailCta": "Zacznij od nowa"
   },
   "savedSearches": {
     "heading": "Zapisane wyszukiwania",

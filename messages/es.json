@@ -1190,7 +1190,14 @@
       }
     },
     "passwordShow": "Mostrar contraseña",
-    "passwordHide": "Ocultar contraseña"
+    "passwordHide": "Ocultar contraseña",
+    "resendEmailCta": "Reenviar correo de confirmación",
+    "resendingEmail": "Enviando…",
+    "resendEmailSent": "Te enviamos un nuevo enlace de confirmación. Revisa tu bandeja en un momento.",
+    "resendEmailError": "No se pudo reenviar ahora. Inténtalo de nuevo en un momento.",
+    "resendEmailCooldown": "Puedes reenviar en {seconds}s",
+    "wrongEmailHint": "¿Correo equivocado?",
+    "wrongEmailCta": "Empezar de nuevo"
   },
   "savedSearches": {
     "heading": "Búsquedas guardadas",

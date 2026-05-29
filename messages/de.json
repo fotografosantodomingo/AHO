@@ -390,7 +390,14 @@
       }
     },
     "passwordShow": "Passwort anzeigen",
-    "passwordHide": "Passwort ausblenden"
+    "passwordHide": "Passwort ausblenden",
+    "resendEmailCta": "Bestätigungs-E-Mail erneut senden",
+    "resendingEmail": "Wird gesendet…",
+    "resendEmailSent": "Ein neuer Bestätigungslink ist unterwegs. Prüfen Sie Ihren Posteingang gleich.",
+    "resendEmailError": "Erneutes Senden gerade nicht möglich. Bitte gleich noch einmal versuchen.",
+    "resendEmailCooldown": "Erneut senden in {seconds}s möglich",
+    "wrongEmailHint": "Falsche E-Mail-Adresse?",
+    "wrongEmailCta": "Neu beginnen"
   },
   "priceTile": {
     "approximateInLabel": "Etwa {value} in Ihrer gewählten Währung"

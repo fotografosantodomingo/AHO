@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
@@ -37,11 +37,66 @@ export function SignUpForm() {
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
   const [pwnedError, setPwnedError] = useState<boolean>(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  // Post-submit "check your email" screen state — gives the user a
+  // way out when the confirmation email doesn't arrive (typo'd email,
+  // delivery delay, spam folder). 30s cooldown between attempts is
+  // defense against accidental double-clicks AND against a bad actor
+  // grinding the resend endpoint to harass an inbox.
+  const [resendState, setResendState] = useState<'idle' | 'sending' | 'sent' | 'error'>(
+    'idle',
+  );
+  const [resendCooldownSec, setResendCooldownSec] = useState(0);
   const turnstileRequired = isTurnstileConfigured();
   const turnstileRef = useRef<TurnstileWidgetHandle | null>(null);
 
   const onCaptchaToken = useCallback((token: string) => setCaptchaToken(token), []);
   const onCaptchaExpire = useCallback(() => setCaptchaToken(null), []);
+
+  // 1-second-tick countdown that drives the resend button's cooldown
+  // copy. Only runs when there's actually time remaining; idle-state
+  // cleanup happens on unmount.
+  useEffect(() => {
+    if (resendCooldownSec <= 0) return;
+    const id = setTimeout(() => setResendCooldownSec((s) => Math.max(0, s - 1)), 1000);
+    return () => clearTimeout(id);
+  }, [resendCooldownSec]);
+
+  const handleResend = useCallback(async () => {
+    if (!submittedEmail) return;
+    if (resendCooldownSec > 0) return;
+    if (resendState === 'sending') return;
+    setResendState('sending');
+    const supabase = getSupabaseBrowserClient();
+    // Mirror the original signup's emailRedirectTo so the confirmation
+    // link lands in the same /auth/callback?next=/dashboard flow.
+    const dashPath = localePath(locale as Locale, '/dashboard');
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: submittedEmail,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(dashPath)}`,
+      },
+    });
+    if (error) {
+      // Supabase's user-facing message ("Email rate limit exceeded",
+      // "User already confirmed") is bounded + safe to surface.
+      console.error('[signup] resend failed', error);
+      setResendState('error');
+      return;
+    }
+    setResendState('sent');
+    setResendCooldownSec(30);
+  }, [submittedEmail, resendCooldownSec, resendState, locale]);
+
+  const handleStartOver = useCallback(() => {
+    setSubmittedEmail(null);
+    setResendState('idle');
+    setResendCooldownSec(0);
+    setServerError(null);
+    setPwnedError(false);
+    setCaptchaToken(null);
+    turnstileRef.current?.reset();
+  }, []);
 
   const {
     register,
@@ -99,11 +154,53 @@ export function SignUpForm() {
   }
 
   if (submittedEmail) {
+    const resendLabel =
+      resendCooldownSec > 0
+        ? t('resendEmailCooldown', { seconds: String(resendCooldownSec) })
+        : resendState === 'sending'
+          ? t('resendingEmail')
+          : t('resendEmailCta');
+    const resendDisabled = resendState === 'sending' || resendCooldownSec > 0;
     return (
-      <div role="status" className="space-y-3">
+      <div role="status" className="space-y-4">
         <h2 className="text-xl font-semibold">{t('checkYourEmailHeading')}</h2>
         <p className="text-sm text-helper">
           {t('checkYourEmailBody', { email: submittedEmail })}
+        </p>
+        {/* Resend confirmation — defends against typo'd emails + slow
+            delivery + spam folder. 30s cooldown enforced client-side
+            to discourage accidental abuse; Supabase also enforces a
+            server-side rate limit per email. */}
+        <div className="space-y-2">
+          <button
+            type="button"
+            onClick={handleResend}
+            disabled={resendDisabled}
+            className="text-sm font-medium text-action underline-offset-2 hover:underline disabled:opacity-50 disabled:no-underline dark:text-action-dark"
+          >
+            {resendLabel}
+          </button>
+          {resendState === 'sent' && (
+            <p className="text-xs text-helper">{t('resendEmailSent')}</p>
+          )}
+          {resendState === 'error' && (
+            <p className="text-xs text-red-700 dark:text-red-300">
+              {t('resendEmailError')}
+            </p>
+          )}
+        </div>
+        {/* Way out for a typo'd email — returns to the empty signup
+            form. The captcha token is one-shot so we reset Turnstile
+            here too. */}
+        <p className="border-t border-border pt-3 text-xs text-helper">
+          {t('wrongEmailHint')}{' '}
+          <button
+            type="button"
+            onClick={handleStartOver}
+            className="text-action underline-offset-2 hover:underline dark:text-action-dark"
+          >
+            {t('wrongEmailCta')}
+          </button>
         </p>
       </div>
     );

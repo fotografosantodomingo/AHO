@@ -1149,7 +1149,14 @@
       }
     },
     "passwordShow": "Mostra password",
-    "passwordHide": "Nascondi password"
+    "passwordHide": "Nascondi password",
+    "resendEmailCta": "Rinvia e-mail di conferma",
+    "resendingEmail": "Invio…",
+    "resendEmailSent": "Un nuovo link di conferma è in arrivo. Controlla la posta tra poco.",
+    "resendEmailError": "Impossibile rinviare ora. Riprova tra poco.",
+    "resendEmailCooldown": "Puoi rinviare tra {seconds}s",
+    "wrongEmailHint": "E-mail sbagliata?",
+    "wrongEmailCta": "Ricomincia"
   },
   "savedSearches": {
     "heading": "Ricerche salvate",

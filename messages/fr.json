@@ -390,7 +390,14 @@
       }
     },
     "passwordShow": "Afficher le mot de passe",
-    "passwordHide": "Masquer le mot de passe"
+    "passwordHide": "Masquer le mot de passe",
+    "resendEmailCta": "Renvoyer l'e-mail de confirmation",
+    "resendingEmail": "Envoi…",
+    "resendEmailSent": "Un nouveau lien de confirmation est en route. Vérifiez votre boîte dans un instant.",
+    "resendEmailError": "Impossible de renvoyer pour le moment. Réessayez dans un instant.",
+    "resendEmailCooldown": "Vous pouvez renvoyer dans {seconds}s",
+    "wrongEmailHint": "Mauvaise adresse e-mail ?",
+    "wrongEmailCta": "Recommencer"
   },
   "priceTile": {
     "approximateInLabel": "Environ {value} dans votre devise sélectionnée"

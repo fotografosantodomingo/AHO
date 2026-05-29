@@ -1190,7 +1190,14 @@
       }
     },
     "passwordShow": "Show password",
-    "passwordHide": "Hide password"
+    "passwordHide": "Hide password",
+    "resendEmailCta": "Resend confirmation email",
+    "resendingEmail": "Sending…",
+    "resendEmailSent": "A new confirmation link is on its way. Check your inbox in a moment.",
+    "resendEmailError": "Couldn't resend right now. Try again in a moment.",
+    "resendEmailCooldown": "You can resend in {seconds}s",
+    "wrongEmailHint": "Wrong email?",
+    "wrongEmailCta": "Start over"
   },
   "savedSearches": {
     "heading": "Saved searches",
