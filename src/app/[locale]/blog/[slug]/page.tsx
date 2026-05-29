@@ -74,6 +74,13 @@ interface SiblingRow {
 // /for-agents uses, so the agent's journey is read → try → sign up.
 // One copy per locale: per-market voice matters here as much as in
 // the article body itself.
+// End-of-article Free Audit CTA copy. Per PO directive 2026-05-28
+// (strategic-concept clarification): the Free Audit produces ONE
+// caption per connected platform (3 max — Facebook + Instagram +
+// LinkedIn), in the agent's chosen language only. Previous copy
+// promised "9 ad captions + 3 graphics" which was the 3-platforms-×-
+// 3-languages fanout we retired in commit 716cfa9. Don't reintroduce
+// "9 captions" / "3 languages" framing here or anywhere else.
 const FREE_AUDIT_CTA: Record<
   Locale,
   { eyebrow: string; headline: string; body: string; button: string; ariaLabel: string }
@@ -81,49 +88,49 @@ const FREE_AUDIT_CTA: Record<
   en: {
     eyebrow: 'Free in 60 seconds',
     headline: 'Try this on your own listing',
-    body: 'Paste your listing URL — get 9 ad captions + 3 graphics ready to publish on Facebook, Instagram, and LinkedIn. No signup to see the preview.',
+    body: 'Paste your listing URL, pick your language, and we draft 3 ready-to-publish captions — one for Facebook, Instagram, and LinkedIn, all linking back to your AHO listing. No signup to see the preview.',
     button: 'Get my free audit',
     ariaLabel: 'Free Audit call to action',
   },
   es: {
     eyebrow: 'Gratis en 60 segundos',
     headline: 'Pruébalo con tu propio anuncio',
-    body: 'Pega la URL de tu propiedad — obtén 9 textos publicitarios + 3 gráficos listos para publicar en Facebook, Instagram y LinkedIn. Sin registro para ver la vista previa.',
+    body: 'Pega la URL de tu propiedad, elige tu idioma y redactamos 3 textos listos para publicar — uno para Facebook, Instagram y LinkedIn, todos enlazando a tu anuncio en AHO. Sin registro para ver la vista previa.',
     button: 'Obtener mi auditoría gratis',
     ariaLabel: 'Llamada a la acción de auditoría gratis',
   },
   pl: {
     eyebrow: 'Bezpłatnie w 60 sekund',
     headline: 'Wypróbuj to na własnej ofercie',
-    body: 'Wklej URL swojej oferty — otrzymasz 9 tekstów reklamowych + 3 grafiki gotowe do publikacji na Facebooku, Instagramie i LinkedIn. Bez rejestracji do podglądu.',
+    body: 'Wklej URL swojej oferty, wybierz język, a my przygotujemy 3 gotowe do publikacji teksty — po jednym na Facebooka, Instagrama i LinkedIn, wszystkie z linkiem do Twojej oferty w AHO. Bez rejestracji do podglądu.',
     button: 'Pobierz mój bezpłatny audyt',
     ariaLabel: 'Wezwanie do bezpłatnego audytu',
   },
   pt: {
     eyebrow: 'Grátis em 60 segundos',
     headline: 'Experimente no seu próprio anúncio',
-    body: 'Cole o URL do seu anúncio — obtenha 9 textos publicitários + 3 gráficos prontos para publicar no Facebook, Instagram e LinkedIn. Sem registo para ver a pré-visualização.',
+    body: 'Cole o URL do seu anúncio, escolha o idioma e redigimos 3 textos prontos a publicar — um para Facebook, Instagram e LinkedIn, todos com o link para o seu anúncio no AHO. Sem registo para ver a pré-visualização.',
     button: 'Obter a minha auditoria grátis',
     ariaLabel: 'Chamada para auditoria grátis',
   },
   de: {
     eyebrow: 'Kostenlos in 60 Sekunden',
     headline: 'Testen Sie es mit Ihrem eigenen Inserat',
-    body: 'Inserat-URL einfügen — Sie erhalten 9 Anzeigentexte + 3 Grafiken, bereit zur Veröffentlichung auf Facebook, Instagram und LinkedIn. Kein Login für die Vorschau erforderlich.',
+    body: 'Inserat-URL einfügen, Sprache wählen — wir entwerfen 3 veröffentlichungsbereite Texte: je einen für Facebook, Instagram und LinkedIn, alle mit Link zu Ihrem AHO-Inserat. Kein Login für die Vorschau erforderlich.',
     button: 'Meinen kostenlosen Audit holen',
     ariaLabel: 'Kostenlose Audit-Handlungsaufforderung',
   },
   fr: {
     eyebrow: 'Gratuit en 60 secondes',
     headline: 'Essayez sur votre propre annonce',
-    body: 'Collez l’URL de votre annonce — recevez 9 textes publicitaires + 3 visuels prêts à publier sur Facebook, Instagram et LinkedIn. Sans inscription pour voir l’aperçu.',
+    body: 'Collez l’URL de votre annonce, choisissez votre langue, et nous rédigeons 3 textes prêts à publier — un pour Facebook, Instagram et LinkedIn, tous avec le lien vers votre annonce AHO. Sans inscription pour voir l’aperçu.',
     button: 'Obtenir mon audit gratuit',
     ariaLabel: 'Appel à l’action d’audit gratuit',
   },
   it: {
     eyebrow: 'Gratis in 60 secondi',
     headline: 'Provalo sul tuo annuncio',
-    body: 'Incolla l’URL del tuo annuncio — ottieni 9 testi pubblicitari + 3 grafiche pronte da pubblicare su Facebook, Instagram e LinkedIn. Nessuna registrazione per vedere l’anteprima.',
+    body: 'Incolla l’URL del tuo annuncio, scegli la lingua e redigeremo 3 testi pronti da pubblicare — uno per Facebook, Instagram e LinkedIn, tutti con il link al tuo annuncio AHO. Nessuna registrazione per vedere l’anteprima.',
     button: 'Ottieni il mio audit gratuito',
     ariaLabel: 'Invito all’azione per audit gratuito',
   },

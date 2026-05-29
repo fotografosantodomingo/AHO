@@ -17,7 +17,8 @@ export const runtime = 'edge';
  * Phase 1 of docs/SUPER_PRO_STAGE_1_PLAN.md — the Free Audit entry
  * point. Anonymous body: {url}. Returns {auditId} on success; the
  * client redirects to /[locale]/preview/[auditId] which renders the
- * 9 captions + listing facts.
+ * 3 captions (one per social platform, in the agent-chosen language)
+ * + listing facts.
  *
  * Pipeline:
  *   1. Validate URL

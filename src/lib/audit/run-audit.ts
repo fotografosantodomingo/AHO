@@ -19,9 +19,10 @@ const HAIKU_MODEL = 'claude-haiku-4-5-20251001';
  *
  * Returns:
  *   - facts: the listing data extracted from the source URL
- *   - drafts: 3 locales × 3 platforms = 9 captions (some may be null
- *             if Haiku failed for a given platform; the preview page
- *             surfaces that as "AI unavailable — try again")
+ *   - drafts: 1 chosen locale × 3 platforms = 3 captions (some may
+ *             be null if Haiku failed for a given platform; the preview
+ *             page surfaces that as "AI unavailable — try again").
+ *             Was 3-locale fanout pre-2026-05-28 — see commit 716cfa9.
  *   - usage: total input/output tokens across all drafter calls so
  *            /api/audit/start can write them to ai_audits for unit
  *            economics (target ≤ $0.30/audit per the plan).

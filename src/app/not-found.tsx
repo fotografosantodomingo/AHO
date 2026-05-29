@@ -56,7 +56,7 @@ export default function GlobalNotFound() {
               Paste your listing URL. Get a full ad campaign in 60 seconds.
             </h2>
             <p className="mt-2 text-sm text-slate-700 dark:text-slate-300 md:text-base">
-              9 captions + 3 graphics ready for Facebook, Instagram, and LinkedIn. Free, no signup.
+              3 ready-to-publish captions in the language you choose — one for Facebook, Instagram, and LinkedIn. Free, no signup.
             </p>
             <div className="mt-4">
               <Link

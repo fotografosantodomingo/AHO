@@ -6,6 +6,10 @@ interface Props {
   locale: Locale;
 }
 
+// PO directive 2026-05-28: Free Audit emits ONE caption per connected
+// social platform (3: FB/IG/LinkedIn) in the agent's chosen language.
+// Old copy said "9 ad captions + 3 graphics" — that was the 3-platforms-
+// × 3-languages fanout retired in commit 716cfa9. Don't reintroduce.
 const COPY: Record<
   Locale,
   { eyebrow: string; headline: string; sub: string; button: string }
@@ -13,43 +17,43 @@ const COPY: Record<
   en: {
     eyebrow: 'For real estate agents',
     headline: 'Paste your listing URL. Get a full ad campaign in 60 seconds.',
-    sub: '9 ad captions + 3 graphics, ready to publish on Facebook, Instagram, and LinkedIn. No signup to see the preview.',
+    sub: '3 ready-to-publish captions — one for Facebook, Instagram, and LinkedIn — in the language you choose, all linking back to your AHO listing. No signup to see the preview.',
     button: 'Try free audit',
   },
   es: {
     eyebrow: 'Para agentes inmobiliarios',
     headline: 'Pega la URL de tu anuncio. Recibe una campaña completa en 60 segundos.',
-    sub: '9 textos publicitarios + 3 gráficos, listos para publicar en Facebook, Instagram y LinkedIn. Sin registro para ver la vista previa.',
+    sub: '3 textos listos para publicar — uno para Facebook, Instagram y LinkedIn — en el idioma que elijas, todos enlazando a tu anuncio en AHO. Sin registro para ver la vista previa.',
     button: 'Probar gratis',
   },
   pl: {
     eyebrow: 'Dla agentów nieruchomości',
     headline: 'Wklej URL swojej oferty. Otrzymaj pełną kampanię reklamową w 60 sekund.',
-    sub: '9 tekstów reklamowych + 3 grafiki, gotowe do publikacji na Facebooku, Instagramie i LinkedIn. Bez rejestracji do podglądu.',
+    sub: '3 gotowe do publikacji teksty — po jednym na Facebooka, Instagrama i LinkedIn — w wybranym przez Ciebie języku, każdy z linkiem do Twojej oferty w AHO. Bez rejestracji do podglądu.',
     button: 'Wypróbuj bezpłatnie',
   },
   pt: {
     eyebrow: 'Para agentes imobiliários',
     headline: 'Cole o URL do seu anúncio. Obtenha uma campanha completa em 60 segundos.',
-    sub: '9 textos publicitários + 3 gráficos, prontos para publicar no Facebook, Instagram e LinkedIn. Sem registo para ver a pré-visualização.',
+    sub: '3 textos prontos a publicar — um para Facebook, Instagram e LinkedIn — no idioma que escolher, todos com o link para o seu anúncio no AHO. Sem registo para ver a pré-visualização.',
     button: 'Experimentar grátis',
   },
   de: {
     eyebrow: 'Für Immobilienmakler',
     headline: 'Inserat-URL einfügen. Komplette Anzeigenkampagne in 60 Sekunden.',
-    sub: '9 Anzeigentexte + 3 Grafiken, bereit zur Veröffentlichung auf Facebook, Instagram und LinkedIn. Kein Login für die Vorschau.',
+    sub: '3 veröffentlichungsbereite Texte — je einer für Facebook, Instagram und LinkedIn — in der von Ihnen gewählten Sprache, alle mit Link zu Ihrem AHO-Inserat. Kein Login für die Vorschau.',
     button: 'Kostenlos testen',
   },
   fr: {
     eyebrow: 'Pour les agents immobiliers',
     headline: 'Collez l’URL de votre annonce. Recevez une campagne publicitaire complète en 60 secondes.',
-    sub: '9 textes publicitaires + 3 visuels, prêts à publier sur Facebook, Instagram et LinkedIn. Sans inscription pour voir l’aperçu.',
+    sub: '3 textes prêts à publier — un pour Facebook, Instagram et LinkedIn — dans la langue que vous choisissez, tous avec le lien vers votre annonce AHO. Sans inscription pour voir l’aperçu.',
     button: 'Essayer gratuitement',
   },
   it: {
     eyebrow: 'Per agenti immobiliari',
     headline: 'Incolla l’URL del tuo annuncio. Ottieni una campagna pubblicitaria completa in 60 secondi.',
-    sub: '9 testi pubblicitari + 3 grafiche, pronti da pubblicare su Facebook, Instagram e LinkedIn. Nessuna registrazione per vedere l’anteprima.',
+    sub: '3 testi pronti da pubblicare — uno per Facebook, Instagram e LinkedIn — nella lingua che scegli, tutti con il link al tuo annuncio AHO. Nessuna registrazione per vedere l’anteprima.',
     button: 'Prova gratis',
   },
 };

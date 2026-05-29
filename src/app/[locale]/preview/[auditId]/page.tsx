@@ -48,7 +48,7 @@ export const metadata: Metadata = {
  * Shows:
  *   - Listing facts (title, price, beds/baths, area, city)
  *   - Up to 3 hero photos
- *   - 3 platforms × 3 locales = 9 captions
+ *   - 3 platforms × 1 chosen locale = 3 captions (per agent's choice)
  *   - Single CTA: "Sign up to publish these on Facebook + Instagram in 1 click"
  *
  * Phase 2 will add the Creative Factory grid (FB 1200×630 / IG 1080² /

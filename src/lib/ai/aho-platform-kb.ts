@@ -361,7 +361,7 @@ const KB_EN: AhoPlatformKb = {
       id: 'free_audit',
       name: 'Free Audit (paste URL → AI campaign)',
       description:
-        'Anonymous visitors paste any listing URL on /for-agents → ~60s later get AI captions in 3 platforms × 3 locales = 9 ready posts.',
+        'Anonymous visitors paste any listing URL on /for-agents and pick their target language → in ~30s they get 3 ready-to-publish AI captions (one per platform: Facebook, Instagram, LinkedIn) in the chosen language. Hook for agent signups.',
       tierGated: 'free',
       howToShortDescription: 'Visit /for-agents, paste your URL, submit.',
       relatedDocsUrl: '/for-agents',
@@ -486,8 +486,8 @@ const KB_EN: AhoPlatformKb = {
       audience: 'agent',
       steps: [
         'Open /for-agents (no signup needed).',
-        'Paste any listing URL.',
-        '~60s later: preview with facts + 9 captions (3 platforms × 3 locales).',
+        'Paste any listing URL and pick your target language from the dropdown.',
+        '~30s later: preview with listing facts + 3 captions (one per platform: Facebook, Instagram, LinkedIn) in the language you chose. Free, no signup.',
       ],
       tipsAndCaveats: [
         'Anonymous limit: 5 audits/hour per IP.',
@@ -906,7 +906,7 @@ const KB_ES: AhoPlatformKb = {
       id: 'free_audit',
       name: 'Auditoría Gratis (pega URL → campaña IA)',
       description:
-        'Los visitantes anónimos pegan una URL en /para-agentes → 60 segundos después tienen subtítulos IA en 3 plataformas × 3 idiomas = 9 publicaciones listas. Gancho para registrar agentes.',
+        'Los visitantes anónimos pegan una URL en /para-agentes y eligen su idioma → en ~30 segundos obtienen 3 textos publicitarios listos (uno por plataforma: Facebook, Instagram, LinkedIn) en ese idioma. Gancho para registrar agentes.',
       tierGated: 'free',
       howToShortDescription: 'Visita /para-agentes, pega tu URL, envía.',
       relatedDocsUrl: '/for-agents',
