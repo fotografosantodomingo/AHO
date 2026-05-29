@@ -48,6 +48,23 @@
 
 ---
 
+### 10. Post-signup routing — wizard or pricing wall?
+
+**Question:** Where should a free signup land AFTER they click the email confirmation link?
+
+**Why I'm asking:** Surfaced during the 2026-05-29 first-agent-experience walk-through. `/onboarding/welcome` already exists and is a fully built soft wizard (profile basics → social connect → first-listing CTA, every step Skip-able, incremental PUTs to `/api/me/profile`). BUT it's currently only reached from Stripe Checkout's `success_url`. Direct signups have `emailRedirectTo` wired to `/dashboard`, which then bounces non-subscribers to `/pricing`. So a free signup goes straight from "check your email" → "pick a plan" with no warm-up.
+
+**Options:**
+- **A — Route signup confirmation to `/onboarding/welcome`.** Wizard introduces AHO, asks for name/city/phone, lets them connect socials, suggests their first listing, with `/pricing` CTAs woven throughout. Softer first impression, more hops to revenue gate. My recommendation for the first-agent-experience theme — a recruited DR agent's first 10 minutes should feel like "let me show you around" not "pay now."
+- **B — Keep current behavior (straight to /pricing).** Pushier, fewer steps, may convert slightly faster. The wizard would then be Stripe-only — fine as-is.
+- **C — A/B test it.** Defer.
+
+**Deadline:** Before Founding 50 outreach goes wide. If the first wave of recruited agents lands on `/pricing` cold, the wedge is wasted.
+
+**Action you take:** Reply with the letter; I flip the `emailRedirectTo` in `src/components/auth/sign-up-form.tsx:79` (one-line change) and update PROGRESS.md.
+
+---
+
 ### 9. CF Pages Cache Rule — same as #6 but it's been open for a week
 
 **Question:** Did you already apply the rule per #6 below? If not, just bumping it because homepage rendering at ~1.9s is a real conversion drag.
