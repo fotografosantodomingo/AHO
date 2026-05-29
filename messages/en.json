@@ -1188,7 +1188,9 @@
         "resendCooldown": "Please wait a moment before requesting another code.",
         "generic": "Something went wrong. Please try again."
       }
-    }
+    },
+    "passwordShow": "Show password",
+    "passwordHide": "Hide password"
   },
   "savedSearches": {
     "heading": "Saved searches",

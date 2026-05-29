@@ -16,6 +16,7 @@ import {
   type TurnstileWidgetHandle,
 } from './turnstile-widget';
 import { GoogleSignInButton } from './google-signin-button';
+import { PasswordInput } from '@/components/forms/password-input';
 // LinkedInSignInButton temporarily hidden — see sign-in-form.tsx for context.
 // import { LinkedInSignInButton } from './linkedin-signin-button';
 
@@ -153,9 +154,8 @@ export function SignUpForm() {
         <label htmlFor="password" className="block text-sm font-medium">
           {t('password')}
         </label>
-        <input
+        <PasswordInput
           id="password"
-          type="password"
           autoComplete="new-password"
           required
           aria-invalid={errors.password || pwnedError ? 'true' : undefined}

@@ -388,7 +388,9 @@
         "resendCooldown": "Patiente un instant avant de demander un autre code.",
         "generic": "Une erreur s’est produite. Réessaie."
       }
-    }
+    },
+    "passwordShow": "Afficher le mot de passe",
+    "passwordHide": "Masquer le mot de passe"
   },
   "priceTile": {
     "approximateInLabel": "Environ {value} dans votre devise sélectionnée"

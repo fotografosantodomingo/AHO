@@ -1126,7 +1126,9 @@
         "resendCooldown": "Poczekaj chwilę przed kolejną próbą.",
         "generic": "Coś poszło nie tak. Spróbuj ponownie."
       }
-    }
+    },
+    "passwordShow": "Pokaż hasło",
+    "passwordHide": "Ukryj hasło"
   },
   "savedSearches": {
     "heading": "Zapisane wyszukiwania",

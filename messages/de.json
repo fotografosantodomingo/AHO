@@ -388,7 +388,9 @@
         "resendCooldown": "Bitte warte einen Moment, bevor du einen neuen Code anforderst.",
         "generic": "Etwas ist schiefgelaufen. Bitte versuche es erneut."
       }
-    }
+    },
+    "passwordShow": "Passwort anzeigen",
+    "passwordHide": "Passwort ausblenden"
   },
   "priceTile": {
     "approximateInLabel": "Etwa {value} in Ihrer gewählten Währung"

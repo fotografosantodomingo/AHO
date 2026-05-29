@@ -13,6 +13,7 @@ import {
 } from './turnstile-widget';
 import { DeviceVerificationStep } from './device-verification-step';
 import { GoogleSignInButton } from './google-signin-button';
+import { PasswordInput } from '@/components/forms/password-input';
 // LinkedInSignInButton temporarily hidden — LinkedIn dev app authorized
 // redirect URLs not yet saved in the LinkedIn dashboard. The button +
 // underlying provider config (Supabase external_linkedin_oidc_enabled)
@@ -179,9 +180,8 @@ export function SignInForm({ next = '/' }: SignInFormProps) {
         <label htmlFor="password" className="block text-sm font-medium">
           {t('password')}
         </label>
-        <input
+        <PasswordInput
           id="password"
-          type="password"
           autoComplete="current-password"
           required
           aria-invalid={errors.password ? 'true' : undefined}

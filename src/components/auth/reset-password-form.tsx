@@ -10,6 +10,7 @@ import { localePath } from '@/i18n/routing';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { ResetPasswordSchema, type ResetPasswordInput } from '@/lib/auth/schemas';
 import { isPasswordPwned } from '@/lib/auth/hibp';
+import { PasswordInput } from '@/components/forms/password-input';
 
 const inputClass =
   'mt-1 block w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm shadow-whisper outline-hidden focus:ring-3 focus:ring-action dark:bg-surface-deep dark:focus:ring-action-dark';
@@ -218,9 +219,8 @@ export function ResetPasswordForm() {
         <label htmlFor="password" className="block text-sm font-medium">
           {tReset('newPassword')}
         </label>
-        <input
+        <PasswordInput
           id="password"
-          type="password"
           autoComplete="new-password"
           required
           aria-invalid={errors.password ? 'true' : undefined}

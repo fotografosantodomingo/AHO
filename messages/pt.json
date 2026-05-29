@@ -1147,7 +1147,9 @@
         "resendCooldown": "Aguarda um momento antes de pedir outro código.",
         "generic": "Algo correu mal. Tenta de novo."
       }
-    }
+    },
+    "passwordShow": "Mostrar palavra-passe",
+    "passwordHide": "Ocultar palavra-passe"
   },
   "savedSearches": {
     "heading": "Buscas salvas",

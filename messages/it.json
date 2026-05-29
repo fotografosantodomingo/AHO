@@ -1147,7 +1147,9 @@
         "resendCooldown": "Attendi un momento prima di richiedere un altro codice.",
         "generic": "Qualcosa è andato storto. Riprova."
       }
-    }
+    },
+    "passwordShow": "Mostra password",
+    "passwordHide": "Nascondi password"
   },
   "savedSearches": {
     "heading": "Ricerche salvate",
