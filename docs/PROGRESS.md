@@ -12,6 +12,13 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-06-07 (cont.) — INCIDENT: 10-day silent deploy outage found + fixed
+- **What happened:** PO noticed "no deployments in Cloudflare." Investigated via CF API: `aho-web` last deployed **2026-05-28** — the live site had been frozen for ~10 days. Root cause: commit `3ac7184` put a `next/dynamic(..., { ssr: false })` in the **Server Component** root layout, which Next 15 forbids → `next build` fails. Pre-push gates (typecheck/lint/test/write-safety) don't run a real build, so it shipped green and the deploy step failed silently in CI ever since. ALL work since 05-28 (signup resend, password toggle, copy fixes, SEO Phase 0/1) was never live.
+- **Fix:** moved the ssr:false import into a Client wrapper (`src/components/pwa-register-lazy.tsx`); `pnpm pages:build` then succeeds. **Manually deployed** via wrangler with the valid `.env.local` CF token → restored prod with all 10 days of work + SEO Phase 0/1. Verified live: market snapshot on country hubs, "Explore markets" on /countries, flagship countries in sitemap.
+- **Prevention:** added **Gate 5 (`pnpm build`)** to the pre-push hook (+ sources `.env.local`) — this exact class can't slip through again. Logged in DECISIONS.
+- **Also fixed:** the `cityLanding.emptyBody` "9 ad captions + 3 graphics" regression ×7 locales (countryLanding was fixed earlier; cityLanding was missed) → one-language framing. Verified 0 occurrences on prod.
+- **Second open failure (PO):** GH Actions `CLOUDFLARE_API_TOKEN` secret is expired → push-to-deploy stays dead until rotated (PO_DECISIONS #11). Until then, deploys are manual.
+
 ## 2026-06-07 (cont.) — SEO cold-start Phase 1: flagship country hubs (real-data market snapshot)
 - **What shipped (deployed):** Migrations 0079–0082 APPLIED to prod; ingest ran → 250 countries + 246 capitals + 210 GDP metrics live in the graph. Then Phase 1:
   - `src/lib/seo/knowledge-graph.ts` — data access (`getCountryKnowledge`, `hasRichSnapshot`) + curated `FLAGSHIP_COUNTRIES` (16 markets: DO/ES/PT/MX/US/CO/IT/FR/DE/CR/PA/AE/GR/TH/BR/CA). Reads via public-read RLS (anon client), verified end-to-end against prod incl. the nested data_sources join.

@@ -629,7 +629,7 @@
     "resultsCount_many": "{count} ogłoszeń w {city}",
     "resultsCount_other": "{count} ogłoszeń w {city}",
     "emptyHeading": "Brak ogłoszeń w {city} — bądź pierwszym agentem tutaj",
-    "emptyBody": "AHO startuje w {city}. Wklej URL swojej oferty i otrzymaj 9 tekstów reklamowych + 3 grafiki w 60 sekund — bezpłatnie, bez rejestracji.",
+    "emptyBody": "AHO startuje w {city}. Wklej link do oferty i otrzymaj gotowe posty do mediów społecznościowych w Twoim języku w 60 sekund — za darmo, bez rejestracji.",
     "emptyAgentCta": "Wypróbuj bezpłatny audyt",
     "viewAllCta": "Zobacz wszystkie ogłoszenia",
     "browseAllCta": "Przeglądaj ogłoszenia z całego świata"

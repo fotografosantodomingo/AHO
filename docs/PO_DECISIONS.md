@@ -10,6 +10,26 @@
 
 ## 🔴 Blocking active work
 
+### 11. Rotate the GitHub `CLOUDFLARE_API_TOKEN` secret (push-to-deploy is dead)
+
+**Question:** Re-issue the Cloudflare API token and update the GitHub repo secret `CLOUDFLARE_API_TOKEN` (Settings → Secrets and variables → Actions), so `git push` auto-deploys again.
+
+**Why I'm stuck:** On 2026-06-07 I found the live site had been **frozen at the 2026-05-28 build for ~10 days**. Two causes: (1) a `next build` failure (now fixed + guarded by pre-push Gate 5); (2) the GH Actions `CLOUDFLARE_API_TOKEN` secret appears expired, so `wrangler-action` can't authenticate — no deployment is created. I restored prod by **manually deploying** with the still-valid token in `.env.local`, but every future `git push` will build green and still NOT deploy until the GH secret is refreshed. (The repo's `GITHUB_TOKEN` in `.env.local` is also expired — worth rotating too so I can read Actions logs.)
+
+**Options:**
+- **A — You rotate it** (~5 min): create a Cloudflare API token (Pages → Edit), set it as the GH `CLOUDFLARE_API_TOKEN` secret; confirm `CLOUDFLARE_ACCOUNT_ID` secret = `5a389e6eea7a4e92999c5f1612eafbcc`.
+- **B — Interim:** I keep deploying manually each session via `pnpm pages:build` + trim + `pnpm pages:deploy` (works today with the `.env.local` token).
+
+**My recommendation:** A — restores the automatic pipeline. Until then I deploy manually after each push.
+
+**Deadline:** Now-ish. Every push since 2026-05-28 (incl. today's SEO Phase 0/1) only reached prod because I deployed manually.
+
+---
+
+### 7. ✅ RESOLVED 2026-06-07 — Apply migrations 0078–0082 to prod Supabase
+
+Applied via `pnpm db:migrate` (PO-authorized in chat, after a full DB backup). 0078 was already applied; 0079/0080/0081/0082 applied cleanly. Knowledge-graph ingest then ran (250 countries, 246 capitals, 210 GDP metrics). Original item kept below for history.
+
 ### 7. Apply migrations 0078 + 0079 to prod Supabase
 
 **Question:** Run `pnpm db:migrate` against prod, or authorize me to do it?

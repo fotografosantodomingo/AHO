@@ -7,20 +7,12 @@ import { LOCALES, type Locale } from '@/i18n/config';
 import { ThemeProvider } from '@/components/theme-provider';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/footer/site-footer';
-// `dynamicImport` alias avoids collision with the existing
-// `export const dynamic = 'force-dynamic'` at the bottom of this file
-// (the Next.js Segment Config option, not the runtime helper).
-import dynamicImport from 'next/dynamic';
 import { ConditionalAhoAssistant } from '@/components/chat/conditional-aho-assistant';
-
-// PwaRegister is mount-only side-effect (registers the service worker
-// on production deploys); never renders visible content. Defer it so
-// the small client-component JS doesn't sit in the initial bundle on
-// every page, including /blog where Lighthouse measures the load.
-const PwaRegister = dynamicImport(
-  () => import('@/components/pwa-register').then((m) => ({ default: m.PwaRegister })),
-  { ssr: false, loading: () => null },
-);
+// PwaRegister is deferred (ssr:false) to keep the service-worker registration
+// JS out of the initial/SSR path. The ssr:false dynamic import MUST live in a
+// Client Component (PwaRegisterLazy) — Next.js 15 forbids it in this Server
+// Component layout (build error otherwise). See pwa-register-lazy.tsx.
+import { PwaRegisterLazy } from '@/components/pwa-register-lazy';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { buildOrganization, buildWebSite, buildGraph } from '@/lib/seo/jsonld';
@@ -252,7 +244,7 @@ export default async function LocaleLayout({
             />
           </ThemeProvider>
         </NextIntlClientProvider>
-        <PwaRegister />
+        <PwaRegisterLazy />
         {/* TawkWidget retired 2026-05-18 — replaced by AIChatWidget on
             listing + agent pages + AhoAssistantWidget on platform
             pages. Component file at src/components/chat/tawk-widget.tsx

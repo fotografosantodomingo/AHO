@@ -608,7 +608,7 @@
     "resultsCount_one": "1 listing in {city}",
     "resultsCount_other": "{count} listings in {city}",
     "emptyHeading": "No listings yet in {city} — be the first agent here",
-    "emptyBody": "AHO is launching in {city}. Paste your listing URL and get 9 ad captions + 3 graphics in 60 seconds — free, no signup needed.",
+    "emptyBody": "AHO is launching in {city}. Paste your listing URL and get ready-to-publish social posts in your language in 60 seconds — free, no signup needed.",
     "emptyAgentCta": "Try free audit",
     "viewAllCta": "View all listings",
     "browseAllCta": "Browse listings worldwide"

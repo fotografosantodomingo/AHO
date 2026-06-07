@@ -13,8 +13,9 @@
 #      `set -o pipefail` so piped failures bubble up.
 #
 # Wall-clock cost: typecheck ~5s + lint ~3s + tests ~5s + write-safety
-# ~1s = ~14s/push. Cost of a failed CI deploy: 3+ minutes + a red email
-# + the risk of prod sitting broken while you debug.
+# ~1s + build ~90s = ~2min/push. Cost of NOT running the build gate:
+# a silent 10-day deploy outage (2026-06-07) where every push looked
+# green locally but `next build` failed in CI and prod froze.
 #
 # Activate once on each developer machine with:
 #   git config core.hooksPath .githooks
@@ -46,9 +47,18 @@ fi
 PNPM="corepack pnpm@9.12.3"
 fail() { echo ""; echo "[pre-push] ✗ $1 FAILED. Push aborted."; echo "[pre-push] Fix the failures or bypass with: git push --no-verify"; exit 1; }
 
+# Gate 5 (build) needs NEXT_PUBLIC_* baked in. There's no direnv on this
+# machine, so source .env.local if present. Guarded — if it's missing the
+# build gate still runs. NEXT_PUBLIC_CF_IMAGES_HASH mirrors the deploy
+# workflow's hardcoded value (not a secret).
+if [[ -f .env.local ]]; then
+  set -a; . ./.env.local; set +a
+fi
+export NEXT_PUBLIC_CF_IMAGES_HASH="${NEXT_PUBLIC_CF_IMAGES_HASH:-Sl-ceWby0IYMRC5pXgwVxg}"
+
 # Gate 1 — typecheck. Catches type errors that don't reach runtime
 # until the deploy build runs tsc.
-echo "[pre-push] (1/4) running pnpm typecheck…"
+echo "[pre-push] (1/5) running pnpm typecheck…"
 if ! $PNPM typecheck; then
   fail "typecheck"
 fi
@@ -56,14 +66,14 @@ echo "[pre-push] ✓ typecheck clean."
 
 # Gate 2 — lint. Catches react/no-unescaped-entities and friends
 # that tsc doesn't see but the Next build does.
-echo "[pre-push] (2/4) running pnpm lint…"
+echo "[pre-push] (2/5) running pnpm lint…"
 if ! $PNPM lint; then
   fail "lint"
 fi
 echo "[pre-push] ✓ lint clean."
 
 # Gate 3 — unit tests. The original gate; still load-bearing.
-echo "[pre-push] (3/4) running pnpm test:unit…"
+echo "[pre-push] (3/5) running pnpm test:unit…"
 if ! $PNPM test:unit; then
   fail "unit tests"
 fi
@@ -78,10 +88,23 @@ echo "[pre-push] ✓ unit tests passed."
 #       anon callers.
 # Implementation is line-regex with a small ALLOWLIST + skip-list
 # inside the script; tweak there if a real false-positive surfaces.
-echo "[pre-push] (4/4) running pnpm lint:write-safety…"
+echo "[pre-push] (4/5) running pnpm lint:write-safety…"
 if ! $PNPM lint:write-safety; then
   fail "write-safety scan"
 fi
 echo "[pre-push] ✓ write-safety scan clean."
 
-echo "[pre-push] ✓ all 4 gates passed — pushing."
+# Gate 5 — production build. THE gate that would have caught the
+# 2026-06-07 incident: a `next/dynamic({ ssr: false })` in a Server
+# Component (layout.tsx) typechecks + lints + tests clean but FAILS
+# `next build`. The deploy workflow's build step failed silently for
+# ~10 days (last successful Pages deploy 2026-05-28) while every push
+# looked green locally. tsc/ESLint/vitest don't run webpack/RSC, so
+# only an actual build catches this class. ~90s — worth it.
+echo "[pre-push] (5/5) running pnpm build (next build)…"
+if ! $PNPM build; then
+  fail "next build"
+fi
+echo "[pre-push] ✓ build clean."
+
+echo "[pre-push] ✓ all 5 gates passed — pushing."

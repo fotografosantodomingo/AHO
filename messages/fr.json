@@ -1150,7 +1150,7 @@
     "resultsCount_one": "1 annonce à {city}",
     "resultsCount_other": "{count} annonces à {city}",
     "emptyHeading": "Pas encore d'annonces à {city} — soyez le premier agent ici",
-    "emptyBody": "AHO se lance à {city}. Collez l'URL de votre annonce et recevez 9 textes publicitaires + 3 visuels en 60 secondes — gratuit, sans inscription.",
+    "emptyBody": "AHO arrive à {city}. Collez l'URL de votre annonce et obtenez des publications prêtes à publier dans votre langue en 60 secondes — gratuit, sans inscription.",
     "emptyAgentCta": "Essayer l'audit gratuit",
     "viewAllCta": "Voir toutes les annonces",
     "browseAllCta": "Parcourir les annonces dans le monde"
