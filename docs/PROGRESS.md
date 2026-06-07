@@ -12,6 +12,21 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-06-07 — SEO cold-start Phase 0: Location Knowledge Graph (schema + ingest + guards)
+- **What shipped (code, deployed pending migration apply):**
+  - `docs/SEO_COLD_START_PLAN.md` — full plan (v2, after PO + partner review). Strategy: beat the empty-marketplace cold start with a **real-data knowledge graph**, NOT fake listings (rejected — backfires under Google's scaled-content-abuse policy; CLAUDE.md #8). PO decision locked: market data = real public datasets/APIs, every number cites a source.
+  - Migration `0082_seo_knowledge_graph.sql` — `data_sources` (provenance/license registry, 8 real sources seeded), `geo_countries`/`geo_cities`/`geo_neighborhoods` (PostGIS), `market_metrics` (`source_id` NOT NULL = "no number without a source"), `content_guides` (published-only public read). Plus `data_origin` ('real'|'seed') column + immutability trigger on organizations/profiles/properties (Tier-3 removal insurance, §7).
+  - `src/db/schema.ts` — Drizzle mirror of all 6 new tables.
+  - `src/lib/seo/unique-value-contract.ts` + 9 unit tests — doorway-page guard (length floor + name-neutralized templating similarity) so the engine can't scale thin pages.
+  - `tests/rls/seo-knowledge-graph.test.ts` — paired RLS tests (Hard Rule #2): public read on geo/metrics, drafts hidden, no public writes, data_origin seed→real blocked. (Runs only against a dedicated test project — prod-host hard-stop, as for all RLS tests.)
+  - `scripts/ingest-geo.ts` — keyless real-data ingest: REST Countries → all countries + capitals (names in 7 locales, coords, currency, population); World Bank → `gdp_per_capita_usd` per country. Idempotent upserts.
+  - Also earlier this session: `backup` branch snapshot + `backup/database/` logical DB dump (58 tables) + `backup/all website files/` full project zip (gitignored); `scripts/backup-db.cjs`.
+- **What changed since last session:** New autonomous track — SEO cold-start engine (Phase 0 of 5). Prior week was first-agent-experience hardening.
+- **Blockers / open questions:**
+  - **Migration apply** — `0082` stacks on the already-pending `0078`–`0081` (PO_DECISIONS #7). The runner applies all unapplied in order, so applying 0082 = applying all five. PO action (or authorize me; I have a fresh full backup). Ingest + Phase 1 pages can't run until tables exist.
+  - GeoNames username only needed for Phase 2 city expansion; Phase 0 is keyless.
+- **Next session should start with:** PO applies migrations (or authorizes) → run `pnpm tsx scripts/ingest-geo.ts` → verify rows → begin Phase 1 (~50 flagship country/city pages reading from the graph, full JSON-LD + hreflang, then submit to Search Console). Gate to Phase 2 = >70% indexed.
+
 ## 2026-05-21 — Blog SEO pipeline unstuck + tier-2 polish audit + CF cache investigation + DR recruitment pack
 - **What shipped (4 commits — `fcba3b2`, `c441514`, `3bfd91c`, `16aa325`):**
   - **PO decision #4 locked** — auto-video music = royalty-free only (Pixabay + YouTube Audio Library). $0 incremental cost for Phase 4. Logged in `docs/DECISIONS.md`.

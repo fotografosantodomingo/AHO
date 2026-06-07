@@ -54,3 +54,13 @@ coverage/
 # Supabase local dev
 supabase/.branches/
 supabase/.temp/
+
+# inbox-watch — IMAP IDLE watcher (script lives in inbox-watch/; its
+# .env carries IMAP credentials and the inbox/ dir holds downloaded
+# email bodies that may include private content).
+inbox-watch/.env
+inbox-watch/inbox/*.md
+
+
+# Database dumps / local backups — contain PII + secrets, never commit
+backup/

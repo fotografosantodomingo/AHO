@@ -17,6 +17,7 @@ import {
   boolean,
   char,
   customType,
+  date,
   index,
   integer,
   jsonb,
@@ -957,4 +958,194 @@ export const leadRoutingState = pgTable('lead_routing_state', {
 
 export type LeadRoutingStateRow = typeof leadRoutingState.$inferSelect;
 export type NewLeadRoutingStateRow = typeof leadRoutingState.$inferInsert;
+
+// ----------------------------------------------------------------
+// SEO knowledge graph. See `0082_seo_knowledge_graph.sql` +
+// docs/SEO_COLD_START_PLAN.md. Real-data cold-start engine: geo entities
+// (country → city → neighborhood) drive interlinked, indexable pages.
+// `geographyPoint` is reused from the properties block above; polygons get
+// their own customType for neighborhood boundaries.
+// ----------------------------------------------------------------
+
+const geographyPolygon = customType<{ data: string; driverData: string }>({
+  dataType() {
+    return 'geography(Polygon, 4326)';
+  },
+});
+
+// Provenance + license registry. Every market_metrics row references one;
+// pages render its attribution_text (data-integrity hard rule, plan §6).
+export const dataSources = pgTable('data_sources', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  slug: text('slug').notNull().unique(),
+  name: text('name').notNull(),
+  url: text('url'),
+  license: text('license').notNull(),
+  attributionText: text('attribution_text').notNull(),
+  accessedAt: timestamp('accessed_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export type DataSource = typeof dataSources.$inferSelect;
+export type NewDataSource = typeof dataSources.$inferInsert;
+
+// Countries — PK is uppercase ISO-3166-1 alpha-2. `names` is locale→name jsonb.
+export const geoCountries = pgTable(
+  'geo_countries',
+  {
+    iso2: char('iso2', { length: 2 }).primaryKey(),
+    iso3: char('iso3', { length: 3 }),
+    names: jsonb('names').notNull().default(sql`'{}'::jsonb`),
+    region: text('region'),
+    subregion: text('subregion'),
+    currencyCode: char('currency_code', { length: 3 }),
+    capital: text('capital'),
+    centroid: geographyPoint('centroid'),
+    population: bigint('population', { mode: 'number' }),
+    flagEmoji: text('flag_emoji'),
+    sourceId: uuid('source_id').references(() => dataSources.id),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    idxRegion: index('idx_geo_countries_region').on(t.region),
+  }),
+);
+
+export type GeoCountry = typeof geoCountries.$inferSelect;
+export type NewGeoCountry = typeof geoCountries.$inferInsert;
+
+// Cities — unique(country_iso2, slug) maps 1:1 to /properties-in/{country}/{city}.
+export const geoCities = pgTable(
+  'geo_cities',
+  {
+    id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+    countryIso2: char('country_iso2', { length: 2 })
+      .notNull()
+      .references(() => geoCountries.iso2, { onDelete: 'cascade' }),
+    slug: text('slug').notNull(),
+    names: jsonb('names').notNull().default(sql`'{}'::jsonb`),
+    adminRegion: text('admin_region'),
+    centroid: geographyPoint('centroid'),
+    population: bigint('population', { mode: 'number' }),
+    geonamesId: bigint('geonames_id', { mode: 'number' }).unique(),
+    sourceId: uuid('source_id').references(() => dataSources.id),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    idxCountry: index('idx_geo_cities_country').on(t.countryIso2),
+    idxPopulation: index('idx_geo_cities_population').on(t.population),
+  }),
+);
+
+export type GeoCity = typeof geoCities.$inferSelect;
+export type NewGeoCity = typeof geoCities.$inferInsert;
+
+// Neighborhoods — within a city; optional PostGIS boundary polygon.
+export const geoNeighborhoods = pgTable(
+  'geo_neighborhoods',
+  {
+    id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+    cityId: uuid('city_id')
+      .notNull()
+      .references(() => geoCities.id, { onDelete: 'cascade' }),
+    slug: text('slug').notNull(),
+    names: jsonb('names').notNull().default(sql`'{}'::jsonb`),
+    centroid: geographyPoint('centroid'),
+    boundary: geographyPolygon('boundary'),
+    sourceId: uuid('source_id').references(() => dataSources.id),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    idxCity: index('idx_geo_neighborhoods_city').on(t.cityId),
+  }),
+);
+
+export type GeoNeighborhood = typeof geoNeighborhoods.$inferSelect;
+export type NewGeoNeighborhood = typeof geoNeighborhoods.$inferInsert;
+
+// Provenanced numeric facts. `sourceId` is NOT NULL (data-integrity hard rule).
+// `entityId` is iso2 for countries, uuid-as-text for cities/neighborhoods.
+export const marketMetrics = pgTable(
+  'market_metrics',
+  {
+    id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+    entityType: text('entity_type').notNull(),
+    entityId: text('entity_id').notNull(),
+    metric: text('metric').notNull(),
+    value: numeric('value').notNull(),
+    unit: text('unit'),
+    asOfDate: date('as_of_date').notNull(),
+    sourceId: uuid('source_id')
+      .notNull()
+      .references(() => dataSources.id),
+    notes: text('notes'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    idxEntity: index('idx_market_metrics_entity').on(t.entityType, t.entityId),
+    idxMetric: index('idx_market_metrics_metric').on(t.metric, t.asOfDate),
+  }),
+);
+
+export type MarketMetric = typeof marketMetrics.$inferSelect;
+export type NewMarketMetric = typeof marketMetrics.$inferInsert;
+
+// Generated/edited SEO prose pages. Only status='published' is publicly
+// readable (indexable). unique(locale, slug).
+export const contentGuides = pgTable(
+  'content_guides',
+  {
+    id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+    scope: text('scope').notNull(),
+    entityId: text('entity_id'),
+    locale: text('locale').notNull(),
+    slug: text('slug').notNull(),
+    title: text('title').notNull(),
+    summary: text('summary'),
+    bodyHtml: text('body_html'),
+    status: text('status').notNull().default('draft'),
+    sourceIds: uuid('source_ids')
+      .array()
+      .notNull()
+      .default(sql`'{}'::uuid[]`),
+    publishedAt: timestamp('published_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    idxScope: index('idx_content_guides_scope').on(t.scope, t.entityId),
+  }),
+);
+
+export type ContentGuide = typeof contentGuides.$inferSelect;
+export type NewContentGuide = typeof contentGuides.$inferInsert;
 
