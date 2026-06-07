@@ -12,6 +12,16 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-06-07 (cont.) — SEO cold-start Phase 1: flagship country hubs (real-data market snapshot)
+- **What shipped (deployed):** Migrations 0079–0082 APPLIED to prod; ingest ran → 250 countries + 246 capitals + 210 GDP metrics live in the graph. Then Phase 1:
+  - `src/lib/seo/knowledge-graph.ts` — data access (`getCountryKnowledge`, `hasRichSnapshot`) + curated `FLAGSHIP_COUNTRIES` (16 markets: DO/ES/PT/MX/US/CO/IT/FR/DE/CR/PA/AE/GR/TH/BR/CA). Reads via public-read RLS (anon client), verified end-to-end against prod incl. the nested data_sources join.
+  - Enhanced `/[locale]/properties-in/[country]/page.tsx` — real-data **market snapshot** (GDP/capita + currency + capital + population, each cited to its source) + capital-city internal link, rendered even at zero listings (the cold-start fix: substantive indexable page before inventory).
+  - `countryLanding` messages +9 keys × 7 locales; **fixed the `emptyBody` "9 captions + 3 graphics" regression** → one-language framing (per [[aho_one_language_per_agent]]).
+  - `sitemap-locations.xml` now always emits the 16 flagship country hubs (en/es) regardless of listings; non-flagship stay listings-gated (controlled indexation).
+  - `tests/unit/country-snapshot-uvc.test.ts` — Unique Value Contract proof the snapshot design isn't doorway content (incl. the EUR trio ES/PT/IT, the hardest case).
+- **Gates:** typecheck, lint, 831 unit tests, write-safety (257 files) — all green.
+- **Blockers / next:** **PO action — submit the sitemap to Google Search Console** (`https://advertisehomes.online/sitemap.xml`) so the flagship hubs get crawled; then watch indexing. Phase 2 gate = >70% indexed, no thin-content flags. Then: enrich CITY pages with the graph + add buying-guide content + comparison pages.
+
 ## 2026-06-07 — SEO cold-start Phase 0: Location Knowledge Graph (schema + ingest + guards)
 - **What shipped (code, deployed pending migration apply):**
   - `docs/SEO_COLD_START_PLAN.md` — full plan (v2, after PO + partner review). Strategy: beat the empty-marketplace cold start with a **real-data knowledge graph**, NOT fake listings (rejected — backfires under Google's scaled-content-abuse policy; CLAUDE.md #8). PO decision locked: market data = real public datasets/APIs, every number cites a source.

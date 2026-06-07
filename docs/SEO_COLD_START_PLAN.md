@@ -167,7 +167,7 @@ Authority *before* inventory (partner) — but **prove → index → scale**, ne
 | Phase | Scope | Gate to advance |
 |---|---|---|
 | **0** ✅ built | Knowledge-graph schema (migration `0082`) + `data_sources` registry + ingest (`scripts/ingest-geo.ts`: REST Countries + World Bank) + Unique Value Contract + RLS/unit tests | schema shipped ✅ + RLS/unit tests written ✅ + ingest authored ✅ — **remaining: apply migration, then run ingest** |
-| **1** | ~50 flagship pages: top countries/cities, hand-quality, real cited data, fully interlinked, full JSON-LD | submitted to Search Console; indexed + at least some ranking; no thin-content flags |
+| **1** 🔄 built | 16 flagship country hubs (`/properties-in/{cc}`) enriched with a real-data market snapshot (GDP/capita + currency + capital + population, cited), capital-city internal link, hreflang ×7, in sitemap. UVC-tested. | **remaining: PO submits sitemap to Search Console**; then watch indexing/ranking, no thin-content flags |
 | **2** | ~500 country/city pages from the graph + buying guides | >70% indexed in GSC; no manual action; comparison pages added |
 | **3** | Neighborhood + market-report pages (5k tier) via OSM/Eurostat | indexation rate holds; CTR/impressions trending up |
 | **4** | Supporting articles (blog engine) + **agent service-area pages** as real agents arrive | real agents onboarding; conversion funnel measured |

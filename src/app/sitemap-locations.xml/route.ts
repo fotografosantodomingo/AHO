@@ -9,6 +9,7 @@ import {
   type UrlEntry,
 } from '@/lib/seo/sitemap-helpers';
 import { fetchSitemapListings } from '@/lib/seo/sitemap-listings';
+import { FLAGSHIP_COUNTRIES } from '@/lib/seo/knowledge-graph';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -52,6 +53,15 @@ export async function GET(): Promise<Response> {
     const arr = cityListingDates.get(key) ?? [];
     arr.push(row.updated_at);
     cityListingDates.set(key, arr);
+  }
+
+  // SEO cold-start (Phase 1): always emit the flagship country hubs, even
+  // with zero listings — they render a real-data market snapshot from the
+  // knowledge graph, so they're substantive indexable pages on their own.
+  // See docs/SEO_COLD_START_PLAN.md §9. Non-flagship countries stay
+  // listings-gated to keep indexation controlled (prove → index → scale).
+  for (const cc of FLAGSHIP_COUNTRIES) {
+    countryCodes.add(cc.toLowerCase());
   }
 
   const entries: UrlEntry[] = [];

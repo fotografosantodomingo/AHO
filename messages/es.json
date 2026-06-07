@@ -587,10 +587,18 @@
     "citiesCount_one": "1 ciudad con anuncios activos",
     "citiesCount_other": "{count} ciudades con anuncios activos",
     "emptyHeading": "Aún no hay anuncios en {country} — sé el primer agente aquí",
-    "emptyBody": "AHO está lanzando en {country}. Pega la URL de tu anuncio y obtén 9 textos publicitarios + 3 gráficos en 60 segundos — gratis, sin registro.",
+    "emptyBody": "AHO está llegando a {country}. Pega la URL de tu anuncio y obtén publicaciones para redes sociales listas en tu idioma en 60 segundos — gratis, sin registro.",
     "emptyAgentCta": "Probar auditoría gratis",
     "browseCountriesCta": "Explorar otros países",
-    "viewAllInCountry": "Ver todos los anuncios en {country}"
+    "viewAllInCountry": "Ver todos los anuncios en {country}",
+    "marketSnapshotHeading": "Resumen del mercado",
+    "economicIntro": "{country} tiene una población de {population} y un PIB per cápita de {gdp} en {gdpYear}. Su capital es {capital} y los inmuebles suelen cotizarse en {currency}. Explora propiedades en {country} y conecta con agentes locales en AHO.",
+    "labelGdpPerCapita": "PIB per cápita",
+    "labelCurrency": "Moneda",
+    "labelCapital": "Capital",
+    "labelPopulation": "Población",
+    "sourceLabel": "{source}",
+    "capitalCityCta": "Explora inmuebles en {capital}"
   },
   "cityLanding": {
     "headingTemplate": "Inmuebles en {city}, {country}",

@@ -1129,10 +1129,18 @@
     "citiesCount_one": "1 Stadt mit aktiven Inseraten",
     "citiesCount_other": "{count} Städte mit aktiven Inseraten",
     "emptyHeading": "Noch keine Inserate in {country} — werden Sie der erste Makler hier",
-    "emptyBody": "AHO startet in {country}. Inserat-URL einfügen und 9 Anzeigentexte + 3 Grafiken in 60 Sekunden erhalten — kostenlos, ohne Anmeldung.",
+    "emptyBody": "AHO startet in {country}. Füge die URL deines Inserats ein und erhalte in 60 Sekunden fertige Social-Media-Beiträge in deiner Sprache — kostenlos, ohne Anmeldung.",
     "emptyAgentCta": "Kostenlosen Audit testen",
     "browseCountriesCta": "Andere Länder stöbern",
-    "viewAllInCountry": "Alle Inserate in {country} ansehen"
+    "viewAllInCountry": "Alle Inserate in {country} ansehen",
+    "marketSnapshotHeading": "Marktüberblick",
+    "economicIntro": "{country} hat eine Bevölkerung von {population} und ein BIP pro Kopf von {gdp} (Stand {gdpYear}). Die Hauptstadt ist {capital}, und Immobilien werden meist in {currency} gehandelt. Entdecke Immobilien in {country} und finde lokale Makler auf AHO.",
+    "labelGdpPerCapita": "BIP pro Kopf",
+    "labelCurrency": "Währung",
+    "labelCapital": "Hauptstadt",
+    "labelPopulation": "Bevölkerung",
+    "sourceLabel": "{source}",
+    "capitalCityCta": "Immobilien in {capital} entdecken"
   },
   "cityLanding": {
     "headingTemplate": "Immobilien in {city}, {country}",

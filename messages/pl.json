@@ -606,10 +606,18 @@
     "citiesCount_many": "{count} miast z aktywnymi ogłoszeniami",
     "citiesCount_other": "{count} miast z aktywnymi ogłoszeniami",
     "emptyHeading": "Brak ogłoszeń w {country} — bądź pierwszym agentem tutaj",
-    "emptyBody": "AHO startuje w {country}. Wklej URL swojej oferty i otrzymaj 9 tekstów reklamowych + 3 grafiki w 60 sekund — bezpłatnie, bez rejestracji.",
+    "emptyBody": "AHO startuje w {country}. Wklej link do oferty i otrzymaj gotowe posty do mediów społecznościowych w Twoim języku w 60 sekund — za darmo, bez rejestracji.",
     "emptyAgentCta": "Wypróbuj bezpłatny audyt",
     "browseCountriesCta": "Przeglądaj inne kraje",
-    "viewAllInCountry": "Zobacz wszystkie ogłoszenia w {country}"
+    "viewAllInCountry": "Zobacz wszystkie ogłoszenia w {country}",
+    "marketSnapshotHeading": "Przegląd rynku",
+    "economicIntro": "{country} ma populację {population} i PKB na mieszkańca {gdp} w {gdpYear}. Stolicą jest {capital}, a nieruchomości wycenia się zwykle w {currency}. Poznaj rynek nieruchomości w {country} i skontaktuj się z lokalnymi agentami na AHO.",
+    "labelGdpPerCapita": "PKB na mieszkańca",
+    "labelCurrency": "Waluta",
+    "labelCapital": "Stolica",
+    "labelPopulation": "Populacja",
+    "sourceLabel": "{source}",
+    "capitalCityCta": "Zobacz nieruchomości w {capital}"
   },
   "cityLanding": {
     "headingTemplate": "Nieruchomości w {city}, {country}",

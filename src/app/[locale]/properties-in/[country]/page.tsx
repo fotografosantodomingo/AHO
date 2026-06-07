@@ -4,6 +4,7 @@ import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { LOCALES, type Locale } from '@/i18n/config';
 import { localePath } from '@/i18n/routing';
 import { getCountryCities } from '@/lib/listings/countries';
+import { getCountryKnowledge, hasRichSnapshot } from '@/lib/seo/knowledge-graph';
 import { getCountryName } from '@/lib/i18n/countries';
 import { DotGrid } from '@/components/ui/dot-grid';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -97,6 +98,23 @@ export default async function CountryLandingPage({
 
   const result = await getCountryCities(cc);
 
+  // Real-data market snapshot from the knowledge graph (SEO cold-start
+  // engine — docs/SEO_COLD_START_PLAN.md). Renders even at zero listings,
+  // which is the whole point: a substantive, indexable page before inventory
+  // exists. Every number is real + cited (geo_countries + market_metrics).
+  const knowledge = await getCountryKnowledge(cc);
+  const richSnapshot = hasRichSnapshot(knowledge);
+  const numFmt = new Intl.NumberFormat(typedLocale);
+  const gdpFmt = new Intl.NumberFormat(typedLocale, {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  });
+  const populationStr =
+    knowledge?.population != null ? numFmt.format(knowledge.population) : null;
+  const gdpStr =
+    knowledge?.gdpPerCapitaUsd != null ? gdpFmt.format(knowledge.gdpPerCapitaUsd) : null;
+
   const homePath = `/${locale}`;
   const countriesPath = localePath(typedLocale, '/countries');
   const cityStem = localePath(typedLocale, '/properties-in/[country]/[city]')
@@ -187,6 +205,48 @@ export default async function CountryLandingPage({
         </div>
       </section>
 
+      {richSnapshot && knowledge && (
+        <section className="border-b border-border bg-surface-warm/40 dark:bg-surface-deep/40">
+          <div className="mx-auto max-w-6xl px-6 py-10">
+            <h2 className="font-brand text-xl font-semibold tracking-tight">
+              {t('marketSnapshotHeading')}
+            </h2>
+            <p className="mt-3 max-w-3xl text-sm leading-relaxed text-ink-muted dark:text-ink-inverse-muted">
+              {t('economicIntro', {
+                country: display,
+                region: knowledge.region ?? '',
+                population: populationStr ?? '',
+                gdp: gdpStr ?? '',
+                gdpYear: knowledge.gdpYear ?? '',
+                capital: knowledge.capital ?? '',
+                currency: knowledge.currencyCode ?? '',
+              })}
+            </p>
+            <dl className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <Indicator label={t('labelGdpPerCapita')} value={gdpStr} />
+              <Indicator label={t('labelCurrency')} value={knowledge.currencyCode} />
+              <Indicator label={t('labelCapital')} value={knowledge.capital} />
+              <Indicator label={t('labelPopulation')} value={populationStr} />
+            </dl>
+            {knowledge.gdpSource && (
+              <p className="mt-4 text-xs text-helper">
+                {t('sourceLabel', { source: knowledge.gdpSource.attribution })}
+              </p>
+            )}
+            {knowledge.capitalSlug && (
+              <div className="mt-6">
+                <Link
+                  href={cityHref(knowledge.capitalSlug)}
+                  className="inline-flex h-10 items-center justify-center rounded-lg border border-border-strong px-5 text-sm font-medium transition hover:bg-black/5 dark:hover:bg-white/5"
+                >
+                  {t('capitalCityCta', { capital: knowledge.capital ?? '' })}
+                </Link>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
       <div className="mx-auto max-w-6xl px-6 py-12">
         {result.cities.length === 0 ? (
           <EmptyState
@@ -244,5 +304,16 @@ export default async function CountryLandingPage({
         )}
       </div>
     </main>
+  );
+}
+
+/** One labelled economic indicator in the market-snapshot grid. */
+function Indicator({ label, value }: { label: string; value: string | null }) {
+  if (!value) return null;
+  return (
+    <div className="rounded-card border border-border bg-surface p-4 shadow-whisper dark:bg-surface-deep">
+      <dt className="text-xs uppercase tracking-wider text-helper">{label}</dt>
+      <dd className="mt-1 font-brand text-lg font-semibold tabular-nums">{value}</dd>
+    </div>
   );
 }

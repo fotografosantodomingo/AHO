@@ -587,10 +587,18 @@
     "citiesCount_one": "1 city with active listings",
     "citiesCount_other": "{count} cities with active listings",
     "emptyHeading": "No listings yet in {country} — be the first agent here",
-    "emptyBody": "AHO is launching in {country}. Paste your listing URL and get 9 ad captions + 3 graphics in 60 seconds — free, no signup needed.",
+    "emptyBody": "AHO is launching in {country}. Paste your listing URL and get ready-to-publish social posts in your language in 60 seconds — free, no signup needed.",
     "emptyAgentCta": "Try free audit",
     "browseCountriesCta": "Browse other countries",
-    "viewAllInCountry": "View all listings in {country}"
+    "viewAllInCountry": "View all listings in {country}",
+    "marketSnapshotHeading": "Market snapshot",
+    "economicIntro": "{country} has a population of {population} and a GDP per capita of {gdp} as of {gdpYear}. Its capital is {capital}, and property is typically priced in {currency}. Explore real estate across {country} and connect with local agents on AHO.",
+    "labelGdpPerCapita": "GDP per capita",
+    "labelCurrency": "Currency",
+    "labelCapital": "Capital",
+    "labelPopulation": "Population",
+    "sourceLabel": "{source}",
+    "capitalCityCta": "Explore real estate in {capital}"
   },
   "cityLanding": {
     "headingTemplate": "Real estate in {city}, {country}",
