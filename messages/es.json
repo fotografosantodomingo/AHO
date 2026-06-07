@@ -578,7 +578,9 @@
     "emptyHeading": "Aún no hay anuncios activos",
     "emptyBody": "AHO está abierto a agentes en cualquier país. La directorio se llena a medida que los agentes empiezan a publicar.",
     "emptyAgentCta": "Publicar como agente",
-    "browseAllCta": "Explorar anuncios"
+    "browseAllCta": "Explorar anuncios",
+    "featuredMarketsHeading": "Explora mercados",
+    "featuredMarketsSub": "Explora mercados inmobiliarios de todo el mundo: datos económicos reales y contexto local de cada país, de fuentes públicas."
   },
   "countryLanding": {
     "headingTemplate": "Inmuebles en {country}",

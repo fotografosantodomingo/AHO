@@ -1120,7 +1120,9 @@
     "emptyHeading": "Noch keine aktiven Inserate",
     "emptyBody": "AHO ist offen für Makler in jedem Land. Das Verzeichnis füllt sich, sobald Makler Inserate veröffentlichen.",
     "emptyAgentCta": "Als Makler inserieren",
-    "browseAllCta": "Inserate stöbern"
+    "browseAllCta": "Inserate stöbern",
+    "featuredMarketsHeading": "Märkte entdecken",
+    "featuredMarketsSub": "Entdecke Immobilienmärkte weltweit — echte Wirtschaftsdaten und lokaler Kontext für jedes Land, aus öffentlichen Quellen."
   },
   "countryLanding": {
     "headingTemplate": "Immobilien in {country}",

@@ -1120,7 +1120,9 @@
     "emptyHeading": "Pas encore d'annonces actives",
     "emptyBody": "AHO est ouvert aux agents de tous les pays. L'annuaire se remplit à mesure que les agents publient leurs annonces.",
     "emptyAgentCta": "Publier en tant qu'agent",
-    "browseAllCta": "Parcourir les annonces"
+    "browseAllCta": "Parcourir les annonces",
+    "featuredMarketsHeading": "Explorer les marchés",
+    "featuredMarketsSub": "Parcourez les marchés immobiliers du monde entier — données économiques réelles et contexte local pour chaque pays, issues de sources publiques."
   },
   "countryLanding": {
     "headingTemplate": "Immobilier en {country}",

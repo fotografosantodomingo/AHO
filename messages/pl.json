@@ -595,7 +595,9 @@
     "emptyHeading": "Brak aktywnych ogłoszeń",
     "emptyBody": "AHO jest otwarte dla agentów w każdym kraju. Katalog wypełnia się, gdy agenci zaczynają publikować ogłoszenia.",
     "emptyAgentCta": "Publikuj jako agent",
-    "browseAllCta": "Przeglądaj ogłoszenia"
+    "browseAllCta": "Przeglądaj ogłoszenia",
+    "featuredMarketsHeading": "Poznaj rynki",
+    "featuredMarketsSub": "Przeglądaj rynki nieruchomości na całym świecie — prawdziwe dane gospodarcze i lokalny kontekst dla każdego kraju, ze źródeł publicznych."
   },
   "countryLanding": {
     "headingTemplate": "Nieruchomości w kraju: {country}",

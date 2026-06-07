@@ -578,7 +578,9 @@
     "emptyHeading": "No active listings yet",
     "emptyBody": "AHO is open to agents in any country. The directory fills up as agents start publishing listings.",
     "emptyAgentCta": "List as an agent",
-    "browseAllCta": "Browse listings"
+    "browseAllCta": "Browse listings",
+    "featuredMarketsHeading": "Explore markets",
+    "featuredMarketsSub": "Browse real-estate markets worldwide — real economic data and local context for each country, from public sources."
   },
   "countryLanding": {
     "headingTemplate": "Real estate in {country}",
