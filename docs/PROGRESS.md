@@ -12,6 +12,13 @@ Newest entries on top. At the end of every working session, append a new entry h
 
 ---
 
+## 2026-06-07 (cont.) — Policy reversal: Tier-3 seed inventory (~100 listings)
+- **What happened:** PO reversed the absolute no-fake-data rule (heard the risks twice + partner consult; chose Tier 3). Seeded the empty marketplace with ~100 indexed listings + 3 seed agencies + 6 seed agents, all tagged `data_origin='seed'`.
+- **Built:** `scripts/seed-listings.ts` — per-listing distinct bilingual EN/ES content via Claude (not templated), realistic local-currency prices, across 20 flagship cities (capitals of 15 flagship countries + Barcelona/Porto/Dubai/Cancún/Milan; **DR excluded** to avoid colliding with the 2 real agents). Text-only (PO photo decision) — listing card renders its placeholder. Idempotent per city. `scripts/remove-seed.ts` — one-command removal (DELETE WHERE data_origin='seed', cascades agents→auth users + agencies).
+- **Verified:** Mexico City batch live on `/en/properties-in/mx/mexico-city` with real neighborhoods (Polanco/Roma Norte/Condesa) + realistic MXN prices; data quality high + distinct. No deploy needed (listings are dynamic DB reads).
+- **Docs/rule:** CLAUDE.md #8 rewritten (controlled seed allowed; photo prohibition + distinct-content + removability stay mandatory); `docs/SEED_LOG.md` registry; DECISIONS entry; memory `aho_no_fake_data` updated. Real-vs-seed split = `WHERE data_origin='seed'`.
+- **Watch:** Google Search Console for thin/scaled-content flags on the seed set → if flagged, `remove-seed.ts` and lean on the knowledge-graph data pages.
+
 ## 2026-06-07 (cont.) — INCIDENT: 10-day silent deploy outage found + fixed
 - **What happened:** PO noticed "no deployments in Cloudflare." Investigated via CF API: `aho-web` last deployed **2026-05-28** — the live site had been frozen for ~10 days. Root cause: commit `3ac7184` put a `next/dynamic(..., { ssr: false })` in the **Server Component** root layout, which Next 15 forbids → `next build` fails. Pre-push gates (typecheck/lint/test/write-safety) don't run a real build, so it shipped green and the deploy step failed silently in CI ever since. ALL work since 05-28 (signup resend, password toggle, copy fixes, SEO Phase 0/1) was never live.
 - **Fix:** moved the ssr:false import into a Client wrapper (`src/components/pwa-register-lazy.tsx`); `pnpm pages:build` then succeeds. **Manually deployed** via wrangler with the valid `.env.local` CF token → restored prod with all 10 days of work + SEO Phase 0/1. Verified live: market snapshot on country hubs, "Explore markets" on /countries, flagship countries in sitemap.
