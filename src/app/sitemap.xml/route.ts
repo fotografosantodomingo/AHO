@@ -66,15 +66,23 @@ export async function GET(): Promise<Response> {
   // Single query: latest updated_at across active+published listings.
   // We use this for both the properties + locations sub-sitemaps since
   // both derive from the same row set.
-  const { data: listingRow } = await supabase
+  // `organizations!inner(slug)` is REQUIRED: the `.not('organizations.slug'…)`
+  // filter references an embedded resource, so without the inner embed
+  // PostgREST errors ("'organizations' is not an embedded resource") and
+  // returns null — which silently DROPPED properties/locations/agents/images
+  // from the index (bug found 2026-06-07: 100+ listings existed but the
+  // sitemap index only advertised pages/landings/blog, so Google never
+  // discovered any listing or city/country page).
+  const { data: listingRow, error: listingErr } = await supabase
     .from('properties')
-    .select('updated_at')
+    .select('updated_at, organizations!inner(slug)')
     .eq('status', 'active')
     .not('published_at', 'is', null)
     .not('organizations.slug', 'like', 'aho-test-org-%')
     .order('updated_at', { ascending: false })
     .limit(1)
     .maybeSingle();
+  if (listingErr) console.error('[sitemap.xml] listing probe failed', listingErr);
   const listingsLastmod = listingRow?.updated_at
     ? new Date(listingRow.updated_at)
     : MARKETING_LASTMOD;
