@@ -68,9 +68,10 @@ interface CountryRow {
 }
 
 async function fetchCountries(): Promise<CountryRow[]> {
-  // `fields` is mandatory on REST Countries v3.1 /all.
+  // `fields` is mandatory on REST Countries v3.1 /all AND capped at 10.
+  // (subregion + flag dropped to stay under the cap; they're nice-to-have.)
   const fields =
-    'cca2,cca3,name,translations,region,subregion,capital,capitalInfo,currencies,latlng,population,flag';
+    'cca2,cca3,name,translations,region,capital,capitalInfo,currencies,latlng,population';
   const res = await fetch(`https://restcountries.com/v3.1/all?fields=${fields}`);
   if (!res.ok) throw new Error(`REST Countries ${res.status}`);
   const raw = (await res.json()) as any[];
@@ -125,12 +126,14 @@ interface GdpDatum {
 }
 
 async function fetchGdpPerCapita(): Promise<GdpDatum[]> {
-  // mrnev=1 → most recent non-empty value per country, one row each.
-  const out: GdpDatum[] = [];
+  // mrv=5 → last 5 years per country; we keep the most-recent NON-null value
+  // each (the latest single year is sometimes empty). `mrnev` is rejected by
+  // the API, so we reduce client-side.
+  const latest = new Map<string, GdpDatum>();
   let page = 1;
   let pages = 1;
   do {
-    const url = `https://api.worldbank.org/v2/country/all/indicator/NY.GDP.PCAP.CD?format=json&mrnev=1&per_page=300&page=${page}`;
+    const url = `https://api.worldbank.org/v2/country/all/indicator/NY.GDP.PCAP.CD?format=json&mrv=5&per_page=2000&page=${page}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(`World Bank ${res.status}`);
     const body = (await res.json()) as any[];
@@ -142,11 +145,14 @@ async function fetchGdpPerCapita(): Promise<GdpDatum[]> {
       const value = d.value;
       if (!iso2 || !/^[A-Z]{2}$/.test(iso2) || typeof value !== 'number') continue;
       if (SCOPE.size > 0 && !SCOPE.has(iso2)) continue;
-      out.push({ iso2, value, year: d.date });
+      const prev = latest.get(iso2);
+      if (!prev || d.date > prev.year) {
+        latest.set(iso2, { iso2, value, year: d.date });
+      }
     }
     page++;
   } while (page <= pages);
-  return out;
+  return [...latest.values()];
 }
 
 async function main() {
