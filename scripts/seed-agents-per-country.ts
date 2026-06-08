@@ -22,7 +22,7 @@ import { createClient } from '@supabase/supabase-js';
 
 const APPLY = process.argv.includes('--apply');
 const li = process.argv.indexOf('--limit');
-const LIMIT = li >= 0 ? Number(process.argv[li + 1]) : 100;
+const LIMIT = li >= 0 ? Number(process.argv[li + 1]) : 300; // 300 ≈ every country
 const BATCH = 5;
 const MODEL = 'claude-sonnet-4-6';
 
@@ -91,12 +91,17 @@ async function main() {
   const sql = postgres(POOLER!, { max: 1, prepare: false });
   let made = 0;
   try {
+    // Cover EVERY country: fall back to the country centroid when the capital
+    // lacks coords, and to USD when the currency is unknown — so no country is
+    // skipped for missing graph data.
     const rows = await sql`
-      select co.iso2, co.currency_code as currency, co.names->>'en' as country,
-             c.names->>'en' as city, st_y(c.centroid::geometry) lat, st_x(c.centroid::geometry) lng
+      select co.iso2, coalesce(co.currency_code, 'USD') as currency, co.names->>'en' as country,
+             c.names->>'en' as city,
+             st_y(coalesce(c.centroid, co.centroid)::geometry) lat,
+             st_x(coalesce(c.centroid, co.centroid)::geometry) lng
       from geo_countries co
       join geo_cities c on c.country_iso2 = co.iso2 and c.admin_region = 'Capital'
-      where co.iso2 <> 'DO' and co.currency_code is not null and c.centroid is not null
+      where co.iso2 <> 'DO' and coalesce(c.centroid, co.centroid) is not null
       order by co.population desc nulls last
       limit ${LIMIT}`;
     const countries: Country[] = rows.map((r: any) => ({ iso2: r.iso2, currency: r.currency, country: r.country, city: r.city, lat: r.lat, lng: r.lng }));

@@ -121,7 +121,7 @@ export async function middleware(req: NextRequest) {
   // same way without these).
   res.headers.set(
     'strict-transport-security',
-    'max-age=63072000; includeSubDomains',
+    'max-age=63072000; includeSubDomains; preload',
   );
   res.headers.set('cross-origin-opener-policy', 'same-origin');
   res.headers.set('x-content-type-options', 'nosniff');
@@ -129,6 +129,34 @@ export async function middleware(req: NextRequest) {
   res.headers.set(
     'permissions-policy',
     'camera=(), microphone=(self), geolocation=(self), payment=(self), usb=(), interest-cohort=()',
+  );
+  // CSP + X-Frame-Options MUST be set here, not just in public/_headers:
+  // Cloudflare Pages applies `_headers` only to STATIC assets, NOT to
+  // Edge-Function (SSR) responses. Every dynamic page (/properties/[slug],
+  // country/city pages, agent profiles, dashboard) is an Edge Function, so
+  // without this they shipped with NO CSP and NO X-Frame-Options — the cause
+  // of the Lighthouse "Best Practices 77" (clickjacking + CSP + HSTS-preload
+  // all flagged). This is the same hardened CSP validated in public/_headers
+  // (Stripe / Turnstile / Supabase / Cloudflare Images / Insights whitelisted).
+  // `frame-ancestors 'none'` + XFO DENY = clickjacking protection; object-src
+  // none + base-uri self harden the rest. (Found 2026-06-07.)
+  res.headers.set('x-frame-options', 'DENY');
+  res.headers.set(
+    'content-security-policy',
+    [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://js.stripe.com https://embed.tawk.to https://*.tawk.to https://static.cloudflareinsights.com",
+      "style-src 'self' 'unsafe-inline' https://*.tawk.to https://*.tawkcdn.com",
+      "img-src 'self' data: blob: https: https://*.tawk.to https://*.tawkcdn.com",
+      "font-src 'self' data: https://*.tawk.to https://*.tawkcdn.com",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://challenges.cloudflare.com https://*.tawk.to wss://*.tawk.to https://static.cloudflareinsights.com https://imagedelivery.net",
+      "frame-src 'self' https://js.stripe.com https://challenges.cloudflare.com https://*.tawk.to",
+      "frame-ancestors 'none'",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self' https://api.stripe.com",
+      'upgrade-insecure-requests',
+    ].join('; '),
   );
 
   // X-Robots-Tag on every authed surface — including 307 redirects
